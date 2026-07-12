@@ -55,3 +55,6 @@ logs/
 
 # Docker artifacts
 .docker/
+
+# Agent rules (local only)
+AGENTS.md
