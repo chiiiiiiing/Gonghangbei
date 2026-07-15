@@ -49,7 +49,7 @@ raw_documents.csv
 - 项目规范与分工：`参考文档/工作推进与分工文档.md`
 - CSV 字段契约：`参考文档/数据格式规范.md`
 - 当前材料导航：`查看材料/材料索引.md`
-- 人工推进步骤：`查看材料/用户参与工作推进手册.md`
+- 团队对接步骤：`查看材料/团队对接手册.md`
 - 统一数据质量报告：`查看材料/数据质量报告.md`
 
 ## 关键命令
@@ -61,7 +61,7 @@ raw_documents.csv
 .venv/bin/python -m src.backtest.demo_engine
 .venv/bin/python -m src.report.generate_research_report
 .venv/bin/python scripts/validate_input_preservation.py
-.venv/bin/python scripts/report_manual_verification_progress.py
+.venv/bin/python scripts/audit_text_sources.py
 .venv/bin/python scripts/validate_real_market_data.py --input data/sample/market_data.csv
 .venv/bin/python scripts/validate_manual_review_results.py
 .venv/bin/python scripts/validate_b_data.py

@@ -82,42 +82,6 @@ def apply_manual_review_note(
     return row
 
 
-def prepare_source_verification_queue() -> None:
-    docs = read_csv("raw_documents.csv")
-    rows = []
-    for row in docs:
-        candidate = "true" if "待人工核验" in row["content"] else "false"
-        priority = "P0" if candidate == "true" else "P1"
-        rows.append(
-            {
-                "doc_id": row["doc_id"],
-                "source_type": row["source_type"],
-                "title": row["title"],
-                "publish_time": row["publish_time"],
-                "source_name": row["source_name"],
-                "url": row["url"],
-                "needs_manual_verification": candidate,
-                "verification_priority": priority,
-                "verification_note": "核验原文、发布日期、来源 URL、涉及主体与主营业务相关性",
-            }
-        )
-    write_csv(
-        VIEW_DIR / "源文本核验队列.csv",
-        [
-            "doc_id",
-            "source_type",
-            "title",
-            "publish_time",
-            "source_name",
-            "url",
-            "needs_manual_verification",
-            "verification_priority",
-            "verification_note",
-        ],
-        rows,
-    )
-
-
 def deterministic_sample(rows: list[dict[str, str]], count: int) -> list[dict[str, str]]:
     if count <= 0:
         return []
@@ -450,100 +414,27 @@ def prepare_case_index() -> None:
     )
 
 
-def prepare_contract_checklist() -> None:
-    lines = [
-        "# AlphaLens C 联调数据契约清单",
-        "",
-        f"生成日期：{today()}",
-        "",
-        DISCLAIMER,
-        "",
-        "## 说明",
-        "",
-        "- 本清单用于 B→C 交接时快速确认 CSV 文件、字段顺序和行数。",
-        "- `data/sample/*.csv` 是代码读取入口；`查看材料/*.md` 和人工抽检 CSV 是说明与核验材料。",
-        "- 正式回测前仍需替换真实来源文本和真实前复权行情。",
-        "",
-        "## B 线锁定 CSV",
-        "",
-        "| 文件 | 行数 | 字段状态 | 字段顺序 |",
-        "|------|------|----------|----------|",
-    ]
-    for filename, expected_header in CORE_SCHEMAS.items():
-        rows = read_csv(filename)
-        header = read_header(filename)
-        status = "通过" if header == expected_header else "不一致"
-        lines.append(f"| `{filename}` | {len(rows)} | {status} | `{', '.join(header)}` |")
-
-    lines.extend(
-        [
-            "",
-            "## 研究输出 CSV",
-            "",
-            "| 文件 | 行数 | 字段状态 | 用途 |",
-            "|------|------|----------|------|",
-        ]
-    )
-    usage = {
-        "predicate_matrix.csv": "事件-谓词矩阵",
-        "event_forward_returns.csv": "事件后收益对齐与未来函数审计",
-        "rules.csv": "候选规则排序",
-        "factors.csv": "事件级因子值",
-        "factor_snapshot.csv": "Demo 截面展示",
-        "group_returns.csv": "分组收益展示",
-        "rank_ic_timeseries.csv": "Rank IC 时序展示",
-        "backtest_metrics.csv": "报告和 Demo 指标卡",
-    }
-    for filename, expected_header in RESEARCH_SCHEMAS.items():
-        rows = read_csv(filename)
-        header = read_header(filename)
-        status = "通过" if header == expected_header else "不一致"
-        lines.append(f"| `{filename}` | {len(rows)} | {status} | {usage[filename]} |")
-
-    lines.extend(
-        [
-            "",
-            "## 联调检查顺序",
-            "",
-            "1. C 先按字符串读取 `stock_code`、`doc_id`、`event_id`，避免前导零丢失。",
-            "2. 真实文本开始写入后，只使用 `.venv/bin/python run_pipeline.py --preserve-inputs` 或 `run_b_pipeline.py --skip-sample-generation` 复跑。",
-            "3. 先跑 `scripts/validate_b_data.py`，再跑 `scripts/validate_research_outputs.py`。",
-            "4. 检查 `event_forward_returns.csv` 中 `entry_trade_date` 是否严格晚于 `event_time`。",
-            "5. 检查 `factors.csv` 的 `trigger_event_ids` 和 `trigger_rule_ids` 是否能回溯到事件和规则。",
-            "6. 替换真实行情后必须重新生成 `event_forward_returns.csv`、`rules.csv`、`factors.csv` 和报告。",
-            "",
-        ]
-    )
-    write_text(VIEW_DIR / "C联调数据契约清单.md", lines)
-
-
 def prepare_view_material_index() -> None:
     files = [
         ("任务进度.md", "当前 B 线自动任务进度，本地维护且不提交"),
         ("人工待办.md", "必须人工完成或确认的事项，本地维护且不提交"),
-        ("用户参与工作推进手册.md", "用户继续推进谓词抽检、A/C 确认和 PPT 数字检查的详细步骤"),
+        ("团队对接手册.md", "B 与 A/C 的交接步骤、确认模板、联调标准和收口顺序"),
         ("A口径确认建议稿.md", "给 A 确认事件类型、谓词和表述边界的建议稿"),
         ("C联调运行手册.md", "给 C 复跑流水线、检查输出和定位问题的运行手册"),
         ("Demo演示脚本.md", "Streamlit Demo 演示顺序和讲解词草稿"),
         ("答辩问答素材.md", "围绕项目定位、数据、谓词、因子和回测的答辩问答素材"),
-        ("真实数据替换验收清单.md", "人工替换真实文本和行情后的复跑、校验和验收步骤"),
-        ("真实文本来源获取记录.md", "联网获取真实文本来源、替换数量和来源池记录"),
         ("真实文本来源核验报告.md", "120 条真实文本的联网、域名、详情页、摘要结构和唯一性核验结论"),
         ("源文本核验明细.csv", "逐条真实文本来源核验状态和说明"),
-        ("真实文本核验进度.md", "真实来源文本核验完成数量、来源分布和 P0 剩余统计"),
         ("真实行情获取记录.md", "东方财富前复权行情获取参数、覆盖范围和注意事项"),
         ("真实行情导入模板.csv", "真实前复权行情导入字段模板"),
         ("真实行情校验报告.md", "当前行情文件的独立结构校验报告"),
         ("流水线输入保护验证报告.md", "安全模式复跑不覆盖 raw_documents.csv 的哈希验证报告"),
         ("人工抽检结果校验报告.md", "事件/谓词人工抽检结果 pass/revise/drop 合法值校验报告"),
-        ("源文本核验队列.csv", "120 条文本的来源核验队列和优先级"),
         ("事件人工抽检样本.csv", "事件抽取人工抽检表"),
         ("事件抽检问题处理记录.md", "10 条事件 drop 结论、误判根因和规则修复闭环"),
         ("谓词人工抽检样本.csv", "谓词判断人工抽检表"),
         ("案例索引.csv", "全量事件案例索引，便于挑 PPT 案例"),
-        ("解释案例草稿.md", "可读版解释案例，含事件、谓词和当前收益路径"),
         ("PPT案例素材包.md", "PPT 可复用案例素材"),
-        ("C联调数据契约清单.md", "给 C 检查字段、行数和联调顺序"),
         ("数据质量报告.md", "核心 CSV、研究输出完整性、分布和风险警告的统一质量报告"),
         ("未来函数审计明细.md", "事件收益对齐和未来函数审计"),
         ("交付包自检报告.md", "参考文档、查看材料、数据附件和 gitignore 的自动自检结果"),
@@ -560,15 +451,15 @@ def prepare_view_material_index() -> None:
         "",
         "1. `任务进度.md`：先看当前自动推进到哪里。",
         "2. `人工待办.md`：再看哪些必须人工处理。",
-        "3. `用户参与工作推进手册.md`：按步骤推进谓词抽检、A/C 确认和 PPT 数字检查。",
+        "3. `团队对接手册.md`：按步骤把材料交给 A 和 C，并完成确认、联调与收口。",
         "4. `A口径确认建议稿.md`：和 A 确认事件、谓词、对外表达边界前看。",
-        "5. `真实文本来源获取记录.md` / `真实文本来源核验报告.md` / `源文本核验明细.csv`：查看联网替换和逐条核验结论。",
+        "5. `真实文本来源核验报告.md` / `源文本核验明细.csv`：查看联网获取方法和逐条核验结论。",
         "6. `真实行情获取记录.md` / `真实行情导入模板.csv` / `真实行情校验报告.md`：替换真实前复权行情前后看。",
         "7. `流水线输入保护验证报告.md`：确认安全模式不会覆盖真实文本。",
         "8. `数据质量报告.md` / `未来函数审计明细.md`：查看数据完整性、质量警告和回测时间审计。",
-        "9. `C联调数据契约清单.md` / `C联调运行手册.md`：和 C 对接字段、行数、回测输入时看。",
+        "9. `C联调运行手册.md`：和 C 对接字段、行数、回测输入时看。",
         "10. `Demo演示脚本.md` / `答辩问答素材.md`：准备演示和答辩前看。",
-        "11. `解释案例草稿.md` / `PPT案例素材包.md`：准备展示材料时看。",
+        "11. `PPT案例素材包.md` / `案例索引.csv`：准备展示材料时看。",
         "",
         "## 文件说明",
         "",
@@ -589,80 +480,6 @@ def prepare_view_material_index() -> None:
         ]
     )
     write_text(VIEW_DIR / "材料索引.md", lines)
-
-
-def prepare_real_data_acceptance_checklist() -> None:
-    lines = [
-        "# AlphaLens 真实数据替换验收清单",
-        "",
-        f"生成日期：{today()}",
-        "",
-        DISCLAIMER,
-        "",
-        "## 适用时机",
-        "",
-        "当真实来源文本、候选前复权行情、事件/谓词结果发生更新后，用本清单验收 B 线数据能否交给 A/C 使用。",
-        "",
-        "## 替换前备份",
-        "",
-        "- 保留当前 Demo 数据副本或通过 git diff 确认变更范围。",
-        "- 不把大体量原始材料放入 `data/raw/`、`data/processed/`、`data/external/` 后提交。",
-        "- 不改变 `参考文档/数据格式规范.md` 锁定字段名和字段顺序。",
-        "",
-        "## 文本替换验收",
-        "",
-        "| 检查项 | 通过标准 | 工具/文件 |",
-        "|--------|----------|-----------|",
-        "| 文本数量 | `raw_documents.csv` 不少于 100 行 | `查看材料/源文本核验队列.csv` |",
-        "| 来源覆盖 | policy / announcement / news / ir_qa 均有样本 | `查看材料/数据质量报告.md` |",
-        "| 日期范围 | `publish_time` 在 2024-01-01 至 2026-06-30 | `scripts/validate_b_data.py` |",
-        "| 文本长度 | `content` 不少于 50 字符 | `scripts/validate_b_data.py` |",
-        "| URL 可追溯 | 120 条样本 URL 指向正文、公告 PDF 或问答详情页且全局不重复 | `查看材料/真实文本来源核验报告.md` / `查看材料/源文本核验明细.csv` |",
-        "| 进度统计 | 第一批目标剩余量可解释 | `查看材料/真实文本核验进度.md` |",
-        "",
-        "## 行情替换验收",
-        "",
-        "| 检查项 | 通过标准 | 工具/文件 |",
-        "|--------|----------|-----------|",
-        "| 股票覆盖 | 30 只股票均有行情 | `scripts/validate_b_data.py` |",
-        "| 日期覆盖 | 覆盖 2024-01-01 至 2026-06-30 的交易窗口 | `market_data.csv` |",
-        "| OHLC 合法 | high 不低于开收低，low 不高于开收高 | `scripts/validate_b_data.py` |",
-        "| 导入字段 | 字段顺序与模板一致 | `查看材料/真实行情导入模板.csv` / `scripts/validate_real_market_data.py` |",
-        "| 前复权口径 | open/high/low/close 为东方财富 `fqt=1` 候选版；adj_factor=1 仅作字段占位并已披露限制 | `查看材料/真实行情获取记录.md` / `查看材料/答辩问答素材.md` |",
-        "| 未来函数 | 入场日严格晚于事件日 | `查看材料/未来函数审计明细.md` |",
-        "",
-        "## 必跑命令",
-        "",
-        "```bash",
-        ".venv/bin/python run_pipeline.py --preserve-inputs",
-        ".venv/bin/python scripts/validate_input_preservation.py",
-        ".venv/bin/python scripts/audit_text_sources.py",
-        ".venv/bin/python scripts/report_manual_verification_progress.py",
-        ".venv/bin/python scripts/validate_real_market_data.py --input data/sample/market_data.csv",
-        ".venv/bin/python scripts/validate_manual_review_results.py",
-        ".venv/bin/python scripts/validate_b_data.py",
-        ".venv/bin/python scripts/validate_research_outputs.py",
-        ".venv/bin/python scripts/validate_delivery_package.py",
-        "```",
-        "",
-        "## 验收通过标准",
-        "",
-        "- `validate_b_data.py` 输出 `errors=0`。",
-        "- `validate_real_market_data.py` 输出 `market_data_errors=0`。",
-        "- `validate_manual_review_results.py` 输出 `manual_review_errors=0`。",
-        "- `validate_research_outputs.py` 输出 `research_output_errors=0`。",
-        "- `validate_delivery_package.py` 输出 `delivery_errors=0`。",
-        "- `查看材料/因子研究报告.md`、`查看材料/解释案例草稿.md` 和 `查看材料/PPT案例素材包.md` 已用真实行情重刷。",
-        "- `查看材料/事件人工抽检样本.csv` 与 `查看材料/谓词人工抽检样本.csv` 的人工结论已处理完 `revise` / `drop` 项。",
-        "",
-        "## 仍需人工确认",
-        "",
-        "- A 确认事件类型和谓词 schema 的金融口径。",
-        "- C 确认真实行情读取、收益对齐和回测口径。",
-        "- A 检查 PPT 中引用的数字与最终 CSV、报告一致。",
-        "",
-    ]
-    write_text(VIEW_DIR / "真实数据替换验收清单.md", lines)
 
 
 def prepare_a_schema_confirmation_brief() -> None:
@@ -736,6 +553,7 @@ def prepare_a_schema_confirmation_brief() -> None:
 def prepare_c_runbook() -> None:
     metric_rows = read_csv("backtest_metrics.csv")
     metrics = {row["metric"]: row["value"] for row in metric_rows}
+    metric_descriptions = {row["metric"]: row["description"] for row in metric_rows}
     lines = [
         "# AlphaLens C 联调运行手册",
         "",
@@ -745,31 +563,74 @@ def prepare_c_runbook() -> None:
         "",
         "## 目标",
         "",
-        "帮助 C 在不改 B 线 CSV 字段契约的前提下，复跑流水线、检查研究输出、定位常见问题，并在真实行情替换后完成联调。",
+        "帮助 C 在不改 B 线 CSV 字段契约的前提下接收真实文本、事件和谓词，复跑规则、因子、回测与 Demo，并给出可复现的联调结论。",
         "",
-        "## 推荐运行顺序",
+        "## B 与 C 的边界",
         "",
-        "```bash",
-        ".venv/bin/python run_pipeline.py --preserve-inputs",
-        ".venv/bin/python scripts/validate_input_preservation.py",
-        ".venv/bin/python scripts/audit_text_sources.py",
-        ".venv/bin/python scripts/validate_b_data.py",
-        ".venv/bin/python scripts/validate_real_market_data.py --input data/sample/market_data.csv",
-        ".venv/bin/python scripts/validate_manual_review_results.py",
-        ".venv/bin/python scripts/validate_research_outputs.py",
-        ".venv/bin/python scripts/validate_delivery_package.py",
-        "```",
+        "- B 负责 stock_pool、raw_documents、entity_links、events、predicates 的事实、字段和语义质量。",
+        "- C 负责规则搜索、因子计算、收益对齐、回测指标、Streamlit Demo 和运行环境。",
+        "- C 发现 B 数据问题时提交 doc_id/event_id、复现命令和期望结果，不直接改锁定字段或批量覆盖输入。",
+        "- B 修改输入或抽取规则后，必须通知 C 重新生成全部研究输出，不能只替换单个下游 CSV。",
         "",
-        "真实文本或真实行情开始写入后，不要使用 `--force-sample-generation`。如只重算 B 线中间表，用 `.venv/bin/python run_b_pipeline.py --skip-sample-generation`。",
+        "## B 线锁定输入",
         "",
-        "## 当前关键指标",
-        "",
-        "| 指标 | 当前值 | 说明 |",
-        "|------|--------|------|",
+        "| 文件 | 当前行数 | 字段状态 |",
+        "|------|----------|----------|",
     ]
-    metric_descriptions = {
-        row["metric"]: row["description"] for row in metric_rows
+    for filename, expected_header in CORE_SCHEMAS.items():
+        status = "通过" if read_header(filename) == expected_header else "不一致"
+        lines.append(f"| `data/sample/{filename}` | {len(read_csv(filename))} | {status} |")
+
+    lines.extend(
+        [
+            "",
+            "## C 线研究输出",
+            "",
+            "| 文件 | 当前行数 | 字段状态 | 用途 |",
+            "|------|----------|----------|------|",
+        ]
+    )
+    usage = {
+        "predicate_matrix.csv": "事件-谓词矩阵",
+        "event_forward_returns.csv": "事件后收益与未来函数审计",
+        "rules.csv": "候选规则和支持数",
+        "factors.csv": "事件级因子值与触发路径",
+        "factor_snapshot.csv": "Demo 截面展示",
+        "group_returns.csv": "分组收益展示",
+        "rank_ic_timeseries.csv": "Rank IC 时序",
+        "backtest_metrics.csv": "报告和 Demo 指标",
     }
+    for filename, expected_header in RESEARCH_SCHEMAS.items():
+        status = "通过" if read_header(filename) == expected_header else "不一致"
+        lines.append(f"| `data/sample/{filename}` | {len(read_csv(filename))} | {status} | {usage[filename]} |")
+
+    lines.extend(
+        [
+            "",
+            "## 推荐运行顺序",
+            "",
+            "```bash",
+            "git pull",
+            ".venv/bin/python -m pip install -r requirements.txt",
+            ".venv/bin/python run_pipeline.py --preserve-inputs",
+            ".venv/bin/python scripts/validate_input_preservation.py",
+            ".venv/bin/python scripts/audit_text_sources.py",
+            ".venv/bin/python scripts/validate_b_data.py",
+            ".venv/bin/python scripts/validate_real_market_data.py --input data/sample/market_data.csv",
+            ".venv/bin/python scripts/validate_manual_review_results.py",
+            ".venv/bin/python scripts/validate_research_outputs.py",
+            ".venv/bin/python scripts/validate_delivery_package.py",
+            ".venv/bin/streamlit run app/main.py --server.port 8501 --server.headless true",
+            "```",
+            "",
+            "真实文本或真实行情开始写入后，不要使用 `--force-sample-generation`。只重算 B 线时使用 `run_b_pipeline.py --skip-sample-generation`。",
+            "",
+            "## 当前关键指标",
+            "",
+            "| 指标 | 当前值 | 说明 |",
+            "|------|--------|------|",
+        ]
+    )
     for metric, value in sorted(metrics.items()):
         lines.append(f"| `{metric}` | {value} | {metric_descriptions.get(metric, '')} |")
 
@@ -778,26 +639,256 @@ def prepare_c_runbook() -> None:
             "",
             "## C 侧重点",
             "",
-            "- 读取 `stock_code`、`doc_id`、`event_id` 时必须保留字符串，避免前导零丢失。",
-            "- `event_forward_returns.csv` 的 `entry_trade_date` 必须严格晚于 `event_time`。",
-            "- `factors.csv` 中 `trigger_event_ids` 和 `trigger_rule_ids` 必须能回溯到 `events.csv` 和 `rules.csv`。",
-            "- 替换真实行情后，需要重新生成收益、规则、因子、报告和 Demo 展示数据。",
-            "- 当前 `adj_factor=1.000000` 是已接受的占位字段，不是真实复权因子序列；不得据此还原未复权价格或宣称数据供应商已认证。",
+            "- 读取 stock_code、doc_id、event_id 时必须保留字符串，避免前导零丢失。",
+            "- event_forward_returns.csv 的 entry_trade_date 必须严格晚于 event_time。",
+            "- factors.csv 的 trigger_event_ids 和 trigger_rule_ids 必须能回溯到事件和规则。",
+            "- 当前 adj_factor=1.000000 是已接受的字段占位，不是真实复权因子序列。",
             "- 不改变 `参考文档/数据格式规范.md` 中锁定字段名。",
+            "- Demo 至少检查 Input Data、Event Extraction、Predicates & Rules、Factor Ranking、Backtest Dashboard、Research Report。",
+            "",
+            "## C 的通过标准",
+            "",
+            "1. 安全流水线退出码为 0，输入保护报告前后 SHA256 一致。",
+            "2. B 数据、研究输出和交付包校验均为 0 errors。",
+            "3. 收益入场日全部严格晚于事件日。",
+            "4. 因子触发事件和规则均可回溯，future_info_ok 全为 true。",
+            "5. Demo 从新进程启动后无空白、报错或旧数据缓存。",
+            "6. 联调记录写明 commit、环境、命令、结果、warning 和是否可冻结数字。",
             "",
             "## 常见问题定位",
             "",
             "| 现象 | 优先检查 |",
             "|------|----------|",
-            "| 股票代码变成 274 或 2594 | CSV 读取时是否把 `stock_code` 当数字读入 |",
-            "| 未来函数审计失败 | `entry_trade_date` 是否不晚于 `event_time` |",
-            "| 因子没有触发规则 | 谓词是否缺失 MVP 字段，或规则支持数低于 5 |",
-            "| Demo 报告缺失 | `查看材料/因子研究报告.md` 是否已生成 |",
-            "| 交付包自检失败 | 先打开 `查看材料/交付包自检报告.md` 看 Errors |",
+            "| 股票代码变成 274 或 2594 | CSV 读取时是否把 stock_code 当数字 |",
+            "| 未来函数审计失败 | entry_trade_date 是否不晚于 event_time |",
+            "| 因子没有触发规则 | 谓词是否缺失，或规则支持数低于 5 |",
+            "| Demo 报告缺失 | `查看材料/因子研究报告.md` 是否生成 |",
+            "| 交付包自检失败 | 查看 `查看材料/交付包自检报告.md` |",
+            "",
+            "## C 回传模板",
+            "",
+            "```text",
+            "C 联调记录",
+            "commit：",
+            "Python/系统：",
+            "运行命令：",
+            "errors/warnings：",
+            "Demo 页面结果：",
+            "发现问题（附 doc_id/event_id）：",
+            "需要 B 修改：",
+            "是否可进入 PPT 数字冻结：是/否",
+            "```",
             "",
         ]
     )
     write_text(VIEW_DIR / "C联调运行手册.md", lines)
+
+
+def prepare_team_handoff_manual() -> None:
+    docs = read_csv("raw_documents.csv")
+    events = read_csv("events.csv")
+    predicates = read_csv("predicates.csv")
+    rules = read_csv("rules.csv")
+    qualified_rules = sum(1 for row in rules if row["status"] == "qualified")
+    source_counts = Counter(row["source_type"] for row in docs)
+    source_summary = "、".join(
+        f"{source_type} {source_counts[source_type]} 条"
+        for source_type in ("policy", "announcement", "news", "ir_qa")
+    )
+    lines = [
+        "# AlphaLens 团队对接手册",
+        "",
+        f"生成日期：{today()}",
+        "",
+        DISCLAIMER,
+        "",
+        "## 这份手册解决什么",
+        "",
+        "本手册供 B 负责人直接执行，目标是把当前数据成果交给 A 做金融口径确认、交给 C 做工程联调，并按固定顺序收口。不要把整份仓库直接丢给队友后口头说明；每次交接都要有指定材料、明确问题和书面结论。",
+        "",
+        "## 当前可交接状态",
+        "",
+        f"- 真实来源文本：{len(docs)} 条，{source_summary}；程序化来源核验已完成。",
+        f"- 结构化结果：{len(events)} 条事件、{len(predicates)} 条谓词判断。",
+        f"- 研究输出：{len(rules)} 条候选规则，其中 {qualified_rules} 条达到当前支持数和评分门槛。",
+        "- 行情：东方财富 `fqt=1` 前复权价格候选版；`adj_factor=1` 是已接受的字段占位，不是真实复权因子序列。",
+        "- 事件抽检：已完成并处理 drop 项；谓词抽检仍需人工完成。",
+        "- 当前分支和最新 commit 由 B 在发起交接时填写，队友必须从同一 commit 开始复现。",
+        "",
+        "## 三个人各自负责什么",
+        "",
+        "| 角色 | 最终责任 | 本轮必须交付 | 不应擅自修改 |",
+        "|------|----------|--------------|--------------|",
+        "| A：项目负责人/量化研究 | 金融口径、项目定位、PPT、答辩和数字冻结 | Schema 确认结论、PPT 案例选择、最终数字确认 | 不直接批量修改 B 的 CSV 或 C 的回测实现 |",
+        "| B：数据与事件谓词 | 文本来源、实体链接、事件、谓词和数据质量 | 可复现输入、核验材料、抽检闭环、问题修订 | 不替 A 决定金融口径，不替 C 决定回测实现 |",
+        "| C：工程与回测 | 规则、因子、收益对齐、回测、Demo 和运行环境 | 联调记录、问题清单、可运行 Demo、回测口径确认 | 不改锁定字段名，不覆盖 B 的真实文本输入 |",
+        "",
+        "## 你现在按这个顺序做",
+        "",
+        "1. 在 GitHub 确认 B 的最新提交已推送，把分支名和 commit 写入发给 A、C 的消息。",
+        "2. 先把 A 材料包发给 A，让 A 只回答五个口径问题；不要等待 C 才开始。",
+        "3. 同时把 C 材料包发给 C，让 C 从同一 commit 运行安全流水线和 Demo。",
+        "4. 你完成 `谓词人工抽检样本.csv` 的剩余人工结论；只填 `pass`、`revise`、`drop`。",
+        "5. 收到 A 的书面确认后，由 B 修改 Schema/抽取规则并安全复跑；不要让 A 直接改生成 CSV。",
+        "6. 把 B 新 commit 发给 C，由 C 重跑规则、因子、回测和 Demo，并回传联调记录。",
+        "7. C 通过后，A 才从最终 CSV 和报告取 PPT 数字；此前 PPT 中的指标只能标为候选。",
+        "8. 三人共同做一次 CSV、报告、Demo、PPT 交叉检查，确认后冻结比赛成果包。",
+        "",
+        "## B 给 A 的材料包",
+        "",
+        "按以下顺序发给 A，不需要 A 阅读全部代码：",
+        "",
+        "| 顺序 | 文件 | A 要做什么 |",
+        "|------|------|------------|",
+        "| 1 | `查看材料/A口径确认建议稿.md` | 对五个金融口径逐项确认 |",
+        "| 2 | `参考文档/事件与谓词Schema.md` | 检查事件、谓词定义是否适合对外表达 |",
+        "| 3 | `查看材料/事件抽检问题处理记录.md` | 了解已删除误判和修复边界 |",
+        "| 4 | `查看材料/谓词人工抽检样本.csv` | 复核 B 标出的争议样本 |",
+        "| 5 | `查看材料/PPT案例素材包.md` 与 `案例索引.csv` | 选 2 至 3 个答辩案例 |",
+        "| 6 | `查看材料/真实文本来源核验报告.md` | 确认数据来源表述 |",
+        "| 7 | `查看材料/因子研究报告.md` 与 `数据质量报告.md` | 确认 PPT 能引用哪些数字及限制 |",
+        "",
+        "### A 必须明确回答的五个问题",
+        "",
+        "1. `policy_support` 是否包含产业行动方案、税收优惠、补贴和目录管理，还是只指直接利好政策。",
+        "2. `capacity_expansion` 是否只认明确的募投、产能建设和项目投产事实。",
+        "3. `investor_question_pressure` 的聚合时间窗和最低提问数量分别是多少。",
+        "4. `social_attention_spikes` 是否必须有量化变化或多源报道，单篇新闻能否成立。",
+        "5. `event_has_short_term_price_impact` 是否保留；若保留，是否改成更中性的 `historical_attention_impact_score`。",
+        "",
+        "### 与 A 的 45 分钟会议安排",
+        "",
+        "| 时间 | 内容 | 产出 |",
+        "|------|------|------|",
+        "| 会前 | A 阅读上述 1 至 4 号材料 | 标出不认可或边界不清的项目 |",
+        "| 0-5 分钟 | B 说明当前数据链路和已完成程度 | 统一项目不是股价预测系统 |",
+        "| 5-25 分钟 | 逐项讨论五个口径问题 | 每项得到保留/修改/删除结论 |",
+        "| 25-35 分钟 | 查看 2 至 3 个案例的事件-谓词-规则路径 | 确定 PPT 案例 |",
+        "| 35-40 分钟 | 确认行情和 `adj_factor=1` 限制话术 | 确定答辩表达 |",
+        "| 40-45 分钟 | 复述结论、责任人和完成时间 | 留下书面确认记录 |",
+        "",
+        "### A 回传模板",
+        "",
+        "```text",
+        "A 口径确认记录",
+        "基于 commit：",
+        "policy_support：保留/修改/删除；边界：",
+        "capacity_expansion：保留/修改/删除；边界：",
+        "investor_question_pressure：时间窗；最低数量：",
+        "social_attention_spikes：成立条件：",
+        "短期价格影响谓词：保留/改名/删除；名称：",
+        "PPT 选用案例 event_id：",
+        "允许引用的指标：",
+        "必须披露的限制：",
+        "A 确认人和日期：",
+        "```",
+        "",
+        "### A 侧通过标准",
+        "",
+        "- 五个口径均有明确答案，不接受只回复“看起来可以”。",
+        "- PPT 案例能从 doc_id 追溯到真实来源，从 event_id 追溯到谓词和规则。",
+        "- 对外话术不出现预测股价、推荐买卖或保证收益。",
+        "- 明确披露 `adj_factor=1` 仅为占位和当前回测只验证研究链路。",
+        "",
+        "## B 给 C 的材料包",
+        "",
+        "| 顺序 | 文件/信息 | C 要做什么 |",
+        "|------|-----------|------------|",
+        "| 1 | GitHub 分支与 commit | 从完全相同的代码和数据版本开始 |",
+        "| 2 | `查看材料/C联调运行手册.md` | 按命令复跑并填写回传模板 |",
+        "| 3 | `参考文档/数据格式规范.md` | 按锁定字段和 dtype 读取 CSV |",
+        "| 4 | `data/sample/` | 接收 B 输入并生成研究输出 |",
+        "| 5 | `查看材料/数据质量报告.md` 与 `未来函数审计明细.md` | 对照行数、warning 和时间关系 |",
+        "| 6 | `查看材料/真实行情获取记录.md` | 接受当前行情口径并保留限制说明 |",
+        "",
+        "### C 必须完成的动作",
+        "",
+        "1. 使用 `.venv/bin/python run_pipeline.py --preserve-inputs`，确认 `raw_documents.csv` 哈希未变化。",
+        "2. 依次运行 B 数据、行情、人工抽检、研究输出和交付包校验。",
+        "3. 检查所有 `entry_trade_date` 严格晚于 `event_time`。",
+        "4. 随机挑选至少 3 个因子值，回溯 `trigger_rule_ids`、`trigger_event_ids`、谓词和原文。",
+        "5. 从新进程启动 Streamlit，逐页检查数据、事件、规则、因子、回测和报告。",
+        "6. 回传 commit、环境、命令、errors/warnings、Demo 结果和需要 B 修复的 ID。",
+        "",
+        "### C 侧通过标准",
+        "",
+        "- 不改锁定 CSV 字段，不把股票代码读成数字，不覆盖真实文本。",
+        "- 所有校验为 0 errors；warning 必须逐条解释。",
+        "- 未来函数审计通过，因子触发链可回溯。",
+        "- Demo 可从干净进程启动，页面没有空白、旧缓存或文件缺失。",
+        "- C 明确回复“可以/不可以进入 PPT 数字冻结”，不能只回复“代码能跑”。",
+        "",
+        "## 三人收口顺序",
+        "",
+        "```text",
+        "A 确认金融 Schema",
+        "        ↓",
+        "B 修改规则并安全复跑，提交新 commit",
+        "        ↓",
+        "C 重跑规则、因子、回测和 Demo",
+        "        ↓",
+        "A 从最终 CSV/报告冻结 PPT 数字",
+        "        ↓",
+        "A/B/C 交叉检查并冻结成果包",
+        "```",
+        "",
+        "不要颠倒顺序。A 的口径变化会影响 B 的事件和谓词；B 的输出变化会影响 C 的规则和回测；因此 PPT 数字必须最后冻结。",
+        "",
+        "## 问题归属表",
+        "",
+        "| 问题 | 第一责任人 | 处理方式 |",
+        "|------|------------|----------|",
+        "| URL、日期、文本摘要、股票关联错误 | B | 修正 `raw_documents.csv` 或来源核验规则后复跑 |",
+        "| 实体、事件类型、证据片段、谓词值错误 | B | 修改抽取逻辑，保留抽检记录 |",
+        "| 金融定义、PPT 叙事、可否对外表述 | A | 书面确认口径，B/C 按结论实现 |",
+        "| 收益对齐、规则支持数、因子公式、回测指标 | C | 提供复现记录和测试，必要时请 A 确认金融含义 |",
+        "| CSV 字段冲突 | B 与 C | 以 `参考文档/数据格式规范.md` 为准，不单方面改字段 |",
+        "| PPT 数字与 CSV 不一致 | A 主责，B/C 协查 | 回到最终 commit 逐项查来源，禁止手填修饰 |",
+        "",
+        "## Git 交接规则",
+        "",
+        "1. 每次交接都写清分支名和完整 commit，不使用“最新版”这种描述。",
+        "2. A/C 开始前先 `git status`；有本地改动时先提交到自己的分支，不覆盖他人修改。",
+        "3. B 的数据修订、C 的工程修订分别做独立 commit，提交信息写清影响范围。",
+        "4. 任何人修改锁定 CSV 字段前必须三人确认；正常情况下不允许修改。",
+        "5. 合并后由 C 用合并 commit 复跑，由 A 用同一 commit 核对 PPT。",
+        "6. `data/raw/`、`data/processed/`、`data/external/` 不得提交；`任务进度.md` 和 `人工待办.md` 保持本地忽略。",
+        "",
+        "## 建议 48 小时节奏",
+        "",
+        "| 截止时间 | A | B | C |",
+        "|----------|---|---|---|",
+        "| T+4 小时 | 阅读口径材料并标注问题 | 发材料包，继续谓词抽检 | 拉取 commit，完成首次安全复跑 |",
+        "| T+12 小时 | 完成五项口径确认 | 汇总抽检和 A 结论 | 回传首次联调问题 |",
+        "| T+24 小时 | 确认修订后案例 | 修改抽取规则、复跑、提交 | 等待 B 新 commit 或并行修工程问题 |",
+        "| T+36 小时 | 起草最终 PPT 数字页 | 支持问题定位 | 用新 commit 完成回测和 Demo 联调 |",
+        "| T+48 小时 | 冻结 PPT | 核对数据与案例追溯 | 冻结 Demo 和回测输出 |",
+        "",
+        "## 可直接发送给 A 的消息",
+        "",
+        "```text",
+        "AlphaLens 的 B 线数据已整理到 GitHub。请基于我发你的分支和 commit，先阅读《A口径确认建议稿》和《事件与谓词Schema》，并按《团队对接手册》的 A 回传模板确认五个口径问题。请同时从 PPT 案例素材包中选 2-3 个 event_id。当前回测只验证研究链路，adj_factor=1 为占位字段，这两点需要保留在答辩表述中。",
+        "```",
+        "",
+        "## 可直接发送给 C 的消息",
+        "",
+        "```text",
+        "AlphaLens 的 B 线输入已整理到 GitHub。请基于我发你的分支和 commit，按《C联调运行手册》使用 run_pipeline.py --preserve-inputs 复跑，不要使用 --force-sample-generation。请完成全部校验、未来函数检查、3 个因子链路回溯和 Streamlit 逐页检查，再按手册模板回传联调记录，并明确是否可进入 PPT 数字冻结。",
+        "```",
+        "",
+        "## 最终交接清单",
+        "",
+        "- [ ] A 已书面确认五个金融口径。",
+        "- [ ] B 已完成谓词人工抽检并处理 revise/drop。",
+        "- [ ] B 已依据 A 结论安全复跑并推送 commit。",
+        "- [ ] C 已在同一 commit 上完成全量校验和 Demo 联调。",
+        "- [ ] C 已确认未来函数审计和因子追溯通过。",
+        "- [ ] A 已从最终 CSV/报告核对 PPT 数字。",
+        "- [ ] 答辩材料已披露行情与 `adj_factor=1` 限制。",
+        "- [ ] 三人确认项目不宣称预测股价或提供投资建议。",
+        "",
+    ]
+    write_text(VIEW_DIR / "团队对接手册.md", lines)
 
 
 def prepare_demo_script() -> None:
@@ -903,19 +994,17 @@ def prepare_defense_qa_material() -> None:
 
 
 def main() -> None:
-    prepare_source_verification_queue()
     prepare_manual_review_samples()
     prepare_event_review_resolution()
     prepare_market_data_import_template()
     prepare_future_info_audit()
     prepare_ppt_case_pack()
     prepare_case_index()
-    prepare_contract_checklist()
     prepare_a_schema_confirmation_brief()
     prepare_c_runbook()
+    prepare_team_handoff_manual()
     prepare_demo_script()
     prepare_defense_qa_material()
-    prepare_real_data_acceptance_checklist()
     prepare_view_material_index()
     print("B handoff materials prepared.")
 

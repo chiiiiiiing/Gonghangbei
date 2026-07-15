@@ -9,9 +9,7 @@ from typing import Sequence
 from run_b_pipeline import main as run_b_pipeline
 from src.backtest.demo_engine import main as build_research_outputs
 from src.report.generate_research_report import main as generate_research_report
-from scripts.export_explanation_cases import main as export_explanation_cases
 from scripts.prepare_b_handoff_materials import main as prepare_b_handoff_materials
-from scripts.report_manual_verification_progress import main as report_manual_verification_progress
 from scripts.update_b_task_docs import main as update_b_task_docs
 from scripts.validate_b_data import main as validate_b_data
 from scripts.validate_delivery_package import main as validate_delivery_package
@@ -68,9 +66,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     if not args.force_sample_generation:
         run_step("Validate raw document input preservation", validate_input_preservation)
     run_step("Build rule/factor/backtest outputs", build_research_outputs)
-    run_step("Export explanation cases", export_explanation_cases)
     run_step("Prepare B handoff materials", prepare_b_handoff_materials)
-    run_step("Report manual text verification progress", report_manual_verification_progress)
     run_step("Validate manual review result values", validate_manual_review_results)
     run_step("Generate research report", generate_research_report)
     run_step("Validate B-side data", validate_b_data)

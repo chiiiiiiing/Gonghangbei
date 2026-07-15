@@ -11,7 +11,7 @@ import sys
 import tempfile
 import time
 from collections import Counter
-from datetime import date, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable, NamedTuple
 from urllib.parse import parse_qs, quote, unquote, urlparse
@@ -21,10 +21,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_DIR = ROOT / "data" / "sample"
-VIEW_DIR = ROOT / "查看材料"
 RAW_PATH = SAMPLE_DIR / "raw_documents.csv"
-REPORT_PATH = VIEW_DIR / "真实文本来源获取记录.md"
-DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
 
 SOURCE_FIELDS = ["doc_id", "source_type", "title", "content", "publish_time", "source_name", "url"]
 MVP_LOW = "2024-01-01"
@@ -213,10 +210,6 @@ class SearchResult(NamedTuple):
     title: str
     url: str
     snippet: str
-
-
-def today() -> str:
-    return date.today().isoformat()
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -877,47 +870,6 @@ def existing_search_sources(
     return sources
 
 
-def write_report(
-    replaced: Counter[str], notes: list[str], *, refresh_all: bool, mode_label: str | None = None
-) -> None:
-    VIEW_DIR.mkdir(parents=True, exist_ok=True)
-    lines = [
-        "# AlphaLens 真实文本来源获取记录",
-        "",
-        f"生成日期：{today()}",
-        "",
-        DISCLAIMER,
-        "",
-        "## 结果",
-        "",
-        f"- 运行模式：{mode_label or ('刷新全部文本' if refresh_all else '仅替换待核验文本')}",
-    ]
-    for source_type in ["policy", "announcement", "news", "ir_qa"]:
-        lines.append(f"- {source_type}: {replaced[source_type]} 条")
-    lines.extend(
-        [
-            "",
-            "## 来源方式",
-            "",
-            "- 政策：通过 360 搜索与 DuckDuckGo HTML 搜索定位政府、部委、能源主管部门等官方页面，写入摘要和可追溯 URL。",
-            "- 公告：通过巨潮资讯网 `hisAnnouncement/query` 接口优先筛选项目、订单、处罚、问询或经营异常公告；不足时补充年度报告等权威证据文件，并从 PDF 前两页提取事实摘要。",
-            "- 新闻：通过 360 搜索与 DuckDuckGo HTML 搜索定位财经媒体、行业协会或行业新闻页面，写入摘要和可追溯 URL。",
-            "- 互动问答：通过深交所互动易 `/newircs/index/search` 与 `/newircs/question/getQuestionDetail` 获取与主营业务相关的真实问题、回复和详情页 ID。",
-            "",
-            "## 注意",
-            "",
-            "- 为避免版权风险，新闻和问答只写入摘要，不复制大段正文。",
-            "- 行情和文本替换后仍需 A/C 对正式交付口径做人工确认。",
-            "- 本记录不构成投资建议。",
-            "",
-            "## 运行备注",
-            "",
-        ]
-    )
-    lines.extend([f"- {item}" for item in notes] or ["- 无"])
-    REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="获取并核验 AlphaLens 真实文本来源")
     parser.add_argument(
@@ -957,13 +909,6 @@ def main() -> int:
             refreshed.append(build_search_document(row, source, kind=row["source_type"]))
             counts[row["source_type"]] += 1
         write_csv(RAW_PATH, SOURCE_FIELDS, refreshed)
-        full_counts = Counter(row["source_type"] for row in refreshed)
-        write_report(
-            full_counts,
-            ["仅按当前 URL 刷新政策/新闻正文摘要，未更换 doc_id、公告或互动问答来源。"],
-            refresh_all=False,
-            mode_label="按当前 URL 刷新政策/新闻正文摘要",
-        )
         print("current_search_pages_refreshed=" + ",".join(f"{key}:{counts[key]}" for key in sorted(counts)))
         return 0
     stock_rows = read_csv(SAMPLE_DIR / "stock_pool.csv")
@@ -1015,14 +960,6 @@ def main() -> int:
         raise RuntimeError("刷新前来源池不足，未写入 raw_documents.csv: " + "，".join(shortages))
 
     replacement_counts: Counter[str] = Counter()
-    notes: list[str] = [
-        f"政策来源池：{len(policy_sources)} 条",
-        f"政策来源池含 URL：{sum(1 for item in policy_sources if item.get('url'))} 条",
-        f"公告来源池：{len(announcement_sources)} 条",
-        f"新闻来源池：{len(news_sources)} 条",
-        f"新闻来源池含 URL：{sum(1 for item in news_sources if item.get('url'))} 条",
-        f"互动问答来源池：{len(ir_sources)} 条",
-    ]
     source_index: Counter[str] = Counter()
     updated_docs: list[dict[str, str]] = []
 
@@ -1051,20 +988,7 @@ def main() -> int:
         source_index[source_type] += 1
         replacement_counts[source_type] += 1
 
-    full_source_counts = Counter(row["source_type"] for row in updated_docs)
-    notes.extend(
-        [
-            f"raw_documents 全量行数：{len(updated_docs)} 条",
-            "raw_documents 来源分布：" + "，".join(f"{key}={full_source_counts[key]}" for key in ["policy", "announcement", "news", "ir_qa"]),
-            f"待人工核验标记残留：{sum('待人工核验' in row.get('content', '') for row in updated_docs)} 条",
-            f"空 URL：{sum(not row.get('url') for row in updated_docs)} 条",
-            f"非详情页 URL：{sum(not is_detail_url(row.get('url', ''), row.get('source_type', '')) for row in updated_docs)} 条",
-            f"标题或内容乱码：{sum(looks_mojibake(row.get('title', '') + row.get('content', '')) for row in updated_docs)} 条",
-        ]
-    )
-
     write_csv(RAW_PATH, SOURCE_FIELDS, updated_docs)
-    write_report(replacement_counts, notes, refresh_all=args.refresh_all)
     print(f"Verified text sources written to {RAW_PATH}")
     print("text_replacement_counts=" + ",".join(f"{key}:{replacement_counts[key]}" for key in sorted(replacement_counts)))
     return 0
