@@ -5,6 +5,7 @@ desktop.ini
 
 # Python
 __pycache__/
+.pycache/
 *.py[cod]
 *$py.class
 *.so
@@ -40,6 +41,7 @@ logs/
 # Environment
 .env
 .env.local
+.streamlit/secrets.toml
 
 # Model caches (large, do not commit)
 *.h5
@@ -58,3 +60,7 @@ logs/
 
 # Agent rules (local only)
 AGENTS.md
+
+# Local task tracking (generated, do not commit)
+查看材料/任务进度.md
+查看材料/人工待办.md
