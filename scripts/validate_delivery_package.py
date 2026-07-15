@@ -36,11 +36,9 @@ VIEW_FILES = [
     "C联调运行手册.md",
     "Demo演示脚本.md",
     "答辩问答素材.md",
-    "人工核验操作手册.md",
     "真实数据替换验收清单.md",
     "真实文本来源获取记录.md",
     "真实文本核验进度.md",
-    "真实文本核验进度.csv",
     "真实行情获取记录.md",
     "真实行情导入模板.csv",
     "真实行情校验报告.md",
@@ -54,10 +52,8 @@ VIEW_FILES = [
     "PPT案例素材包.md",
     "C联调数据契约清单.md",
     "数据质量报告.md",
-    "数据完整性检查报告.md",
     "未来函数审计明细.md",
     "因子研究报告.md",
-    "B线交付检查清单.md",
 ]
 
 SAMPLE_FILES = [
@@ -86,7 +82,6 @@ DISCLAIMER_FILES = [
     VIEW_DIR / "C联调运行手册.md",
     VIEW_DIR / "Demo演示脚本.md",
     VIEW_DIR / "答辩问答素材.md",
-    VIEW_DIR / "人工核验操作手册.md",
     VIEW_DIR / "真实数据替换验收清单.md",
     VIEW_DIR / "真实文本来源获取记录.md",
     VIEW_DIR / "真实文本核验进度.md",
@@ -98,12 +93,19 @@ DISCLAIMER_FILES = [
     VIEW_DIR / "PPT案例素材包.md",
     VIEW_DIR / "C联调数据契约清单.md",
     VIEW_DIR / "数据质量报告.md",
-    VIEW_DIR / "数据完整性检查报告.md",
     VIEW_DIR / "未来函数审计明细.md",
     VIEW_DIR / "因子研究报告.md",
-    VIEW_DIR / "B线交付检查清单.md",
     ROOT / "README.md",
 ]
+
+DEPRECATED_VIEW_FILES = {
+    "B线阶段0进展.md",
+    "自动推进进展记录.md",
+    "数据完整性检查报告.md",
+    "B线交付检查清单.md",
+    "人工核验操作手册.md",
+    "真实文本核验进度.csv",
+}
 
 
 def today() -> str:
@@ -153,8 +155,6 @@ def check_directory_boundaries(errors: list[str], warnings: list[str]) -> None:
         "解释案例草稿.md",
         "PPT案例素材包.md",
         "未来函数审计明细.md",
-        "数据完整性检查报告.md",
-        "B线交付检查清单.md",
         "事件人工抽检样本.csv",
         "谓词人工抽检样本.csv",
         "源文本核验队列.csv",
@@ -163,10 +163,8 @@ def check_directory_boundaries(errors: list[str], warnings: list[str]) -> None:
         "A口径确认建议稿.md",
         "Demo演示脚本.md",
         "答辩问答素材.md",
-        "人工核验操作手册.md",
         "真实文本来源获取记录.md",
         "真实文本核验进度.md",
-        "真实文本核验进度.csv",
         "真实行情获取记录.md",
         "真实行情导入模板.csv",
         "真实行情校验报告.md",
@@ -180,9 +178,9 @@ def check_directory_boundaries(errors: list[str], warnings: list[str]) -> None:
             errors.append(f"查看材料 `{path.name}` 不应留在参考文档目录")
 
     for path in VIEW_DIR.glob("*"):
-        if path.suffix.lower() in {".md", ".csv"} and path.name not in set(VIEW_FILES) | {
-            "B线阶段0进展.md",
-            "自动推进进展记录.md",
+        if path.name in DEPRECATED_VIEW_FILES:
+            errors.append(f"查看材料存在已废弃的重复文档 `{path.name}`")
+        elif path.suffix.lower() in {".md", ".csv"} and path.name not in set(VIEW_FILES) | {
             "交付包自检报告.md",
         }:
             warnings.append(f"查看材料存在未登记文件 `{path.name}`，如需长期保留请加入材料索引")

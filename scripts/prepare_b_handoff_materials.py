@@ -45,7 +45,7 @@ def write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) 
 
 def write_text(path: Path, lines: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines).rstrip("\n") + "\n", encoding="utf-8")
 
 
 def read_view_csv(path: Path) -> list[dict[str, str]]:
@@ -280,46 +280,6 @@ def prepare_future_info_audit() -> None:
     write_text(VIEW_DIR / "未来函数审计明细.md", lines)
 
 
-def prepare_completeness_report() -> None:
-    table_names = [
-        "stock_pool.csv",
-        "raw_documents.csv",
-        "entity_links.csv",
-        "events.csv",
-        "predicates.csv",
-        "market_data.csv",
-        "predicate_matrix.csv",
-        "event_forward_returns.csv",
-        "rules.csv",
-        "factors.csv",
-        "factor_snapshot.csv",
-        "backtest_metrics.csv",
-    ]
-    lines = [
-        "# AlphaLens 数据完整性检查报告",
-        "",
-        f"生成日期：{today()}",
-        "",
-        DISCLAIMER,
-        "",
-        "| 文件 | 行数 | 空字符串单元格 | 说明 |",
-        "|------|------|----------------|------|",
-    ]
-    for filename in table_names:
-        rows = read_csv(filename)
-        empty_cells = sum(1 for row in rows for value in row.values() if value == "")
-        note = "通过" if empty_cells == 0 else "存在允许的空值或待补字段"
-        lines.append(f"| `{filename}` | {len(rows)} | {empty_cells} | {note} |")
-    lines.extend(
-        [
-            "",
-            "说明：部分人工审阅字段位于 `查看材料/*人工抽检样本.csv`，其空值用于人工填写，不属于 B↔C 数据契约。",
-            "",
-        ]
-    )
-    write_text(VIEW_DIR / "数据完整性检查报告.md", lines)
-
-
 def prepare_ppt_case_pack() -> None:
     docs = {row["doc_id"]: row for row in read_csv("raw_documents.csv")}
     stocks = {row["stock_code"]: row for row in read_csv("stock_pool.csv")}
@@ -370,55 +330,6 @@ def prepare_ppt_case_pack() -> None:
             ]
         )
     write_text(VIEW_DIR / "PPT案例素材包.md", lines)
-
-
-def prepare_delivery_checklist() -> None:
-    docs = read_csv("raw_documents.csv")
-    candidate_count = sum(1 for row in docs if "待人工核验" in row["content"])
-    source_counts = Counter(row["source_type"] for row in docs)
-    lines = [
-        "# AlphaLens B 线交付检查清单",
-        "",
-        f"生成日期：{today()}",
-        "",
-        DISCLAIMER,
-        "",
-        "## 已自动完成",
-        "",
-        "- [x] 30 只新能源股票池",
-        "- [x] 100+ 文本样本真实来源候选版",
-        "- [x] 实体链接结果",
-        "- [x] 事件抽取结果",
-        "- [x] 谓词判断结果",
-        "- [x] 当前行情数据",
-        "- [x] 数据质量报告",
-        "- [x] 解释案例与 PPT 案例素材",
-        "- [x] 未来函数审计",
-        "- [x] Streamlit Demo 可运行",
-        "- [x] 流水线保留输入安全模式",
-        "- [x] 真实文本核验进度统计",
-        "- [x] 真实行情导入模板和独立校验脚本",
-        "- [x] 人工抽检结果合法值校验",
-        "",
-        "## 数据规模",
-        "",
-        f"- raw_documents.csv: {len(docs)} 行，其中待人工核验候选摘要 {candidate_count} 行",
-        f"- policy: {source_counts['policy']}",
-        f"- announcement: {source_counts['announcement']}",
-        f"- news: {source_counts['news']}",
-        f"- ir_qa: {source_counts['ir_qa']}",
-        "",
-        "## 人工完成后才能标记完成",
-        "",
-        "- [ ] 联网替换文本人工抽查确认",
-        "- [ ] 真实前复权行情口径人工复核",
-        "- [ ] 事件和谓词随机抽检",
-        "- [ ] A 确认金融 schema",
-        "- [ ] C 用真实数据联调回测",
-        "- [ ] PPT 数字与最终 CSV 交叉检查",
-        "",
-    ]
-    write_text(VIEW_DIR / "B线交付检查清单.md", lines)
 
 
 def prepare_case_index() -> None:
@@ -557,62 +468,6 @@ def prepare_contract_checklist() -> None:
     write_text(VIEW_DIR / "C联调数据契约清单.md", lines)
 
 
-def prepare_manual_verification_guide() -> None:
-    lines = [
-        "# AlphaLens 人工核验操作手册",
-        "",
-        f"生成日期：{today()}",
-        "",
-        DISCLAIMER,
-        "",
-        "## 核验目标",
-        "",
-        "把当前自动生成的候选摘要替换或确认成可追溯、可解释、可复核的正式样本文本，同时不改变 B↔C CSV 字段契约。",
-        "",
-        "## P0 核验顺序",
-        "",
-        "第一批真实文本目标：政策 20 条、公告 20 条、新闻 20 条、互动问答 10 条。进度可用 `查看材料/真实文本核验进度.md` 查看。",
-        "",
-        "1. 打开 `查看材料/源文本核验队列.csv`，先处理 `needs_manual_verification=true` 且 `verification_priority=P0` 的行。",
-        "2. 对政策文本，优先到财政部、工信部、发改委、国家能源局官网核对标题、日期、正文和 URL。",
-        "3. 对公告文本，优先到巨潮资讯网或交易所公告页面核对公告标题、发布日期和公司主体。",
-        "4. 对互动问答，到互动易或上证 e 互动核对问答日期、问题、回复和公司简称。",
-        "5. 对新闻摘要，只保留可确认来源、日期和事实链条的摘要，避免粘贴大段版权文本。",
-        "6. 在 `data/sample/raw_documents.csv` 中按 `doc_id` 找到对应行，保留 `doc_id` 和 `source_type`，只替换 `title`、`content`、`publish_time`、`source_name`、`url`。",
-        "7. URL 必须是正文、公告或问答详情页，不能只是网站首页；日期使用信息首次公开日期，格式 `YYYY-MM-DD`。",
-        "8. `content` 建议包含“原文摘要”和明确标记的“项目关联”，不要编造公司关联、收益判断或股价方向。",
-        "9. 每替换一批文本后运行 `.venv/bin/python run_pipeline.py --preserve-inputs`，确认字段、事件、谓词和报告仍能通过校验。",
-        "10. 真实文本写入后不要使用 `--force-sample-generation`，否则会把输入重置为 Demo 候选摘要。",
-        "",
-        "## 每条文本要核验的项目",
-        "",
-        "| 项目 | 通过标准 | 写入位置 |",
-        "|------|----------|----------|",
-        "| 标题 | 与原始来源含义一致，可适度摘要 | `raw_documents.csv/title` |",
-        "| 正文 | 足够支撑事件抽取，长度不少于 50 字符 | `raw_documents.csv/content` |",
-        "| 发布日期 | 原始来源发布日期，格式 `YYYY-MM-DD` | `raw_documents.csv/publish_time` |",
-        "| 来源名称 | 政府部门、公司、媒体或互动平台名称 | `raw_documents.csv/source_name` |",
-        "| URL | 可访问或可追溯的原文链接 | `raw_documents.csv/url` |",
-        "| 主体关联 | 文本确实涉及股票池公司或其主营链条 | `entity_links.csv` / `events.csv` |",
-        "",
-        "## 人工抽检记录",
-        "",
-        "- 事件抽检写入 `查看材料/事件人工抽检样本.csv` 的 `manual_review_result` 和 `manual_comment`。",
-        "- 谓词抽检写入 `查看材料/谓词人工抽检样本.csv` 的 `manual_review_result` 和 `manual_comment`。",
-        "- 建议 `manual_review_result` 使用 `pass`、`revise`、`drop` 三类值。",
-        "- 可运行 `.venv/bin/python scripts/validate_manual_review_results.py` 校验取值是否合法；`revise` / `drop` 建议写清修改原因。",
-        "",
-        "## 不可越界",
-        "",
-        "- 不改变 `参考文档/数据格式规范.md` 中锁定字段名。",
-        "- 不把 `data/raw/`、`data/processed/`、`data/external/` 加入 git。",
-        "- 不把当前候选行情结果写成正式实证结论。",
-        "- 不删除免责声明：本报告仅供研究参考，不构成投资建议。",
-        "",
-    ]
-    write_text(VIEW_DIR / "人工核验操作手册.md", lines)
-
-
 def prepare_view_material_index() -> None:
     files = [
         ("任务进度.md", "当前 B 线自动任务进度，本地维护且不提交"),
@@ -622,11 +477,9 @@ def prepare_view_material_index() -> None:
         ("C联调运行手册.md", "给 C 复跑流水线、检查输出和定位问题的运行手册"),
         ("Demo演示脚本.md", "Streamlit Demo 演示顺序和讲解词草稿"),
         ("答辩问答素材.md", "围绕项目定位、数据、谓词、因子和回测的答辩问答素材"),
-        ("人工核验操作手册.md", "人工核验真实来源文本和抽检事件/谓词的操作步骤"),
         ("真实数据替换验收清单.md", "人工替换真实文本和行情后的复跑、校验和验收步骤"),
         ("真实文本来源获取记录.md", "联网获取真实文本来源、替换数量和来源池记录"),
         ("真实文本核验进度.md", "真实来源文本核验完成数量、来源分布和 P0 剩余统计"),
-        ("真实文本核验进度.csv", "真实文本核验进度的机器可读汇总表"),
         ("真实行情获取记录.md", "东方财富前复权行情获取参数、覆盖范围和注意事项"),
         ("真实行情导入模板.csv", "真实前复权行情导入字段模板"),
         ("真实行情校验报告.md", "当前行情文件的独立结构校验报告"),
@@ -639,14 +492,10 @@ def prepare_view_material_index() -> None:
         ("解释案例草稿.md", "可读版解释案例，含事件、谓词和当前收益路径"),
         ("PPT案例素材包.md", "PPT 可复用案例素材"),
         ("C联调数据契约清单.md", "给 C 检查字段、行数和联调顺序"),
-        ("数据质量报告.md", "B 线核心 CSV 质量报告"),
-        ("数据完整性检查报告.md", "样例数据和研究输出完整性概览"),
+        ("数据质量报告.md", "核心 CSV、研究输出完整性、分布和风险警告的统一质量报告"),
         ("未来函数审计明细.md", "事件收益对齐和未来函数审计"),
         ("交付包自检报告.md", "参考文档、查看材料、数据附件和 gitignore 的自动自检结果"),
         ("因子研究报告.md", "自动生成的研究报告初稿"),
-        ("B线交付检查清单.md", "B 线交付前检查项"),
-        ("B线阶段0进展.md", "早期阶段推进记录"),
-        ("自动推进进展记录.md", "自动推进历史记录"),
     ]
     lines = [
         "# AlphaLens 查看材料索引",
@@ -661,10 +510,10 @@ def prepare_view_material_index() -> None:
         "2. `人工待办.md`：再看哪些必须人工处理。",
         "3. `用户参与工作推进手册.md`：按步骤推进人工抽查、行情复核、A/C 确认和 PPT 检查。",
         "4. `A口径确认建议稿.md`：和 A 确认事件、谓词、对外表达边界前看。",
-        "5. `人工核验操作手册.md`：开始核验真实文本前看。",
-        "6. `真实文本来源获取记录.md` / `真实文本核验进度.md`：查看联网替换结果和剩余 P0 数量。",
-        "7. `真实行情获取记录.md` / `真实行情导入模板.csv` / `真实行情校验报告.md`：替换真实前复权行情前后看。",
-        "8. `流水线输入保护验证报告.md`：确认安全模式不会覆盖真实文本。",
+        "5. `真实文本来源获取记录.md` / `真实文本核验进度.md`：查看联网替换结果和剩余 P0 数量。",
+        "6. `真实行情获取记录.md` / `真实行情导入模板.csv` / `真实行情校验报告.md`：替换真实前复权行情前后看。",
+        "7. `流水线输入保护验证报告.md`：确认安全模式不会覆盖真实文本。",
+        "8. `数据质量报告.md` / `未来函数审计明细.md`：查看数据完整性、质量警告和回测时间审计。",
         "9. `C联调数据契约清单.md` / `C联调运行手册.md`：和 C 对接字段、行数、回测输入时看。",
         "10. `Demo演示脚本.md` / `答辩问答素材.md`：准备演示和答辩前看。",
         "11. `解释案例草稿.md` / `PPT案例素材包.md`：准备展示材料时看。",
@@ -716,7 +565,7 @@ def prepare_real_data_acceptance_checklist() -> None:
         "| 来源覆盖 | policy / announcement / news / ir_qa 均有样本 | `查看材料/数据质量报告.md` |",
         "| 日期范围 | `publish_time` 在 2024-01-01 至 2026-06-30 | `scripts/validate_b_data.py` |",
         "| 文本长度 | `content` 不少于 50 字符 | `scripts/validate_b_data.py` |",
-        "| URL 可追溯 | P0 样本 URL 指向正文、公告 PDF 或问答详情页 | `查看材料/真实文本来源获取记录.md` / `查看材料/人工核验操作手册.md` |",
+        "| URL 可追溯 | P0 样本 URL 指向正文、公告 PDF 或问答详情页 | `查看材料/真实文本来源获取记录.md` / `查看材料/用户参与工作推进手册.md` |",
         "| 进度统计 | 第一批目标剩余量可解释 | `查看材料/真实文本核验进度.md` |",
         "",
         "## 行情替换验收",
@@ -1003,16 +852,13 @@ def main() -> None:
     prepare_manual_review_samples()
     prepare_market_data_import_template()
     prepare_future_info_audit()
-    prepare_completeness_report()
     prepare_ppt_case_pack()
-    prepare_delivery_checklist()
     prepare_case_index()
     prepare_contract_checklist()
     prepare_a_schema_confirmation_brief()
     prepare_c_runbook()
     prepare_demo_script()
     prepare_defense_qa_material()
-    prepare_manual_verification_guide()
     prepare_real_data_acceptance_checklist()
     prepare_view_material_index()
     print("B handoff materials prepared.")

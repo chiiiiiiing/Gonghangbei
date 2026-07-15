@@ -15,7 +15,6 @@ ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_DIR = ROOT / "data" / "sample"
 VIEW_DIR = ROOT / "查看材料"
 REPORT_PATH = VIEW_DIR / "真实文本核验进度.md"
-CSV_PATH = VIEW_DIR / "真实文本核验进度.csv"
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
 
 SOURCE_TYPES = ["policy", "announcement", "news", "ir_qa"]
@@ -37,14 +36,6 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return []
     with path.open("r", newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
-
-
-def write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
 
 
 def doc_number(doc_id: str) -> int | None:
@@ -181,20 +172,6 @@ def write_report(docs: list[dict[str, str]], rows: list[dict[str, object]]) -> N
 def main() -> int:
     docs = read_csv(SAMPLE_DIR / "raw_documents.csv")
     rows = build_summary_rows(docs)
-    write_csv(
-        CSV_PATH,
-        [
-            "source_type",
-            "total_documents",
-            "p0_scope_documents",
-            "p0_completed_estimate",
-            "p0_pending_candidates",
-            "first_batch_target",
-            "first_batch_remaining",
-            "completed_with_generic_url",
-        ],
-        rows,
-    )
     write_report(docs, rows)
     print(f"Manual verification progress written to {REPORT_PATH}")
     print(

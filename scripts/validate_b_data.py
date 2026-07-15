@@ -76,6 +76,21 @@ MVP_PREDICATES = {
 BOOLEAN_PREDICATES = PREDICATES - {"event_evidence_strength", "event_has_short_term_price_impact"}
 SCORE_PREDICATES = {"event_evidence_strength", "event_has_short_term_price_impact"}
 
+COMPLETENESS_FILES = [
+    "stock_pool.csv",
+    "raw_documents.csv",
+    "entity_links.csv",
+    "events.csv",
+    "predicates.csv",
+    "market_data.csv",
+    "predicate_matrix.csv",
+    "event_forward_returns.csv",
+    "rules.csv",
+    "factors.csv",
+    "factor_snapshot.csv",
+    "backtest_metrics.csv",
+]
+
 
 def read_csv(filename: str) -> tuple[list[str], list[dict[str, str]]]:
     path = SAMPLE_DIR / filename
@@ -314,6 +329,32 @@ def write_report(errors: list[str], warnings: list[str], tables: dict[str, list[
     lines.extend(["", "## 事件类型分布", ""])
     for event_type, count in sorted(event_counts.items()):
         lines.append(f"- {event_type}: {count}")
+
+    lines.extend(
+        [
+            "",
+            "## 文件完整性",
+            "",
+            "| 文件 | 行数 | 空字符串单元格 | 说明 |",
+            "|------|------|----------------|------|",
+        ]
+    )
+    for filename in COMPLETENESS_FILES:
+        header, rows = read_csv(filename)
+        empty_cells = sum(1 for row in rows for value in row.values() if value == "")
+        if not header:
+            note = "缺失或无表头"
+        elif empty_cells:
+            note = "存在允许的空值或待补字段"
+        else:
+            note = "通过"
+        lines.append(f"| `{filename}` | {len(rows)} | {empty_cells} | {note} |")
+    lines.extend(
+        [
+            "",
+            "说明：人工抽检表中的留空字段用于人工填写，不属于 B↔C 数据契约。",
+        ]
+    )
     lines.extend(["", "## Warnings", ""])
     lines.extend([f"- {item}" for item in warnings] or ["- 无"])
     lines.extend(["", "## Errors", ""])
