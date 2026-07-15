@@ -142,7 +142,7 @@ def validate_market_data(input_path: Path) -> tuple[list[str], list[str], dict[s
 
     if len(adj_values) <= 1:
         warnings.append(
-            f"{input_path}: adj_factor has {len(adj_values)} unique value; confirm prices are truly front-adjusted"
+            f"{input_path}: adj_factor has {len(adj_values)} unique value; accepted as a placeholder, not a real adjustment-factor series"
         )
 
     summary = {
@@ -185,7 +185,7 @@ def write_report(input_path: Path, report_path: Path, errors: list[str], warning
         "- 日期必须为 `YYYY-MM-DD`，范围在 2024-01-01 至 2026-06-30。",
         "- OHLC 和 `adj_factor` 必须为正数，`volume` 必须大于等于 0。",
         "- `high` 不低于开收低，`low` 不高于开收高。",
-        "- 价格应使用前复权口径；本脚本只能做结构校验，复权来源仍需人工确认。",
+        "- 当前价格使用东方财富 `fqt=1` 前复权候选口径；`adj_factor=1` 已接受为字段占位，但不是真实复权因子序列。",
         "",
         "## Warnings",
         "",

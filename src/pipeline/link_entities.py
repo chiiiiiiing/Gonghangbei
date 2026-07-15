@@ -44,6 +44,15 @@ EXTRA_ALIASES = {
 }
 
 
+SECTOR_KEYWORDS = {
+    "光伏": ["光伏", "太阳能组件", "硅片", "晶硅"],
+    "锂电": ["动力电池", "锂离子电池", "锂电", "电池回收"],
+    "风电": ["海上风电", "风电", "风机"],
+    "储能": ["新型储能", "储能系统", "储能项目", "储能装机"],
+    "整车": ["新能源汽车", "汽车以旧换新", "充换电", "车网互动"],
+}
+
+
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open("r", newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
@@ -87,11 +96,14 @@ def link_entities() -> list[dict[str, object]]:
     stock_pool = read_csv(SAMPLE_DIR / "stock_pool.csv")
     documents = read_csv(SAMPLE_DIR / "raw_documents.csv")
     alias_rows = build_alias_rows(stock_pool)
+    stocks_by_sector: dict[str, list[dict[str, str]]] = {}
+    for stock in stock_pool:
+        stocks_by_sector.setdefault(stock["industry_sector"], []).append(stock)
     results: list[dict[str, object]] = []
 
     for doc in documents:
         title = doc["title"]
-        content = doc["content"]
+        content = doc["content"].split("项目关联：", 1)[0]
         text = f"{title}\n{content}"
         seen_codes: set[str] = set()
         for alias_row in alias_rows:
@@ -112,6 +124,24 @@ def link_entities() -> list[dict[str, object]]:
                     "evidence": f'{location}"{alias}"',
                 }
             )
+        if seen_codes or doc["source_type"] not in {"policy", "news"}:
+            continue
+        for sector, keywords in SECTOR_KEYWORDS.items():
+            matched_keyword = next((keyword for keyword in keywords if keyword in text), "")
+            if not matched_keyword:
+                continue
+            confidence = 0.78 if doc["source_type"] == "policy" else 0.70
+            for stock in stocks_by_sector.get(sector, []):
+                results.append(
+                    {
+                        "doc_id": doc["doc_id"],
+                        "stock_code": stock["stock_code"],
+                        "stock_name": stock["stock_name"],
+                        "industry": sector,
+                        "confidence": f"{confidence:.2f}",
+                        "evidence": f'产业主题映射"{matched_keyword}"→{sector}',
+                    }
+                )
     return results
 
 

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import argparse
 import csv
 import html
 import re
+import subprocess
 import sys
+import tempfile
 import time
 from collections import Counter
 from datetime import date, datetime
@@ -39,6 +42,17 @@ NEWS_DOMAINS = (
     "caam.org.cn",
     "cpia.org.cn",
     "bjx.com.cn",
+    "sina.com.cn",
+    "eastmoney.com",
+    "qq.com",
+    "zqrb.cn",
+    "gov.cn",
+    "miit.gov.cn",
+    "ndrc.gov.cn",
+    "nea.gov.cn",
+    "thepaper.cn",
+    "stats.gov.cn",
+    "mps.gov.cn",
 )
 
 POLICY_SEARCH_TERMS = [
@@ -62,6 +76,17 @@ POLICY_SEARCH_TERMS = [
     "2026 新能源汽车 车辆购置税 减免 目录 工业和信息化部",
     "2026 能源工作指导意见 国家能源局 新能源",
     "2026 新型储能 电力市场 国家能源局",
+    "2024 新能源汽车产业标准体系 工业和信息化部",
+    "2024 锂离子电池行业规范条件 工业和信息化部",
+    "2024 光伏制造行业规范条件 工业和信息化部",
+    "2024 绿色低碳先进技术示范 国家发展改革委",
+    "2024 配电网高质量发展行动 国家能源局",
+    "2025 电力系统调节能力优化专项行动 国家发展改革委",
+    "2025 新能源上网电价市场化改革 国家发展改革委",
+    "2025 车网互动规模化应用试点 国家发展改革委",
+    "2025 工业领域碳达峰碳中和标准体系 工业和信息化部",
+    "2026 新能源汽车推广应用安全隐患排查 工业和信息化部",
+    "2024 新能源汽车充换电设施补短板 国家发展改革委",
 ]
 
 NEWS_SEARCH_TERMS = [
@@ -85,6 +110,102 @@ NEWS_SEARCH_TERMS = [
     "2026 新能源车 渗透率 财联社",
     "2026 储能 招标 大储 证券时报",
     "2026 海上风电 招标 上海证券报",
+    "2024 新能源汽车 产销 数据 中国汽车工业协会",
+    "2024 光伏 新增装机 国家能源局",
+    "2024 风电 新增装机 国家能源局",
+    "2024 储能 装机 数据 北极星",
+    "2024 锂电池 出口 证券时报",
+    "2025 新能源汽车 产销 中国汽车工业协会",
+    "2025 光伏 新增装机 国家能源局",
+    "2025 动力电池 出口 证券日报",
+    "2025 储能 项目 招标 北极星",
+    "2026 新能源汽车 产销 中国汽车工业协会",
+    "2024 全国电力工业统计数据 新能源 国家能源局",
+    "2025 全国电力工业统计数据 新能源 国家能源局",
+    "2025 可再生能源发展情况 新闻发布会 国家能源局",
+    "2024 新能源汽车出口 数据 证券日报",
+    "2025 海上风电 建设 证券时报",
+    "2024 锂离子电池行业运行情况 工业和信息化部",
+    "2025 锂离子电池行业运行情况 工业和信息化部",
+    "2024 光伏制造行业运行情况 工业和信息化部",
+    "2025 光伏制造行业运行情况 工业和信息化部",
+    "2024 风电光伏发电量 国家统计局",
+    "2025 风电光伏发电量 国家统计局",
+    "2024 新能源汽车保有量 公安部",
+    "2025 新能源汽车保有量 公安部",
+    "2024 储能产业 证券日报",
+    "2025 光伏行业 证券日报",
+]
+
+
+ANNOUNCEMENT_EVENT_KEYWORDS = {
+    "投资建设": 8,
+    "项目投产": 8,
+    "扩产": 8,
+    "新增产能": 8,
+    "中标": 7,
+    "重大合同": 7,
+    "订单": 6,
+    "募投项目": 6,
+    "对外投资": 5,
+    "行政处罚": 8,
+    "立案": 8,
+    "问询函": 7,
+    "关注函": 7,
+    "停产": 7,
+    "复产": 7,
+    "资产减值": 6,
+    "业绩预告": 4,
+    "年度报告": 2,
+    "半年度报告": 2,
+    "可持续发展报告": 2,
+    "社会责任报告": 2,
+    "ESG报告": 2,
+    "投资者关系活动记录表": 2,
+    "募集说明书": 2,
+}
+
+
+ANNOUNCEMENT_EXCLUDE_KEYWORDS = [
+    "跟踪评级",
+    "法律意见书",
+    "股东大会",
+    "权益分派",
+    "股份变动",
+    "减持",
+    "担保",
+    "章程",
+    "保荐代表人",
+    "受托管理",
+    "独立董事",
+    "监事会",
+    "董事会决议",
+]
+
+
+IR_RELEVANCE_KEYWORDS = [
+    "电池",
+    "储能",
+    "光伏",
+    "风电",
+    "新能源汽车",
+    "订单",
+    "产能",
+    "项目",
+    "技术",
+    "销量",
+    "出口",
+    "交付",
+    "客户",
+    "价格",
+]
+
+
+GENERIC_SITE_SUMMARY_PHRASES = [
+    "由人民日报社主管主办",
+    "提供全天候7*24小时",
+    "财经自媒体平台",
+    "一站式金融理财服务",
 ]
 
 
@@ -288,7 +409,7 @@ def date_from_text(*values: str, fallback: str) -> str:
 
 def fetch_page_metadata(url: str) -> dict[str, str]:
     if not is_search_detail_url(url):
-        return {"title": "", "publish_time": ""}
+        return {"title": "", "publish_time": "", "summary": ""}
     try:
         response = requests.get(
             url,
@@ -300,7 +421,7 @@ def fetch_page_metadata(url: str) -> dict[str, str]:
         )
         response.raise_for_status()
     except Exception:
-        return {"title": "", "publish_time": ""}
+        return {"title": "", "publish_time": "", "summary": ""}
 
     if not response.encoding or response.encoding.lower() in {"iso-8859-1", "latin-1"}:
         response.encoding = response.apparent_encoding or "utf-8"
@@ -326,7 +447,31 @@ def fetch_page_metadata(url: str) -> dict[str, str]:
     ]:
         date_contexts.extend(match.group(1) for match in re.finditer(pattern, text, flags=re.I | re.S))
     publish_time = date_from_text(*date_contexts, fallback="")
-    return {"title": title, "publish_time": publish_time}
+    summary = ""
+    for pattern in [
+        r'<meta[^>]+(?:name|property)=["\'](?:description|og:description)["\'][^>]+content=["\']([^"\']+)["\']',
+        r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:name|property)=["\'](?:description|og:description)["\']',
+    ]:
+        match = re.search(pattern, text, flags=re.I | re.S)
+        if match:
+            summary = clean_text(match.group(1))
+            break
+    if any(phrase in summary for phrase in GENERIC_SITE_SUMMARY_PHRASES):
+        summary = ""
+    if not summary:
+        paragraphs = [clean_text(item) for item in re.findall(r"<p[^>]*>(.*?)</p>", text, flags=re.I | re.S)]
+        summary = next((item for item in paragraphs if len(item) >= 40 and not looks_mojibake(item)), "")
+        summary = re.sub(r"^超大\s+大\s+标准\s+小\s+点赞\s+分享\s*", "", summary)
+    if not summary:
+        container = re.search(
+            r'<(?:div|section)[^>]+class=["\']?(?:TRS_Editor|article_con|article-content|content-detail)',
+            text,
+            flags=re.I,
+        )
+        if container:
+            candidate = clean_text(text[container.end() : container.end() + 20_000])
+            summary = candidate if len(candidate) >= 40 and not looks_mojibake(candidate) else ""
+    return {"title": title, "publish_time": publish_time, "summary": summary[:360]}
 
 
 def source_name_from_url(url: str, fallback: str) -> str:
@@ -357,6 +502,18 @@ def source_name_from_url(url: str, fallback: str) -> str:
         return "中国光伏行业协会"
     if "bjx.com.cn" in host:
         return "北极星储能网/北极星电力网"
+    if "sina.com.cn" in host:
+        return "新浪财经"
+    if "eastmoney.com" in host:
+        return "东方财富网"
+    if "qq.com" in host:
+        return "腾讯新闻"
+    if "zqrb.cn" in host:
+        return "证券日报"
+    if "stats.gov.cn" in host:
+        return "国家统计局"
+    if "mps.gov.cn" in host:
+        return "公安部"
     return fallback
 
 
@@ -374,6 +531,7 @@ def source_from_result(result: SearchResult, fallback_date: str, fallback_name: 
         "url": result.url,
         "publish_time": publish_time,
         "source_name": source_name_from_url(result.url, fallback_name),
+        "summary": metadata["summary"] or result.snippet,
     }
 
 
@@ -382,22 +540,12 @@ def search_source(term: str, domains: tuple[str, ...], fallback_date: str, fallb
     for result in results:
         if domain_allowed(result.url, domains) and is_search_detail_url(result.url):
             return source_from_result(result, fallback_date, fallback_name)
-    for result in results:
-        if is_search_detail_url(result.url):
-            return source_from_result(result, fallback_date, fallback_name)
-    if results:
-        result = results[0]
-        return {
-            "title": result.title,
-            "url": result.url,
-            "publish_time": date_from_text(result.url, result.title, result.snippet, fallback=fallback_date),
-            "source_name": source_name_from_url(result.url, fallback_name),
-        }
     return {
         "title": term,
         "url": "",
-        "publish_time": fallback_date,
+        "publish_time": "",
         "source_name": fallback_name,
+        "summary": "",
     }
 
 
@@ -405,17 +553,17 @@ def build_search_document(row: dict[str, str], source: dict[str, str], *, kind: 
     title = source["title"][:120] or row["title"]
     source_name = source["source_name"] or row["source_name"]
     publish_time = source["publish_time"]
+    summary = clean_text(source.get("summary", ""))
+    source_fact = summary[:260] if summary else f"详情页标题显示该来源围绕《{title}》发布信息。"
     if kind == "policy":
         content = (
-            f"原文摘要：已通过互联网检索到政策来源《{title}》，来源为{source_name}，公开日期记录为{publish_time}。"
-            f"该政策文本围绕新能源、光伏、锂电、风电、储能或新能源汽车相关产业支持、消纳、设备更新、以旧换新、充电基础设施等主题。"
-            "项目关联：本条样本仅用于 AlphaLens 的政策支持事件识别和主营链条相关性判断，不包含收益判断或股价方向判断。"
+            f"原文摘要：{source_fact} 来源为{source_name}，首次公开日期核验为{publish_time}。"
+            "项目关联：本条样本仅用于 AlphaLens 的政策事件与主营链条相关性研究，不包含收益判断或股价方向判断。"
         )
     else:
         content = (
-            f"原文摘要：已通过互联网检索到财经/行业新闻来源《{title}》，来源为{source_name}，公开日期记录为{publish_time}。"
-            "该新闻线索用于描述新能源产业链的供需、价格、装机、招标、出口或行业关注度变化。"
-            "项目关联：本条样本用于 AlphaLens 的 attention_spread、product_price_increase 或主营业务相关事件识别，不构成投资建议。"
+            f"原文摘要：{source_fact} 来源为{source_name}，首次公开日期核验为{publish_time}。"
+            "项目关联：本条样本用于 AlphaLens 的行业事实、关注扩散与主营业务相关性研究，不构成投资建议。"
         )
     return {
         "doc_id": row["doc_id"],
@@ -429,13 +577,47 @@ def build_search_document(row: dict[str, str], source: dict[str, str], *, kind: 
 
 
 def cninfo_org_map() -> dict[str, str]:
-    response = requests.get(
-        "http://www.cninfo.com.cn/new/data/szse_stock.json",
-        headers={"User-Agent": "Mozilla/5.0"},
-        timeout=20,
-    )
-    response.raise_for_status()
-    return {row["code"]: row["orgId"] for row in response.json()["stockList"]}
+    last_error: Exception | None = None
+    for attempt in range(4):
+        try:
+            response = requests.get(
+                "https://www.cninfo.com.cn/new/data/szse_stock.json",
+                headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.cninfo.com.cn/"},
+                timeout=20,
+            )
+            response.raise_for_status()
+            return {row["code"]: row["orgId"] for row in response.json()["stockList"]}
+        except requests.RequestException as exc:
+            last_error = exc
+            time.sleep(1.0 * (attempt + 1))
+    raise RuntimeError(f"巨潮证券代码映射连续失败: {last_error}")
+
+
+def announcement_score(title: str) -> int:
+    if any(keyword in title for keyword in ANNOUNCEMENT_EXCLUDE_KEYWORDS):
+        return -100
+    return sum(weight for keyword, weight in ANNOUNCEMENT_EVENT_KEYWORDS.items() if keyword in title)
+
+
+def extract_pdf_summary(url: str) -> str:
+    try:
+        response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=(5, 20))
+        response.raise_for_status()
+        with tempfile.NamedTemporaryFile(suffix=".pdf") as pdf_file:
+            pdf_file.write(response.content)
+            pdf_file.flush()
+            result = subprocess.run(
+                ["pdftotext", "-f", "1", "-l", "2", "-layout", pdf_file.name, "-"],
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=20,
+            )
+    except (OSError, subprocess.SubprocessError, requests.RequestException):
+        return ""
+    text = clean_text(result.stdout)
+    text = re.sub(r"证券代码[:：]?\s*\d{6}.*?公告编号[:：]?\s*[\w-]+", "", text)
+    return text[:420]
 
 
 def fetch_cninfo_announcements(stock_codes: list[str], stock_names: dict[str, str]) -> list[dict[str, str]]:
@@ -450,7 +632,7 @@ def fetch_cninfo_announcements(stock_codes: list[str], stock_names: dict[str, st
         print(f"[AlphaLens] Fetch CNINFO announcements {stock_code} ...", flush=True)
         params = {
             "pageNum": 1,
-            "pageSize": 8,
+            "pageSize": 30,
             "column": "sse" if stock_code.startswith("6") else "szse",
             "tabName": "fulltext",
             "plate": "",
@@ -464,37 +646,74 @@ def fetch_cninfo_announcements(stock_codes: list[str], stock_names: dict[str, st
             "sortType": "",
             "isHLtitle": "true",
         }
-        response = requests.post("http://www.cninfo.com.cn/new/hisAnnouncement/query", headers=headers, data=params, timeout=20)
-        response.raise_for_status()
-        for item in response.json().get("announcements") or []:
-            announcement_id = str(item.get("announcementId", ""))
-            if not announcement_id or announcement_id in seen:
-                continue
-            title = clean_text(item.get("announcementTitle", ""))
-            if not title or "取消" in title:
-                continue
-            timestamp = int(item.get("announcementTime", 0)) / 1000
-            publish_time = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
-            if not (MVP_LOW <= publish_time <= MVP_HIGH):
-                continue
-            url = "http://static.cninfo.com.cn/" + item.get("adjunctUrl", "")
+        candidates: list[tuple[int, dict[str, object]]] = []
+        for page_num in range(1, 6):
+            params["pageNum"] = page_num
+            response = None
+            last_error: Exception | None = None
+            for attempt in range(4):
+                try:
+                    response = requests.post(
+                        "https://www.cninfo.com.cn/new/hisAnnouncement/query",
+                        headers=headers,
+                        data=params,
+                        timeout=20,
+                    )
+                    response.raise_for_status()
+                    break
+                except requests.RequestException as exc:
+                    response = None
+                    last_error = exc
+                    time.sleep(1.0 * (attempt + 1))
+            if response is None:
+                raise RuntimeError(f"巨潮公告接口连续失败 {stock_code}: {last_error}")
+            items = response.json().get("announcements") or []
+            for item in items:
+                announcement_id = str(item.get("announcementId", ""))
+                if not announcement_id or announcement_id in seen:
+                    continue
+                title = clean_text(item.get("announcementTitle", ""))
+                if not title or "取消" in title:
+                    continue
+                score = announcement_score(title)
+                if score <= 0:
+                    continue
+                timestamp = int(item.get("announcementTime", 0)) / 1000
+                publish_time = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
+                if not (MVP_LOW <= publish_time <= MVP_HIGH):
+                    continue
+                candidates.append((score, item))
+            if any(score >= 5 for score, _ in candidates) or not items:
+                break
+            time.sleep(0.25)
+        if candidates:
+            _, item = max(
+                candidates,
+                key=lambda pair: (pair[0], int(pair[1].get("announcementTime", 0))),
+            )
+            announcement_id = str(item["announcementId"])
+            title = clean_text(str(item["announcementTitle"]))
+            publish_time = datetime.fromtimestamp(int(item["announcementTime"]) / 1000).strftime("%Y-%m-%d")
+            url = "http://static.cninfo.com.cn/" + str(item.get("adjunctUrl", ""))
             rows.append(
                 {
                     "stock_code": stock_code,
-                    "stock_name": stock_names.get(stock_code, item.get("secName", "")),
+                    "stock_name": stock_names.get(stock_code, str(item.get("secName", ""))),
                     "title": title,
                     "publish_time": publish_time,
                     "source_name": "巨潮资讯网",
                     "url": url,
+                    "summary": extract_pdf_summary(url),
                 }
             )
             seen.add(announcement_id)
-            break
-        time.sleep(0.08)
+        time.sleep(0.35)
     return rows
 
 
-def fetch_ir_questions(stock_codes: list[str], stock_names: dict[str, str]) -> list[dict[str, str]]:
+def fetch_ir_questions(
+    stock_codes: list[str], stock_names: dict[str, str], *, target_count: int = 30
+) -> list[dict[str, str]]:
     session = requests.Session()
     session.headers.update(
         {
@@ -507,8 +726,11 @@ def fetch_ir_questions(stock_codes: list[str], stock_names: dict[str, str]) -> l
     rows: list[dict[str, str]] = []
     seen: set[str] = set()
     for stock_code in stock_codes:
+        if len(rows) >= target_count:
+            break
         stock_name = stock_names[stock_code]
         print(f"[AlphaLens] Fetch IR questions {stock_code} {stock_name} ...", flush=True)
+        stock_count = 0
         for page_num in range(1, 14):
             response = session.post(
                 "https://irm.cninfo.com.cn/newircs/index/search",
@@ -519,7 +741,6 @@ def fetch_ir_questions(stock_codes: list[str], stock_names: dict[str, str]) -> l
             items = response.json().get("results") or []
             if not items:
                 break
-            matched = False
             for item in items:
                 if item.get("stockCode") != stock_code or str(item.get("contentType")) not in {"1", "11"}:
                     continue
@@ -555,9 +776,10 @@ def fetch_ir_questions(stock_codes: list[str], stock_names: dict[str, str]) -> l
                     }
                 )
                 seen.add(qid)
-                matched = True
-                break
-            if matched:
+                stock_count += 1
+                if stock_count >= 5 or len(rows) >= target_count:
+                    break
+            if stock_count >= 5 or len(rows) >= target_count:
                 break
             time.sleep(0.05)
         time.sleep(0.08)
@@ -572,10 +794,11 @@ def stock_name_in_text(text: str, stock_rows: list[dict[str, str]]) -> dict[str,
 
 
 def announcement_document(row: dict[str, str], source: dict[str, str], stock_sector: str) -> dict[str, str]:
+    source_summary = clean_text(source.get("summary", ""))
+    source_fact = source_summary[:320] if source_summary else f"公告标题为《{source['title']}》。"
     content = (
-        f"原文摘要：{source['stock_name']}于{source['publish_time']}在巨潮资讯网披露公告《{source['title']}》。"
-        f"该公告为上市公司信息披露文件，URL 指向巨潮公告 PDF。"
-        f"项目关联：{source['stock_name']}属于新能源股票池的{stock_sector}板块，本条样本用于公告来源权威性、主营业务相关事件和不确定性表述识别；不包含收益判断或股价方向判断。"
+        f"原文摘要：{source['stock_name']}于{source['publish_time']}在巨潮资讯网披露《{source['title']}》。{source_fact}"
+        f"项目关联：{source['stock_name']}属于新能源股票池的{stock_sector}板块；仅在原文事实明确支持时抽取事件，不包含收益判断或股价方向判断。"
     )
     return {
         "doc_id": row["doc_id"],
@@ -591,11 +814,11 @@ def announcement_document(row: dict[str, str], source: dict[str, str], stock_sec
 def ir_document(row: dict[str, str], source: dict[str, str], stock_sector: str) -> dict[str, str]:
     question_summary = source["question"][:80]
     reply_summary = source["reply"][:100]
-    title = f"投资者问答：{source['stock_name']}回应投资者关注事项"
+    title = f"投资者问答：{source['stock_name']}回应“{question_summary[:36]}”"
     content = (
         f"原文摘要：投资者在深交所互动易向{source['stock_name']}提问，问题摘要为“{question_summary}”。"
         f"公司回复摘要为“{reply_summary}”。"
-        f"项目关联：{source['stock_name']}属于新能源股票池的{stock_sector}板块，本条样本用于 investor_question_pressure、management_response_vague 与主营业务相关谓词判断；不包含收益判断或股价方向判断。"
+        f"项目关联：{source['stock_name']}属于新能源股票池的{stock_sector}板块。单条问答只作为证据文本，不直接代表提问压力增加；不包含收益判断或股价方向判断。"
     )
     return {
         "doc_id": row["doc_id"],
@@ -614,7 +837,49 @@ def next_cycle(items: list[dict[str, str]], index: int) -> dict[str, str]:
     return items[index % len(items)]
 
 
-def write_report(replaced: Counter[str], notes: list[str]) -> None:
+def deduplicate_sources(items: list[dict[str, str]]) -> list[dict[str, str]]:
+    unique: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in items:
+        url = item.get("url", "")
+        if not url or url in seen or not item.get("publish_time") or not item.get("title"):
+            continue
+        seen.add(url)
+        unique.append(item)
+    return unique
+
+
+def existing_search_sources(
+    docs: list[dict[str, str]], source_type: str, domains: tuple[str, ...]
+) -> list[dict[str, str]]:
+    sources: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for row in docs:
+        url = row.get("url", "")
+        if row.get("source_type") != source_type or url in seen:
+            continue
+        if not domain_allowed(url, domains) or not is_search_detail_url(url):
+            continue
+        metadata = fetch_page_metadata(url)
+        publish_time = metadata["publish_time"] or row.get("publish_time", "")
+        if not (MVP_LOW <= publish_time <= MVP_HIGH) or not metadata["summary"]:
+            continue
+        sources.append(
+            {
+                "title": metadata["title"] or row.get("title", ""),
+                "url": url,
+                "publish_time": publish_time,
+                "source_name": source_name_from_url(url, row.get("source_name", "")),
+                "summary": metadata["summary"],
+            }
+        )
+        seen.add(url)
+    return sources
+
+
+def write_report(
+    replaced: Counter[str], notes: list[str], *, refresh_all: bool, mode_label: str | None = None
+) -> None:
     VIEW_DIR.mkdir(parents=True, exist_ok=True)
     lines = [
         "# AlphaLens 真实文本来源获取记录",
@@ -625,18 +890,19 @@ def write_report(replaced: Counter[str], notes: list[str]) -> None:
         "",
         "## 结果",
         "",
+        f"- 运行模式：{mode_label or ('刷新全部文本' if refresh_all else '仅替换待核验文本')}",
     ]
     for source_type in ["policy", "announcement", "news", "ir_qa"]:
-        lines.append(f"- {source_type}: 替换 {replaced[source_type]} 条")
+        lines.append(f"- {source_type}: {replaced[source_type]} 条")
     lines.extend(
         [
             "",
             "## 来源方式",
             "",
             "- 政策：通过 360 搜索与 DuckDuckGo HTML 搜索定位政府、部委、能源主管部门等官方页面，写入摘要和可追溯 URL。",
-            "- 公告：通过巨潮资讯网 `hisAnnouncement/query` 接口获取公告标题、发布日期和 PDF URL。",
+            "- 公告：通过巨潮资讯网 `hisAnnouncement/query` 接口优先筛选项目、订单、处罚、问询或经营异常公告；不足时补充年度报告等权威证据文件，并从 PDF 前两页提取事实摘要。",
             "- 新闻：通过 360 搜索与 DuckDuckGo HTML 搜索定位财经媒体、行业协会或行业新闻页面，写入摘要和可追溯 URL。",
-            "- 互动问答：通过深交所互动易 `/newircs/index/search` 与 `/newircs/question/getQuestionDetail` 获取问答摘要和详情页 ID。",
+            "- 互动问答：通过深交所互动易 `/newircs/index/search` 与 `/newircs/question/getQuestionDetail` 获取与主营业务相关的真实问题、回复和详情页 ID。",
             "",
             "## 注意",
             "",
@@ -652,41 +918,101 @@ def write_report(replaced: Counter[str], notes: list[str]) -> None:
     REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="获取并核验 AlphaLens 真实文本来源")
+    parser.add_argument(
+        "--refresh-all",
+        action="store_true",
+        help="刷新全部 120 条文本；默认只替换待核验或 URL 不合格的行",
+    )
+    parser.add_argument(
+        "--refresh-current-search-pages",
+        action="store_true",
+        help="仅按当前 URL 重抓政策/新闻正文元数据，不更换公告和互动问答来源",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
+    args = parse_args()
     docs = read_csv(RAW_PATH)
+    if args.refresh_current_search_pages:
+        refreshed: list[dict[str, str]] = []
+        counts: Counter[str] = Counter()
+        for row in docs:
+            if row["source_type"] not in {"policy", "news"}:
+                refreshed.append(row)
+                continue
+            metadata = fetch_page_metadata(row["url"])
+            if not metadata["summary"]:
+                refreshed.append(row)
+                continue
+            source = {
+                "title": metadata["title"] or row["title"],
+                "url": row["url"],
+                "publish_time": metadata["publish_time"] or row["publish_time"],
+                "source_name": source_name_from_url(row["url"], row["source_name"]),
+                "summary": metadata["summary"],
+            }
+            refreshed.append(build_search_document(row, source, kind=row["source_type"]))
+            counts[row["source_type"]] += 1
+        write_csv(RAW_PATH, SOURCE_FIELDS, refreshed)
+        full_counts = Counter(row["source_type"] for row in refreshed)
+        write_report(
+            full_counts,
+            ["仅按当前 URL 刷新政策/新闻正文摘要，未更换 doc_id、公告或互动问答来源。"],
+            refresh_all=False,
+            mode_label="按当前 URL 刷新政策/新闻正文摘要",
+        )
+        print("current_search_pages_refreshed=" + ",".join(f"{key}:{counts[key]}" for key in sorted(counts)))
+        return 0
     stock_rows = read_csv(SAMPLE_DIR / "stock_pool.csv")
     stock_names = {row["stock_code"]: row["stock_name"] for row in stock_rows}
     stock_sector = {row["stock_code"]: row["industry_sector"] for row in stock_rows}
     stock_codes = [row["stock_code"] for row in stock_rows]
 
-    policy_sources: list[dict[str, str]] = []
+    policy_sources = existing_search_sources(docs, "policy", OFFICIAL_DOMAINS)
     for idx, term in enumerate(POLICY_SEARCH_TERMS):
         print(f"[AlphaLens] Search policy source {idx + 1}/{len(POLICY_SEARCH_TERMS)} ...", flush=True)
         policy_sources.append(
-            search_source(
-                term,
-                OFFICIAL_DOMAINS,
-                fallback_date=f"2024-{(idx % 12) + 1:02d}-15",
-                fallback_name="政府/部委网站",
-            )
+            search_source(term, OFFICIAL_DOMAINS, fallback_date="", fallback_name="政府/部委网站")
         )
+    policy_sources = deduplicate_sources(policy_sources)
+    policy_sources = [source for source in policy_sources if source.get("summary")]
     print(f"[AlphaLens] Policy source pool ready: {len(policy_sources)}", flush=True)
-    news_sources: list[dict[str, str]] = []
+    news_sources = existing_search_sources(docs, "news", NEWS_DOMAINS)
     for idx, term in enumerate(NEWS_SEARCH_TERMS):
         print(f"[AlphaLens] Search news source {idx + 1}/{len(NEWS_SEARCH_TERMS)} ...", flush=True)
-        news_sources.append(
-            search_source(
-                term,
-                NEWS_DOMAINS,
-                fallback_date=f"2024-{(idx % 12) + 1:02d}-20",
-                fallback_name="财经媒体/行业网站",
-            )
-        )
+        news_sources.append(search_source(term, NEWS_DOMAINS, fallback_date="", fallback_name="财经媒体/行业网站"))
+    news_sources = deduplicate_sources(news_sources)
+    news_sources = [source for source in news_sources if source.get("summary")]
+    policy_urls = {source["url"] for source in policy_sources}
+    news_sources = [source for source in news_sources if source["url"] not in policy_urls]
     print(f"[AlphaLens] News source pool ready: {len(news_sources)}", flush=True)
 
     announcement_sources = fetch_cninfo_announcements(stock_codes, stock_names)
     sz_stock_codes = [code for code in stock_codes if not code.startswith("6")]
     ir_sources = fetch_ir_questions(sz_stock_codes, stock_names)
+
+    minimum_counts = {
+        "policy": 30,
+        "announcement": 30,
+        "news": 30,
+        "ir_qa": 30,
+    }
+    actual_counts = {
+        "policy": len(policy_sources),
+        "announcement": len(announcement_sources),
+        "news": len(news_sources),
+        "ir_qa": len(ir_sources),
+    }
+    shortages = [
+        f"{source_type}={actual_counts[source_type]}/{required}"
+        for source_type, required in minimum_counts.items()
+        if actual_counts[source_type] < required
+    ]
+    if args.refresh_all and shortages:
+        raise RuntimeError("刷新前来源池不足，未写入 raw_documents.csv: " + "，".join(shortages))
 
     replacement_counts: Counter[str] = Counter()
     notes: list[str] = [
@@ -701,7 +1027,7 @@ def main() -> int:
     updated_docs: list[dict[str, str]] = []
 
     for row in docs:
-        if not should_replace(row):
+        if not args.refresh_all and not should_replace(row):
             updated_docs.append(row)
             continue
         source_type = row["source_type"]
@@ -738,7 +1064,7 @@ def main() -> int:
     )
 
     write_csv(RAW_PATH, SOURCE_FIELDS, updated_docs)
-    write_report(replacement_counts, notes)
+    write_report(replacement_counts, notes, refresh_all=args.refresh_all)
     print(f"Verified text sources written to {RAW_PATH}")
     print("text_replacement_counts=" + ",".join(f"{key}:{replacement_counts[key]}" for key in sorted(replacement_counts)))
     return 0

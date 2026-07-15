@@ -52,7 +52,10 @@ def read_view_csv(path: Path) -> list[dict[str, str]]:
     if not path.exists():
         return []
     with path.open("r", newline="", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+        return [
+            {key: value for key, value in row.items() if key is not None}
+            for row in csv.DictReader(f)
+        ]
 
 
 def load_manual_review_notes(path: Path, key_fields: list[str]) -> dict[tuple[str, ...], dict[str, str]]:
@@ -116,6 +119,8 @@ def prepare_source_verification_queue() -> None:
 
 
 def deterministic_sample(rows: list[dict[str, str]], count: int) -> list[dict[str, str]]:
+    if count <= 0:
+        return []
     if len(rows) <= count:
         return rows
     step = max(len(rows) // count, 1)
@@ -129,11 +134,15 @@ def prepare_manual_review_samples() -> None:
     predicates = read_csv("predicates.csv")
     event_sample_path = VIEW_DIR / "事件人工抽检样本.csv"
     predicate_sample_path = VIEW_DIR / "谓词人工抽检样本.csv"
+    existing_event_rows = read_view_csv(event_sample_path)
     event_notes = load_manual_review_notes(event_sample_path, ["review_item"])
     predicate_notes = load_manual_review_notes(predicate_sample_path, ["event_id", "predicate_name"])
 
-    event_sample_rows = []
-    for event in deterministic_sample(events, 10):
+    event_sample_rows = [row for row in existing_event_rows if row.get("manual_review_result", "").strip()]
+    reviewed_ids = {row.get("review_item", "") for row in event_sample_rows}
+    remaining_slots = max(10 - len(event_sample_rows), 0)
+    event_candidates = [event for event in events if event["event_id"] not in reviewed_ids]
+    for event in deterministic_sample(event_candidates, remaining_slots):
         doc = docs[event["doc_id"]]
         row = {
             "review_item": event["event_id"],
@@ -213,6 +222,46 @@ def prepare_manual_review_samples() -> None:
         ],
         predicate_sample_rows,
     )
+
+
+def prepare_event_review_resolution() -> None:
+    review_rows = read_view_csv(VIEW_DIR / "事件人工抽检样本.csv")
+    reviewed_rows = [row for row in review_rows if row.get("manual_review_result", "").strip()]
+    result_counts = Counter(row["manual_review_result"] for row in reviewed_rows)
+    lines = [
+        "# AlphaLens 事件抽检问题处理记录",
+        "",
+        f"生成日期：{today()}",
+        "",
+        DISCLAIMER,
+        "",
+        "## 人工抽检结论",
+        "",
+        f"- 已审事件：{len(reviewed_rows)} 条",
+        f"- pass：{result_counts['pass']} 条",
+        f"- revise：{result_counts['revise']} 条",
+        f"- drop：{result_counts['drop']} 条",
+        f"- drop 结论已完成规则处理：{result_counts['drop']} 条",
+        "",
+        "## 发现的系统性问题",
+        "",
+        "1. 公告抽取曾把 AlphaLens 人工补写的“项目关联”说明当作原文证据，导致评级、分红法律意见、保荐代表人变更等例行文件被误判为产能扩张。",
+        "2. 互动问答曾把任意一条问题直接标记为 investor_question_pressure，但单条问答无法证明提问数量或压力增加。",
+        "",
+        "## 已实施修复",
+        "",
+        "- 事件与谓词只读取“项目关联：”之前的原文摘要，不再使用系统生成的项目关联说明作为事实证据。",
+        "- 公告只有明确出现扩产、投产、重大合同、处罚、问询、停复产等事件事实时才生成相应事件。",
+        "- 单条互动问答保留在证据文本库，但不生成 investor_question_pressure；未来只有加入时间窗聚合统计后才允许判断提问增加。",
+        "- 谓词不再使用系统生成的 event.object 自动命中核心产品；政策直接相关性必须由原文证据支持。",
+        "- 原始 10 条人工结论继续保留在 `查看材料/事件人工抽检样本.csv`，作为问题发现和修复审计记录。",
+        "",
+        "## 结论",
+        "",
+        "本轮 10 条 drop 已按共性根因处理并从当前事件结果中排除。后续新增事件类型或改动抽取规则时，应重新抽样验证，不能把本轮结论外推为永久准确率。",
+        "",
+    ]
+    write_text(VIEW_DIR / "事件抽检问题处理记录.md", lines)
 
 
 def prepare_market_data_import_template() -> None:
@@ -472,13 +521,15 @@ def prepare_view_material_index() -> None:
     files = [
         ("任务进度.md", "当前 B 线自动任务进度，本地维护且不提交"),
         ("人工待办.md", "必须人工完成或确认的事项，本地维护且不提交"),
-        ("用户参与工作推进手册.md", "用户继续推进人工抽查、行情复核、A/C 确认和 PPT 检查的详细步骤"),
+        ("用户参与工作推进手册.md", "用户继续推进谓词抽检、A/C 确认和 PPT 数字检查的详细步骤"),
         ("A口径确认建议稿.md", "给 A 确认事件类型、谓词和表述边界的建议稿"),
         ("C联调运行手册.md", "给 C 复跑流水线、检查输出和定位问题的运行手册"),
         ("Demo演示脚本.md", "Streamlit Demo 演示顺序和讲解词草稿"),
         ("答辩问答素材.md", "围绕项目定位、数据、谓词、因子和回测的答辩问答素材"),
         ("真实数据替换验收清单.md", "人工替换真实文本和行情后的复跑、校验和验收步骤"),
         ("真实文本来源获取记录.md", "联网获取真实文本来源、替换数量和来源池记录"),
+        ("真实文本来源核验报告.md", "120 条真实文本的联网、域名、详情页、摘要结构和唯一性核验结论"),
+        ("源文本核验明细.csv", "逐条真实文本来源核验状态和说明"),
         ("真实文本核验进度.md", "真实来源文本核验完成数量、来源分布和 P0 剩余统计"),
         ("真实行情获取记录.md", "东方财富前复权行情获取参数、覆盖范围和注意事项"),
         ("真实行情导入模板.csv", "真实前复权行情导入字段模板"),
@@ -487,6 +538,7 @@ def prepare_view_material_index() -> None:
         ("人工抽检结果校验报告.md", "事件/谓词人工抽检结果 pass/revise/drop 合法值校验报告"),
         ("源文本核验队列.csv", "120 条文本的来源核验队列和优先级"),
         ("事件人工抽检样本.csv", "事件抽取人工抽检表"),
+        ("事件抽检问题处理记录.md", "10 条事件 drop 结论、误判根因和规则修复闭环"),
         ("谓词人工抽检样本.csv", "谓词判断人工抽检表"),
         ("案例索引.csv", "全量事件案例索引，便于挑 PPT 案例"),
         ("解释案例草稿.md", "可读版解释案例，含事件、谓词和当前收益路径"),
@@ -508,9 +560,9 @@ def prepare_view_material_index() -> None:
         "",
         "1. `任务进度.md`：先看当前自动推进到哪里。",
         "2. `人工待办.md`：再看哪些必须人工处理。",
-        "3. `用户参与工作推进手册.md`：按步骤推进人工抽查、行情复核、A/C 确认和 PPT 检查。",
+        "3. `用户参与工作推进手册.md`：按步骤推进谓词抽检、A/C 确认和 PPT 数字检查。",
         "4. `A口径确认建议稿.md`：和 A 确认事件、谓词、对外表达边界前看。",
-        "5. `真实文本来源获取记录.md` / `真实文本核验进度.md`：查看联网替换结果和剩余 P0 数量。",
+        "5. `真实文本来源获取记录.md` / `真实文本来源核验报告.md` / `源文本核验明细.csv`：查看联网替换和逐条核验结论。",
         "6. `真实行情获取记录.md` / `真实行情导入模板.csv` / `真实行情校验报告.md`：替换真实前复权行情前后看。",
         "7. `流水线输入保护验证报告.md`：确认安全模式不会覆盖真实文本。",
         "8. `数据质量报告.md` / `未来函数审计明细.md`：查看数据完整性、质量警告和回测时间审计。",
@@ -549,7 +601,7 @@ def prepare_real_data_acceptance_checklist() -> None:
         "",
         "## 适用时机",
         "",
-        "当人工完成真实来源文本核验、真实前复权行情替换、事件/谓词抽检修正后，用本清单验收 B 线数据能否交给 A/C 使用。",
+        "当真实来源文本、候选前复权行情、事件/谓词结果发生更新后，用本清单验收 B 线数据能否交给 A/C 使用。",
         "",
         "## 替换前备份",
         "",
@@ -565,7 +617,7 @@ def prepare_real_data_acceptance_checklist() -> None:
         "| 来源覆盖 | policy / announcement / news / ir_qa 均有样本 | `查看材料/数据质量报告.md` |",
         "| 日期范围 | `publish_time` 在 2024-01-01 至 2026-06-30 | `scripts/validate_b_data.py` |",
         "| 文本长度 | `content` 不少于 50 字符 | `scripts/validate_b_data.py` |",
-        "| URL 可追溯 | P0 样本 URL 指向正文、公告 PDF 或问答详情页 | `查看材料/真实文本来源获取记录.md` / `查看材料/用户参与工作推进手册.md` |",
+        "| URL 可追溯 | 120 条样本 URL 指向正文、公告 PDF 或问答详情页且全局不重复 | `查看材料/真实文本来源核验报告.md` / `查看材料/源文本核验明细.csv` |",
         "| 进度统计 | 第一批目标剩余量可解释 | `查看材料/真实文本核验进度.md` |",
         "",
         "## 行情替换验收",
@@ -576,7 +628,7 @@ def prepare_real_data_acceptance_checklist() -> None:
         "| 日期覆盖 | 覆盖 2024-01-01 至 2026-06-30 的交易窗口 | `market_data.csv` |",
         "| OHLC 合法 | high 不低于开收低，low 不高于开收高 | `scripts/validate_b_data.py` |",
         "| 导入字段 | 字段顺序与模板一致 | `查看材料/真实行情导入模板.csv` / `scripts/validate_real_market_data.py` |",
-        "| 前复权口径 | open/high/low/close 来源说明清楚，adj_factor 口径已复核 | `查看材料/真实行情获取记录.md` / 人工确认数据供应商说明 |",
+        "| 前复权口径 | open/high/low/close 为东方财富 `fqt=1` 候选版；adj_factor=1 仅作字段占位并已披露限制 | `查看材料/真实行情获取记录.md` / `查看材料/答辩问答素材.md` |",
         "| 未来函数 | 入场日严格晚于事件日 | `查看材料/未来函数审计明细.md` |",
         "",
         "## 必跑命令",
@@ -584,6 +636,7 @@ def prepare_real_data_acceptance_checklist() -> None:
         "```bash",
         ".venv/bin/python run_pipeline.py --preserve-inputs",
         ".venv/bin/python scripts/validate_input_preservation.py",
+        ".venv/bin/python scripts/audit_text_sources.py",
         ".venv/bin/python scripts/report_manual_verification_progress.py",
         ".venv/bin/python scripts/validate_real_market_data.py --input data/sample/market_data.csv",
         ".venv/bin/python scripts/validate_manual_review_results.py",
@@ -663,9 +716,9 @@ def prepare_a_schema_confirmation_brief() -> None:
             "## 建议 A 重点确认",
             "",
             "1. `policy_support` 是否只覆盖政策利好，还是也包含产业行动方案、税收优惠、补贴、目录管理。",
-            "2. `capacity_expansion` 是否包括海外认证、交付能力、募投项目推进等间接扩产表述。",
-            "3. `investor_question_pressure` 是否应该视为关注度信号，还是偏风险/不确定性信号。",
-            "4. `social_attention_spikes` 的判断边界是否接受自动规则中的多源报道、政策专项行动、互动问答集中。",
+            "2. `capacity_expansion` 是否只接受明确的募投项目、产能建设和项目投产事实；评级报告背景描述和泛化交付能力不自动算事件。",
+            "3. `investor_question_pressure` 需要多长时间窗和多少条提问才能成立；当前单条互动问答不生成该事件。",
+            "4. `social_attention_spikes` 的判断边界是否要求可量化变化或多源报道，单篇新闻和单条问答不自动成立。",
             "5. `event_has_short_term_price_impact` 是否作为经验强度分数保留，还是改名为更中性的 `historical_attention_impact_score`。",
             "",
             "## 对外表述边界",
@@ -699,6 +752,7 @@ def prepare_c_runbook() -> None:
         "```bash",
         ".venv/bin/python run_pipeline.py --preserve-inputs",
         ".venv/bin/python scripts/validate_input_preservation.py",
+        ".venv/bin/python scripts/audit_text_sources.py",
         ".venv/bin/python scripts/validate_b_data.py",
         ".venv/bin/python scripts/validate_real_market_data.py --input data/sample/market_data.csv",
         ".venv/bin/python scripts/validate_manual_review_results.py",
@@ -728,6 +782,7 @@ def prepare_c_runbook() -> None:
             "- `event_forward_returns.csv` 的 `entry_trade_date` 必须严格晚于 `event_time`。",
             "- `factors.csv` 中 `trigger_event_ids` 和 `trigger_rule_ids` 必须能回溯到 `events.csv` 和 `rules.csv`。",
             "- 替换真实行情后，需要重新生成收益、规则、因子、报告和 Demo 展示数据。",
+            "- 当前 `adj_factor=1.000000` 是已接受的占位字段，不是真实复权因子序列；不得据此还原未复权价格或宣称数据供应商已认证。",
             "- 不改变 `参考文档/数据格式规范.md` 中锁定字段名。",
             "",
             "## 常见问题定位",
@@ -774,7 +829,7 @@ def prepare_demo_script() -> None:
         "| 页面 | 讲解重点 | 建议话术 |",
         "|------|----------|----------|",
         "| Pipeline Overview | 展示文本到因子的完整流程 | 先让评委看到系统不是黑箱预测，而是分层结构化和审计 |",
-        "| Input Data | 展示股票池和文本样本 | 数据覆盖新能源多个细分方向，文本已联网替换为真实来源候选版 |",
+        "| Input Data | 展示股票池和文本样本 | 120 条文本已完成详情页、日期、白名单域名和摘要结构的程序化联网核验 |",
         "| Event Extraction | 展示事件卡片 | 文本先被约束成事件类型、主体、客体、影响路径和证据片段 |",
         "| Predicates & Rules | 展示谓词矩阵和规则触发 | 谓词是金融事件的标准化判断题，规则是可解释研究假设 |",
         "| Factor Ranking | 展示因子排序 | 因子值来自规则触发和证据强度，不是主观打分 |",
@@ -783,7 +838,7 @@ def prepare_demo_script() -> None:
         "",
         "## 收尾 20 秒",
         "",
-        "这个 Demo 证明了从非结构化舆情文本到结构化因子研究信号的链路可跑通。正式提交前，我们会人工抽查真实文本来源、复核前复权行情口径，并刷新报告和展示数字。",
+        "这个 Demo 证明了从非结构化舆情文本到结构化因子研究信号的链路可跑通。当前行情采用东方财富前复权价格候选版，adj_factor=1 仅为字段占位；结果用于研究链路验证，不是投资结论。",
         "",
     ]
     write_text(VIEW_DIR / "Demo演示脚本.md", lines)
@@ -811,7 +866,7 @@ def prepare_defense_qa_material() -> None:
         "",
         "### Q3：当前样本文本是否都是真实来源？",
         "",
-        "当前文本已联网替换为可追溯来源候选版，用于验证字段契约和系统链路。正式版仍需要按 `查看材料/源文本核验队列.csv` 完成人工抽查确认。",
+        "当前 120 条文本已完成程序化联网核验：四类各 30 条，URL 全局唯一，并检查详情页、日期、白名单域名、摘要结构和访问状态。逐条结论见 `查看材料/源文本核验明细.csv`；这不等同于版权授权或法律认证。",
         "",
         "### Q4：如何避免未来函数？",
         "",
@@ -831,7 +886,7 @@ def prepare_defense_qa_material() -> None:
         "",
         "### Q7：当前回测结果能说明策略赚钱吗？",
         "",
-        "不能。当前行情已联网获取前复权价格候选版，但仍需要人工复核数据源和 `adj_factor` 口径。回测结果只能作为研究链路验证，不能作为投资结论。",
+        "不能。当前 open/high/low/close 使用东方财富 `fqt=1` 前复权价格候选版；项目已接受 `adj_factor=1` 作为字段占位，但它不是真实复权因子序列。回测只能验证研究链路，不能作为投资结论或收益承诺。",
         "",
         "### Q8：如果真实回测效果一般，项目还有价值吗？",
         "",
@@ -841,7 +896,7 @@ def prepare_defense_qa_material() -> None:
         "",
         "### Q9：下一步最关键的工作是什么？",
         "",
-        "第一是核验真实文本来源，第二是替换真实前复权行情，第三是由 A 确认事件和谓词口径，第四是与 C 联调真实数据回测。",
+        "下一步是完成人工谓词抽检，由 A 确认事件和谓词金融口径，再与 C 联调当前真实文本和候选行情，最后冻结 PPT 与 CSV 数字。",
         "",
     ]
     write_text(VIEW_DIR / "答辩问答素材.md", lines)
@@ -850,6 +905,7 @@ def prepare_defense_qa_material() -> None:
 def main() -> None:
     prepare_source_verification_queue()
     prepare_manual_review_samples()
+    prepare_event_review_resolution()
     prepare_market_data_import_template()
     prepare_future_info_audit()
     prepare_ppt_case_pack()

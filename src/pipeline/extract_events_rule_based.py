@@ -37,30 +37,86 @@ SOURCE_STRENGTH = {
 }
 
 
+EVENT_KEYWORDS = {
+    "regulatory_penalty": ["行政处罚", "立案调查", "纪律处分", "监管措施"],
+    "inquiry_letter_pressure": ["问询函", "关注函", "监管函"],
+    "earnings_quality_anomaly": ["业绩预亏", "业绩亏损", "资产减值", "会计差错", "财务造假"],
+    "supply_chain_disruption": ["停产", "复产", "生产事故", "供应中断", "不可抗力"],
+    "product_price_increase": ["产品涨价", "价格上调", "调高价格", "调价函"],
+    "capacity_expansion": [
+        "扩产",
+        "新增产能",
+        "产能建设",
+        "项目投产",
+        "投资建设",
+        "建设项目",
+        "重大合同",
+        "中标项目",
+        "订单落地",
+        "募投项目",
+    ],
+}
+
+
+POLICY_ACTION_KEYWORDS = [
+    "行动方案",
+    "实施方案",
+    "补贴",
+    "税收优惠",
+    "以旧换新",
+    "消纳责任权重",
+    "并网",
+    "市场交易",
+    "试点示范",
+    "指导意见",
+]
+
+
+NEWS_ATTENTION_KEYWORDS = [
+    "装机量",
+    "装车量",
+    "渗透率",
+    "出口量",
+    "招标规模",
+    "行业自律",
+    "供需变化",
+    "价格变化",
+    "市场关注",
+]
+
+
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open("r", newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
 
 
-def infer_event_type(doc: dict[str, str]) -> str:
-    text = f'{doc["title"]} {doc["content"]}'
-    if doc["source_type"] == "policy":
-        return "policy_support"
-    if doc["source_type"] == "ir_qa":
-        return "investor_question_pressure"
-    if doc["source_type"] == "announcement" and any(
-        word in text for word in ["产能", "投产", "项目", "订单", "交付", "技改", "建设"]
-    ):
-        return "capacity_expansion"
-    if any(word in text for word in ["价格", "涨价", "企稳"]):
-        return "product_price_increase"
-    if any(word in text for word in ["产能", "投产", "项目", "订单", "交付", "技改", "建设"]):
-        return "capacity_expansion"
-    return "attention_spread"
+def source_evidence_text(doc: dict[str, str]) -> str:
+    """Return source facts only, excluding AlphaLens' own project-association note."""
+    content = doc["content"].split("项目关联：", 1)[0]
+    return f'{doc["title"]} {content}'
+
+
+def infer_event_type(doc: dict[str, str]) -> str | None:
+    text = source_evidence_text(doc)
+    source_type = doc["source_type"]
+
+    if source_type == "ir_qa":
+        # A single question is evidence, not proof that question pressure increased.
+        return None
+    if source_type == "policy":
+        return "policy_support" if any(word in text for word in POLICY_ACTION_KEYWORDS) else None
+
+    for event_type, keywords in EVENT_KEYWORDS.items():
+        if any(word in text for word in keywords):
+            return event_type
+
+    if source_type == "news" and any(word in text for word in NEWS_ATTENTION_KEYWORDS):
+        return "attention_spread"
+    return None
 
 
 def evidence_sentence(doc: dict[str, str], stock_name: str) -> str:
-    text = doc["content"].replace("。", "。\n")
+    text = doc["content"].split("项目关联：", 1)[0].replace("。", "。\n")
     priority_words = [stock_name, "政策", "订单", "产能", "储能", "电池", "光伏", "风电", "销量", "投资者"]
     for sentence in text.splitlines():
         if any(word in sentence for word in priority_words):
@@ -90,13 +146,17 @@ def extract_events() -> list[dict[str, object]]:
         doc = documents[doc_id]
         event_type = infer_event_type(doc)
         for link in links_by_doc.get(doc_id, []):
+            current_event_id = f"E{event_idx:03d}"
+            event_idx += 1
+            if event_type is None:
+                continue
             sector = link["industry"]
             strength = SOURCE_STRENGTH[doc["source_type"]]
             if event_type in {"policy_support", "capacity_expansion"}:
                 strength += 0.02
             rows.append(
                 {
-                    "event_id": f"E{event_idx:03d}",
+                    "event_id": current_event_id,
                     "doc_id": doc_id,
                     "stock_code": link["stock_code"],
                     "event_type": event_type,
@@ -108,7 +168,6 @@ def extract_events() -> list[dict[str, object]]:
                     "evidence_strength": f"{min(strength, 0.98):.2f}",
                 }
             )
-            event_idx += 1
     return rows
 
 

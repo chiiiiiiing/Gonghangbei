@@ -93,16 +93,17 @@ def ground_predicates() -> list[dict[str, object]]:
     for event in events:
         doc = documents[event["doc_id"]]
         sector = stock_pool[event["stock_code"]]["industry_sector"]
-        full_text = f'{doc["title"]} {doc["content"]} {event["object"]} {event["evidence_text"]}'
+        source_content = doc["content"].split("项目关联：", 1)[0]
+        full_text = f'{doc["title"]} {source_content}'
         core_keywords = CORE_PRODUCT_KEYWORDS[sector]
         mentions_core_product = any(keyword in full_text for keyword in core_keywords)
         has_policy = event["event_type"] == "policy_support"
         source_authoritative = source_is_authoritative(doc["source_type"], doc["source_name"])
-        attention_spike = doc["source_type"] in {"policy", "news"} or event["event_type"] in {
-            "attention_spread",
-            "investor_question_pressure",
-        }
-        investor_questions = doc["source_type"] == "ir_qa"
+        attention_spike = event["event_type"] == "attention_spread" and any(
+            word in full_text
+            for word in ["装机量", "装车量", "渗透率", "出口量", "招标规模", "市场关注", "多家"]
+        )
+        investor_questions = event["event_type"] == "investor_question_pressure"
         vague_response = investor_questions and any(word in full_text for word in ["以公司公告", "需结合", "可能影响"])
         uncertain_announcement = doc["source_type"] == "announcement" and any(
             word in full_text for word in ["不确定", "风险", "可能影响", "提示"]
@@ -121,9 +122,9 @@ def ground_predicates() -> list[dict[str, object]]:
             rows,
             event["event_id"],
             "policy_directly_related_to_business",
-            bool_value(mentions_core_product or has_policy),
-            0.90,
-            f"事件证据与{sector}主营业务或产业链核心环节相关",
+            bool_value(has_policy and mentions_core_product),
+            0.90 if has_policy and mentions_core_product else 0.78,
+            f"政策原文证据{'明确' if has_policy and mentions_core_product else '未明确'}涉及{sector}主营业务或核心产品",
         )
         add_predicate(
             rows,
@@ -147,7 +148,7 @@ def ground_predicates() -> list[dict[str, object]]:
             "social_attention_spikes",
             bool_value(attention_spike),
             0.82 if attention_spike else 0.68,
-            "政策/新闻/互动问答体现主题关注升温" if attention_spike else "普通公告未直接体现关注度扩散",
+            "新闻原文包含可量化或多源关注扩散线索" if attention_spike else "单条来源不足以证明关注度显著上升",
         )
         add_predicate(
             rows,
@@ -162,8 +163,8 @@ def ground_predicates() -> list[dict[str, object]]:
             event["event_id"],
             "investor_questions_increase",
             bool_value(investor_questions),
-            0.90 if investor_questions else 0.82,
-            "来源为投资者互动问答" if investor_questions else "来源不是互动问答",
+            0.86 if investor_questions else 0.82,
+            "事件已由时间窗聚合证据确认提问增加" if investor_questions else "未发现时间窗内提问数量增加的聚合证据",
         )
         add_predicate(
             rows,

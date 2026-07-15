@@ -16,22 +16,22 @@
 |------|------|----------|----------|
 | `stock_pool.csv` | 30 | 通过 | `stock_code, stock_name, industry_sector, market_cap` |
 | `raw_documents.csv` | 120 | 通过 | `doc_id, source_type, title, content, publish_time, source_name, url` |
-| `entity_links.csv` | 60 | 通过 | `doc_id, stock_code, stock_name, industry, confidence, evidence` |
-| `events.csv` | 60 | 通过 | `event_id, doc_id, stock_code, event_type, event_time, subject, object, impact_path, evidence_text, evidence_strength` |
-| `predicates.csv` | 660 | 通过 | `event_id, predicate_name, value, confidence, rationale` |
+| `entity_links.csv` | 313 | 通过 | `doc_id, stock_code, stock_name, industry, confidence, evidence` |
+| `events.csv` | 136 | 通过 | `event_id, doc_id, stock_code, event_type, event_time, subject, object, impact_path, evidence_text, evidence_strength` |
+| `predicates.csv` | 1496 | 通过 | `event_id, predicate_name, value, confidence, rationale` |
 | `market_data.csv` | 18002 | 通过 | `trade_date, stock_code, open, high, low, close, volume, adj_factor` |
 
 ## 研究输出 CSV
 
 | 文件 | 行数 | 字段状态 | 用途 |
 |------|------|----------|------|
-| `predicate_matrix.csv` | 60 | 通过 | 事件-谓词矩阵 |
-| `event_forward_returns.csv` | 20 | 通过 | 事件后收益对齐与未来函数审计 |
+| `predicate_matrix.csv` | 136 | 通过 | 事件-谓词矩阵 |
+| `event_forward_returns.csv` | 135 | 通过 | 事件后收益对齐与未来函数审计 |
 | `rules.csv` | 4 | 通过 | 候选规则排序 |
-| `factors.csv` | 20 | 通过 | 事件级因子值 |
+| `factors.csv` | 44 | 通过 | 事件级因子值 |
 | `factor_snapshot.csv` | 30 | 通过 | Demo 截面展示 |
 | `group_returns.csv` | 5 | 通过 | 分组收益展示 |
-| `rank_ic_timeseries.csv` | 3 | 通过 | Rank IC 时序展示 |
+| `rank_ic_timeseries.csv` | 7 | 通过 | Rank IC 时序展示 |
 | `backtest_metrics.csv` | 5 | 通过 | 报告和 Demo 指标卡 |
 
 ## 联调检查顺序

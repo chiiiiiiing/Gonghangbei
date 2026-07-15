@@ -12,7 +12,8 @@ AlphaLens 将政策、公告、财经新闻和互动问答等非结构化金融�
 - 120 条摘要化文本已联网替换为可追溯来源候选版，其中 P0 待替换数量为 0，仍需人工抽查事实口径。
 - 实体链接、事件抽取、谓词判断、规则归纳、因子生成、回测审计和研究报告已串通。
 - Streamlit Demo 已具备 7 个页面：Pipeline Overview、Input Data、Event Extraction、Predicates & Rules、Factor Ranking、Backtest Dashboard、Research Report。
-- 当前行情已联网获取东方财富前复权价格候选版，`adj_factor` 口径仍需人工复核。
+- 120 条文本已完成程序化联网来源核验，四类各 30 条且 URL 全局唯一；逐条结果见 `查看材料/源文本核验明细.csv`。
+- 当前行情使用东方财富 `fqt=1` 前复权价格候选版；项目接受 `adj_factor=1` 作为字段占位，但它不是真实复权因子序列，答辩和报告必须披露该限制。
 
 ## 快速运行
 

@@ -1,6 +1,6 @@
 metric,value,description
-event_factor_sample_count,20,事件触发后的因子样本数
+event_factor_sample_count,44,事件触发后的因子样本数
 avg_rank_ic_5d,0.000000,按事件入场日计算的 Rank IC 均值
-top_bottom_group_spread_5d,-0.019950,G5 减 G1 的 5 日收益差
-positive_forward_return_rate_5d,0.500000,事件样本 5 日收益为正的比例
+top_bottom_group_spread_5d,0.074152,G5 减 G1 的 5 日收益差
+positive_forward_return_rate_5d,0.409091,事件样本 5 日收益为正的比例
 future_info_audit,pass,收益窗口均使用 event_time 之后的交易日

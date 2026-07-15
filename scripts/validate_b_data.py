@@ -364,11 +364,11 @@ def write_report(errors: list[str], warnings: list[str], tables: dict[str, list[
             "",
             "## 下一步",
             "",
-            "1. 人工抽查政策、公告、新闻、互动问答的来源、日期和公司关联。",
-            "2. 人工复核真实前复权行情和 `adj_factor` 口径。",
-            "3. 对近尾部事件，补充后续行情后再扩大 forward return 样本。",
-            "4. 保持 CSV 字段名不变，重新运行 `python run_pipeline.py --preserve-inputs` 和 `python scripts/validate_b_data.py`。",
-            "5. 真实文本或真实行情开始写入后，不要使用 `--force-sample-generation`。",
+            "1. 完成人工谓词抽检，并由 A 确认事件与谓词金融口径。",
+            "2. 与 C 联调当前真实文本和候选行情，确认收益对齐与未来函数审计。",
+            "3. 当前 `adj_factor=1` 是已接受的字段占位，不是真实复权因子序列；答辩和报告必须披露限制。",
+            "4. 对近尾部事件，补充后续行情后再扩大 forward return 样本。",
+            "5. 保持 CSV 字段名不变，只使用 `python run_pipeline.py --preserve-inputs` 安全复跑。",
         ]
     )
     REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")

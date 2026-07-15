@@ -18,31 +18,34 @@
 
 | event_type | 样本数 | A 是否确认 | 备注 |
 |------------|--------|------------|------|
-| `capacity_expansion` | 30 | 待确认 | 自动抽取候选口径 |
-| `investor_question_pressure` | 30 | 待确认 | 自动抽取候选口径 |
+| `attention_spread` | 80 | 待确认 | 自动抽取候选口径 |
+| `capacity_expansion` | 11 | 待确认 | 自动抽取候选口径 |
+| `earnings_quality_anomaly` | 17 | 待确认 | 自动抽取候选口径 |
+| `inquiry_letter_pressure` | 2 | 待确认 | 自动抽取候选口径 |
+| `policy_support` | 26 | 待确认 | 自动抽取候选口径 |
 
 ## 当前谓词覆盖
 
 | predicate_name | 样本数 | A 是否确认 | 建议确认点 |
 |----------------|--------|------------|------------|
-| `announcement_contains_uncertainty` | 60 | 待确认 | true/false 判断边界是否清晰 |
-| `event_evidence_strength` | 60 | 待确认 | 分数区间和解释口径是否合理 |
-| `event_has_short_term_price_impact` | 60 | 待确认 | 分数区间和解释口径是否合理 |
-| `event_mentions_core_product` | 60 | 待确认 | true/false 判断边界是否清晰 |
-| `evidence_from_authoritative_source` | 60 | 待确认 | true/false 判断边界是否清晰 |
-| `has_policy_support` | 60 | 待确认 | true/false 判断边界是否清晰 |
-| `institutional_attention_increases` | 60 | 待确认 | true/false 判断边界是否清晰 |
-| `investor_questions_increase` | 60 | 待确认 | true/false 判断边界是否清晰 |
-| `management_response_vague` | 60 | 待确认 | true/false 判断边界是否清晰 |
-| `policy_directly_related_to_business` | 60 | 待确认 | true/false 判断边界是否清晰 |
-| `social_attention_spikes` | 60 | 待确认 | true/false 判断边界是否清晰 |
+| `announcement_contains_uncertainty` | 136 | 待确认 | true/false 判断边界是否清晰 |
+| `event_evidence_strength` | 136 | 待确认 | 分数区间和解释口径是否合理 |
+| `event_has_short_term_price_impact` | 136 | 待确认 | 分数区间和解释口径是否合理 |
+| `event_mentions_core_product` | 136 | 待确认 | true/false 判断边界是否清晰 |
+| `evidence_from_authoritative_source` | 136 | 待确认 | true/false 判断边界是否清晰 |
+| `has_policy_support` | 136 | 待确认 | true/false 判断边界是否清晰 |
+| `institutional_attention_increases` | 136 | 待确认 | true/false 判断边界是否清晰 |
+| `investor_questions_increase` | 136 | 待确认 | true/false 判断边界是否清晰 |
+| `management_response_vague` | 136 | 待确认 | true/false 判断边界是否清晰 |
+| `policy_directly_related_to_business` | 136 | 待确认 | true/false 判断边界是否清晰 |
+| `social_attention_spikes` | 136 | 待确认 | true/false 判断边界是否清晰 |
 
 ## 建议 A 重点确认
 
 1. `policy_support` 是否只覆盖政策利好，还是也包含产业行动方案、税收优惠、补贴、目录管理。
-2. `capacity_expansion` 是否包括海外认证、交付能力、募投项目推进等间接扩产表述。
-3. `investor_question_pressure` 是否应该视为关注度信号，还是偏风险/不确定性信号。
-4. `social_attention_spikes` 的判断边界是否接受自动规则中的多源报道、政策专项行动、互动问答集中。
+2. `capacity_expansion` 是否只接受明确的募投项目、产能建设和项目投产事实；评级报告背景描述和泛化交付能力不自动算事件。
+3. `investor_question_pressure` 需要多长时间窗和多少条提问才能成立；当前单条互动问答不生成该事件。
+4. `social_attention_spikes` 的判断边界是否要求可量化变化或多源报道，单篇新闻和单条问答不自动成立。
 5. `event_has_short_term_price_impact` 是否作为经验强度分数保留，还是改名为更中性的 `historical_attention_impact_score`。
 
 ## 对外表述边界
