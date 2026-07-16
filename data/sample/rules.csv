@@ -1,0 +1,5 @@
+rule_id,rule_name,condition,target_label,support_count,positive_count,win_rate,avg_forward_return_5d,score,status
+R001,policy_attention_momentum,has_policy_support AND policy_directly_related_to_business AND social_attention_spikes,short_term_theme_momentum,0,0,0.0000,0.000000,0.0000,below_min_occurrence
+R002,authoritative_core_event,event_mentions_core_product AND evidence_from_authoritative_source,explainable_event_signal,41,17,0.4146,0.003110,0.4405,qualified
+R003,capacity_authoritative_expansion,event_type = capacity_expansion AND evidence_from_authoritative_source,capacity_expansion_attention,6,3,0.5000,0.015965,0.3989,qualified
+R004,investor_pressure_watch,investor_questions_increase AND management_response_vague,information_uncertainty_watch,0,0,0.0000,0.000000,0.0000,below_min_occurrence
