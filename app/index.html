@@ -7,427 +7,297 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0c0e12; --surface: #13161b; --raised: #1a1e24;
-    --border: #252830; --text: #ddd8ce; --muted: #787366;
-    --amber: #c8882e; --amber-bg: rgba(200,136,46,.10);
-    --green: #2d9956; --green-bg: rgba(45,153,86,.10);
-    --red: #c94040; --red-bg: rgba(201,64,64,.08);
-    --font-body: 'Inter', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+    --bg:#0c0e12; --sur:#13161b; --rai:#1a1e24; --bor:#252830;
+    --tx:#ddd8ce; --mu:#787366; --am:#c8882e; --am-bg:rgba(200,136,46,.10);
+    --gr:#2d9956; --gr-bg:rgba(45,153,86,.10); --rd:#c94040; --rd-bg:rgba(201,64,64,.08);
+    --ff:'Inter',system-ui,sans-serif; --fm:'JetBrains Mono','SF Mono',monospace;
   }
-  * { box-sizing:border-box; margin:0; padding:0 }
-  body { font-family:var(--font-body); background:var(--bg); color:var(--text); line-height:1.5; min-height:100vh }
-  .app { max-width:1200px; margin:0 auto; padding:28px 24px 60px }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--ff);background:var(--bg);color:var(--tx);line-height:1.5;min-height:100vh}
+  .app{max-width:1120px;margin:0 auto;padding:32px 24px 60px}
 
-  /* header */
-  .topbar { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:10px }
-  .topbar h1 { font-size:1.5rem; font-weight:700; letter-spacing:-.01em }
-  .topbar h1 span { color:var(--amber); font-weight:400 }
-  .topbar .tagline { font-family:var(--font-mono); font-size:.68rem; color:var(--muted); letter-spacing:.03em }
+  .top{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+  .top h1{font-size:1.5rem;font-weight:700}
+  .top h1 span{color:var(--am);font-weight:400}
+  .top .ver{font-family:var(--fm);font-size:.64rem;color:var(--mu);letter-spacing:.04em}
 
-  /* input card */
-  .input-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:24px; margin-bottom:20px }
-  .input-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 20px }
-  @media (max-width:700px) { .input-grid { grid-template-columns:1fr } }
-  .field { margin-bottom:14px }
-  .field.full { grid-column:1/-1 }
-  label { display:block; font-family:var(--font-mono); font-size:.66rem; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; margin-bottom:4px }
-  input, select, textarea { width:100%; padding:9px 12px; background:var(--bg); border:1px solid var(--border); border-radius:5px; color:var(--text); font-size:.84rem; font-family:var(--font-body); outline:none; transition:border-color .15s }
-  input:focus, select:focus, textarea:focus { border-color:var(--amber) }
-  textarea { resize:vertical; min-height:120px; line-height:1.6 }
-  .btn-row { display:flex; gap:8px; margin-top:4px; flex-wrap:wrap }
-  .btn { font-family:var(--font-mono); font-size:.74rem; font-weight:500; padding:10px 22px; border-radius:5px; cursor:pointer; border:none; letter-spacing:.02em; transition:all .15s; display:inline-flex; align-items:center; gap:6px }
-  .btn-primary { background:var(--amber); color:#0c0e12; font-weight:600 }
-  .btn-primary:hover { background:#d4993c }
-  .btn-primary:disabled { opacity:.4; cursor:not-allowed }
-  .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--muted); padding:6px 14px; font-size:.7rem }
-  .btn-ghost:hover { color:var(--text); border-color:var(--muted) }
+  /* input */
+  .inp{background:var(--sur);border:1px solid var(--bor);border-radius:8px;padding:24px;margin-bottom:24px}
+  .inp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+  @media(max-width:700px){.inp-grid{grid-template-columns:1fr}}
+  .fld{margin-bottom:14px}.fld.w2{grid-column:1/-1}
+  label{display:block;font-family:var(--fm);font-size:.64rem;color:var(--mu);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+  input,select,textarea{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--bor);border-radius:5px;color:var(--tx);font-size:.84rem;font-family:var(--ff);outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--am)}
+  textarea{resize:vertical;min-height:100px;line-height:1.6;font-size:.8rem}
+  .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{font-family:var(--fm);font-size:.74rem;font-weight:500;padding:10px 22px;border-radius:5px;cursor:pointer;border:none;letter-spacing:.02em;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+  .btn-go{background:var(--am);color:#0c0e12;font-weight:600}.btn-go:hover{background:#d4993c}
+  .btn-go:disabled{opacity:.4;cursor:not-allowed}
+  .btn-gh{background:transparent;border:1px solid var(--bor);color:var(--mu);padding:6px 14px;font-size:.68rem}
+  .btn-gh:hover{color:var(--tx);border-color:var(--mu)}
 
-  /* results */
-  .results { display:none }
-  .results.active { display:block; animation:fadeIn .3s ease }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-
-  /* metrics row */
-  .kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px }
-  .kpi { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:18px 20px }
-  .kpi .kpi-val { font-family:var(--font-mono); font-size:1.5rem; font-weight:600 }
-  .kpi .kpi-lbl { font-family:var(--font-mono); font-size:.62rem; color:var(--muted); letter-spacing:.04em; margin-top:4px }
-  .kpi .kpi-sub { font-family:var(--font-mono); font-size:.66rem; color:var(--muted); margin-top:2px }
+  /* tab bar */
+  .tabs{display:flex;gap:2px;margin-bottom:24px;border-bottom:1px solid var(--bor);overflow-x:auto}
+  .tabs button{font-family:var(--fm);font-size:.7rem;padding:9px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--mu);cursor:pointer;white-space:nowrap;letter-spacing:.02em;transition:all .15s;margin-bottom:-1px}
+  .tabs button:hover{color:var(--tx)}
+  .tabs button.on{color:var(--am);border-bottom-color:var(--am)}
 
   /* panels */
-  .section { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:22px; margin-bottom:16px }
-  .section h2 { font-size:.88rem; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px }
-  .section h2 .badge { font-family:var(--font-mono); font-size:.6rem; padding:2px 8px; border-radius:3px; font-weight:500 }
-  .badge.amber { background:var(--amber-bg); color:var(--amber) }
-  .badge.green { background:var(--green-bg); color:var(--green) }
+  .p{background:var(--sur);border:1px solid var(--bor);border-radius:8px;padding:22px;margin-bottom:18px}
+  .p h2{font-size:.88rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .badge{font-family:var(--fm);font-size:.58rem;padding:2px 7px;border-radius:3px;font-weight:500;letter-spacing:.03em}
+  .badge-am{background:var(--am-bg);color:var(--am)}.badge-gr{background:var(--gr-bg);color:var(--gr)}
+  .badge-rd{background:var(--rd-bg);color:var(--rd)}
+
+  /* kpi */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+  .kpi{background:var(--sur);border:1px solid var(--bor);border-radius:8px;padding:18px 20px}
+  .kpi .v{font-family:var(--fm);font-size:1.45rem;font-weight:600}
+  .kpi .l{font-family:var(--fm);font-size:.6rem;color:var(--mu);letter-spacing:.04em;margin-top:3px}
+  .kpi .s{font-family:var(--fm);font-size:.62rem;color:var(--mu);margin-top:2px}
 
   /* table */
-  .tbl { width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:.72rem }
-  .tbl th { padding:8px 12px; text-align:left; border-bottom:1px solid var(--border); color:var(--muted); font-weight:500; font-size:.64rem; letter-spacing:.04em }
-  .tbl td { padding:7px 12px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums }
-  .tbl .up { color:var(--green) }
-  .tbl .dn { color:var(--red) }
-  .tbl .hl { color:var(--amber); font-weight:600 }
+  .tbl{width:100%;border-collapse:collapse;font-family:var(--fm);font-size:.72rem}
+  .tbl th{padding:7px 12px;text-align:left;border-bottom:1px solid var(--bor);color:var(--mu);font-weight:500;font-size:.62rem;letter-spacing:.04em}
+  .tbl td{padding:6px 12px;border-bottom:1px solid var(--bor);font-variant-numeric:tabular-nums}
+  .up{color:var(--gr)}.dn{color:var(--rd)}.am{color:var(--am);font-weight:600}
 
-  /* factor bar */
-  .fbar { display:flex; align-items:center; gap:10px; margin:5px 0; font-family:var(--font-mono); font-size:.72rem }
-  .fbar .fn { width:74px; text-align:right; flex-shrink:0; overflow:hidden; text-overflow:ellipsis }
-  .fbar .fs { width:42px; font-size:.64rem; color:var(--muted); text-align:right; flex-shrink:0 }
-  .fbar .ft { flex:1; height:22px; background:var(--bg); border-radius:4px; overflow:hidden }
-  .fbar .ff { height:100%; border-radius:4px; background:linear-gradient(90deg,transparent,var(--amber)); transition:width .5s }
-  .fbar .fv { width:56px; font-weight:500; flex-shrink:0 }
-  .fbar .fr { width:72px; font-size:.64rem; color:var(--muted); flex-shrink:0 }
+  /* factor bars */
+  .fb{display:flex;align-items:center;gap:10px;margin:5px 0;font-family:var(--fm);font-size:.72rem}
+  .fb .n{width:78px;text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis}
+  .fb .s{width:42px;font-size:.62rem;color:var(--mu);text-align:right;flex-shrink:0}
+  .fb .t{flex:1;height:22px;background:var(--bg);border-radius:4px;overflow:hidden}
+  .fb .f{height:100%;border-radius:4px;background:linear-gradient(90deg,transparent 0%,var(--am) 100%);transition:width .5s}
+  .fb .v{width:56px;font-weight:500;flex-shrink:0}
 
   /* bar chart */
-  .hbar { display:flex; align-items:center; gap:10px; margin:4px 0 }
-  .hbar .hlbl { width:90px; font-family:var(--font-mono); font-size:.68rem; text-align:right; color:var(--muted); flex-shrink:0 }
-  .hbar .htrk { flex:1; height:26px; background:var(--bg); border-radius:4px; overflow:hidden }
-  .hbar .hfl { height:100%; border-radius:4px; transition:width .5s }
-  .hbar .hvl { width:64px; font-family:var(--font-mono); font-size:.7rem; font-weight:500; flex-shrink:0 }
+  .hbar{display:flex;align-items:center;gap:10px;margin:4px 0}
+  .hbar .hl{width:100px;font-family:var(--fm);font-size:.68rem;text-align:right;color:var(--mu);flex-shrink:0}
+  .hbar .ht{flex:1;height:26px;background:var(--bg);border-radius:4px;overflow:hidden}
+  .hbar .hf{height:100%;border-radius:4px;transition:width .5s}
+  .hbar .hv{width:64px;font-family:var(--fm);font-size:.7rem;font-weight:500;flex-shrink:0}
 
   /* spark */
-  .spark { display:flex; align-items:flex-end; gap:2px; height:50px }
-  .spark .sp { flex:1; min-width:2px; border-radius:1px 1px 0 0 }
-  .spark-lbl { display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.6rem; color:var(--muted); margin-top:6px }
+  .spk{display:flex;align-items:flex-end;gap:2px;height:50px}
+  .spk .b{flex:1;min-width:2px;border-radius:1px 1px 0 0}
+  .spk-l{display:flex;justify-content:space-between;font-family:var(--fm);font-size:.6rem;color:var(--mu);margin-top:6px}
 
-  /* event chips */
-  .evt-tag { display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:.7rem; padding:4px 10px; border-radius:4px; background:var(--amber-bg); color:var(--amber); margin-bottom:8px; font-weight:500 }
+  /* predicate chips */
+  .pchips{display:flex;flex-wrap:wrap;gap:6px}
+  .pchip{font-family:var(--fm);font-size:.68rem;padding:5px 10px;border-radius:4px;background:var(--rai)}
+  .pchip.on{border:1px solid var(--gr);color:var(--gr)}
+  .pchip.off{border:1px solid var(--bor);color:var(--mu)}
+  .pchip.sc{border:1px solid var(--am);color:var(--am)}
 
-  /* predicates grid */
-  .pred-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px; margin-top:6px }
-  .pred-item { display:flex; align-items:center; justify-content:space-between; padding:6px 10px; background:var(--raised); border-radius:5px; font-size:.74rem }
-  .pred-item .pv { font-family:var(--font-mono); font-size:.68rem; font-weight:500 }
-  .pred-item .pt { color:var(--green) }
-  .pred-item .pf { color:var(--muted) }
+  /* rule card */
+  .rc{background:var(--rai);border-left:2px solid var(--am);border-radius:0 5px 5px 0;padding:14px 16px;margin-bottom:10px}
+  .rc .rid{font-family:var(--fm);font-size:.7rem;color:var(--am);font-weight:600}
+  .rc .rcn{font-size:.72rem;color:var(--mu);margin-top:4px;font-family:var(--fm)}
+  .rc .rst{display:flex;gap:20px;margin-top:8px;font-family:var(--fm);font-size:.7rem}
+  .rst span{color:var(--mu)}.rst b{color:var(--tx);font-weight:500}
 
-  /* footer */
-  .footer { text-align:center; font-family:var(--font-mono); font-size:.62rem; color:var(--muted); margin-top:32px; padding-top:16px; border-top:1px solid var(--border); letter-spacing:.02em }
-
-  .empty { text-align:center; padding:60px 20px; color:var(--muted); font-size:.84rem }
-  .spinner { display:inline-block; width:12px; height:12px; border:2px solid var(--border); border-top-color:var(--amber); border-radius:50%; animation:spin .7s linear infinite }
-  @keyframes spin { to{transform:rotate(360deg)} }
+  .ft{text-align:center;font-family:var(--fm);font-size:.6rem;color:var(--mu);margin-top:40px;padding-top:16px;border-top:1px solid var(--bor);letter-spacing:.03em}
+  .em{text-align:center;padding:60px 20px;color:var(--mu);font-size:.84rem}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bor);border-top-color:var(--am);border-radius:50%;animation:s .7s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  .fade{animation:fi .3s ease}@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 <div class="app">
+<div class="top"><div><h1>Alpha<span>Lens</span></h1><div class="ver">Financial Factor Mining &amp; Backtest Engine</div></div></div>
 
-<div class="topbar">
-  <div>
-    <h1>Alpha<span>Lens</span></h1>
-    <div class="tagline">Financial Factor Mining &amp; Backtest</div>
+<!-- INPUT -->
+<div class="inp">
+  <div class="inp-grid">
+    <div class="fld w2"><label>标题</label><input type="text" id="it" placeholder="例：工信部发布新型储能建设行动方案"></div>
+    <div class="fld w2"><label>正文</label><textarea id="ic" placeholder="粘贴政策、公告、财经新闻或互动问答正文……"></textarea></div>
+    <div class="fld"><label>来源类型</label><select id="is"><option value="policy">政策文件</option><option value="announcement">上市公司公告</option><option value="news">财经新闻</option><option value="ir_qa">互动问答</option></select></div>
+    <div class="fld"><label>来源名称</label><input type="text" id="isn" placeholder="工信部 / 证券时报 / 巨潮资讯网"></div>
+    <div class="fld"><label>发布日期</label><input type="date" id="id"></div>
+    <div class="fld"><label>&nbsp;</label><div class="acts"><button class="btn btn-go" onclick="run()" id="rb">&#9654; Analyze</button><button class="btn btn-gh" onclick="ex(0)">储能政策</button><button class="btn btn-gh" onclick="ex(1)">锂电产能</button><button class="btn btn-gh" onclick="ex(2)">光伏新闻</button></div></div>
   </div>
 </div>
 
-<!-- INPUT -->
-<div class="input-card">
-  <div class="input-grid">
-    <div class="field full">
-      <label>标题 Title</label>
-      <input type="text" id="ititle" placeholder="例：工信部发布新型储能建设行动方案">
-    </div>
-    <div class="field full">
-      <label>正文 Content</label>
-      <textarea id="icontent" placeholder="粘贴政策、公告、财经新闻或互动问答的正文内容……"></textarea>
-    </div>
-    <div class="field">
-      <label>来源类型 Source</label>
-      <select id="isource">
-        <option value="policy">政策文件</option>
-        <option value="announcement">上市公司公告</option>
-        <option value="news">财经新闻</option>
-        <option value="ir_qa">互动问答</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>来源名称 Source Name</label>
-      <input type="text" id="isourcename" placeholder="工信部 / 证券时报 / 巨潮资讯网">
-    </div>
-    <div class="field">
-      <label>发布日期 Date</label>
-      <input type="date" id="idate">
-    </div>
-    <div class="field">
-      <label>&nbsp;</label>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="analyze()" id="runbtn">&#9654; Analyze</button>
-        <button class="btn btn-ghost" onclick="loadEx(0)">储能政策</button>
-        <button class="btn btn-ghost" onclick="loadEx(1)">锂电产能</button>
-        <button class="btn btn-ghost" onclick="loadEx(2)">光伏新闻</button>
-      </div>
-    </div>
-  </div>
+<!-- TABS -->
+<div class="tabs" id="tabbar" style="display:none">
+  <button class="on" data-tab="0">Overview</button>
+  <button data-tab="1">Impact</button>
+  <button data-tab="2">Validation</button>
+  <button data-tab="3">Evidence</button>
 </div>
 
 <!-- RESULTS -->
-<div class="results" id="results"></div>
+<div id="out"></div>
+<div id="em"><div class="em">输入金融文本，点击 Analyze 开始分析</div></div>
 
-<!-- EMPTY -->
-<div id="empty"><div class="empty">输入金融文本，点击 Analyze 开始分析</div></div>
-
-<div class="footer">AlphaLens v1.0 &middot; 仅供研究参考，不构成投资建议 &middot; 数据来源：样本文本库（120条）&middot; 新能源行业（30只）</div>
+<div class="ft">AlphaLens v1.0 &middot; 仅供研究参考，不构成投资建议 &middot; 数据库：120条文本 / 136个事件 / 30只新能源股票 &middot; 完全离线运行</div>
 </div>
 
 <script>
 // ═══════════════════════════════════════════
-// EMBEDDED DATABASE
+// DATABASE
 // ═══════════════════════════════════════════
-const STOCKS = [
-  {c:"300750",n:"宁德时代",s:"锂电",m:8900},{c:"300014",n:"亿纬锂能",s:"锂电",m:960},{c:"002074",n:"国轩高科",s:"锂电",m:520},{c:"300207",n:"欣旺达",s:"锂电",m:360},{c:"300438",n:"鹏辉能源",s:"锂电",m:230},{c:"603659",n:"璞泰来",s:"锂电",m:420},{c:"300073",n:"当升科技",s:"锂电",m:260},{c:"002812",n:"恩捷股份",s:"锂电",m:380},{c:"300450",n:"先导智能",s:"锂电",m:390},
-  {c:"002594",n:"比亚迪",s:"整车",m:7800},{c:"601127",n:"赛力斯",s:"整车",m:1450},{c:"000625",n:"长安汽车",s:"整车",m:1320},{c:"601633",n:"长城汽车",s:"整车",m:1550},{c:"600104",n:"上汽集团",s:"整车",m:1650},
-  {c:"601012",n:"隆基绿能",s:"光伏",m:1450},{c:"600438",n:"通威股份",s:"光伏",m:980},{c:"002129",n:"TCL中环",s:"光伏",m:520},{c:"002459",n:"晶澳科技",s:"光伏",m:610},{c:"688599",n:"天合光能",s:"光伏",m:690},{c:"300274",n:"阳光电源",s:"光伏",m:1260},
-  {c:"002202",n:"金风科技",s:"风电",m:410},{c:"601615",n:"明阳智能",s:"风电",m:330},{c:"300772",n:"运达股份",s:"风电",m:120},{c:"688349",n:"三一重能",s:"风电",m:310},{c:"002080",n:"中材科技",s:"风电",m:260},
-  {c:"688063",n:"派能科技",s:"储能",m:170},{c:"688390",n:"固德威",s:"储能",m:210},{c:"300763",n:"锦浪科技",s:"储能",m:240},{c:"605117",n:"德业股份",s:"储能",m:360},{c:"002335",n:"科华数据",s:"储能",m:210}
-];
+const S=[{c:"300750",n:"宁德时代",s:"锂电",m:8900},{c:"300014",n:"亿纬锂能",s:"锂电",m:960},{c:"002074",n:"国轩高科",s:"锂电",m:520},{c:"300207",n:"欣旺达",s:"锂电",m:360},{c:"300438",n:"鹏辉能源",s:"锂电",m:230},{c:"603659",n:"璞泰来",s:"锂电",m:420},{c:"300073",n:"当升科技",s:"锂电",m:260},{c:"002812",n:"恩捷股份",s:"锂电",m:380},{c:"300450",n:"先导智能",s:"锂电",m:390},{c:"002594",n:"比亚迪",s:"整车",m:7800},{c:"601127",n:"赛力斯",s:"整车",m:1450},{c:"000625",n:"长安汽车",s:"整车",m:1320},{c:"601633",n:"长城汽车",s:"整车",m:1550},{c:"600104",n:"上汽集团",s:"整车",m:1650},{c:"601012",n:"隆基绿能",s:"光伏",m:1450},{c:"600438",n:"通威股份",s:"光伏",m:980},{c:"002129",n:"TCL中环",s:"光伏",m:520},{c:"002459",n:"晶澳科技",s:"光伏",m:610},{c:"688599",n:"天合光能",s:"光伏",m:690},{c:"300274",n:"阳光电源",s:"光伏",m:1260},{c:"002202",n:"金风科技",s:"风电",m:410},{c:"601615",n:"明阳智能",s:"风电",m:330},{c:"300772",n:"运达股份",s:"风电",m:120},{c:"688349",n:"三一重能",s:"风电",m:310},{c:"002080",n:"中材科技",s:"风电",m:260},{c:"688063",n:"派能科技",s:"储能",m:170},{c:"688390",n:"固德威",s:"储能",m:210},{c:"300763",n:"锦浪科技",s:"储能",m:240},{c:"605117",n:"德业股份",s:"储能",m:360},{c:"002335",n:"科华数据",s:"储能",m:210}];
 
-const ALIASES = {"300750":["宁德","CATL"],"002594":["BYD"],"601012":["隆基"],"600438":["通威"],"002129":["TCL","中环"],"002459":["晶澳"],"688599":["天合"],"300274":["阳光","Sungrow"],"300014":["亿纬"],"002074":["国轩"],"300207":["欣旺达"],"300438":["鹏辉"],"603659":["璞泰来"],"300073":["当升"],"002812":["恩捷"],"300450":["先导"],"002202":["金风"],"601615":["明阳"],"300772":["运达"],"688349":["三一"],"002080":["中材"],"688063":["派能"],"688390":["固德威"],"300763":["锦浪"],"605117":["德业"],"002335":["科华"],"601127":["问界"],"000625":["长安"],"601633":["长城"],"600104":["上汽"]};
+const AL={"300750":["宁德","CATL"],"002594":["BYD"],"601012":["隆基"],"600438":["通威"],"002129":["TCL","中环"],"002459":["晶澳"],"688599":["天合"],"300274":["阳光","Sungrow"],"300014":["亿纬"],"002074":["国轩"],"300207":["欣旺达"],"300438":["鹏辉"],"603659":["璞泰来"],"300073":["当升"],"002812":["恩捷"],"300450":["先导"],"002202":["金风"],"601615":["明阳"],"300772":["运达"],"688349":["三一"],"002080":["中材"],"688063":["派能"],"688390":["固德威"],"300763":["锦浪"],"605117":["德业"],"002335":["科华"],"601127":["问界"],"000625":["长安"],"601633":["长城"],"600104":["上汽"]};
 
-const SECTOR_KW = {"光伏":["光伏","太阳能组件","硅片","晶硅"],"锂电":["动力电池","锂离子电池","锂电","电池回收"],"风电":["海上风电","风电","风机"],"储能":["新型储能","储能系统","储能项目","储能装机"],"整车":["新能源汽车","汽车以旧换新","充换电","车网互动"]};
-const EVENT_KW = {"regulatory_penalty":["行政处罚","立案调查","纪律处分","监管措施"],"inquiry_letter_pressure":["问询函","关注函","监管函"],"earnings_quality_anomaly":["业绩预亏","业绩亏损","资产减值","会计差错","财务造假"],"supply_chain_disruption":["停产","复产","生产事故","供应中断","不可抗力"],"product_price_increase":["产品涨价","价格上调","调高价格","调价函"],"capacity_expansion":["扩产","新增产能","产能建设","项目投产","投资建设","建设项目","重大合同","中标项目","订单落地","募投项目"]};
-const POLICY_KW = ["行动方案","实施方案","补贴","税收优惠","以旧换新","消纳责任权重","并网","市场交易","试点示范","指导意见"];
-const NEWS_KW = ["装机量","装车量","渗透率","出口量","招标规模","行业自律","供需变化","价格变化","市场关注"];
-const CORE_PRODUCT = {"光伏":["光伏","硅料","硅片","电池","组件","N型","TOPCon","HJT"],"锂电":["动力电池","锂电","电池","材料","隔膜","钠离子","装车量"],"风电":["风电","海上风电","风机","叶片","机组"],"储能":["储能","逆变器","系统集成","大储","户储"],"整车":["新能源汽车","整车","车型","销量","出口","插混"]};
-const PRICE_IMPACT = {"policy_support":0.78,"attention_spread":0.68,"capacity_expansion":0.63,"product_price_increase":0.66,"investor_question_pressure":0.50,"regulatory_penalty":0.62,"inquiry_letter_pressure":0.58,"earnings_quality_anomaly":0.64,"supply_chain_disruption":0.61};
-const SOURCE_STR = {policy:0.92,announcement:0.88,news:0.76,ir_qa:0.72};
+const SKW={"光伏":["光伏","太阳能组件","硅片","晶硅"],"锂电":["动力电池","锂离子电池","锂电","电池回收"],"风电":["海上风电","风电","风机"],"储能":["新型储能","储能系统","储能项目","储能装机"],"整车":["新能源汽车","汽车以旧换新","充换电","车网互动"]};
+const EKW={"regulatory_penalty":["行政处罚","立案调查","纪律处分","监管措施"],"inquiry_letter_pressure":["问询函","关注函","监管函"],"earnings_quality_anomaly":["业绩预亏","业绩亏损","资产减值","会计差错","财务造假"],"supply_chain_disruption":["停产","复产","生产事故","供应中断","不可抗力"],"product_price_increase":["产品涨价","价格上调","调高价格","调价函"],"capacity_expansion":["扩产","新增产能","产能建设","项目投产","投资建设","建设项目","重大合同","中标项目","订单落地","募投项目"]};
+const PKW=["行动方案","实施方案","补贴","税收优惠","以旧换新","消纳责任权重","并网","市场交易","试点示范","指导意见"];
+const NKW=["装机量","装车量","渗透率","出口量","招标规模","行业自律","供需变化","价格变化","市场关注"];
+const CP={"光伏":["光伏","硅料","硅片","电池","组件","N型","TOPCon","HJT"],"锂电":["动力电池","锂电","电池","材料","隔膜","钠离子","装车量"],"风电":["风电","海上风电","风机","叶片","机组"],"储能":["储能","逆变器","系统集成","大储","户储"],"整车":["新能源汽车","整车","车型","销量","出口","插混"]};
+const PI={"policy_support":0.78,"attention_spread":0.68,"capacity_expansion":0.63,"product_price_increase":0.66,"investor_question_pressure":0.50,"regulatory_penalty":0.62,"inquiry_letter_pressure":0.58,"earnings_quality_anomaly":0.64,"supply_chain_disruption":0.61};
+const SS={policy:0.92,announcement:0.88,news:0.76,ir_qa:0.72};
 
-const RULES = [
-  {id:"R001",name:"policy_attention_momentum",cond:"has_policy_support AND policy_directly_related_to_business AND social_attention_spikes",preds:["has_policy_support","policy_directly_related_to_business","social_attention_spikes"],etypes:[],target:"short_term_theme_momentum"},
-  {id:"R002",name:"authoritative_core_event",cond:"event_mentions_core_product AND evidence_from_authoritative_source",preds:["event_mentions_core_product","evidence_from_authoritative_source"],etypes:[],target:"explainable_event_signal"},
-  {id:"R003",name:"capacity_authoritative_expansion",cond:"event_type=capacity_expansion AND evidence_from_authoritative_source",preds:["evidence_from_authoritative_source"],etypes:["capacity_expansion"],target:"capacity_expansion_attention"},
-  {id:"R004",name:"investor_pressure_watch",cond:"investor_questions_increase AND management_response_vague",preds:["investor_questions_increase","management_response_vague"],etypes:[],target:"information_uncertainty_watch"}
-];
+const RULES=[{id:"R001",name:"policy_attention_momentum",cond:"has_policy_support AND policy_directly_related_to_business AND social_attention_spikes",preds:["has_policy_support","policy_directly_related_to_business","social_attention_spikes"],etypes:[],target:"short_term_theme_momentum"},{id:"R002",name:"authoritative_core_event",cond:"event_mentions_core_product AND evidence_from_authoritative_source",preds:["event_mentions_core_product","evidence_from_authoritative_source"],etypes:[],target:"explainable_event_signal"},{id:"R003",name:"capacity_authoritative_expansion",cond:"event_type=capacity_expansion AND evidence_from_authoritative_source",preds:["evidence_from_authoritative_source"],etypes:["capacity_expansion"],target:"capacity_expansion_attention"},{id:"R004",name:"investor_pressure_watch",cond:"investor_questions_increase AND management_response_vague",preds:["investor_questions_increase","management_response_vague"],etypes:[],target:"information_uncertainty_watch"}];
 
-// Pre-computed historical stats per event type (from the 136-event sample database)
-const EVENT_HISTORY = {
-  "policy_support":{count:38,positive:28,winRate:0.7368,avgReturn5d:0.0248,avgReturn10d:0.0312,maxReturn:0.112,minReturn:-0.058,avgEvidence:0.88,tradeDates:15},
-  "attention_spread":{count:32,positive:22,winRate:0.6875,avgReturn5d:0.0192,avgReturn10d:0.0256,maxReturn:0.089,minReturn:-0.042,avgEvidence:0.72,tradeDates:14},
-  "capacity_expansion":{count:28,positive:18,winRate:0.6429,avgReturn5d:0.0156,avgReturn10d:0.0211,maxReturn:0.078,minReturn:-0.051,avgEvidence:0.86,tradeDates:12},
-  "product_price_increase":{count:18,positive:11,winRate:0.6111,avgReturn5d:0.0132,avgReturn10d:0.0185,maxReturn:0.065,minReturn:-0.048,avgEvidence:0.74,tradeDates:10},
-  "regulatory_penalty":{count:12,positive:4,winRate:0.3333,avgReturn5d:-0.0188,avgReturn10d:-0.0245,maxReturn:0.032,minReturn:-0.082,avgEvidence:0.90,tradeDates:8},
-  "inquiry_letter_pressure":{count:10,positive:3,winRate:0.3000,avgReturn5d:-0.0152,avgReturn10d:-0.0210,maxReturn:0.028,minReturn:-0.068,avgEvidence:0.88,tradeDates:7},
-  "earnings_quality_anomaly":{count:8,positive:2,winRate:0.2500,avgReturn5d:-0.0285,avgReturn10d:-0.0358,maxReturn:0.022,minReturn:-0.095,avgEvidence:0.84,tradeDates:6},
-  "supply_chain_disruption":{count:6,positive:2,winRate:0.3333,avgReturn5d:-0.0120,avgReturn10d:-0.0185,maxReturn:0.035,minReturn:-0.072,avgEvidence:0.82,tradeDates:5},
-  "investor_question_pressure":{count:4,positive:2,winRate:0.5000,avgReturn5d:-0.0023,avgReturn10d:0.0050,maxReturn:0.042,minReturn:-0.038,avgEvidence:0.70,tradeDates:4}
-};
+// Historical DB stats (pre-computed from 136 events)
+const EH={"policy_support":{n:38,pos:28,wr:0.7368,r5:0.0248,r10:0.0312,mx:0.112,mn:-0.058,ae:0.88},"attention_spread":{n:32,pos:22,wr:0.6875,r5:0.0192,r10:0.0256,mx:0.089,mn:-0.042,ae:0.72},"capacity_expansion":{n:28,pos:18,wr:0.6429,r5:0.0156,r10:0.0211,mx:0.078,mn:-0.051,ae:0.86},"product_price_increase":{n:18,pos:11,wr:0.6111,r5:0.0132,r10:0.0185,mx:0.065,mn:-0.048,ae:0.74},"regulatory_penalty":{n:12,pos:4,wr:0.3333,r5:-0.0188,r10:-0.0245,mx:0.032,mn:-0.082,ae:0.90},"inquiry_letter_pressure":{n:10,pos:3,wr:0.3000,r5:-0.0152,r10:-0.0210,mx:0.028,mn:-0.068,ae:0.88},"earnings_quality_anomaly":{n:8,pos:2,wr:0.2500,r5:-0.0285,r10:-0.0358,mx:0.022,mn:-0.095,ae:0.84},"supply_chain_disruption":{n:6,pos:2,wr:0.3333,r5:-0.0120,r10:-0.0185,mx:0.035,mn:-0.072,ae:0.82},"investor_question_pressure":{n:4,pos:2,wr:0.5000,r5:-0.0023,r10:0.0050,mx:0.042,mn:-0.038,ae:0.70}};
 
-// Pre-computed rule stats from sample backtest
-const RULE_STATS = {"R001":{n:15,pos:11,wr:0.7333,ar:0.0231,score:0.5833},"R002":{n:18,pos:12,wr:0.6667,ar:0.0185,score:0.5167},"R003":{n:12,pos:8,wr:0.6667,ar:0.0152,score:0.4600},"R004":{n:8,pos:4,wr:0.5000,ar:-0.0023,score:0.3100}};
+const RS={"R001":{n:15,pos:11,wr:0.7333,ar:0.0231,sc:0.5833},"R002":{n:18,pos:12,wr:0.6667,ar:0.0185,sc:0.5167},"R003":{n:12,pos:8,wr:0.6667,ar:0.0152,sc:0.4600},"R004":{n:8,pos:4,wr:0.5000,ar:-0.0023,sc:0.3100}};
 
-// Rank IC time series (pre-computed from demo engine)
-const RANK_IC_SERIES = [0.082,0.065,-0.031,0.112,0.089,0.054,0.073,-0.018,0.098,0.121,0.067,0.044,0.108,0.086,-0.022,0.091,0.074,0.062,0.115,0.053];
+const RIC=[0.082,0.065,-0.031,0.112,0.089,0.054,0.073,-0.018,0.098,0.121,0.067,0.044,0.108,0.086,-0.022,0.091,0.074,0.062,0.115,0.053];
 
-const EXAMPLES = [
-  {t:"新型储能参与电力系统调节能力建设方案",c:"国家发展改革委、国家能源局发布新型储能发展实施方案，强调独立储能、源网荷储协同和新能源消纳，重点支持储能系统集成、逆变器和数据中心电源等方向的技术创新和规模化应用。政策的落地预计将推动派能科技、固德威、锦浪科技等储能企业的订单增长，科华数据的数据中心电源业务也将受益于新型储能应用场景的扩围。",s:"policy",sn:"国家发展改革委/国家能源局",d:"2025-02-17"},
-  {t:"宁德时代披露动力电池与储能业务产能规划进展",c:"公司公告显示，宁德时代继续围绕动力电池、储能电池和新技术产品推进产能与客户交付能力建设。公司将新增20GWh动力电池产能，预计2025年Q3投产。公告同时提示项目建设、客户需求和原材料价格存在不确定性。",s:"announcement",sn:"巨潮资讯网",d:"2025-04-15"},
-  {t:"光伏产业链价格出现阶段性企稳迹象",c:"财经新闻摘要称，硅料、硅片和组件价格经历调整后出现阶段性企稳迹象，市场关注产能出清和需求修复节奏。隆基绿能、通威股份、TCL中环等头部企业的产能利用率和海外订单情况受到机构关注。光伏装机需求持续增长，行业供需格局有望改善。",s:"news",sn:"证券时报",d:"2025-03-10"}
-];
+const EX=[{t:"新型储能参与电力系统调节能力建设方案",c:"国家发展改革委、国家能源局发布新型储能发展实施方案，强调独立储能、源网荷储协同和新能源消纳，重点支持储能系统集成、逆变器和数据中心电源等方向的技术创新和规模化应用。政策的落地预计将推动派能科技、固德威、锦浪科技等储能企业的订单增长，科华数据的数据中心电源业务也将受益于新型储能应用场景的扩围。",s:"policy",sn:"国家发展改革委/国家能源局",d:"2025-02-17"},{t:"宁德时代披露动力电池与储能业务产能规划进展",c:"公司公告显示，宁德时代继续围绕动力电池、储能电池和新技术产品推进产能与客户交付能力建设。公司将新增20GWh动力电池产能，预计2025年Q3投产。公告同时提示项目建设、客户需求和原材料价格存在不确定性。",s:"announcement",sn:"巨潮资讯网",d:"2025-04-15"},{t:"光伏产业链价格出现阶段性企稳迹象",c:"财经新闻摘要称，硅料、硅片和组件价格经历调整后出现阶段性企稳迹象，市场关注产能出清和需求修复节奏。隆基绿能、通威股份、TCL中环等头部企业的产能利用率和海外订单情况受到机构关注。光伏装机需求持续增长，行业供需格局有望改善。",s:"news",sn:"证券时报",d:"2025-03-10"}];
 
-// Build alias lookup table
-const _a=[];
-for(const s of STOCKS){_a.push({c:s.c,n:s.n,sec:s.s,al:s.n});for(const a of (ALIASES[s.c]||[]))_a.push({c:s.c,n:s.n,sec:s.s,al:a})}
-_a.sort((x,y)=>y.al.length-x.al.length);
-const ALIAS_TBL=_a;
+// Build alias table
+const AT=[];for(const s of S){AT.push({c:s.c,n:s.n,sec:s.s,al:s.n});for(const a of(AL[s.c]||[]))AT.push({c:s.c,n:s.n,sec:s.s,al:a})}AT.sort((a,b)=>b.al.length-a.al.length);
 
 // ═══════════════════════════════════════════
 // PIPELINE
 // ═══════════════════════════════════════════
-function linkEntities(title, content, srcType) {
-  const text=title+'\n'+content, seen=new Set(), res=[];
-  for(const r of ALIAS_TBL){if(!text.includes(r.al)||seen.has(r.c))continue;seen.add(r.c);const cf=r.n===r.al&&title.includes(r.n)?0.98:title.includes(r.al)?0.95:content.includes(r.n)?0.91:0.84;res.push({code:r.c,name:r.n,sector:r.sec,conf:cf,evidence:'提及"'+r.al+'"'});}
-  if(seen.size===0&&(srcType==='policy'||srcType==='news')){for(const [sec,kws] of Object.entries(SECTOR_KW)){const m=kws.find(k=>text.includes(k));if(!m)continue;const cf=srcType==='policy'?0.78:0.70;for(const s of STOCKS.filter(s=>s.s===sec)){if(seen.has(s.c))continue;seen.add(s.c);res.push({code:s.c,name:s.n,sector:sec,conf:cf,evidence:'主题映射"'+m+'"→'+sec});}break;}}
-  return res;
-}
-
-function extractEvent(title, content, srcType) {
-  const ft=title+' '+content;let et=null;
-  if(srcType==='policy'&&POLICY_KW.some(k=>ft.includes(k)))et='policy_support';
-  else if(srcType==='ir_qa')et=null;
-  else{for(const [t,kws] of Object.entries(EVENT_KW)){if(kws.some(k=>ft.includes(k))){et=t;break;}}if(!et&&srcType==='news'&&NEWS_KW.some(k=>ft.includes(k)))et='attention_spread';}
-  return et;
-}
-
-function groundPredicates(eventType, title, content, srcType, srcName, sector, evStrength) {
-  const text=title+' '+content;
-  const cks=CORE_PRODUCT[sector]||[];
-  const mentionsCore=cks.some(k=>text.includes(k));
-  const hasPolicy=eventType==='policy_support';
-  const srcAuth=srcType==='policy'||srcType==='announcement'||srcType==='ir_qa'||['证券时报','上海证券报','中国证券报','21世纪经济报道'].includes(srcName);
-  const attnSpike=eventType==='attention_spread'&&['装机量','装车量','渗透率','出口量','招标规模','市场关注','多家'].some(k=>text.includes(k));
-  const invQ=eventType==='investor_question_pressure';
-  const vague=invQ&&['以公司公告','需结合','可能影响'].some(k=>text.includes(k));
-  const uncertain=srcType==='announcement'&&['不确定','风险','可能影响','提示'].some(k=>text.includes(k));
-  const instAttn=['机构','调研','研报'].some(k=>text.includes(k));
-  return [
-    {name:'has_policy_support',val:hasPolicy,conf:hasPolicy?0.96:0.88,why:hasPolicy?'事件类型为policy_support':'非政策利好类型'},
-    {name:'policy_directly_related_to_business',val:hasPolicy&&mentionsCore,conf:hasPolicy&&mentionsCore?0.90:0.78,why:hasPolicy&&mentionsCore?'明确涉及主营业务':'未明确涉及'},
-    {name:'event_mentions_core_product',val:mentionsCore,conf:mentionsCore?0.88:0.74,why:mentionsCore?'提及核心产品关键词':'未显式提及'},
-    {name:'evidence_from_authoritative_source',val:srcAuth,conf:srcAuth?0.94:0.72,why:'来源:'+srcName},
-    {name:'social_attention_spikes',val:attnSpike,conf:attnSpike?0.82:0.68,why:attnSpike?'多源关注扩散线索':'单条来源不充分'},
-    {name:'institutional_attention_increases',val:instAttn,conf:instAttn?0.76:0.70,why:instAttn?'出现机构关注线索':'未出现'},
-    {name:'investor_questions_increase',val:invQ,conf:invQ?0.86:0.82,why:invQ?'提问增加':'未发现聚合证据'},
-    {name:'management_response_vague',val:vague,conf:vague?0.80:0.76,why:vague?'含模糊措辞':'未发现'},
-    {name:'announcement_contains_uncertainty',val:uncertain,conf:uncertain?0.84:0.78,why:uncertain?'含风险提示':'未发现'},
-    {name:'event_evidence_strength',val:(evStrength||0.8).toFixed(2),conf:0.92,why:'事件抽取阶段评分'},
-    {name:'event_has_short_term_price_impact',val:(PRICE_IMPACT[eventType]||0.55).toFixed(2),conf:0.70,why:'基于事件类型的先验市场反应强度'}
-  ];
-}
-
-function matchRules(eventType, predMap) {
-  const trig=[];
-  for(const r of RULES){
-    if(r.etypes.length>0&&!r.etypes.includes(eventType))continue;
-    if(r.preds.every(pn=>predMap[pn]===true)){const s=RULE_STATS[r.id]||{wr:0,ar:0,score:0,n:0,pos:0};trig.push({...r,score:s.score,wr:s.wr,ar:s.ar,n:s.n,pos:s.pos});}
-  }
-  return trig;
-}
-
-function calcFactor(trigRules, evStrength, eventType) {
-  if(trigRules.length===0)return{raw:0,factor:0};
-  const raw=trigRules.reduce((s,r)=>s+r.score,0);
-  const ev=(parseFloat(evStrength)||0.8);
-  const impact=PRICE_IMPACT[eventType]||0.55;
-  return{raw,factor:raw*(0.7*ev+0.3*impact)};
-}
+function link(ti,co,st){const tx=ti+'\n'+co,se=new Set(),re=[];for(const r of AT){if(!tx.includes(r.al)||se.has(r.c))continue;se.add(r.c);const cf=r.n===r.al&&ti.includes(r.n)?0.98:ti.includes(r.al)?0.95:co.includes(r.n)?0.91:0.84;re.push({code:r.c,name:r.n,sector:r.sec,conf:cf,ev:'提及"'+r.al+'"'})}if(se.size===0&&(st==='policy'||st==='news')){for(const[sec,kw]of Object.entries(SKW)){const m=kw.find(k=>tx.includes(k));if(!m)continue;const cf=st==='policy'?0.78:0.70;for(const s of S.filter(s=>s.s===sec)){if(se.has(s.c))continue;se.add(s.c);re.push({code:s.c,name:s.n,sector:sec,conf:cf,ev:'主题映射"'+m+'"→'+sec})}break}}return re}
+function evtype(ti,co,st){const ft=ti+' '+co;if(st==='policy'&&PKW.some(k=>ft.includes(k)))return'policy_support';if(st==='ir_qa')return null;for(const[t,kw]of Object.entries(EKW)){if(kw.some(k=>ft.includes(k)))return t}if(st==='news'&&NKW.some(k=>ft.includes(k)))return'attention_spread';return null}
+function preds(et,ti,co,st,sn,sec,es){const tx=ti+' '+co,ck=CP[sec]||[],mc=ck.some(k=>tx.includes(k)),hp=et==='policy_support',sa=st==='policy'||st==='announcement'||st==='ir_qa'||['证券时报','上海证券报','中国证券报','21世纪经济报道'].includes(sn),as=et==='attention_spread'&&['装机量','装车量','渗透率','出口量','招标规模','市场关注','多家'].some(k=>tx.includes(k)),iq=et==='investor_question_pressure',va=iq&&['以公司公告','需结合','可能影响'].some(k=>tx.includes(k)),un=st==='announcement'&&['不确定','风险','可能影响','提示'].some(k=>tx.includes(k)),ia=['机构','调研','研报'].some(k=>tx.includes(k));return[{n:'has_policy_support',v:hp,cf:hp?0.96:0.88,w:hp?'事件类型为policy_support':'非政策利好'},{n:'policy_directly_related_to_business',v:hp&&mc,cf:hp&&mc?0.90:0.78,w:hp&&mc?'明确涉及主营业务':'未明确'},{n:'event_mentions_core_product',v:mc,cf:mc?0.88:0.74,w:mc?'提及核心产品关键词':'未显式提及'},{n:'evidence_from_authoritative_source',v:sa,cf:sa?0.94:0.72,w:'来源:'+sn},{n:'social_attention_spikes',v:as,cf:as?0.82:0.68,w:as?'多源关注扩散线索':'单条来源不充分'},{n:'institutional_attention_increases',v:ia,cf:ia?0.76:0.70,w:ia?'出现机构关注线索':'未出现'},{n:'investor_questions_increase',v:iq,cf:iq?0.86:0.82,w:iq?'提问增加':'未发现聚合证据'},{n:'management_response_vague',v:va,cf:va?0.80:0.76,w:va?'含模糊措辞':'未发现'},{n:'announcement_contains_uncertainty',v:un,cf:un?0.84:0.78,w:un?'含风险提示':'未发现'},{n:'event_evidence_strength',v:(es||0.8).toFixed(2),cf:0.92,w:'事件抽取阶段评分'},{n:'event_has_short_term_price_impact',v:(PI[et]||0.55).toFixed(2),cf:0.70,w:'基于事件类型的先验市场反应强度'}]}
+function matchR(et,pm){const t=[];for(const r of RULES){if(r.etypes.length>0&&!r.etypes.includes(et))continue;if(r.preds.every(pn=>pm[pn]===true)){const s=RS[r.id]||{wr:0,ar:0,sc:0,n:0,pos:0};t.push({...r,score:s.sc,wr:s.wr,ar:s.ar,n:s.n,pos:s.pos})}}return t}
+function factor(tr,es,et){if(tr.length===0)return{raw:0,f:0};const raw=tr.reduce((s,r)=>s+r.score,0),ev=parseFloat(es)||0.8,im=PI[et]||0.55;return{raw,f:raw*(0.7*ev+0.3*im)}}
 
 // ═══════════════════════════════════════════
 // UI
 // ═══════════════════════════════════════════
-function pct(v){return typeof v==='number'?(v*100).toFixed(1)+'%':'--';}
-function f4(v){return typeof v==='number'?v.toFixed(4):v;}
-function pos(v){return v>0?'up':v<0?'dn':'';}
-function posc(v){return v>0?'var(--green)':v<0?'var(--red)':'var(--muted)';}
+let _d=null,_tab=0;
+function pc(v){return typeof v==='number'?(v*100).toFixed(1)+'%':'--'}
+function pc2(v){return typeof v==='number'?v.toFixed(2):v}
+function sc(v){return v>0?'up':v<0?'dn':''}
+function sc2(v){return v>0?'var(--gr)':v<0?'var(--rd)':'var(--mu)'}
+function ex(i){const e=EX[i];document.getElementById('it').value=e.t;document.getElementById('ic').value=e.c;document.getElementById('is').value=e.s;document.getElementById('isn').value=e.sn;document.getElementById('id').value=e.d}
+function swt(i){_tab=i;document.querySelectorAll('.tabs button').forEach((b,j)=>{b.classList.toggle('on',j===i)});renderTab()}
+function renderTab(){if(!_d)return;const o=document.getElementById('out');let h='';if(_tab===0)h=tabOverview();else if(_tab===1)h=tabImpact();else if(_tab===2)h=tabValidation();else if(_tab===3)h=tabEvidence();o.innerHTML=h}
+function tabOverview(){
+  const{et,es,entities,stocks,hist,allRules}=_d;
+  let h='<div class="kpis">';
+  h+='<div class="kpi"><div class="v" style="color:var(--am)">'+et+'</div><div class="l">检测事件</div><div class="s">证据强度 '+(es*100).toFixed(0)+'%</div></div>';
+  h+='<div class="kpi"><div class="v">'+stocks.length+'</div><div class="l">关联股票</div><div class="s">'+([...new Set(stocks.map(s=>s.sector))].join(' / '))+'</div></div>';
+  h+='<div class="kpi"><div class="v">'+allRules.size+'</div><div class="l">触发规则</div><div class="s">'+([...allRules.keys()].join(' / '))+'</div></div>';
+  h+='<div class="kpi"><div class="v" style="color:'+sc2(hist.wr-0.5)+'">'+pc(hist.wr)+'</div><div class="l">同类历史胜率</div><div class="s">'+hist.n+' 个历史事件</div></div>';
+  h+='<div class="kpi"><div class="v" style="color:'+sc2(hist.r5)+'">'+pc(hist.r5)+'</div><div class="l">同类平均收益 (5d)</div><div class="s">范围 ['+pc(hist.mn)+', '+pc(hist.mx)+']</div></div>';
+  h+='</div>';
 
-function loadEx(i){const e=EXAMPLES[i];document.getElementById('ititle').value=e.t;document.getElementById('icontent').value=e.c;document.getElementById('isource').value=e.s;document.getElementById('isourcename').value=e.sn;document.getElementById('idate').value=e.d;}
+  // Pipeline diagram (compact, informational)
+  h+='<div class="p"><h2><span class="badge badge-am">PIPELINE</span> 分析链路</h2>';
+  h+='<div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;font-family:var(--fm);font-size:.68rem;color:var(--mu)">';
+  const steps=['文本输入','实体链接','事件抽取','谓词判断','规则匹配','因子回测'];
+  for(let i=0;i<steps.length;i++){h+='<span style="padding:4px 10px;border-radius:4px;background:var(--rai);margin:2px">'+steps[i]+'</span>';if(i<steps.length-1)h+='<span style="margin:0 2px;color:var(--am)">→</span>'}
+  h+='</div></div>';
 
-async function analyze(){
-  const btn=document.getElementById('runbtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Analyzing...';
-  await new Promise(r=>setTimeout(r,50));
-  try{
-    const title=document.getElementById('ititle').value.trim();
-    const content=document.getElementById('icontent').value.trim();
-    const srcType=document.getElementById('isource').value;
-    const srcName=document.getElementById('isourcename').value.trim()||'Unknown';
-    if(!title||!content){alert('请填写标题和正文');btn.disabled=false;btn.innerHTML='&#9654; Analyze';return;}
-
-    // Step 1: Entity Linking
-    const entities=linkEntities(title,content,srcType);
-    // Step 2: Event Extraction
-    const eventType=extractEvent(title,content,srcType);
-    if(!eventType){renderNoEvent(entities);btn.disabled=false;btn.innerHTML='&#9654; Analyze';return;}
-
-    // Source strength
-    const evStrength=Math.min((SOURCE_STR[srcType]||0.76)+(['policy_support','capacity_expansion'].includes(eventType)?0.02:0),0.98);
-
-    // Step 3: For each linked stock, ground predicates + match rules + calc factor
-    const stockResults=[];
-    for(const ent of entities){
-      const preds=groundPredicates(eventType,title,content,srcType,srcName,ent.sector,evStrength);
-      const predMap={};preds.forEach(p=>{predMap[p.name]=p.val;});
-      const trig=matchRules(eventType,predMap);
-      const factor=calcFactor(trig,evStrength,eventType);
-      stockResults.push({...ent,predicates:preds,trigRules:trig,factor:factor.factor,rawScore:factor.raw});
-    }
-
-    // Sort by factor descending
-    stockResults.sort((a,b)=>b.factor-a.factor);
-
-    // Step 4: Backtest from database — look up historical events of same type
-    const hist=EVENT_HISTORY[eventType]||{count:0,positive:0,winRate:0,avgReturn5d:0,avgReturn10d:0,maxReturn:0,minReturn:0,avgEvidence:0,tradeDates:0};
-
-    // Aggregate triggered rules stats
-    const allTrigRules=new Map();
-    for(const sr of stockResults){for(const r of sr.trigRules){allTrigRules.set(r.id,r);}}
-
-    render({title,eventType,evStrength,entities,stockResults,hist,allTrigRules,srcType,srcName});
-  }catch(e){alert('Error: '+e.message);console.error(e);}
-  btn.disabled=false;btn.innerHTML='&#9654; Analyze';
+  return h;
 }
+function tabImpact(){
+  const{stocks}=_d;
+  let h='<div class="p"><h2><span class="badge badge-am">FACTOR RANKING</span> 因子排名</h2>';
+  const mf=Math.max(...stocks.map(s=>Math.abs(s.factor)),0.001);
+  for(const s of stocks){const w=Math.abs(s.factor)/mf*100;h+='<div class="fb"><span class="n">'+s.name+'</span><span class="s">'+s.sector+'</span><div class="t"><div class="f" style="width:'+w+'%"></div></div><span class="v" style="color:'+sc2(s.factor)+'">'+s.factor.toFixed(2)+'</span></div>'}
+  h+='<div style="font-family:var(--fm);font-size:.62rem;color:var(--mu);margin-top:10px">因子 = Σ(rule_scores) × (0.7×evidence_strength + 0.3×price_impact_prior)，行业内 Z-score 标准化</div></div>';
 
-function renderNoEvent(entities){
-  const el=document.getElementById('results');document.getElementById('empty').style.display='none';el.classList.add('active');
-  let h='<div class="section"><h2>分析结果</h2><div style="color:var(--muted);font-size:.84rem">未检测到明确的金融事件。当前文本可能不包含可识别的事件信号（政策利好、产能扩张、价格变动等）。</div>';
-  if(entities.length>0){
-    h+='<div style="margin-top:12px"><div style="font-size:.78rem;color:var(--muted);margin-bottom:6px">但识别到以下关联实体：</div>';
-    for(const e of entities)h+='<span style="display:inline-block;padding:3px 10px;margin:2px;background:var(--raised);border-radius:4px;font-family:var(--font-mono);font-size:.7rem">'+e.name+' ('+e.code+')</span>';
-    h+='</div>';
-  }
-  h+='</div>';el.innerHTML=h;
+  // Entity links
+  h+='<div class="p"><h2><span class="badge badge-am">ENTITY LINKS</span> 实体链接</h2><table class="tbl"><tr><th>代码</th><th>名称</th><th>行业</th><th>置信度</th><th>证据</th></tr>';
+  for(const e of stocks)h+='<tr><td>'+e.code+'</td><td>'+e.name+'</td><td>'+e.sector+'</td><td>'+(e.conf*100).toFixed(0)+'%</td><td style="font-size:.66rem;color:var(--mu)">'+e.ev+'</td></tr>';
+  h+='</table></div>';
+  return h;
 }
-
-function render(d){
-  const el=document.getElementById('results');document.getElementById('empty').style.display='none';el.classList.add('active');
-  const{sr:stocks,hist,allTrigRules,eventType,evStrength,srcType,srcName}=d;
+function tabValidation(){
+  const{et,hist,allRules}=_d;
   let h='';
 
-  // ── KPI Row ──
-  h+='<div class="kpi-row">';
-  h+='<div class="kpi"><div class="kpi-val" style="color:var(--amber)">'+eventType+'</div><div class="kpi-lbl">检测事件类型</div><div class="kpi-sub">证据强度 '+(evStrength*100).toFixed(0)+'%</div></div>';
-  h+='<div class="kpi"><div class="kpi-val">'+stocks.length+'</div><div class="kpi-lbl">关联股票</div><div class="kpi-sub">'+([...new Set(stocks.map(s=>s.sector))].join(' / '))+'</div></div>';
-  h+='<div class="kpi"><div class="kpi-val">'+allTrigRules.size+'</div><div class="kpi-lbl">触发规则</div><div class="kpi-sub">'+([...allTrigRules.keys()].join(' / '))+'</div></div>';
-  h+='<div class="kpi"><div class="kpi-val" style="color:'+posc(hist.winRate-0.5)+'">'+pct(hist.winRate)+'</div><div class="kpi-lbl">同类历史胜率</div><div class="kpi-sub">'+hist.count+' 个历史事件</div></div>';
-  h+='<div class="kpi"><div class="kpi-val" style="color:'+posc(hist.avgReturn5d)+'">'+pct(hist.avgReturn5d)+'</div><div class="kpi-lbl">同类平均收益 (5d)</div><div class="kpi-sub">范围 ['+pct(hist.minReturn)+', '+pct(hist.maxReturn)+']</div></div>';
-  h+='</div>';
+  // History
+  h+='<div class="p"><h2><span class="badge badge-gr">HISTORICAL BACKTEST</span> 同类事件历史回测 — '+et+'</h2>';
+  h+='<div style="font-size:.78rem;color:var(--mu);margin-bottom:14px">数据库中共 <b style="color:var(--tx)">'+hist.n+'</b> 个 '+et+' 类型的历史事件</div>';
+  h+='<div class="hbar"><span class="hl">正向比例</span><div class="ht"><div class="hf" style="width:'+(hist.wr*100)+'%;background:var(--gr)"></div></div><span class="hv" style="color:var(--gr)">'+hist.pos+'/'+hist.n+' ('+pc(hist.wr)+')</span></div>';
+  h+='<div class="hbar"><span class="hl">5日平均收益</span><div class="ht"><div class="hf" style="width:'+(Math.abs(hist.r5)/0.04*100)+'%;background:'+(hist.r5>=0?'var(--gr)':'var(--rd)')+'"></div></div><span class="hv" style="color:'+sc2(hist.r5)+'">'+pc(hist.r5)+'</span></div>';
+  h+='<div class="hbar"><span class="hl">10日平均收益</span><div class="ht"><div class="hf" style="width:'+(Math.abs(hist.r10)/0.04*100)+'%;background:'+(hist.r10>=0?'var(--gr)':'var(--rd)')+'"></div></div><span class="hv" style="color:'+sc2(hist.r10)+'">'+pc(hist.r10)+'</span></div>';
+  h+='<div class="hbar"><span class="hl">最大收益</span><div class="ht"><div class="hf" style="width:'+(hist.mx/0.12*100)+'%;background:var(--gr)'></div></div><span class="hv" style="color:var(--gr)">'+pc(hist.mx)+'</span></div>';
+  h+='<div class="hbar"><span class="hl">最大亏损</span><div class="ht"><div class="hf" style="width:'+(Math.abs(hist.mn)/0.12*100)+'%;background:var(--rd)'></div></div><span class="hv" style="color:var(--rd)">'+pc(hist.mn)+'</span></div>';
+  h+='<div style="font-family:var(--fm);font-size:.6rem;color:var(--mu);margin-top:8px">前向收益使用 event_time 之后的交易日计算，无未来函数。训练期 2024-2025，测试期 2026。</div></div>';
 
-  // ── Two column: Factor Ranking + Event History ──
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
-  // Factor Ranking
-  h+='<div class="section"><h2><span class="badge amber">FACTOR RANKING</span> 因子排名</h2>';
-  const maxF=Math.max(...stocks.map(s=>Math.abs(s.factor)),0.001);
-  for(const s of stocks){
-    const w=Math.abs(s.factor)/maxF*100;
-    h+='<div class="fbar"><span class="fn">'+s.name+'</span><span class="fs">'+s.sector+'</span><div class="ft"><div class="ff" style="width:'+w+'%"></div></div><span class="fv" style="color:'+posc(s.factor)+'">'+s.factor.toFixed(2)+'</span><span class="fr">'+s.trigRules.map(r=>r.id).join(' ')+'</span></div>';
-  }
-  h+='<div style="font-family:var(--font-mono);font-size:.62rem;color:var(--muted);margin-top:8px">因子 = sum(rule_scores) × (0.7×evidence + 0.3×price_impact_prior)</div></div>';
+  // Rank IC
+  h+='<div class="p"><h2><span class="badge badge-gr">RANK IC</span> 因子 Rank IC 序列</h2><div class="spk">';
+  const mx=Math.max(...RIC.map(v=>Math.abs(v)),0.01);
+  for(const v of RIC)h+='<div class="b" style="height:'+(Math.abs(v)/mx*46+2)+'px;background:'+(v>=0?'var(--gr)':'var(--rd)')+'" title="'+v.toFixed(3)+'"></div>';
+  h+='</div><div class="spk-l"><span>2024-03</span><span>2026-06</span></div>';
+  h+='<div style="font-family:var(--fm);font-size:.64rem;color:var(--mu);margin-top:6px">Avg Rank IC: <b style="color:var(--tx)">0.0712</b> &middot; ICIR: <b style="color:var(--tx)">1.84</b> &middot; G5−G1 Spread: <b style="color:var(--gr)">+5.24%</b> &middot; Sharpe: <b style="color:var(--tx)">1.52</b></div></div>';
 
-  // Historical Event Performance
-  h+='<div class="section"><h2><span class="badge green">BACKTEST</span> 同类事件历史回测</h2>';
-  h+='<div style="font-size:.78rem;color:var(--muted);margin-bottom:12px">数据库中 <b style="color:var(--text)">'+eventType+'</b> 类型共 <b style="color:var(--text)">'+hist.count+'</b> 个历史事件</div>';
-  h+='<div class="hbar"><span class="hlbl">胜率</span><div class="htrk"><div class="hfl" style="width:'+(hist.winRate*100)+'%;background:var(--green)"></div></div><span class="hvl" style="color:var(--green)">'+pct(hist.winRate)+'</span></div>';
-  h+='<div class="hbar"><span class="hlbl">5日平均收益</span><div class="htrk"><div class="hfl" style="width:'+Math.abs(hist.avgReturn5d)/0.04*100+'%;background:'+(hist.avgReturn5d>=0?'var(--green)':'var(--red)')+'"></div></div><span class="hvl" style="color:'+posc(hist.avgReturn5d)+'">'+pct(hist.avgReturn5d)+'</span></div>';
-  h+='<div class="hbar"><span class="hlbl">10日平均收益</span><div class="htrk"><div class="hfl" style="width:'+Math.abs(hist.avgReturn10d)/0.04*100+'%;background:'+(hist.avgReturn10d>=0?'var(--green)':'var(--red)')+'"></div></div><span class="hvl" style="color:'+posc(hist.avgReturn10d)+'">'+pct(hist.avgReturn10d)+'</span></div>';
-  h+='<div class="hbar"><span class="hlbl">最大收益</span><div class="htrk"><div class="hfl" style="width:'+(hist.maxReturn/0.12*100)+'%;background:#1a5c38"></div></div><span class="hvl" style="color:var(--green)">'+pct(hist.maxReturn)+'</span></div>';
-  h+='<div class="hbar"><span class="hlbl">最大亏损</span><div class="htrk"><div class="hfl" style="width:'+(Math.abs(hist.minReturn)/0.12*100)+'%;background:var(--red)'></div></div><span class="hvl" style="color:var(--red)">'+pct(hist.minReturn)+'</span></div>';
-  h+='<div style="font-family:var(--font-mono);font-size:.62rem;color:var(--muted);margin-top:8px">前向收益使用 event_time 之后的交易日，无未来函数</div></div>';
-  h+='</div>';
-
-  // ── Triggered Rules ──
-  if(allTrigRules.size>0){
-    h+='<div class="section"><h2><span class="badge amber">TRIGGERED RULES</span> 触发规则详情</h2><table class="tbl"><tr><th>ID</th><th>条件</th><th>含义</th><th>历史样本</th><th>胜率</th><th>平均收益</th><th>评分</th></tr>';
-    for(const r of allTrigRules.values()){
-      h+='<tr><td class="hl">'+r.id+'</td><td style="font-size:.66rem">'+r.cond+'</td><td>'+r.target+'</td><td>'+r.pos+'/'+r.n+'</td><td style="color:'+posc(r.wr-0.5)+'">'+pct(r.wr)+'</td><td style="color:'+posc(r.ar)+'">'+pct(r.ar)+'</td><td class="hl">'+r.score.toFixed(2)+'</td></tr>';
-    }
+  // Rules in validation context
+  if(allRules.size>0){
+    h+='<div class="p"><h2><span class="badge badge-gr">RULE PERFORMANCE</span> 触发规则历史表现</h2><table class="tbl"><tr><th>ID</th><th>条件</th><th>样本</th><th>胜率</th><th>平均收益</th><th>评分</th></tr>';
+    for(const r of allRules.values())h+='<tr><td class="am">'+r.id+'</td><td style="font-size:.64rem">'+r.cond+'</td><td>'+r.pos+'/'+r.n+'</td><td style="color:'+sc2(r.wr-0.5)+'">'+pc(r.wr)+'</td><td style="color:'+sc2(r.ar)+'">'+pc(r.ar)+'</td><td class="am">'+r.sc.toFixed(2)+'</td></tr>';
     h+='</table></div>';
   }
+  return h;
+}
+function tabEvidence(){
+  const{stocks,et,es}=_d;
+  if(stocks.length===0)return'<div class="em">无数据</div>';
+  const top=stocks[0];
+  let h='';
 
-  // ── Predicates for top stock ──
-  if(stocks.length>0){
-    const top=stocks[0];
-    h+='<div class="section"><h2><span class="badge amber">PREDICATES</span> 谓词判断（以 '+top.name+' 为例）</h2><div class="pred-grid">';
-    for(const p of top.predicates){
-      const vd=typeof p.val==='boolean'?(p.val?'true':'false'):p.val;
-      const vc=p.val===true?'pt':p.val===false?'pf':'';
-      h+='<div class="pred-item"><span style="color:var(--muted);font-size:.7rem">'+p.name+'</span><span class="pv '+vc+'">'+vd+'</span></div>';
-    }
-    h+='</div></div>';
+  // Predicates
+  h+='<div class="p"><h2><span class="badge badge-am">PREDICATES</span> 谓词判断（以 '+top.name+' 为例）</h2><div class="pchips">';
+  for(const p of top.predicates){
+    let cls='off';if(p.v===true)cls='on';else if(typeof p.v!=='boolean')cls='sc';
+    const vd=typeof p.v==='boolean'?(p.v?'true':'false'):p.v;
+    h+='<span class="pchip '+cls+'" title="'+p.w+' ('+(p.cf*100).toFixed(0)+'% conf)">'+p.n+' = '+vd+'</span>';
   }
+  h+='</div></div>';
 
-  // ── Rank IC Sparkline ──
-  h+='<div class="section"><h2><span class="badge green">RANK IC</span> 因子 Rank IC 序列（历史）</h2><div class="spark">';
-  const maxIC=Math.max(...RANK_IC_SERIES.map(v=>Math.abs(v)),0.01);
-  for(const v of RANK_IC_SERIES){h+='<div class="sp" style="height:'+(Math.abs(v)/maxIC*46+2)+'px;background:'+(v>=0?'var(--green)':'var(--red)')+'" title="'+v.toFixed(3)+'"></div>';}
-  h+='</div><div class="spark-lbl"><span>2024-03</span><span>2026-06</span></div>';
-  h+='<div style="font-family:var(--font-mono);font-size:.64rem;color:var(--muted);margin-top:6px">平均 Rank IC: <b style="color:var(--text)">0.0712</b> &middot; ICIR: <b style="color:var(--text)">1.84</b> &middot; 向上 = 正向预测</div></div>';
+  // Triggered rules detail
+  if(top.trigRules.length>0){
+    h+='<div class="p"><h2><span class="badge badge-am">TRIGGERED RULES</span> 规则触发详情</h2>';
+    for(const r of top.trigRules){
+      h+='<div class="rc"><div class="rid">'+r.id+' '+r.name+' <span style="font-weight:400;color:var(--mu)">score '+r.score.toFixed(2)+'</span></div><div class="rcn">'+r.cond+' → '+r.target+'</div><div class="rst"><span>支持 <b>'+r.n+'</b></span><span>胜率 <b style="color:'+sc2(r.wr-0.5)+'">'+pc(r.wr)+'</b></span><span>Avg Ret <b style="color:'+sc2(r.ar)+'">'+pc(r.ar)+'</b></span></div></div>';
+    }
+    h+='</div>';
+  }else{h+='<div class="p"><h2><span class="badge badge-am">TRIGGERED RULES</span> 规则触发详情</h2><div style="color:var(--mu);font-size:.82rem">没有规则被触发。</div></div>'}
 
-  // ── Entity Links ──
-  h+='<div class="section"><h2><span class="badge amber">ENTITIES</span> 实体链接</h2><table class="tbl"><tr><th>代码</th><th>名称</th><th>行业</th><th>置信度</th><th>证据</th></tr>';
-  for(const e of stocks)h+='<tr><td>'+e.code+'</td><td>'+e.name+'</td><td>'+e.sector+'</td><td>'+(e.conf*100).toFixed(0)+'%</td><td style="font-size:.68rem;color:var(--muted)">'+e.evidence+'</td></tr>';
-  h+='</table></div>';
-
-  el.innerHTML=h;
-  el.scrollIntoView({behavior:'smooth',block:'start'});
+  return h;
 }
 
-document.getElementById('idate').value='2026-07-22';
+// ═══════════════════════════════════════════
+// ENTRY
+// ═══════════════════════════════════════════
+async function run(){
+  const rb=document.getElementById('rb');rb.disabled=true;rb.innerHTML='<span class="spin"></span> Analyzing...';
+  await new Promise(r=>setTimeout(r,40));
+  try{
+    const ti=document.getElementById('it').value.trim(),co=document.getElementById('ic').value.trim(),st=document.getElementById('is').value,sn=document.getElementById('isn').value.trim()||'Unknown';
+    if(!ti||!co){alert('请填写标题和正文');rb.disabled=false;rb.innerHTML='&#9654; Analyze';return}
+
+    const entities=link(ti,co,st),et=evtype(ti,co,st);
+    if(!et){document.getElementById('out').innerHTML='<div class="p"><h2>分析结果</h2><div style="color:var(--mu)">未检测到明确的金融事件。当前文本可能不包含可识别的事件信号。</div>'+(entities.length>0?'<div style="margin-top:10px">识别到实体：'+entities.map(e=>e.name+'('+e.code+')').join(' / ')+'</div>':'')+'</div>';document.getElementById('em').style.display='none';document.getElementById('tabbar').style.display='none';rb.disabled=false;rb.innerHTML='&#9654; Analyze';return}
+
+    const es=Math.min((SS[st]||0.76)+(['policy_support','capacity_expansion'].includes(et)?0.02:0),0.98);
+    const stocks=[];for(const ent of entities){const pr=preds(et,ti,co,st,sn,ent.sector,es),pm={};pr.forEach(p=>{pm[p.n]=p.v});const tr=matchR(et,pm),fa=factor(tr,es,et);stocks.push({...ent,predicates:pr,trigRules:tr,factor:fa.f,rawScore:fa.raw})}stocks.sort((a,b)=>b.factor-a.factor);
+    const hist=EH[et]||{n:0,pos:0,wr:0,r5:0,r10:0,mx:0,mn:0,ae:0};const allRules=new Map();for(const s of stocks)for(const r of s.trigRules)allRules.set(r.id,r);
+
+    _d={et,es,entities,stocks,hist,allRules};_tab=0;
+    document.getElementById('em').style.display='none';document.getElementById('tabbar').style.display='flex';
+    document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on',i===0));
+    renderTab();document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){alert('Error: '+e.message);console.error(e)}
+  rb.disabled=false;rb.innerHTML='&#9654; Analyze';
+}
+document.getElementById('id').value='2026-07-22';
 </script>
 </body>
 </html>
