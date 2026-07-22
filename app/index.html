@@ -226,8 +226,8 @@ function tabValidation(){
   h+='<div class="hbar"><span class="hl">正向比例</span><div class="ht"><div class="hf" style="width:'+(hist.wr*100)+'%;background:var(--gr)"></div></div><span class="hv" style="color:var(--gr)">'+hist.pos+'/'+hist.n+' ('+pc(hist.wr)+')</span></div>';
   h+='<div class="hbar"><span class="hl">5日平均收益</span><div class="ht"><div class="hf" style="width:'+(Math.abs(hist.r5)/0.04*100)+'%;background:'+(hist.r5>=0?'var(--gr)':'var(--rd)')+'"></div></div><span class="hv" style="color:'+sc2(hist.r5)+'">'+pc(hist.r5)+'</span></div>';
   h+='<div class="hbar"><span class="hl">10日平均收益</span><div class="ht"><div class="hf" style="width:'+(Math.abs(hist.r10)/0.04*100)+'%;background:'+(hist.r10>=0?'var(--gr)':'var(--rd)')+'"></div></div><span class="hv" style="color:'+sc2(hist.r10)+'">'+pc(hist.r10)+'</span></div>';
-  h+='<div class="hbar"><span class="hl">最大收益</span><div class="ht"><div class="hf" style="width:'+(hist.mx/0.12*100)+'%;background:var(--gr)'></div></div><span class="hv" style="color:var(--gr)">'+pc(hist.mx)+'</span></div>';
-  h+='<div class="hbar"><span class="hl">最大亏损</span><div class="ht"><div class="hf" style="width:'+(Math.abs(hist.mn)/0.12*100)+'%;background:var(--rd)'></div></div><span class="hv" style="color:var(--rd)">'+pc(hist.mn)+'</span></div>';
+  h+='<div class="hbar"><span class="hl">最大收益</span><div class="ht"><div class="hf" style="width:'+(hist.mx/0.12*100)+'%;background:var(--gr)"></div></div><span class="hv" style="color:var(--gr)">'+pc(hist.mx)+'</span></div>';
+  h+='<div class="hbar"><span class="hl">最大亏损</span><div class="ht"><div class="hf" style="width:'+(Math.abs(hist.mn)/0.12*100)+'%;background:var(--rd)"></div></div><span class="hv" style="color:var(--rd)">'+pc(hist.mn)+'</span></div>';
   h+='<div style="font-family:var(--fm);font-size:.6rem;color:var(--mu);margin-top:8px">前向收益使用 event_time 之后的交易日计算，无未来函数。训练期 2024-2025，测试期 2026。</div></div>';
 
   // Rank IC
