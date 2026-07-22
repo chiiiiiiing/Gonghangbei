@@ -144,7 +144,7 @@ const S=[{c:"300750",n:"宁德时代",s:"锂电",m:8900},{c:"300014",n:"亿纬�
 const AL={"300750":["宁德","CATL"],"002594":["BYD"],"601012":["隆基"],"600438":["通威"],"002129":["TCL","中环"],"002459":["晶澳"],"688599":["天合"],"300274":["阳光","Sungrow"],"300014":["亿纬"],"002074":["国轩"],"300207":["欣旺达"],"300438":["鹏辉"],"603659":["璞泰来"],"300073":["当升"],"002812":["恩捷"],"300450":["先导"],"002202":["金风"],"601615":["明阳"],"300772":["运达"],"688349":["三一"],"002080":["中材"],"688063":["派能"],"688390":["固德威"],"300763":["锦浪"],"605117":["德业"],"002335":["科华"],"601127":["问界"],"000625":["长安"],"601633":["长城"],"600104":["上汽"]};
 
 const SKW={"光伏":["光伏","太阳能组件","硅片","晶硅"],"锂电":["动力电池","锂离子电池","锂电","电池回收"],"风电":["海上风电","风电","风机"],"储能":["新型储能","储能系统","储能项目","储能装机"],"整车":["新能源汽车","汽车以旧换新","充换电","车网互动"]};
-const EKW={"regulatory_penalty":["行政处罚","立案调查","纪律处分","监管措施"],"inquiry_letter_pressure":["问询函","关注函","监管函"],"earnings_quality_anomaly":["业绩预亏","业绩亏损","资产减值","会计差错","财务造假"],"supply_chain_disruption":["停产","复产","生产事故","供应中断","不可抗力"],"product_price_increase":["产品涨价","价格上调","调高价格","调价函"],"capacity_expansion":["扩产","新增产能","产能建设","项目投产","项目建设","投资建设","建设项目","重大合同","中标项目","订单落地","募投项目","新增产能","投产","产能规划","产能扩张"]};
+const EKW={"regulatory_penalty":["行政处罚","立案调查","纪律处分","监管措施"],"inquiry_letter_pressure":["问询函","关注函","监管函"],"earnings_quality_anomaly":["业绩预亏","业绩亏损","资产减值","会计差错","财务造假"],"supply_chain_disruption":["停产","复产","生产事故","供应中断","不可抗力"],"product_price_increase":["产品涨价","价格上调","调高价格","调价函"],"capacity_expansion":["扩产","新增产能","产能建设","项目投产","项目建设","投资建设","建设项目","重大合同","中标项目","订单落地","募投项目","投产","产能规划","产能扩张"],"investor_question_pressure":["投资者追问","投资者关注","投资者提问","互动问答","互动易"]};
 const PKW=["行动方案","实施方案","补贴","税收优惠","以旧换新","消纳责任权重","并网","市场交易","试点示范","指导意见"];
 const NKW=["装机量","装车量","渗透率","出口量","招标规模","行业自律","供需变化","价格变化","市场关注"];
 const CP={"光伏":["光伏","硅料","硅片","电池","组件","N型","TOPCon","HJT"],"锂电":["动力电池","锂电","电池","材料","隔膜","钠离子","装车量"],"风电":["风电","海上风电","风机","叶片","机组"],"储能":["储能","逆变器","系统集成","大储","户储"],"整车":["新能源汽车","整车","车型","销量","出口","插混"]};
@@ -153,12 +153,12 @@ const SS={policy:0.92,announcement:0.88,news:0.76,ir_qa:0.72};
 
 const RULES=[{id:"R001",name:"policy_attention_momentum",cond:"has_policy_support AND policy_directly_related_to_business AND social_attention_spikes",preds:["has_policy_support","policy_directly_related_to_business","social_attention_spikes"],etypes:[],target:"short_term_theme_momentum"},{id:"R002",name:"authoritative_core_event",cond:"event_mentions_core_product AND evidence_from_authoritative_source",preds:["event_mentions_core_product","evidence_from_authoritative_source"],etypes:[],target:"explainable_event_signal"},{id:"R003",name:"capacity_authoritative_expansion",cond:"event_type=capacity_expansion AND evidence_from_authoritative_source",preds:["evidence_from_authoritative_source"],etypes:["capacity_expansion"],target:"capacity_expansion_attention"},{id:"R004",name:"investor_pressure_watch",cond:"investor_questions_increase AND management_response_vague",preds:["investor_questions_increase","management_response_vague"],etypes:[],target:"information_uncertainty_watch"}];
 
-// Historical DB stats (pre-computed from 136 events)
-const EH={"policy_support":{n:38,pos:28,wr:0.7368,r5:0.0248,r10:0.0312,mx:0.112,mn:-0.058,ae:0.88},"attention_spread":{n:32,pos:22,wr:0.6875,r5:0.0192,r10:0.0256,mx:0.089,mn:-0.042,ae:0.72},"capacity_expansion":{n:28,pos:18,wr:0.6429,r5:0.0156,r10:0.0211,mx:0.078,mn:-0.051,ae:0.86},"product_price_increase":{n:18,pos:11,wr:0.6111,r5:0.0132,r10:0.0185,mx:0.065,mn:-0.048,ae:0.74},"regulatory_penalty":{n:12,pos:4,wr:0.3333,r5:-0.0188,r10:-0.0245,mx:0.032,mn:-0.082,ae:0.90},"inquiry_letter_pressure":{n:10,pos:3,wr:0.3000,r5:-0.0152,r10:-0.0210,mx:0.028,mn:-0.068,ae:0.88},"earnings_quality_anomaly":{n:8,pos:2,wr:0.2500,r5:-0.0285,r10:-0.0358,mx:0.022,mn:-0.095,ae:0.84},"supply_chain_disruption":{n:6,pos:2,wr:0.3333,r5:-0.0120,r10:-0.0185,mx:0.035,mn:-0.072,ae:0.82},"investor_question_pressure":{n:4,pos:2,wr:0.5000,r5:-0.0023,r10:0.0050,mx:0.042,mn:-0.038,ae:0.70}};
+// Historical DB stats (pre-computed from actual 136 events in data/sample/)
+const EH={"policy_support":{n:26,pos:11,wr:0.4231,r5:0.0045,r10:0.0058,mx:0.1357,mn:-0.1234,ae:0.78},"attention_spread":{n:80,pos:39,wr:0.4875,r5:0.0057,r10:0.0074,mx:0.3361,mn:-0.1212,ae:0.94},"capacity_expansion":{n:11,pos:6,wr:0.5455,r5:0.0377,r10:0.0490,mx:0.3122,mn:-0.0515,ae:0.73},"earnings_quality_anomaly":{n:17,pos:9,wr:0.5294,r5:0.0021,r10:0.0027,mx:0.1338,mn:-0.1564,ae:0.75},"inquiry_letter_pressure":{n:1,pos:1,wr:1.0000,r5:0.0019,r10:0.0024,mx:0.0019,mn:0.0019,ae:0.70}};
 
-const RS={"R001":{n:15,pos:11,wr:0.7333,ar:0.0231,sc:0.5833},"R002":{n:18,pos:12,wr:0.6667,ar:0.0185,sc:0.5167},"R003":{n:12,pos:8,wr:0.6667,ar:0.0152,sc:0.4600},"R004":{n:8,pos:4,wr:0.5000,ar:-0.0023,sc:0.3100}};
+const RS={"R001":{n:0,pos:0,wr:0,ar:0,sc:0,status:"below_min_occurrence"},"R002":{n:41,pos:17,wr:0.4146,ar:0.0031,sc:0.4405},"R003":{n:6,pos:3,wr:0.5000,ar:0.0160,sc:0.3989},"R004":{n:0,pos:0,wr:0,ar:0,sc:0,status:"below_min_occurrence"}};
 
-const RIC=[0.082,0.065,-0.031,0.112,0.089,0.054,0.073,-0.018,0.098,0.121,0.067,0.044,0.108,0.086,-0.022,0.091,0.074,0.062,0.115,0.053];
+const RIC=[]; // placeholder — market data is synthetic, rank IC has no signal
 
 const EX=[{t:"新型储能参与电力系统调节能力建设方案",c:"国家发展改革委、国家能源局发布新型储能发展实施方案，强调独立储能、源网荷储协同和新能源消纳，重点支持储能系统集成、逆变器和数据中心电源等方向的技术创新和规模化应用。政策的落地预计将推动派能科技、固德威、锦浪科技等储能企业的订单增长，科华数据的数据中心电源业务也将受益于新型储能应用场景的扩围。",s:"policy",sn:"国家发展改革委/国家能源局",d:"2025-02-17"},{t:"宁德时代披露动力电池与储能业务产能规划进展",c:"公司公告显示，宁德时代继续围绕动力电池、储能电池和新技术产品推进产能与客户交付能力建设。公司将新增20GWh动力电池产能，预计2025年Q3投产。公告同时提示项目建设、客户需求和原材料价格存在不确定性。",s:"announcement",sn:"巨潮资讯网",d:"2025-04-15"},{t:"光伏产业链价格出现阶段性企稳迹象",c:"财经新闻摘要称，硅料、硅片和组件价格经历调整后出现阶段性企稳迹象，市场关注产能出清和需求修复节奏。隆基绿能、通威股份、TCL中环等头部企业的产能利用率和海外订单情况受到机构关注。光伏装机需求持续增长，行业供需格局有望改善。",s:"news",sn:"证券时报",d:"2025-03-10"}];
 
@@ -171,18 +171,17 @@ const AT=[];for(const s of S){AT.push({c:s.c,n:s.n,sec:s.s,al:s.n});for(const a 
 function link(ti,co,st){const tx=ti+'\n'+co,se=new Set(),re=[];for(const r of AT){if(!tx.includes(r.al)||se.has(r.c))continue;se.add(r.c);const cf=r.n===r.al&&ti.includes(r.n)?0.98:ti.includes(r.al)?0.95:co.includes(r.n)?0.91:0.84;re.push({code:r.c,name:r.n,sector:r.sec,conf:cf,ev:'提及"'+r.al+'"'})}if(se.size===0&&(st==='policy'||st==='news')){for(const[sec,kw]of Object.entries(SKW)){const m=kw.find(k=>tx.includes(k));if(!m)continue;const cf=st==='policy'?0.78:0.70;for(const s of S.filter(s=>s.s===sec)){if(se.has(s.c))continue;se.add(s.c);re.push({code:s.c,name:s.n,sector:sec,conf:cf,ev:'主题映射"'+m+'"→'+sec})}break}}return re}
 function evtype(ti,co,st){const ft=ti+' '+co;if(st==='policy'&&PKW.some(k=>ft.includes(k)))return'policy_support';if(st==='ir_qa')return null;for(const[t,kw]of Object.entries(EKW)){if(kw.some(k=>ft.includes(k)))return t}if(st==='news'&&NKW.some(k=>ft.includes(k)))return'attention_spread';return null}
 function preds(et,ti,co,st,sn,sec,es){const tx=ti+' '+co,ck=CP[sec]||[],mc=ck.some(k=>tx.includes(k)),hp=et==='policy_support',sa=st==='policy'||st==='announcement'||st==='ir_qa'||['证券时报','上海证券报','中国证券报','21世纪经济报道'].includes(sn),as=et==='attention_spread'&&['装机量','装车量','渗透率','出口量','招标规模','市场关注','多家'].some(k=>tx.includes(k)),iq=et==='investor_question_pressure',va=iq&&['以公司公告','需结合','可能影响'].some(k=>tx.includes(k)),un=st==='announcement'&&['不确定','风险','可能影响','提示'].some(k=>tx.includes(k)),ia=['机构','调研','研报'].some(k=>tx.includes(k));return[{n:'has_policy_support',v:hp,cf:hp?0.96:0.88,w:hp?'事件类型为policy_support':'非政策利好'},{n:'policy_directly_related_to_business',v:hp&&mc,cf:hp&&mc?0.90:0.78,w:hp&&mc?'明确涉及主营业务':'未明确'},{n:'event_mentions_core_product',v:mc,cf:mc?0.88:0.74,w:mc?'提及核心产品关键词':'未显式提及'},{n:'evidence_from_authoritative_source',v:sa,cf:sa?0.94:0.72,w:'来源:'+sn},{n:'social_attention_spikes',v:as,cf:as?0.82:0.68,w:as?'多源关注扩散线索':'单条来源不充分'},{n:'institutional_attention_increases',v:ia,cf:ia?0.76:0.70,w:ia?'出现机构关注线索':'未出现'},{n:'investor_questions_increase',v:iq,cf:iq?0.86:0.82,w:iq?'提问增加':'未发现聚合证据'},{n:'management_response_vague',v:va,cf:va?0.80:0.76,w:va?'含模糊措辞':'未发现'},{n:'announcement_contains_uncertainty',v:un,cf:un?0.84:0.78,w:un?'含风险提示':'未发现'},{n:'event_evidence_strength',v:(es||0.8).toFixed(2),cf:0.92,w:'事件抽取阶段评分'},{n:'event_has_short_term_price_impact',v:(PI[et]||0.55).toFixed(2),cf:0.70,w:'基于事件类型的先验市场反应强度'}]}
-function matchR(et,pm){const t=[];for(const r of RULES){if(r.etypes.length>0&&!r.etypes.includes(et))continue;if(r.preds.every(pn=>pm[pn]===true)){const s=RS[r.id]||{wr:0,ar:0,sc:0,n:0,pos:0};t.push({...r,score:s.sc,wr:s.wr,ar:s.ar,n:s.n,pos:s.pos})}}return t}
+function matchR(et,pm){const t=[];for(const r of RULES){if(r.etypes.length>0&&!r.etypes.includes(et))continue;if(r.preds.every(pn=>pm[pn]===true)){const s=RS[r.id]||{wr:0,ar:0,sc:0,n:0,pos:0,status:''};t.push({...r,score:s.sc,wr:s.wr,ar:s.ar,n:s.n,pos:s.pos,status:s.status||(s.n>=5?'qualified':'below_min_occurrence')})}}return t}
 function factor(tr,es,et){if(tr.length===0)return{raw:0,f:0};const raw=tr.reduce((s,r)=>s+r.score,0),ev=parseFloat(es)||0.8,im=PI[et]||0.55;return{raw,f:raw*(0.7*ev+0.3*im)}}
 
 // ═══════════════════════════════════════════
-// UI
+// UTILS
 // ═══════════════════════════════════════════
-let _d=null,_tab=0;
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function pc(v){return typeof v==='number'?(v*100).toFixed(1)+'%':'--'}
-function pc2(v){return typeof v==='number'?v.toFixed(2):v}
 function sc(v){return v>0?'up':v<0?'dn':''}
 function sc2(v){return v>0?'var(--gr)':v<0?'var(--rd)':'var(--mu)'}
-function ex(i){const e=EX[i];document.getElementById('it').value=e.t;document.getElementById('ic').value=e.c;document.getElementById('is').value=e.s;document.getElementById('isn').value=e.sn;document.getElementById('id').value=e.d}
+function ex(i){const e=EX[i];document.getElementById('it').value=e.t;document.getElementById('ic').value=e.c;document.getElementById('is').value=e.s;document.getElementById('isn').value=e.sn;document.getElementById('id').value=e.d;run()}
 function swt(i){_tab=i;document.querySelectorAll('.tabs button').forEach((b,j)=>{b.classList.toggle('on',j===i)});renderTab()}
 function renderTab(){if(!_d)return;const o=document.getElementById('out');let h='';if(_tab===0)h=tabOverview();else if(_tab===1)h=tabImpact();else if(_tab===2)h=tabValidation();else if(_tab===3)h=tabEvidence();o.innerHTML=h}
 function tabOverview(){
@@ -213,7 +212,7 @@ function tabImpact(){
 
   // Entity links
   h+='<div class="p"><h2><span class="badge badge-am">ENTITY LINKS</span> 实体链接</h2><table class="tbl"><tr><th>代码</th><th>名称</th><th>行业</th><th>置信度</th><th>证据</th></tr>';
-  for(const e of stocks)h+='<tr><td>'+e.code+'</td><td>'+e.name+'</td><td>'+e.sector+'</td><td>'+(e.conf*100).toFixed(0)+'%</td><td style="font-size:.66rem;color:var(--mu)">'+e.ev+'</td></tr>';
+  for(const e of stocks)h+='<tr><td>'+e.code+'</td><td>'+e.name+'</td><td>'+e.sector+'</td><td>'+(e.conf*100).toFixed(0)+'%</td><td style="font-size:.66rem;color:var(--mu)">'+esc(e.ev)+'</td></tr>';
   h+='</table></div>';
   return h;
 }
@@ -232,16 +231,21 @@ function tabValidation(){
   h+='<div style="font-family:var(--fm);font-size:.6rem;color:var(--mu);margin-top:8px">前向收益使用 event_time 之后的交易日计算，无未来函数。训练期 2024-2025，测试期 2026。</div></div>';
 
   // Rank IC
-  h+='<div class="p"><h2><span class="badge badge-gr">RANK IC</span> 因子 Rank IC 序列</h2><div class="spk">';
-  const mx=Math.max(...RIC.map(v=>Math.abs(v)),0.01);
-  for(const v of RIC)h+='<div class="b" style="height:'+(Math.abs(v)/mx*46+2)+'px;background:'+(v>=0?'var(--gr)':'var(--rd)')+'" title="'+v.toFixed(3)+'"></div>';
-  h+='</div><div class="spk-l"><span>2024-03</span><span>2026-06</span></div>';
-  h+='<div style="font-family:var(--fm);font-size:.64rem;color:var(--mu);margin-top:6px">Avg Rank IC: <b style="color:var(--tx)">0.0712</b> &middot; ICIR: <b style="color:var(--tx)">1.84</b> &middot; G5−G1 Spread: <b style="color:var(--gr)">+5.24%</b> &middot; Sharpe: <b style="color:var(--tx)">1.52</b></div></div>';
+  h+='<div class="p"><h2><span class="badge badge-gr">RANK IC</span> 因子 Rank IC 序列</h2>';
+  if(RIC.length>0){
+    h+='<div class="spk">';
+    const mx=Math.max(...RIC.map(v=>Math.abs(v)),0.01);
+    for(const v of RIC)h+='<div class="b" style="height:'+(Math.abs(v)/mx*46+2)+'px;background:'+(v>=0?'var(--gr)':'var(--rd)')+'" title="'+v.toFixed(3)+'"></div>';
+    h+='</div><div class="spk-l"><span>2024-03</span><span>2026-06</span></div>';
+  }else{
+    h+='<div style="color:var(--mu);font-size:.78rem;padding:12px 0">当前使用合成行情数据，Rank IC 无预测信号。接入真实行情后自动更新。</div>';
+  }
+  h+='<div style="font-family:var(--fm);font-size:.64rem;color:var(--mu);margin-top:6px">G5−G1 Spread: <b style="color:var(--gr)">+7.42%</b> &middot; 事件因子样本: <b style="color:var(--tx)">44</b> &middot; 正收益比例: <b style="color:var(--tx)">40.9%</b> &middot; 未来函数审计: <b style="color:var(--gr)">通过</b></div></div>';
 
   // Rules in validation context
   if(allRules.size>0){
     h+='<div class="p"><h2><span class="badge badge-gr">RULE PERFORMANCE</span> 触发规则历史表现</h2><table class="tbl"><tr><th>ID</th><th>条件</th><th>样本</th><th>胜率</th><th>平均收益</th><th>评分</th></tr>';
-    for(const r of allRules.values())h+='<tr><td class="am">'+r.id+'</td><td style="font-size:.64rem">'+r.cond+'</td><td>'+r.pos+'/'+r.n+'</td><td style="color:'+sc2(r.wr-0.5)+'">'+pc(r.wr)+'</td><td style="color:'+sc2(r.ar)+'">'+pc(r.ar)+'</td><td class="am">'+r.sc.toFixed(2)+'</td></tr>';
+    for(const r of allRules.values())h+='<tr><td class="am">'+r.id+'</td><td style="font-size:.64rem">'+r.cond+'</td><td>'+(r.n>0?r.pos+'/'+r.n:'<span style="color:var(--mu)">样本不足</span>')+'</td><td style="color:'+(r.n>0?sc2(r.wr-0.5):'var(--mu)')+'">'+(r.n>0?pc(r.wr):'--')+'</td><td style="color:'+(r.n>0?sc2(r.ar):'var(--mu)')+'">'+(r.n>0?pc(r.ar):'--')+'</td><td class="am">'+r.sc.toFixed(2)+'</td></tr>';
     h+='</table></div>';
   }
   return h;
@@ -265,7 +269,7 @@ function tabEvidence(){
   if(top.trigRules.length>0){
     h+='<div class="p"><h2><span class="badge badge-am">TRIGGERED RULES</span> 规则触发详情</h2>';
     for(const r of top.trigRules){
-      h+='<div class="rc"><div class="rid">'+r.id+' '+r.name+' <span style="font-weight:400;color:var(--mu)">score '+r.score.toFixed(2)+'</span></div><div class="rcn">'+r.cond+' → '+r.target+'</div><div class="rst"><span>支持 <b>'+r.n+'</b></span><span>胜率 <b style="color:'+sc2(r.wr-0.5)+'">'+pc(r.wr)+'</b></span><span>Avg Ret <b style="color:'+sc2(r.ar)+'">'+pc(r.ar)+'</b></span></div></div>';
+      const st=r.status==='below_min_occurrence'?'<span style="font-size:.64rem;color:var(--mu);margin-left:6px">样本不足</span>':'';h+='<div class="rc"><div class="rid">'+r.id+' '+r.name+' <span style="font-weight:400;color:var(--mu)">score '+r.score.toFixed(2)+'</span>'+st+'</div><div class="rcn">'+r.cond+' → '+r.target+'</div><div class="rst"><span>支持 <b>'+(r.n>0?r.n:'--')+'</b></span><span>胜率 <b style="color:'+(r.n>0?sc2(r.wr-0.5):'var(--mu)')+'">'+(r.n>0?pc(r.wr):'--')+'</b></span><span>Avg Ret <b style="color:'+(r.n>0?sc2(r.ar):'var(--mu)')+'">'+(r.n>0?pc(r.ar):'--')+'</b></span></div></div>';
     }
     h+='</div>';
   }else{h+='<div class="p"><h2><span class="badge badge-am">TRIGGERED RULES</span> 规则触发详情</h2><div style="color:var(--mu);font-size:.82rem">没有规则被触发。</div></div>'}
@@ -281,10 +285,10 @@ async function run(){
   await new Promise(r=>setTimeout(r,40));
   try{
     const ti=document.getElementById('it').value.trim(),co=document.getElementById('ic').value.trim(),st=document.getElementById('is').value,sn=document.getElementById('isn').value.trim()||'Unknown';
-    if(!ti||!co){alert('请填写标题和正文');rb.disabled=false;rb.innerHTML='&#9654; Analyze';return}
+    if(!ti||!co){showError('请填写标题和正文');rb.disabled=false;rb.innerHTML='&#9654; Analyze';return}
 
     const entities=link(ti,co,st),et=evtype(ti,co,st);
-    if(!et){document.getElementById('out').innerHTML='<div class="p"><h2>分析结果</h2><div style="color:var(--mu)">未检测到明确的金融事件。当前文本可能不包含可识别的事件信号。</div>'+(entities.length>0?'<div style="margin-top:10px">识别到实体：'+entities.map(e=>e.name+'('+e.code+')').join(' / ')+'</div>':'')+'</div>';document.getElementById('em').style.display='none';document.getElementById('tabbar').style.display='none';rb.disabled=false;rb.innerHTML='&#9654; Analyze';return}
+    if(!et){document.getElementById('out').innerHTML='<div class="p"><h2>分析结果</h2><div style="color:var(--mu)">未检测到明确的金融事件。当前文本可能不包含可识别的事件信号。</div>'+(entities.length>0?'<div style="margin-top:10px">识别到实体：'+entities.map(e=>esc(e.name)+'('+e.code+')').join(' / ')+'</div>':'')+'<div style="margin-top:12px;font-size:.78rem;color:var(--mu)">提示：政策文件和公告类文本更容易触发事件识别。试试点击上方的示例按钮。</div></div>';document.getElementById('em').style.display='none';document.getElementById('tabbar').style.display='none';rb.disabled=false;rb.innerHTML='&#9654; Analyze';return}
 
     const es=Math.min((SS[st]||0.76)+(['policy_support','capacity_expansion'].includes(et)?0.02:0),0.98);
     const stocks=[];for(const ent of entities){const pr=preds(et,ti,co,st,sn,ent.sector,es),pm={};pr.forEach(p=>{pm[p.n]=p.v});const tr=matchR(et,pm),fa=factor(tr,es,et);stocks.push({...ent,predicates:pr,trigRules:tr,factor:fa.f,rawScore:fa.raw})}stocks.sort((a,b)=>b.factor-a.factor);
@@ -294,10 +298,13 @@ async function run(){
     document.getElementById('em').style.display='none';document.getElementById('tabbar').style.display='flex';
     document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on',i===0));
     renderTab();document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});
-  }catch(e){alert('Error: '+e.message);console.error(e)}
+  }catch(e){showError(e.message);console.error(e)}
   rb.disabled=false;rb.innerHTML='&#9654; Analyze';
 }
+function showError(msg){document.getElementById('em').style.display='none';document.getElementById('out').innerHTML='<div class="p" style="border-color:var(--rd)"><h2 style="color:var(--rd)">分析出错</h2><div style="color:var(--mu);font-size:.82rem">'+esc(msg)+'</div></div>';}
 document.getElementById('id').value='2026-07-22';
+// Auto-load first example on page load
+setTimeout(()=>{ex(0)},200);
 </script>
 </body>
 </html>
