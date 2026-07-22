@@ -70,6 +70,7 @@
   .fb .t{flex:1;height:22px;background:var(--bg);border-radius:4px;overflow:hidden}
   .fb .f{height:100%;border-radius:4px;background:linear-gradient(90deg,transparent 0%,var(--am) 100%);transition:width .5s}
   .fb .v{width:56px;font-weight:500;flex-shrink:0}
+  .fb .tr{width:68px;font-size:.64rem;color:var(--mu);flex-shrink:0}
 
   /* bar chart */
   .hbar{display:flex;align-items:center;gap:10px;margin:4px 0}
@@ -122,10 +123,10 @@
 
 <!-- TABS -->
 <div class="tabs" id="tabbar" style="display:none">
-  <button class="on" data-tab="0">Overview</button>
-  <button data-tab="1">Impact</button>
-  <button data-tab="2">Validation</button>
-  <button data-tab="3">Evidence</button>
+  <button class="on" onclick="swt(0)">Overview</button>
+  <button onclick="swt(1)">Impact</button>
+  <button onclick="swt(2)">Validation</button>
+  <button onclick="swt(3)">Evidence</button>
 </div>
 
 <!-- RESULTS -->
@@ -207,7 +208,7 @@ function tabImpact(){
   const{stocks}=_d;
   let h='<div class="p"><h2><span class="badge badge-am">FACTOR RANKING</span> 因子排名</h2>';
   const mf=Math.max(...stocks.map(s=>Math.abs(s.factor)),0.001);
-  for(const s of stocks){const w=Math.abs(s.factor)/mf*100;h+='<div class="fb"><span class="n">'+s.name+'</span><span class="s">'+s.sector+'</span><div class="t"><div class="f" style="width:'+w+'%"></div></div><span class="v" style="color:'+sc2(s.factor)+'">'+s.factor.toFixed(2)+'</span></div>'}
+  for(const s of stocks){const w=Math.abs(s.factor)/mf*100;h+='<div class="fb"><span class="n">'+s.name+'</span><span class="s">'+s.sector+'</span><div class="t"><div class="f" style="width:'+w+'%"></div></div><span class="v" style="color:'+sc2(s.factor)+'">'+s.factor.toFixed(2)+'</span><span class="tr">'+s.trigRules.map(r=>r.id).join(' ')+'</span></div>'}
   h+='<div style="font-family:var(--fm);font-size:.62rem;color:var(--mu);margin-top:10px">因子 = Σ(rule_scores) × (0.7×evidence_strength + 0.3×price_impact_prior)，行业内 Z-score 标准化</div></div>';
 
   // Entity links
@@ -245,7 +246,7 @@ function tabValidation(){
   // Rules in validation context
   if(allRules.size>0){
     h+='<div class="p"><h2><span class="badge badge-gr">RULE PERFORMANCE</span> 触发规则历史表现</h2><table class="tbl"><tr><th>ID</th><th>条件</th><th>样本</th><th>胜率</th><th>平均收益</th><th>评分</th></tr>';
-    for(const r of allRules.values())h+='<tr><td class="am">'+r.id+'</td><td style="font-size:.64rem">'+r.cond+'</td><td>'+(r.n>0?r.pos+'/'+r.n:'<span style="color:var(--mu)">样本不足</span>')+'</td><td style="color:'+(r.n>0?sc2(r.wr-0.5):'var(--mu)')+'">'+(r.n>0?pc(r.wr):'--')+'</td><td style="color:'+(r.n>0?sc2(r.ar):'var(--mu)')+'">'+(r.n>0?pc(r.ar):'--')+'</td><td class="am">'+r.sc.toFixed(2)+'</td></tr>';
+    for(const r of allRules.values())h+='<tr><td class="am">'+r.id+'</td><td style="font-size:.64rem">'+r.cond+'</td><td>'+(r.n>0?r.pos+'/'+r.n:'<span style="color:var(--mu)">样本不足</span>')+'</td><td style="color:'+(r.n>0?sc2(r.wr-0.5):'var(--mu)')+'">'+(r.n>0?pc(r.wr):'--')+'</td><td style="color:'+(r.n>0?sc2(r.ar):'var(--mu)')+'">'+(r.n>0?pc(r.ar):'--')+'</td><td class="am">'+(r.score||0).toFixed(2)+'</td></tr>';
     h+='</table></div>';
   }
   return h;

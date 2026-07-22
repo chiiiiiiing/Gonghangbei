@@ -31,7 +31,7 @@ test.describe('Example 1: 储能政策 (policy_support)', () => {
     await page.locator('#tabbar button').nth(1).click();
     await page.waitForTimeout(200);
     // Factor bar should show R002
-    await expect(page.locator('.fb .fr').first()).toContainText('R002');
+    await expect(page.locator('.fb .tr').first()).toContainText('R002');
   });
 
   test('shows predicate chips in Evidence tab', async ({ page }) => {
@@ -76,7 +76,7 @@ test.describe('Example 2: 锂电产能 (capacity_expansion)', () => {
   test('triggers R002 and R003', async ({ page }) => {
     await page.locator('#tabbar button').nth(1).click();
     await page.waitForTimeout(200);
-    const triggers = page.locator('.fb .fr').first();
+    const triggers = page.locator('.fb .tr').first();
     await expect(triggers).toContainText('R002');
     await expect(triggers).toContainText('R003');
   });
