@@ -160,14 +160,17 @@ def link_entities(title: str, content: str, source_type: str) -> list[dict]:
 
 def extract_event(title: str, content: str, source_type: str) -> Optional[str]:
     ft = f"{title} {content}"
-    if source_type == "policy" and any(k in ft for k in POLICY_KW):
-        return "policy_support"
+    if source_type in ("policy", "auto"):
+        if any(k in ft for k in POLICY_KW):
+            return "policy_support"
+        if source_type == "policy":
+            return None
     if source_type == "ir_qa":
         return None
     for etype, kws in EVENT_KW.items():
         if any(k in ft for k in kws):
             return etype
-    if source_type == "news" and any(k in ft for k in NEWS_KW):
+    if source_type in ("news", "auto") and any(k in ft for k in NEWS_KW):
         return "attention_spread"
     return None
 

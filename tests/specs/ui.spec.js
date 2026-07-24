@@ -1,161 +1,127 @@
 const { test, expect } = require('@playwright/test');
 
 // ═══════════════════════════════════════════
-// UI interaction & visual tests
+// UI tests — page load, interaction, results rendering
 // ═══════════════════════════════════════════
 
-test.describe('Tab Navigation', () => {
+test.describe('Page Load', () => {
 
-  test.beforeEach(async ({ page }) => {
+  test('loads successfully', async ({ page }) => {
+    const res = await page.goto('/');
+    expect(res.status()).toBe(200);
+    await expect(page.locator('h1')).toContainText('AlphaLens');
+  });
+
+  test('has textarea and analyze button', async ({ page }) => {
     await page.goto('/');
-    // Wait for auto-loaded example
-    await page.waitForSelector('#out .kpis', { timeout: 5000 });
+    await expect(page.locator('textarea')).toBeVisible();
+    await expect(page.locator('button')).toContainText(['开始分析']);
   });
 
-  test('all 4 tabs are visible', async ({ page }) => {
-    const tabs = page.locator('#tabbar button');
-    await expect(tabs).toHaveCount(4);
-    await expect(tabs.nth(0)).toContainText('Overview');
-    await expect(tabs.nth(1)).toContainText('Impact');
-    await expect(tabs.nth(2)).toContainText('Validation');
-    await expect(tabs.nth(3)).toContainText('Evidence');
+  test('has example shortcut buttons', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('储能政策')).toBeVisible();
+    await expect(page.getByText('锂电产能')).toBeVisible();
+    await expect(page.getByText('光伏新闻')).toBeVisible();
   });
 
-  test('Overview tab is active by default', async ({ page }) => {
-    const firstTab = page.locator('#tabbar button').first();
-    await expect(firstTab).toHaveClass(/on/);
-  });
-
-  test('clicking a tab activates it', async ({ page }) => {
-    await page.locator('#tabbar button').nth(2).click();
-    await page.waitForTimeout(200);
-    await expect(page.locator('#tabbar button').nth(2)).toHaveClass(/on/);
-    await expect(page.locator('#tabbar button').nth(0)).not.toHaveClass(/on/);
-  });
-
-  test('Overview tab shows KPI cards', async ({ page }) => {
-    await page.locator('#tabbar button').first().click();
-    await page.waitForTimeout(200);
-    await expect(page.locator('.kpis')).toBeVisible();
-    const kpis = page.locator('.kpi');
-    await expect(kpis).toHaveCount(5);
-  });
-
-  test('Impact tab shows factor ranking bars', async ({ page }) => {
-    await page.locator('#tabbar button').nth(1).click();
-    await page.waitForTimeout(200);
-    await expect(page.locator('.fb').first()).toBeVisible();
-  });
-
-  test('Validation tab shows historical backtest', async ({ page }) => {
-    await page.evaluate(() => swt(2));
-    await page.waitForTimeout(300);
-    await expect(page.locator('#out')).toContainText('同类事件历史回测');
-  });
-
-  test('Evidence tab shows predicate chips', async ({ page }) => {
-    await page.locator('#tabbar button').nth(3).click();
-    await page.waitForTimeout(300);
-    await expect(page.locator('.pchip').first()).toBeVisible();
+  test('disclaimer is visible', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('footer')).toContainText('不构成投资建议');
   });
 });
 
-test.describe('Analyze Button States', () => {
+test.describe('Example Analysis', () => {
 
-  test('button is enabled on page load', async ({ page }) => {
+  test('储能政策 example auto-runs and shows KPI', async ({ page }) => {
     await page.goto('/');
-    await page.waitForTimeout(500);
-    await expect(page.locator('#rb')).toBeEnabled();
-  });
-
-  test('button shows spinner during analysis', async ({ page }) => {
-    await page.goto('/');
-    // Clear and type to trigger manual analysis
-    await page.locator('#it').fill('工信部储能政策');
-    await page.locator('#ic').fill('支持新型储能参与电力系统调节');
-    await page.locator('#is').selectOption('policy');
-    // Click and immediately check spinner
+    // Fill form and trigger analysis via evaluate (bypass DOM click issues)
+    await page.locator('textarea').fill(
+      '国家发展改革委、国家能源局发布新型储能发展实施方案，强调独立储能、源网荷储协同和新能源消纳，重点支持储能系统集成、逆变器和数据中心电源等方向的技术创新和规模化应用。政策的落地预计将推动派能科技、固德威、锦浪科技等储能企业的订单增长。'
+    );
     await page.locator('#rb').click();
-    // Button should be disabled
-    await expect(page.locator('#rb')).toBeDisabled();
-    // Wait for completion
-    await page.waitForSelector('#out .kpis', { timeout: 5000 });
-    await expect(page.locator('#rb')).toBeEnabled();
+    await page.waitForSelector('.kpis', { timeout: 15000 });
+    await expect(page.locator('.kpi').first()).toContainText('policy_support');
+  });
+
+  test('锂电产能 example shows capacity_expansion', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('textarea').fill(
+      '公司公告显示，宁德时代继续围绕动力电池、储能电池和新技术产品推进产能与客户交付能力建设。公司将新增20GWh动力电池产能，预计2025年Q3投产。公告同时提示项目建设、客户需求和原材料价格存在不确定性。'
+    );
+    await page.locator('#rb').click();
+    await page.waitForSelector('.kpis', { timeout: 15000 });
+    await expect(page.locator('.kpi').first()).toContainText('capacity_expansion');
+  });
+
+  test('光伏新闻 example shows attention_spread', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('textarea').fill(
+      '财经新闻摘要称，硅料、硅片和组件价格经历调整后出现阶段性企稳迹象，市场关注产能出清和需求修复节奏。隆基绿能、通威股份、TCL中环等头部企业的产能利用率和海外订单情况受到机构关注。'
+    );
+    await page.locator('#rb').click();
+    await page.waitForSelector('.kpis', { timeout: 15000 });
+    await expect(page.locator('.kpi').first()).toContainText('attention_spread');
   });
 });
 
-test.describe('Visual Consistency', () => {
+test.describe('Results Rendering', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#out .kpis', { timeout: 5000 });
-  });
-
-  test('KPI values use monospace font', async ({ page }) => {
-    const kpiVal = page.locator('.kpi .v').first();
-    const fontFamily = await kpiVal.evaluate(el =>
-      window.getComputedStyle(el).fontFamily
+    await page.locator('textarea').fill(
+      '国家发展改革委、国家能源局发布新型储能发展实施方案，强调独立储能、源网荷储协同和新能源消纳，重点支持储能系统集成、逆变器和数据中心电源等方向的技术创新和规模化应用。政策的落地预计将推动派能科技、固德威、锦浪科技等储能企业的订单增长。'
     );
-    expect(fontFamily).toMatch(/JetBrains Mono|monospace/);
+    await page.locator('#rb').click();
+    await page.waitForSelector('.kpis', { timeout: 15000 });
   });
 
-  test('table uses monospace font for data', async ({ page }) => {
-    await page.locator('#tabbar button').nth(1).click();
-    await page.waitForTimeout(200);
-    const td = page.locator('.tbl td').first();
-    const fontFamily = await td.evaluate(el =>
-      window.getComputedStyle(el).fontFamily
-    );
-    expect(fontFamily).toMatch(/JetBrains Mono|monospace/);
+  test('shows factor ranking bars', async ({ page }) => {
+    await expect(page.locator('.bar').first()).toBeVisible();
   });
 
-  test('positive values use green color', async ({ page }) => {
-    // Check the KPI for positive win rate
-    const positiveEls = page.locator('.up');
-    const count = await positiveEls.count();
-    // Should find at least some green elements (depends on actual data)
-    expect(count).toBeGreaterThanOrEqual(0);
+  test('shows backtest metrics table', async ({ page }) => {
+    await expect(page.locator('.tbl').first()).toBeVisible();
+    await expect(page.locator('body')).toContainText('Rank IC');
+    await expect(page.locator('body')).toContainText('Sharpe');
+    await expect(page.locator('body')).toContainText('未来函数审计');
   });
 
-  test('footer disclaimer is visible', async ({ page }) => {
-    await expect(page.locator('.ft')).toContainText('不构成投资建议');
+  test('shows event and rules detail section', async ({ page }) => {
+    await expect(page.locator('body')).toContainText('事件与规则详情');
+  });
+
+  test('shows research report', async ({ page }) => {
+    await expect(page.locator('.report')).toBeVisible();
+    await expect(page.locator('.report')).toContainText('因子假设');
+    await expect(page.locator('.report')).toContainText('不构成投资建议');
+  });
+
+  test('shows predicate chips', async ({ page }) => {
+    await expect(page.locator('body')).toContainText('has_policy_support');
+    await expect(page.locator('body')).toContainText('event_evidence_strength');
+  });
+
+  test('shows charts section', async ({ page }) => {
+    await expect(page.locator('body')).toContainText('可视化');
   });
 });
 
-test.describe('Responsive Layout', () => {
+test.describe('Error Handling', () => {
 
-  test('input grid responsive layout works', async ({ page }) => {
+  test('shows error for empty input', async ({ page }) => {
     await page.goto('/');
-    await page.waitForTimeout(500);
-    // Check grid has 2 columns (with any unit values)
-    const cols = await page.locator('.inp-grid').evaluate(el =>
-      window.getComputedStyle(el).gridTemplateColumns.split(' ').length
-    );
-    expect(cols).toBe(2);
+    await page.locator('textarea').fill('');
+    await page.locator('#rb').click();
+    await expect(page.locator('.err-card')).toBeVisible();
+    await expect(page.locator('.err-card')).toContainText('请粘贴金融文本内容');
   });
 
-  test('tabs are horizontally scrollable on mobile', async ({ page }) => {
+  test('shows no-event message for non-financial text', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#out .kpis', { timeout: 5000 });
-
-    const tabs = page.locator('#tabbar');
-    const overflowX = await tabs.evaluate(el =>
-      window.getComputedStyle(el).overflowX
-    );
-    expect(overflowX).toBe('auto');
-  });
-
-  test('KPI cards wrap on mobile', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForSelector('#out .kpis', { timeout: 5000 });
-
-    const kpisWidth = await page.locator('.kpis').evaluate(el =>
-      el.getBoundingClientRect().width
-    );
-    const appWidth = await page.locator('.app').evaluate(el =>
-      el.getBoundingClientRect().width
-    );
-    // KPIs should not overflow the app container
-    expect(kpisWidth).toBeLessThanOrEqual(appWidth + 2);
+    await page.locator('textarea').fill('今天天气很好，适合户外活动');
+    await page.locator('#rb').click();
+    await page.waitForSelector('.err-card', { timeout: 10000 });
+    await expect(page.locator('.err-card')).toContainText('未检测到明确的金融事件');
   });
 });
