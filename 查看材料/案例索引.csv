@@ -1,137 +1,211 @@
 event_id,doc_id,source_type,title,stock_code,stock_name,industry_sector,event_type,event_time,evidence_strength,has_policy_support,policy_directly_related_to_business,evidence_from_authoritative_source,social_attention_spikes,forward_return_5d,demo_return_direction,manual_case_priority
 E006,S002,policy,商务部 财政部等7部门关于印发《汽车以旧换新补贴实施细则》的通知_国务院部门文件_中国政府网,002594,比亚迪,整车,policy_support,2024-04-24,0.94,true,false,true,false,0.094340,positive,P1
-E007,S002,policy,商务部 财政部等7部门关于印发《汽车以旧换新补贴实施细则》的通知_国务院部门文件_中国政府网,601127,赛力斯,整车,policy_support,2024-04-24,0.94,true,false,true,false,0.011933,positive,P1
-E008,S002,policy,商务部 财政部等7部门关于印发《汽车以旧换新补贴实施细则》的通知_国务院部门文件_中国政府网,000625,长安汽车,整车,policy_support,2024-04-24,0.94,true,false,true,false,-0.106032,negative,P1
-E009,S002,policy,商务部 财政部等7部门关于印发《汽车以旧换新补贴实施细则》的通知_国务院部门文件_中国政府网,601633,长城汽车,整车,policy_support,2024-04-24,0.94,true,false,true,false,-0.037505,negative,P1
-E010,S002,policy,商务部 财政部等7部门关于印发《汽车以旧换新补贴实施细则》的通知_国务院部门文件_中国政府网,600104,上汽集团,整车,policy_support,2024-04-24,0.94,true,false,true,false,-0.009662,negative,P1
-E011,S006,announcement,关于2025年第四季度计提资产减值准备的公告,601012,隆基绿能,光伏,earnings_quality_anomaly,2026-04-29,0.88,false,false,true,false,0.014661,positive,P2
-E012,S007,announcement,通威股份有限公司关于2026年第一季度计提资产减值准备及资产报废的公告,600438,通威股份,光伏,earnings_quality_anomaly,2026-04-30,0.88,false,false,true,false,-0.021877,negative,P2
-E014,S009,announcement,关于2025年度计提资产减值准备的公告,002459,晶澳科技,光伏,earnings_quality_anomaly,2026-04-29,0.88,false,false,true,false,0.031835,positive,P2
-E015,S010,announcement,天合光能股份有限公司关于2025年第四季度计提资产减值准备的公告,688599,天合光能,光伏,earnings_quality_anomaly,2026-04-30,0.88,false,false,true,false,0.028977,positive,P2
-E016,S011,news,光伏圈，重大突发！,601012,隆基绿能,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,-0.001832,negative,P2
-E017,S011,news,光伏圈，重大突发！,600438,通威股份,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,0.009608,positive,P2
-E018,S011,news,光伏圈，重大突发！,002129,TCL中环,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,-0.046124,negative,P2
-E019,S011,news,光伏圈，重大突发！,002459,晶澳科技,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,0.002976,positive,P2
-E020,S011,news,光伏圈，重大突发！,688599,天合光能,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,-0.067592,negative,P2
-E021,S011,news,光伏圈，重大突发！,300274,阳光电源,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,-0.015080,negative,P2
-E022,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300750,宁德时代,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.003245,positive,P2
-E023,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300014,亿纬锂能,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.059018,positive,P2
-E024,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,002074,国轩高科,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.050820,positive,P2
-E025,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300207,欣旺达,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.062693,positive,P2
-E026,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300438,鹏辉能源,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.098466,positive,P2
-E027,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,603659,璞泰来,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.063433,positive,P2
-E028,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300073,当升科技,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.042620,positive,P2
-E029,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,002812,恩捷股份,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.076582,positive,P2
-E030,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300450,先导智能,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.094905,positive,P2
-E031,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,002594,比亚迪,整车,attention_spread,2025-01-14,0.76,false,false,true,true,0.036257,positive,P2
-E032,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,601127,赛力斯,整车,attention_spread,2025-01-14,0.76,false,false,true,true,0.006695,positive,P2
-E033,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,000625,长安汽车,整车,attention_spread,2025-01-14,0.76,false,false,true,true,-0.006421,negative,P2
-E034,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,601633,长城汽车,整车,attention_spread,2025-01-14,0.76,false,false,true,true,-0.041961,negative,P2
-E035,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,600104,上汽集团,整车,attention_spread,2025-01-14,0.76,false,false,true,true,0.006583,positive,P2
-E053,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,688063,派能科技,储能,policy_support,2024-04-02,0.94,true,true,true,false,-0.053566,negative,P1
-E054,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,688390,固德威,储能,policy_support,2024-04-02,0.94,true,true,true,false,0.008533,positive,P1
-E055,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,300763,锦浪科技,储能,policy_support,2024-04-02,0.94,true,true,true,false,-0.038370,negative,P1
-E056,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,605117,德业股份,储能,policy_support,2024-04-02,0.94,true,true,true,false,-0.123410,negative,P1
-E057,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,002335,科华数据,储能,policy_support,2024-04-02,0.94,true,true,true,false,-0.037651,negative,P1
-E058,S022,announcement,关于2025年度计提信用减值准备和资产减值准备的公告,300274,阳光电源,光伏,earnings_quality_anomaly,2026-04-01,0.88,false,false,true,false,-0.058432,negative,P2
-E059,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300750,宁德时代,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,-0.012973,negative,P2
-E060,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300014,亿纬锂能,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,-0.029896,negative,P2
-E061,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,002074,国轩高科,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.003869,positive,P2
-E062,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300207,欣旺达,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.012014,positive,P2
-E063,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300438,鹏辉能源,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,-0.057654,negative,P2
-E064,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,603659,璞泰来,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.064712,positive,P2
-E065,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300073,当升科技,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.027541,positive,P2
-E066,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,002812,恩捷股份,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,-0.024714,negative,P2
-E067,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300450,先导智能,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.052746,positive,P2
-E076,S030,announcement,关于2025年度计提资产减值准备的公告,300014,亿纬锂能,锂电,earnings_quality_anomaly,2026-03-28,0.88,false,false,true,false,-0.156387,negative,P2
-E083,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,601012,隆基绿能,光伏,policy_support,2024-03-29,0.94,true,true,true,false,0.000513,positive,P1
-E084,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,600438,通威股份,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.017098,negative,P1
-E085,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,002129,TCL中环,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.006009,negative,P1
-E086,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,002459,晶澳科技,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.018846,negative,P1
-E087,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,688599,天合光能,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.011623,negative,P1
-E088,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,300274,阳光电源,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.018279,negative,P1
-E089,S034,announcement,国泰海通证券股份有限公司关于国轩高科股份有限公司部分募投项目提前结项并将节余募集资金永久补充流动资金的核查意见,002074,国轩高科,锂电,capacity_expansion,2026-04-29,0.90,false,false,true,false,-0.005867,negative,P1
-E090,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,002202,金风科技,风电,attention_spread,2025-07-18,0.76,false,false,true,false,-0.017172,negative,P2
-E091,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,601615,明阳智能,风电,attention_spread,2025-07-18,0.76,false,false,true,false,0.033484,positive,P2
-E092,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,300772,运达股份,风电,attention_spread,2025-07-18,0.76,false,false,true,false,0.012608,positive,P2
-E093,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,688349,三一重能,风电,attention_spread,2025-07-18,0.76,false,false,true,false,0.042378,positive,P2
-E094,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,002080,中材科技,风电,attention_spread,2025-07-18,0.76,false,false,true,false,0.095524,positive,P2
-E110,S038,announcement,关于2025年度计提资产减值准备的公告,300207,欣旺达,锂电,earnings_quality_anomaly,2026-04-24,0.88,false,false,true,false,0.017160,positive,P2
-E111,S039,news,光伏重磅！行业协会最新发声！,601012,隆基绿能,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.033193,negative,P2
-E112,S039,news,光伏重磅！行业协会最新发声！,600438,通威股份,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.052281,negative,P2
-E113,S039,news,光伏重磅！行业协会最新发声！,002129,TCL中环,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.072581,negative,P2
-E114,S039,news,光伏重磅！行业协会最新发声！,002459,晶澳科技,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.018879,negative,P2
-E115,S039,news,光伏重磅！行业协会最新发声！,688599,天合光能,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.006153,negative,P2
-E116,S039,news,光伏重磅！行业协会最新发声！,300274,阳光电源,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.024691,negative,P2
-E118,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,002594,比亚迪,整车,policy_support,2025-01-14,0.94,true,false,true,false,0.036257,positive,P1
-E119,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,601127,赛力斯,整车,policy_support,2025-01-14,0.94,true,false,true,false,0.006695,positive,P1
-E120,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,000625,长安汽车,整车,policy_support,2025-01-14,0.94,true,false,true,false,-0.006421,negative,P1
-E121,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,601633,长城汽车,整车,policy_support,2025-01-14,0.94,true,false,true,false,-0.041961,negative,P1
-E122,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,600104,上汽集团,整车,policy_support,2025-01-14,0.94,true,false,true,false,0.006583,positive,P1
-E123,S042,announcement,关于2025年度计提资产减值准备及核销资产的公告,300438,鹏辉能源,锂电,earnings_quality_anomaly,2026-04-29,0.88,false,false,true,false,0.064504,positive,P2
-E130,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,688063,派能科技,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.129359,positive,P1
-E131,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,688390,固德威,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.116294,positive,P1
-E132,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,300763,锦浪科技,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.135735,positive,P1
-E133,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,605117,德业股份,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.108764,positive,P1
-E134,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,002335,科华数据,储能,policy_support,2025-08-27,0.94,true,true,true,false,-0.012288,negative,P1
-E135,S046,announcement,上海璞泰来新能源科技集团股份有限公司关于投资建设年产72亿平方米锂离子电池隔膜建设项目的公告,603659,璞泰来,锂电,capacity_expansion,2026-05-21,0.90,false,false,true,false,-0.048107,negative,P1
-E148,S050,announcement,关于购买股权暨投资建设磷酸铁锂一体化项目的公告,300073,当升科技,锂电,capacity_expansion,2026-04-16,0.90,false,false,true,false,0.017633,positive,P1
-E156,S054,announcement,关于在自贡市投资建设锂电池隔离膜项目的进展公告,002812,恩捷股份,锂电,capacity_expansion,2026-06-10,0.90,false,false,true,false,0.153770,positive,P1
-E163,S058,announcement,关于2025年度计提资产减值准备的公告,300450,先导智能,锂电,earnings_quality_anomaly,2026-03-31,0.88,false,false,true,false,0.044133,positive,P2
-E164,S059,news,海上风电产业链上市公司接连中标-证券日报网,002202,金风科技,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,0.065490,positive,P1
-E165,S059,news,海上风电产业链上市公司接连中标-证券日报网,601615,明阳智能,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,0.034110,positive,P1
-E166,S059,news,海上风电产业链上市公司接连中标-证券日报网,300772,运达股份,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,-0.041042,negative,P1
-E167,S059,news,海上风电产业链上市公司接连中标-证券日报网,688349,三一重能,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,-0.051511,negative,P1
-E168,S059,news,海上风电产业链上市公司接连中标-证券日报网,002080,中材科技,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,0.312169,positive,P1
-E170,S062,announcement,关于2025年度计提信用减值准备及资产减值准备的公告,002202,金风科技,风电,earnings_quality_anomaly,2026-03-28,0.88,false,false,true,false,-0.117990,negative,P2
-E171,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300750,宁德时代,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,0.022032,positive,P2
-E172,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300014,亿纬锂能,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.063174,negative,P2
-E173,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,002074,国轩高科,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.011396,negative,P2
-E174,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300207,欣旺达,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,0.022706,positive,P2
-E175,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300438,鹏辉能源,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.048825,negative,P2
-E176,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,603659,璞泰来,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.043971,negative,P2
-E177,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300073,当升科技,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.017966,negative,P2
-E178,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,002812,恩捷股份,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.061602,negative,P2
-E179,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300450,先导智能,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,0.022501,positive,P2
-E180,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,002594,比亚迪,整车,attention_spread,2025-01-17,0.76,false,false,false,true,0.000218,positive,P2
-E181,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,601127,赛力斯,整车,attention_spread,2025-01-17,0.76,false,false,false,true,-0.031130,negative,P2
-E182,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,000625,长安汽车,整车,attention_spread,2025-01-17,0.76,false,false,false,true,-0.022329,negative,P2
-E183,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,601633,长城汽车,整车,attention_spread,2025-01-17,0.76,false,false,false,true,-0.039310,negative,P2
-E184,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,600104,上汽集团,整车,attention_spread,2025-01-17,0.76,false,false,false,true,0.003574,positive,P2
-E186,S066,announcement,关于计提2025年度资产减值准备的公告,601615,明阳智能,风电,earnings_quality_anomaly,2026-04-29,0.88,false,false,true,false,0.133779,positive,P2
-E199,S070,announcement,关于2026年第一季度计提资产减值准备的公告,300772,运达股份,风电,earnings_quality_anomaly,2026-04-25,0.88,false,false,true,false,0.030750,positive,P2
-E200,S071,news,5月电池装车71.9GWh，宁德时代、比亚迪合计拿下超六成市场_腾讯新闻,300750,宁德时代,锂电,attention_spread,2026-06-15,0.76,false,false,false,true,-0.040036,negative,P2
-E201,S071,news,5月电池装车71.9GWh，宁德时代、比亚迪合计拿下超六成市场_腾讯新闻,002594,比亚迪,整车,attention_spread,2026-06-15,0.76,false,false,false,true,-0.059214,negative,P2
-E203,S074,announcement,三一重能关于2025年度计提资产减值准备的公告,688349,三一重能,风电,earnings_quality_anomaly,2026-04-23,0.88,false,false,true,false,0.000000,flat,P2
-E215,S078,announcement,关于2025年度向特定对象发行股票的审核问询函回复及募集说明书等申请文件更新的提示性公告,002080,中材科技,风电,inquiry_letter_pressure,2026-06-24,0.88,false,false,true,false,,missing,P2
-E222,S082,announcement,关于2025年第四季度计提资产减值准备的公告,688063,派能科技,储能,earnings_quality_anomaly,2026-04-01,0.88,false,false,true,false,-0.035434,negative,P2
-E236,S090,announcement,关于全资项目子公司股权转让涉及2022年度向特定对象发行股票募投项目的进展公告,300763,锦浪科技,储能,capacity_expansion,2026-06-09,0.90,false,false,true,false,0.001938,positive,P1
-E273,S098,announcement,关于计提资产减值准备的公告,002335,科华数据,储能,earnings_quality_anomaly,2026-04-27,0.88,false,false,true,false,0.091517,positive,P2
-E276,S103,news,财联社汽车早报4月13日,002594,比亚迪,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.000874,negative,P2
-E277,S103,news,财联社汽车早报4月13日,601127,赛力斯,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.009212,negative,P2
-E278,S103,news,财联社汽车早报4月13日,000625,长安汽车,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.008885,negative,P2
-E279,S103,news,财联社汽车早报4月13日,601633,长城汽车,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.035545,negative,P2
-E280,S103,news,财联社汽车早报4月13日,600104,上汽集团,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.016973,negative,P2
-E282,S106,announcement,关于计提信用减值损失及资产减值损失的公告,601127,赛力斯,整车,earnings_quality_anomaly,2026-03-31,0.88,false,false,true,false,-0.019672,negative,P2
-E284,S110,announcement,关于公司2025年度向特定对象发行股票的审核问询函回复及募集说明书等申请文件更新的提示性公告,000625,长安汽车,整车,inquiry_letter_pressure,2026-03-07,0.88,false,false,true,false,0.001852,positive,P2
-E286,S114,announcement,长城汽车股份有限公司关于2025年年度报告的补充公告,601633,长城汽车,整车,capacity_expansion,2026-04-18,0.90,false,false,true,false,-0.023576,negative,P1
-E287,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,002594,比亚迪,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.184810,positive,P2
-E288,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,601127,赛力斯,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.019045,positive,P2
-E289,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,000625,长安汽车,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.082855,positive,P2
-E290,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,601633,长城汽车,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.050314,positive,P2
-E291,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,600104,上汽集团,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.110699,positive,P2
-E298,S118,announcement,上汽集团关于计提资产减值准备的公告,600104,上汽集团,整车,earnings_quality_anomaly,2026-04-02,0.88,false,false,true,false,-0.011872,negative,P2
-E299,S119,news,2024年上半年全国锂离子电池行业运行情况,300750,宁德时代,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,0.052918,positive,P2
-E300,S119,news,2024年上半年全国锂离子电池行业运行情况,300014,亿纬锂能,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.121161,negative,P2
-E301,S119,news,2024年上半年全国锂离子电池行业运行情况,002074,国轩高科,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.012175,negative,P2
-E302,S119,news,2024年上半年全国锂离子电池行业运行情况,300207,欣旺达,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,0.001291,positive,P2
-E303,S119,news,2024年上半年全国锂离子电池行业运行情况,300438,鹏辉能源,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,0.336105,positive,P2
-E304,S119,news,2024年上半年全国锂离子电池行业运行情况,603659,璞泰来,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.046112,negative,P2
-E305,S119,news,2024年上半年全国锂离子电池行业运行情况,300073,当升科技,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,0.022418,positive,P2
-E306,S119,news,2024年上半年全国锂离子电池行业运行情况,002812,恩捷股份,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.059978,negative,P2
-E307,S119,news,2024年上半年全国锂离子电池行业运行情况,300450,先导智能,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.051383,negative,P2
-E308,S119,news,2024年上半年全国锂离子电池行业运行情况,002594,比亚迪,整车,attention_spread,2024-08-16,0.76,false,false,false,true,0.017771,positive,P2
-E309,S119,news,2024年上半年全国锂离子电池行业运行情况,601127,赛力斯,整车,attention_spread,2024-08-16,0.76,false,false,false,true,-0.009912,negative,P2
-E310,S119,news,2024年上半年全国锂离子电池行业运行情况,000625,长安汽车,整车,attention_spread,2024-08-16,0.76,false,false,false,true,-0.101080,negative,P2
-E311,S119,news,2024年上半年全国锂离子电池行业运行情况,601633,长城汽车,整车,attention_spread,2024-08-16,0.76,false,false,false,true,0.000462,positive,P2
-E312,S119,news,2024年上半年全国锂离子电池行业运行情况,600104,上汽集团,整车,attention_spread,2024-08-16,0.76,false,false,false,true,-0.010728,negative,P2
+E007,S002,policy,商务部 财政部等7部门关于印发《汽车以旧换新补贴实施细则》的通知_国务院部门文件_中国政府网,600104,上汽集团,整车,policy_support,2024-04-24,0.94,true,false,true,false,-0.009662,negative,P1
+E008,S002,policy,商务部 财政部等7部门关于印发《汽车以旧换新补贴实施细则》的通知_国务院部门文件_中国政府网,601633,长城汽车,整车,policy_support,2024-04-24,0.94,true,false,true,false,-0.037505,negative,P1
+E009,S002,policy,商务部 财政部等7部门关于印发《汽车以旧换新补贴实施细则》的通知_国务院部门文件_中国政府网,601127,赛力斯,整车,policy_support,2024-04-24,0.94,true,false,true,false,0.011933,positive,P1
+E010,S002,policy,商务部 财政部等7部门关于印发《汽车以旧换新补贴实施细则》的通知_国务院部门文件_中国政府网,000625,长安汽车,整车,policy_support,2024-04-24,0.94,true,false,true,false,-0.106032,negative,P1
+E011,S003,policy,国务院关于印发《推动大规模设备更新和消费品以旧换新行动方案》的通知_机械制造与重工业_中国政府网,002594,比亚迪,整车,policy_support,2024-03-07,0.94,true,false,true,false,0.131270,positive,P1
+E012,S003,policy,国务院关于印发《推动大规模设备更新和消费品以旧换新行动方案》的通知_机械制造与重工业_中国政府网,600104,上汽集团,整车,policy_support,2024-03-07,0.94,true,false,true,false,-0.024022,negative,P1
+E013,S004,policy,国务院关于印发《2024—2025年节能降碳行动方案》的通知_节能与资源综合利用_中国政府网,601012,隆基绿能,光伏,policy_support,2024-05-23,0.94,true,false,true,false,0.002140,positive,P1
+E014,S004,policy,国务院关于印发《2024—2025年节能降碳行动方案》的通知_节能与资源综合利用_中国政府网,300274,阳光电源,光伏,policy_support,2024-05-23,0.94,true,false,true,false,-0.014900,negative,P1
+E015,S004,policy,国务院关于印发《2024—2025年节能降碳行动方案》的通知_节能与资源综合利用_中国政府网,002202,金风科技,风电,policy_support,2024-05-23,0.94,true,false,true,false,0.015873,positive,P1
+E016,S004,policy,国务院关于印发《2024—2025年节能降碳行动方案》的通知_节能与资源综合利用_中国政府网,601615,明阳智能,风电,policy_support,2024-05-23,0.94,true,false,true,false,-0.001034,negative,P1
+E017,S004,policy,国务院关于印发《2024—2025年节能降碳行动方案》的通知_节能与资源综合利用_中国政府网,605117,德业股份,储能,policy_support,2024-05-23,0.94,true,false,true,false,-0.023003,negative,P1
+E018,S004,policy,国务院关于印发《2024—2025年节能降碳行动方案》的通知_节能与资源综合利用_中国政府网,300763,锦浪科技,储能,policy_support,2024-05-23,0.94,true,false,true,false,-0.034616,negative,P1
+E023,S006,announcement,关于2025年第四季度计提资产减值准备的公告,601012,隆基绿能,光伏,earnings_quality_anomaly,2026-04-29,0.88,false,false,true,false,0.014661,positive,P2
+E024,S007,announcement,通威股份有限公司关于2026年第一季度计提资产减值准备及资产报废的公告,600438,通威股份,光伏,earnings_quality_anomaly,2026-04-30,0.88,false,false,true,false,-0.021877,negative,P2
+E026,S009,announcement,关于2025年度计提资产减值准备的公告,002459,晶澳科技,光伏,earnings_quality_anomaly,2026-04-29,0.88,false,false,true,false,0.031835,positive,P2
+E027,S010,announcement,天合光能股份有限公司关于2025年第四季度计提资产减值准备的公告,688599,天合光能,光伏,earnings_quality_anomaly,2026-04-30,0.88,false,false,true,false,0.028977,positive,P2
+E028,S011,news,光伏圈，重大突发！,601012,隆基绿能,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,-0.001832,negative,P2
+E029,S011,news,光伏圈，重大突发！,300274,阳光电源,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,-0.015080,negative,P2
+E030,S011,news,光伏圈，重大突发！,600438,通威股份,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,0.009608,positive,P2
+E031,S011,news,光伏圈，重大突发！,688599,天合光能,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,-0.067592,negative,P2
+E032,S011,news,光伏圈，重大突发！,002459,晶澳科技,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,0.002976,positive,P2
+E033,S011,news,光伏圈，重大突发！,002129,TCL中环,光伏,attention_spread,2024-01-20,0.76,false,false,true,false,-0.046124,negative,P2
+E034,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300750,宁德时代,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.003245,positive,P2
+E035,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300014,亿纬锂能,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.059018,positive,P2
+E036,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,002074,国轩高科,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.050820,positive,P2
+E037,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,603659,璞泰来,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.063433,positive,P2
+E038,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300450,先导智能,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.094905,positive,P2
+E039,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,002812,恩捷股份,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.076582,positive,P2
+E040,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300207,欣旺达,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.062693,positive,P2
+E041,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300073,当升科技,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.042620,positive,P2
+E042,S012,news,动力电池的2024年：产能装车率仅52% 价格持续下跌,300438,鹏辉能源,锂电,attention_spread,2024-02-20,0.76,false,false,false,true,0.098466,positive,P2
+E043,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,002594,比亚迪,整车,attention_spread,2025-01-14,0.76,false,false,true,true,0.036257,positive,P2
+E044,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,600104,上汽集团,整车,attention_spread,2025-01-14,0.76,false,false,true,true,0.006583,positive,P2
+E045,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,601633,长城汽车,整车,attention_spread,2025-01-14,0.76,false,false,true,true,-0.041961,negative,P2
+E046,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,601127,赛力斯,整车,attention_spread,2025-01-14,0.76,false,false,true,true,0.006695,positive,P2
+E047,S013,news,2024年产销均超1280万辆 中国新能源汽车连续十年全球领跑|上海证券报,000625,长安汽车,整车,attention_spread,2025-01-14,0.76,false,false,true,true,-0.006421,negative,P2
+E065,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,605117,德业股份,储能,policy_support,2024-04-02,0.94,true,true,true,false,-0.123410,negative,P1
+E066,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,300763,锦浪科技,储能,policy_support,2024-04-02,0.94,true,true,true,false,-0.038370,negative,P1
+E067,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,688390,固德威,储能,policy_support,2024-04-02,0.94,true,true,true,false,0.008533,positive,P1
+E068,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,002335,科华数据,储能,policy_support,2024-04-02,0.94,true,true,true,false,-0.037651,negative,P1
+E069,S021,policy,国家能源局关于促进新型储能并网和调度运用的通知 国能发科技规〔2024〕26号,688063,派能科技,储能,policy_support,2024-04-02,0.94,true,true,true,false,-0.053566,negative,P1
+E070,S022,announcement,关于2025年度计提信用减值准备和资产减值准备的公告,300274,阳光电源,光伏,earnings_quality_anomaly,2026-04-01,0.88,false,false,true,false,-0.058432,negative,P2
+E071,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300750,宁德时代,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,-0.012973,negative,P2
+E072,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300014,亿纬锂能,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,-0.029896,negative,P2
+E073,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,002074,国轩高科,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.003869,positive,P2
+E074,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,603659,璞泰来,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.064712,positive,P2
+E075,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300450,先导智能,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.052746,positive,P2
+E076,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,002812,恩捷股份,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,-0.024714,negative,P2
+E077,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300207,欣旺达,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.012014,positive,P2
+E078,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300073,当升科技,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,0.027541,positive,P2
+E079,S023,news,2025年国内动力电池装车量769.7GWh 同比增长40.4%_腾讯新闻,300438,鹏辉能源,锂电,attention_spread,2026-01-16,0.76,false,false,false,true,-0.057654,negative,P2
+E081,S025,policy,关于印发《加快构建新型电力系统行动方案（2024—2027年）》的通知_国务院部门文件_中国政府网,601012,隆基绿能,光伏,policy_support,2024-07-25,0.94,true,false,true,false,0.032328,positive,P1
+E082,S025,policy,关于印发《加快构建新型电力系统行动方案（2024—2027年）》的通知_国务院部门文件_中国政府网,300274,阳光电源,光伏,policy_support,2024-07-25,0.94,true,false,true,false,-0.036358,negative,P1
+E083,S025,policy,关于印发《加快构建新型电力系统行动方案（2024—2027年）》的通知_国务院部门文件_中国政府网,002202,金风科技,风电,policy_support,2024-07-25,0.94,true,false,true,false,0.036096,positive,P1
+E084,S025,policy,关于印发《加快构建新型电力系统行动方案（2024—2027年）》的通知_国务院部门文件_中国政府网,601615,明阳智能,风电,policy_support,2024-07-25,0.94,true,false,true,false,0.005353,positive,P1
+E085,S025,policy,关于印发《加快构建新型电力系统行动方案（2024—2027年）》的通知_国务院部门文件_中国政府网,605117,德业股份,储能,policy_support,2024-07-25,0.94,true,false,true,false,0.010615,positive,P1
+E086,S025,policy,关于印发《加快构建新型电力系统行动方案（2024—2027年）》的通知_国务院部门文件_中国政府网,300763,锦浪科技,储能,policy_support,2024-07-25,0.94,true,false,true,false,-0.005308,negative,P1
+E094,S029,policy,关于2024年可再生能源电力消纳责任权重及有关事项的通知(发改办能源〔2024〕598号),601012,隆基绿能,光伏,policy_support,2024-08-02,0.94,true,false,true,false,-0.026093,negative,P1
+E095,S029,policy,关于2024年可再生能源电力消纳责任权重及有关事项的通知(发改办能源〔2024〕598号),300274,阳光电源,光伏,policy_support,2024-08-02,0.94,true,false,true,false,0.055695,positive,P1
+E096,S029,policy,关于2024年可再生能源电力消纳责任权重及有关事项的通知(发改办能源〔2024〕598号),002202,金风科技,风电,policy_support,2024-08-02,0.94,true,false,true,false,0.004021,positive,P1
+E097,S029,policy,关于2024年可再生能源电力消纳责任权重及有关事项的通知(发改办能源〔2024〕598号),601615,明阳智能,风电,policy_support,2024-08-02,0.94,true,false,true,false,-0.014192,negative,P1
+E098,S030,announcement,关于2025年度计提资产减值准备的公告,300014,亿纬锂能,锂电,earnings_quality_anomaly,2026-03-28,0.88,false,false,true,false,-0.156387,negative,P2
+E105,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,601012,隆基绿能,光伏,policy_support,2024-03-29,0.94,true,true,true,false,0.000513,positive,P1
+E106,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,300274,阳光电源,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.018279,negative,P1
+E107,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,600438,通威股份,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.017098,negative,P1
+E108,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,688599,天合光能,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.011623,negative,P1
+E109,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,002459,晶澳科技,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.018846,negative,P1
+E110,S033,policy,工业和信息化部 住房和城乡建设部 交通运输部 农业农村部 国家能源局公告,002129,TCL中环,光伏,policy_support,2024-03-29,0.94,true,true,true,false,-0.006009,negative,P1
+E111,S034,announcement,国泰海通证券股份有限公司关于国轩高科股份有限公司部分募投项目提前结项并将节余募集资金永久补充流动资金的核查意见,002074,国轩高科,锂电,capacity_expansion,2026-04-29,0.90,false,false,true,false,-0.005867,negative,P1
+E112,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,002202,金风科技,风电,attention_spread,2025-07-18,0.76,false,false,true,false,-0.017172,negative,P2
+E113,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,601615,明阳智能,风电,attention_spread,2025-07-18,0.76,false,false,true,false,0.033484,positive,P2
+E114,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,688349,三一重能,风电,attention_spread,2025-07-18,0.76,false,false,true,false,0.042378,positive,P2
+E115,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,002080,中材科技,风电,attention_spread,2025-07-18,0.76,false,false,true,false,0.095524,positive,P2
+E116,S035,news,“海上+海外”双驱动 风电行业景气回升|上海证券报,300772,运达股份,风电,attention_spread,2025-07-18,0.76,false,false,true,false,0.012608,positive,P2
+E132,S038,announcement,关于2025年度计提资产减值准备的公告,300207,欣旺达,锂电,earnings_quality_anomaly,2026-04-24,0.88,false,false,true,false,0.017160,positive,P2
+E133,S039,news,光伏重磅！行业协会最新发声！,601012,隆基绿能,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.033193,negative,P2
+E134,S039,news,光伏重磅！行业协会最新发声！,300274,阳光电源,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.024691,negative,P2
+E135,S039,news,光伏重磅！行业协会最新发声！,600438,通威股份,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.052281,negative,P2
+E136,S039,news,光伏重磅！行业协会最新发声！,688599,天合光能,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.006153,negative,P2
+E137,S039,news,光伏重磅！行业协会最新发声！,002459,晶澳科技,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.018879,negative,P2
+E138,S039,news,光伏重磅！行业协会最新发声！,002129,TCL中环,光伏,attention_spread,2024-11-20,0.76,false,false,true,false,-0.072581,negative,P2
+E140,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,002594,比亚迪,整车,policy_support,2025-01-14,0.94,true,false,true,false,0.036257,positive,P1
+E141,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,600104,上汽集团,整车,policy_support,2025-01-14,0.94,true,false,true,false,0.006583,positive,P1
+E142,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,601633,长城汽车,整车,policy_support,2025-01-14,0.94,true,false,true,false,-0.041961,negative,P1
+E143,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,601127,赛力斯,整车,policy_support,2025-01-14,0.94,true,false,true,false,0.006695,positive,P1
+E144,S041,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知_国务院部门文件_中国政府网,000625,长安汽车,整车,policy_support,2025-01-14,0.94,true,false,true,false,-0.006421,negative,P1
+E145,S042,announcement,关于2025年度计提资产减值准备及核销资产的公告,300438,鹏辉能源,锂电,earnings_quality_anomaly,2026-04-29,0.88,false,false,true,false,0.064504,positive,P2
+E152,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,605117,德业股份,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.108764,positive,P1
+E153,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,300763,锦浪科技,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.135735,positive,P1
+E154,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,688390,固德威,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.116294,positive,P1
+E155,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,002335,科华数据,储能,policy_support,2025-08-27,0.94,true,true,true,false,-0.012288,negative,P1
+E156,S045,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知,688063,派能科技,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.129359,positive,P1
+E157,S046,announcement,上海璞泰来新能源科技集团股份有限公司关于投资建设年产72亿平方米锂离子电池隔膜建设项目的公告,603659,璞泰来,锂电,capacity_expansion,2026-05-21,0.90,false,false,true,false,-0.048107,negative,P1
+E170,S049,policy,国家能源局关于印发《2025年能源工作指导意见》的通知_国务院部门文件_中国政府网,601012,隆基绿能,光伏,policy_support,2025-02-27,0.94,true,false,true,false,0.001754,positive,P1
+E171,S049,policy,国家能源局关于印发《2025年能源工作指导意见》的通知_国务院部门文件_中国政府网,300274,阳光电源,光伏,policy_support,2025-02-27,0.94,true,false,true,false,-0.043478,negative,P1
+E172,S049,policy,国家能源局关于印发《2025年能源工作指导意见》的通知_国务院部门文件_中国政府网,002202,金风科技,风电,policy_support,2025-02-27,0.94,true,false,true,false,-0.007786,negative,P1
+E173,S049,policy,国家能源局关于印发《2025年能源工作指导意见》的通知_国务院部门文件_中国政府网,601615,明阳智能,风电,policy_support,2025-02-27,0.94,true,false,true,false,0.000955,positive,P1
+E174,S049,policy,国家能源局关于印发《2025年能源工作指导意见》的通知_国务院部门文件_中国政府网,605117,德业股份,储能,policy_support,2025-02-27,0.94,true,false,true,false,-0.007188,negative,P1
+E175,S049,policy,国家能源局关于印发《2025年能源工作指导意见》的通知_国务院部门文件_中国政府网,300763,锦浪科技,储能,policy_support,2025-02-27,0.94,true,false,true,false,-0.032393,negative,P1
+E176,S050,announcement,关于购买股权暨投资建设磷酸铁锂一体化项目的公告,300073,当升科技,锂电,capacity_expansion,2026-04-16,0.90,false,false,true,false,0.017633,positive,P1
+E188,S054,announcement,关于在自贡市投资建设锂电池隔离膜项目的进展公告,002812,恩捷股份,锂电,capacity_expansion,2026-06-10,0.90,false,false,true,false,0.153770,positive,P1
+E189,S055,news,财联社汽车早报【5月26日】_腾讯新闻,002594,比亚迪,整车,attention_spread,2026-05-26,0.76,false,false,false,true,0.007917,positive,P2
+E190,S055,news,财联社汽车早报【5月26日】_腾讯新闻,600104,上汽集团,整车,attention_spread,2026-05-26,0.76,false,false,false,true,0.001631,positive,P2
+E197,S058,announcement,关于2025年度计提资产减值准备的公告,300450,先导智能,锂电,earnings_quality_anomaly,2026-03-31,0.88,false,false,true,false,0.044133,positive,P2
+E198,S059,news,海上风电产业链上市公司接连中标-证券日报网,002202,金风科技,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,0.065490,positive,P1
+E199,S059,news,海上风电产业链上市公司接连中标-证券日报网,601615,明阳智能,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,0.034110,positive,P1
+E200,S059,news,海上风电产业链上市公司接连中标-证券日报网,688349,三一重能,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,-0.051511,negative,P1
+E201,S059,news,海上风电产业链上市公司接连中标-证券日报网,002080,中材科技,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,0.312169,positive,P1
+E202,S059,news,海上风电产业链上市公司接连中标-证券日报网,300772,运达股份,风电,capacity_expansion,2026-06-13,0.78,false,false,false,false,-0.041042,negative,P1
+E204,S061,policy,2025年可再生能源并网运行情况,601012,隆基绿能,光伏,policy_support,2026-02-12,0.94,true,false,true,false,-0.004348,negative,P1
+E205,S061,policy,2025年可再生能源并网运行情况,300274,阳光电源,光伏,policy_support,2026-02-12,0.94,true,false,true,false,-0.065015,negative,P1
+E206,S061,policy,2025年可再生能源并网运行情况,002202,金风科技,风电,policy_support,2026-02-12,0.94,true,false,true,false,0.135729,positive,P1
+E207,S061,policy,2025年可再生能源并网运行情况,601615,明阳智能,风电,policy_support,2026-02-12,0.94,true,false,true,false,-0.016436,negative,P1
+E208,S062,announcement,关于2025年度计提信用减值准备及资产减值准备的公告,002202,金风科技,风电,earnings_quality_anomaly,2026-03-28,0.88,false,false,true,false,-0.117990,negative,P2
+E209,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300750,宁德时代,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,0.022032,positive,P2
+E210,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300014,亿纬锂能,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.063174,negative,P2
+E211,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,002074,国轩高科,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.011396,negative,P2
+E212,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,603659,璞泰来,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.043971,negative,P2
+E213,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300450,先导智能,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,0.022501,positive,P2
+E214,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,002812,恩捷股份,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.061602,negative,P2
+E215,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300207,欣旺达,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,0.022706,positive,P2
+E216,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300073,当升科技,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.017966,negative,P2
+E217,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,300438,鹏辉能源,锂电,attention_spread,2025-01-17,0.76,false,false,false,true,-0.048825,negative,P2
+E218,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,002594,比亚迪,整车,attention_spread,2025-01-17,0.76,false,false,false,true,0.000218,positive,P2
+E219,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,600104,上汽集团,整车,attention_spread,2025-01-17,0.76,false,false,false,true,0.003574,positive,P2
+E220,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,601633,长城汽车,整车,attention_spread,2025-01-17,0.76,false,false,false,true,-0.039310,negative,P2
+E221,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,601127,赛力斯,整车,attention_spread,2025-01-17,0.76,false,false,false,true,-0.031130,negative,P2
+E222,S063,news,动力电池的2024年：产能装车率仅52% 价格持续下跌_腾讯新闻,000625,长安汽车,整车,attention_spread,2025-01-17,0.76,false,false,false,true,-0.022329,negative,P2
+E224,S065,policy,工业和信息化部等七部门关于加快推动制造业绿色化发展的指导意见_国务院部门文件_中国政府网,601012,隆基绿能,光伏,policy_support,2024-02-05,0.94,true,false,true,false,0.104236,positive,P1
+E225,S065,policy,工业和信息化部等七部门关于加快推动制造业绿色化发展的指导意见_国务院部门文件_中国政府网,300274,阳光电源,光伏,policy_support,2024-02-05,0.94,true,false,true,false,0.057812,positive,P1
+E226,S065,policy,工业和信息化部等七部门关于加快推动制造业绿色化发展的指导意见_国务院部门文件_中国政府网,300750,宁德时代,锂电,policy_support,2024-02-05,0.94,true,false,true,false,0.053891,positive,P1
+E227,S065,policy,工业和信息化部等七部门关于加快推动制造业绿色化发展的指导意见_国务院部门文件_中国政府网,300014,亿纬锂能,锂电,policy_support,2024-02-05,0.94,true,false,true,false,0.104428,positive,P1
+E228,S065,policy,工业和信息化部等七部门关于加快推动制造业绿色化发展的指导意见_国务院部门文件_中国政府网,605117,德业股份,储能,policy_support,2024-02-05,0.94,true,false,true,false,0.190632,positive,P1
+E229,S065,policy,工业和信息化部等七部门关于加快推动制造业绿色化发展的指导意见_国务院部门文件_中国政府网,300763,锦浪科技,储能,policy_support,2024-02-05,0.94,true,false,true,false,0.107608,positive,P1
+E230,S066,announcement,关于计提2025年度资产减值准备的公告,601615,明阳智能,风电,earnings_quality_anomaly,2026-04-29,0.88,false,false,true,false,0.133779,positive,P2
+E243,S070,announcement,关于2026年第一季度计提资产减值准备的公告,300772,运达股份,风电,earnings_quality_anomaly,2026-04-25,0.88,false,false,true,false,0.030750,positive,P2
+E244,S071,news,5月电池装车71.9GWh，宁德时代、比亚迪合计拿下超六成市场_腾讯新闻,300750,宁德时代,锂电,attention_spread,2026-06-15,0.76,false,false,false,true,-0.040036,negative,P2
+E245,S071,news,5月电池装车71.9GWh，宁德时代、比亚迪合计拿下超六成市场_腾讯新闻,002594,比亚迪,整车,attention_spread,2026-06-15,0.76,false,false,false,true,-0.059214,negative,P2
+E253,S074,announcement,三一重能关于2025年度计提资产减值准备的公告,688349,三一重能,风电,earnings_quality_anomaly,2026-04-23,0.88,false,false,true,false,0.000000,flat,P2
+E265,S078,announcement,关于2025年度向特定对象发行股票的审核问询函回复及募集说明书等申请文件更新的提示性公告,002080,中材科技,风电,inquiry_letter_pressure,2026-06-24,0.88,false,false,true,false,,missing,P2
+E276,S082,announcement,关于2025年第四季度计提资产减值准备的公告,688063,派能科技,储能,earnings_quality_anomaly,2026-04-01,0.88,false,false,true,false,-0.035434,negative,P2
+E282,S085,policy,关于印发《电动汽车充电设施服务能力“三年倍增”行动方案(2025—2027年)》的通知(发改能源〔2025〕1250号),002594,比亚迪,整车,policy_support,2025-10-15,0.94,true,false,true,false,-0.030093,negative,P1
+E283,S085,policy,关于印发《电动汽车充电设施服务能力“三年倍增”行动方案(2025—2027年)》的通知(发改能源〔2025〕1250号),600104,上汽集团,整车,policy_support,2025-10-15,0.94,true,false,true,false,-0.019655,negative,P1
+E284,S085,policy,关于印发《电动汽车充电设施服务能力“三年倍增”行动方案(2025—2027年)》的通知(发改能源〔2025〕1250号),300750,宁德时代,锂电,policy_support,2025-10-15,0.94,true,false,true,false,0.014865,positive,P1
+E285,S085,policy,关于印发《电动汽车充电设施服务能力“三年倍增”行动方案(2025—2027年)》的通知(发改能源〔2025〕1250号),300014,亿纬锂能,锂电,policy_support,2025-10-15,0.94,true,false,true,false,-0.033229,negative,P1
+E286,S085,policy,关于印发《电动汽车充电设施服务能力“三年倍增”行动方案(2025—2027年)》的通知(发改能源〔2025〕1250号),605117,德业股份,储能,policy_support,2025-10-15,0.94,true,false,true,false,-0.015619,negative,P1
+E287,S085,policy,关于印发《电动汽车充电设施服务能力“三年倍增”行动方案(2025—2027年)》的通知(发改能源〔2025〕1250号),300763,锦浪科技,储能,policy_support,2025-10-15,0.94,true,false,true,false,-0.045455,negative,P1
+E300,S090,announcement,关于全资项目子公司股权转让涉及2022年度向特定对象发行股票募投项目的进展公告,300763,锦浪科技,储能,capacity_expansion,2026-06-09,0.90,false,false,true,false,0.001938,positive,P1
+E343,S098,announcement,关于计提资产减值准备的公告,002335,科华数据,储能,earnings_quality_anomaly,2026-04-27,0.88,false,false,true,false,0.091517,positive,P2
+E356,S103,news,财联社汽车早报4月13日,002594,比亚迪,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.000874,negative,P2
+E357,S103,news,财联社汽车早报4月13日,600104,上汽集团,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.016973,negative,P2
+E358,S103,news,财联社汽车早报4月13日,601633,长城汽车,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.035545,negative,P2
+E359,S103,news,财联社汽车早报4月13日,601127,赛力斯,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.009212,negative,P2
+E360,S103,news,财联社汽车早报4月13日,000625,长安汽车,整车,attention_spread,2026-04-13,0.76,false,false,false,true,-0.008885,negative,P2
+E362,S105,policy,国家能源局关于印发《配电网高质量发展行动实施方案（2024—2027年）》的通知_国务院部门文件_中国政府网,601012,隆基绿能,光伏,policy_support,2024-08-02,0.94,true,false,true,false,-0.026093,negative,P1
+E363,S105,policy,国家能源局关于印发《配电网高质量发展行动实施方案（2024—2027年）》的通知_国务院部门文件_中国政府网,300274,阳光电源,光伏,policy_support,2024-08-02,0.94,true,false,true,false,0.055695,positive,P1
+E364,S105,policy,国家能源局关于印发《配电网高质量发展行动实施方案（2024—2027年）》的通知_国务院部门文件_中国政府网,002202,金风科技,风电,policy_support,2024-08-02,0.94,true,false,true,false,0.004021,positive,P1
+E365,S105,policy,国家能源局关于印发《配电网高质量发展行动实施方案（2024—2027年）》的通知_国务院部门文件_中国政府网,601615,明阳智能,风电,policy_support,2024-08-02,0.94,true,false,true,false,-0.014192,negative,P1
+E366,S105,policy,国家能源局关于印发《配电网高质量发展行动实施方案（2024—2027年）》的通知_国务院部门文件_中国政府网,605117,德业股份,储能,policy_support,2024-08-02,0.94,true,false,true,false,0.014603,positive,P1
+E367,S105,policy,国家能源局关于印发《配电网高质量发展行动实施方案（2024—2027年）》的通知_国务院部门文件_中国政府网,300763,锦浪科技,储能,policy_support,2024-08-02,0.94,true,false,true,false,-0.024053,negative,P1
+E368,S106,announcement,关于计提信用减值损失及资产减值损失的公告,601127,赛力斯,整车,earnings_quality_anomaly,2026-03-31,0.88,false,false,true,false,-0.019672,negative,P2
+E374,S109,policy,关于印发《电力系统调节能力优化专项行动实施方案（2025—2027年）》的通知_国务院部门文件_中国政府网,601012,隆基绿能,光伏,policy_support,2024-12-20,0.94,true,false,true,false,-0.009810,negative,P1
+E375,S109,policy,关于印发《电力系统调节能力优化专项行动实施方案（2025—2027年）》的通知_国务院部门文件_中国政府网,300274,阳光电源,光伏,policy_support,2024-12-20,0.94,true,false,true,false,0.028467,positive,P1
+E376,S109,policy,关于印发《电力系统调节能力优化专项行动实施方案（2025—2027年）》的通知_国务院部门文件_中国政府网,002202,金风科技,风电,policy_support,2024-12-20,0.94,true,false,true,false,-0.030274,negative,P1
+E377,S109,policy,关于印发《电力系统调节能力优化专项行动实施方案（2025—2027年）》的通知_国务院部门文件_中国政府网,601615,明阳智能,风电,policy_support,2024-12-20,0.94,true,false,true,false,0.000000,flat,P1
+E378,S109,policy,关于印发《电力系统调节能力优化专项行动实施方案（2025—2027年）》的通知_国务院部门文件_中国政府网,605117,德业股份,储能,policy_support,2024-12-20,0.94,true,true,true,false,0.014568,positive,P1
+E379,S109,policy,关于印发《电力系统调节能力优化专项行动实施方案（2025—2027年）》的通知_国务院部门文件_中国政府网,300763,锦浪科技,储能,policy_support,2024-12-20,0.94,true,true,true,false,-0.029656,negative,P1
+E380,S110,announcement,关于公司2025年度向特定对象发行股票的审核问询函回复及募集说明书等申请文件更新的提示性公告,000625,长安汽车,整车,inquiry_letter_pressure,2026-03-07,0.88,false,false,true,false,0.001852,positive,P2
+E386,S114,announcement,长城汽车股份有限公司关于2025年年度报告的补充公告,601633,长城汽车,整车,capacity_expansion,2026-04-18,0.90,false,false,true,false,-0.023576,negative,P1
+E387,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,002594,比亚迪,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.184810,positive,P2
+E388,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,600104,上汽集团,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.110699,positive,P2
+E389,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,601633,长城汽车,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.050314,positive,P2
+E390,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,601127,赛力斯,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.019045,positive,P2
+E391,S115,news,专家解读 | 2024年全年中国汽车出口市场分析_腾讯新闻,000625,长安汽车,整车,attention_spread,2025-01-23,0.76,false,false,false,true,0.082855,positive,P2
+E398,S118,announcement,上汽集团关于计提资产减值准备的公告,600104,上汽集团,整车,earnings_quality_anomaly,2026-04-02,0.88,false,false,true,false,-0.011872,negative,P2
+E399,S119,news,2024年上半年全国锂离子电池行业运行情况,300750,宁德时代,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,0.052918,positive,P2
+E400,S119,news,2024年上半年全国锂离子电池行业运行情况,300014,亿纬锂能,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.121161,negative,P2
+E401,S119,news,2024年上半年全国锂离子电池行业运行情况,002074,国轩高科,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.012175,negative,P2
+E402,S119,news,2024年上半年全国锂离子电池行业运行情况,603659,璞泰来,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.046112,negative,P2
+E403,S119,news,2024年上半年全国锂离子电池行业运行情况,300450,先导智能,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.051383,negative,P2
+E404,S119,news,2024年上半年全国锂离子电池行业运行情况,002812,恩捷股份,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,-0.059978,negative,P2
+E405,S119,news,2024年上半年全国锂离子电池行业运行情况,300207,欣旺达,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,0.001291,positive,P2
+E406,S119,news,2024年上半年全国锂离子电池行业运行情况,300073,当升科技,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,0.022418,positive,P2
+E407,S119,news,2024年上半年全国锂离子电池行业运行情况,300438,鹏辉能源,锂电,attention_spread,2024-08-16,0.76,false,false,false,true,0.336105,positive,P2
+E408,S119,news,2024年上半年全国锂离子电池行业运行情况,002594,比亚迪,整车,attention_spread,2024-08-16,0.76,false,false,false,true,0.017771,positive,P2
+E409,S119,news,2024年上半年全国锂离子电池行业运行情况,600104,上汽集团,整车,attention_spread,2024-08-16,0.76,false,false,false,true,-0.010728,negative,P2
+E410,S119,news,2024年上半年全国锂离子电池行业运行情况,601633,长城汽车,整车,attention_spread,2024-08-16,0.76,false,false,false,true,0.000462,positive,P2
+E411,S119,news,2024年上半年全国锂离子电池行业运行情况,601127,赛力斯,整车,attention_spread,2024-08-16,0.76,false,false,false,true,-0.009912,negative,P2
+E412,S119,news,2024年上半年全国锂离子电池行业运行情况,000625,长安汽车,整车,attention_spread,2024-08-16,0.76,false,false,false,true,-0.101080,negative,P2
+E414,S121,policy,国家发展改革委办公厅关于印发《绿色低碳先进技术示范项目清单（第一批）》的通知,601012,隆基绿能,光伏,policy_support,2025-09-19,0.94,true,false,true,false,0.035503,positive,P1
+E415,S121,policy,国家发展改革委办公厅关于印发《绿色低碳先进技术示范项目清单（第一批）》的通知,300274,阳光电源,光伏,policy_support,2025-09-19,0.94,true,false,true,false,0.160006,positive,P1
+E416,S121,policy,国家发展改革委办公厅关于印发《绿色低碳先进技术示范项目清单（第一批）》的通知,300750,宁德时代,锂电,policy_support,2025-09-19,0.94,true,false,true,false,0.027228,positive,P1
+E417,S121,policy,国家发展改革委办公厅关于印发《绿色低碳先进技术示范项目清单（第一批）》的通知,300014,亿纬锂能,锂电,policy_support,2025-09-19,0.94,true,false,true,false,0.084002,positive,P1
+E418,S121,policy,国家发展改革委办公厅关于印发《绿色低碳先进技术示范项目清单（第一批）》的通知,605117,德业股份,储能,policy_support,2025-09-19,0.94,true,false,true,false,0.049538,positive,P1
+E419,S121,policy,国家发展改革委办公厅关于印发《绿色低碳先进技术示范项目清单（第一批）》的通知,300763,锦浪科技,储能,policy_support,2025-09-19,0.94,true,false,true,false,-0.012618,negative,P1
+E420,S122,policy,国家发展改革委 国家能源局关于新形势下配电网高质量发展的指导意见发改能源〔2024〕187号,601012,隆基绿能,光伏,policy_support,2025-12-23,0.94,true,false,true,false,0.027871,positive,P1
+E421,S122,policy,国家发展改革委 国家能源局关于新形势下配电网高质量发展的指导意见发改能源〔2024〕187号,300274,阳光电源,光伏,policy_support,2025-12-23,0.94,true,false,true,false,0.078346,positive,P1
+E422,S122,policy,国家发展改革委 国家能源局关于新形势下配电网高质量发展的指导意见发改能源〔2024〕187号,605117,德业股份,储能,policy_support,2025-12-23,0.94,true,false,true,false,-0.007065,negative,P1
+E423,S122,policy,国家发展改革委 国家能源局关于新形势下配电网高质量发展的指导意见发改能源〔2024〕187号,300763,锦浪科技,储能,policy_support,2025-12-23,0.94,true,false,true,false,0.028227,positive,P1
+E424,S123,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知,002594,比亚迪,整车,policy_support,2026-01-30,0.94,true,false,true,false,0.020682,positive,P1
+E425,S123,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知,600104,上汽集团,整车,policy_support,2026-01-30,0.94,true,false,true,false,0.022647,positive,P1
+E426,S123,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知,601633,长城汽车,整车,policy_support,2026-01-30,0.94,true,false,true,false,0.020327,positive,P1
+E427,S123,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知,601127,赛力斯,整车,policy_support,2026-01-30,0.94,true,false,true,false,0.048311,positive,P1
+E428,S123,policy,商务部等8部门办公厅关于做好2025年汽车以旧换新工作的通知,000625,长安汽车,整车,policy_support,2026-01-30,0.94,true,false,true,false,0.009928,positive,P1
+E433,S125,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知_国务院部门文件_中国政府网,605117,德业股份,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.108764,positive,P1
+E434,S125,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知_国务院部门文件_中国政府网,300763,锦浪科技,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.135735,positive,P1
+E435,S125,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知_国务院部门文件_中国政府网,688390,固德威,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.116294,positive,P1
+E436,S125,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知_国务院部门文件_中国政府网,002335,科华数据,储能,policy_support,2025-08-27,0.94,true,true,true,false,-0.012288,negative,P1
+E437,S125,policy,关于印发《新型储能规模化建设专项行动方案(2025—2027年)》的通知_国务院部门文件_中国政府网,688063,派能科技,储能,policy_support,2025-08-27,0.94,true,true,true,false,0.129359,positive,P1

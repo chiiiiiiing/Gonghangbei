@@ -7,6 +7,7 @@ exercise the AlphaLens data contract end to end with the current input data.
 from __future__ import annotations
 
 import csv
+import itertools
 import math
 from collections import defaultdict
 from datetime import datetime
@@ -22,54 +23,35 @@ PREDICATE_COLUMNS = [
     "policy_directly_related_to_business",
     "event_mentions_core_product",
     "evidence_from_authoritative_source",
+    "source_government_or_exchange",
+    "source_company_announcement",
+    "source_major_media",
     "social_attention_spikes",
+    "policy_attention_followup",
     "institutional_attention_increases",
     "investor_questions_increase",
     "management_response_vague",
     "announcement_contains_uncertainty",
+    "risk_or_uncertainty_disclosure",
+    "demand_side_policy",
+    "supply_side_policy",
+    "capacity_policy_support",
     "event_evidence_strength",
     "event_has_short_term_price_impact",
 ]
 
-
-RULE_DEFS = [
-    {
-        "rule_id": "R001",
-        "rule_name": "policy_attention_momentum",
-        "condition": "has_policy_support AND policy_directly_related_to_business AND social_attention_spikes",
-        "target_label": "short_term_theme_momentum",
-        "predicate_true": [
-            "has_policy_support",
-            "policy_directly_related_to_business",
-            "social_attention_spikes",
-        ],
-        "event_types": [],
-    },
-    {
-        "rule_id": "R002",
-        "rule_name": "authoritative_core_event",
-        "condition": "event_mentions_core_product AND evidence_from_authoritative_source",
-        "target_label": "explainable_event_signal",
-        "predicate_true": ["event_mentions_core_product", "evidence_from_authoritative_source"],
-        "event_types": [],
-    },
-    {
-        "rule_id": "R003",
-        "rule_name": "capacity_authoritative_expansion",
-        "condition": "event_type = capacity_expansion AND evidence_from_authoritative_source",
-        "target_label": "capacity_expansion_attention",
-        "predicate_true": ["evidence_from_authoritative_source"],
-        "event_types": ["capacity_expansion"],
-    },
-    {
-        "rule_id": "R004",
-        "rule_name": "investor_pressure_watch",
-        "condition": "investor_questions_increase AND management_response_vague",
-        "target_label": "information_uncertainty_watch",
-        "predicate_true": ["investor_questions_increase", "management_response_vague"],
-        "event_types": [],
-    },
+SCORE_PREDICATES = {"event_evidence_strength", "event_has_short_term_price_impact"}
+BOOLEAN_PREDICATE_COLUMNS = [
+    predicate_name for predicate_name in PREDICATE_COLUMNS if predicate_name not in SCORE_PREDICATES
 ]
+DISCOVERY_END_DATE = "2025-12-31"
+MIN_RULE_OCCURRENCES = 5
+MIN_RULE_WIN_RATE = 0.50
+MIN_RULE_AVG_RETURN = 0.0
+MIN_RULE_AVG_EVIDENCE = 0.75
+MIN_RULE_STOCK_COUNT = 5
+MAX_RULE_TERMS = 3
+MAX_QUALIFIED_RULES = 12
 
 
 def read_csv(filename: str) -> list[dict[str, str]]:
@@ -175,41 +157,223 @@ def compute_forward_returns() -> dict[str, dict[str, str]]:
 
 
 def rule_matches(event_row: dict[str, str], rule_def: dict[str, object]) -> bool:
-    event_types = rule_def["event_types"]
+    event_types = rule_def.get("event_types", [])
     if event_types and event_row["event_type"] not in event_types:
         return False
-    predicate_true = rule_def["predicate_true"]
+    predicate_true = rule_def.get("predicate_true", [])
     return all(event_row.get(predicate_name) == "true" for predicate_name in predicate_true)
 
 
-def build_rules(matrix: list[dict[str, str]], forward_by_event: dict[str, dict[str, str]]) -> list[dict[str, str]]:
+def is_discovery_event(event_row: dict[str, str]) -> bool:
+    return event_row["event_time"] <= DISCOVERY_END_DATE
+
+
+def mean_float(values: list[float]) -> float:
+    return mean(values) if values else 0.0
+
+
+def condition_for_predicates(predicate_names: tuple[str, ...]) -> str:
+    return " AND ".join(predicate_names)
+
+
+def target_label_for_predicates(predicate_names: tuple[str, ...]) -> str:
+    predicate_set = set(predicate_names)
+    if predicate_set & {"risk_or_uncertainty_disclosure", "announcement_contains_uncertainty"}:
+        return "risk_disclosure_signal"
+    if predicate_set & {"capacity_policy_support"}:
+        return "capacity_policy_signal"
+    if predicate_set & {
+        "has_policy_support",
+        "policy_directly_related_to_business",
+        "policy_attention_followup",
+        "demand_side_policy",
+        "supply_side_policy",
+    }:
+        if predicate_set & {"social_attention_spikes", "institutional_attention_increases"}:
+            return "policy_attention_signal"
+        return "policy_signal"
+    if predicate_set & {"social_attention_spikes", "institutional_attention_increases"}:
+        return "attention_signal"
+    if predicate_set & {
+        "event_mentions_core_product",
+        "evidence_from_authoritative_source",
+        "source_government_or_exchange",
+        "source_company_announcement",
+        "source_major_media",
+    }:
+        return "authoritative_core_event_signal"
+    return "explainable_event_signal"
+
+
+def rule_name_for_predicates(predicate_names: tuple[str, ...], target_label: str) -> str:
+    short_names = {
+        "event_mentions_core_product": "core",
+        "evidence_from_authoritative_source": "auth",
+        "source_government_or_exchange": "gov_exchange",
+        "source_company_announcement": "announcement",
+        "source_major_media": "media",
+        "social_attention_spikes": "attention",
+        "policy_attention_followup": "policy_followup",
+        "institutional_attention_increases": "institutional",
+        "risk_or_uncertainty_disclosure": "risk",
+        "demand_side_policy": "demand_policy",
+        "supply_side_policy": "supply_policy",
+        "capacity_policy_support": "capacity_policy",
+        "has_policy_support": "policy",
+        "policy_directly_related_to_business": "business_policy",
+        "announcement_contains_uncertainty": "uncertainty",
+    }
+    parts = [short_names.get(name, name) for name in predicate_names]
+    return f"{target_label}__{'__'.join(parts)}"
+
+
+def factor_name_for_labels(labels: list[str]) -> str:
+    unique_labels = sorted(set(labels))
+    if not unique_labels:
+        return "no_active_signal"
+    if len(unique_labels) == 1:
+        return f"{unique_labels[0]}_score"
+    return f"composite__{'__'.join(unique_labels)}_score"
+
+
+def evaluate_rule_candidate(
+    matrix: list[dict[str, str]],
+    forward_by_event: dict[str, dict[str, str]],
+    predicate_names: tuple[str, ...],
+) -> dict[str, object] | None:
+    matched = [
+        row
+        for row in matrix
+        if all(row.get(predicate_name) == "true" for predicate_name in predicate_names)
+    ]
+    discovery_matched = [row for row in matched if is_discovery_event(row)]
+    return_values = [
+        float(forward_by_event[row["event_id"]]["forward_return_5d"])
+        for row in discovery_matched
+        if row["event_id"] in forward_by_event and forward_by_event[row["event_id"]]["forward_return_5d"] != ""
+    ]
+    if len(return_values) < 3:
+        return None
+
+    support_count = len(return_values)
+    positive_count = sum(1 for value in return_values if value > 0)
+    win_rate = positive_count / support_count if support_count else 0.0
+    avg_return = mean_float(return_values)
+    evidence_values = [
+        float(row["event_evidence_strength"])
+        for row in discovery_matched
+        if row.get("event_evidence_strength") != ""
+    ]
+    avg_evidence = mean_float(evidence_values)
+    stock_count = len({row["stock_code"] for row in discovery_matched})
+    event_ids = frozenset(row["event_id"] for row in discovery_matched)
+    coverage_bonus = min(support_count / 20.0, 1.0) * 0.18
+    diversity_bonus = min(stock_count / 10.0, 1.0) * 0.10
+    evidence_bonus = avg_evidence * 0.12
+    score = win_rate * 0.45 + max(avg_return, 0.0) * 5.0 + coverage_bonus + diversity_bonus + evidence_bonus
+    qualified = (
+        support_count >= MIN_RULE_OCCURRENCES
+        and win_rate >= MIN_RULE_WIN_RATE
+        and avg_return >= MIN_RULE_AVG_RETURN
+        and avg_evidence >= MIN_RULE_AVG_EVIDENCE
+        and stock_count >= MIN_RULE_STOCK_COUNT
+        and len(predicate_names) <= MAX_RULE_TERMS
+    )
+    return {
+        "predicate_names": predicate_names,
+        "event_ids": event_ids,
+        "support_count": support_count,
+        "positive_count": positive_count,
+        "win_rate": win_rate,
+        "avg_return": avg_return,
+        "avg_evidence": avg_evidence,
+        "stock_count": stock_count,
+        "score": score,
+        "status": "qualified" if qualified else "candidate",
+    }
+
+
+def generate_rule_defs(
+    matrix: list[dict[str, str]],
+    forward_by_event: dict[str, dict[str, str]],
+) -> list[dict[str, object]]:
+    active_predicates = [
+        predicate_name
+        for predicate_name in BOOLEAN_PREDICATE_COLUMNS
+        if any(row.get(predicate_name) == "true" for row in matrix)
+    ]
+    candidates: list[dict[str, object]] = []
+    for term_count in range(2, MAX_RULE_TERMS + 1):
+        for predicate_names in itertools.combinations(active_predicates, term_count):
+            candidate = evaluate_rule_candidate(matrix, forward_by_event, predicate_names)
+            if candidate:
+                candidates.append(candidate)
+
+    candidates.sort(
+        key=lambda row: (
+            row["status"] == "qualified",
+            float(row["score"]),
+            int(row["support_count"]),
+        ),
+        reverse=True,
+    )
+    selected: list[dict[str, object]] = []
+    seen_event_sets: set[frozenset[str]] = set()
+    for candidate in candidates:
+        event_ids = candidate["event_ids"]
+        if event_ids in seen_event_sets:
+            continue
+        seen_event_sets.add(event_ids)
+        selected.append(candidate)
+        if sum(1 for row in selected if row["status"] == "qualified") >= MAX_QUALIFIED_RULES:
+            break
+
+    if not any(row["status"] == "qualified" for row in selected):
+        selected = candidates[:MAX_QUALIFIED_RULES]
+
+    rule_defs: list[dict[str, object]] = []
+    for index, candidate in enumerate(selected, start=1):
+        predicate_names = tuple(candidate["predicate_names"])
+        target_label = target_label_for_predicates(predicate_names)
+        rule_defs.append(
+            {
+                "rule_id": f"R{index:03d}",
+                "rule_name": rule_name_for_predicates(predicate_names, target_label),
+                "condition": condition_for_predicates(predicate_names),
+                "target_label": target_label,
+                "predicate_true": list(predicate_names),
+                "event_types": [],
+                "support_count": candidate["support_count"],
+                "positive_count": candidate["positive_count"],
+                "win_rate": candidate["win_rate"],
+                "avg_return": candidate["avg_return"],
+                "score": candidate["score"],
+                "status": candidate["status"],
+            }
+        )
+    return rule_defs
+
+
+def build_rules(
+    matrix: list[dict[str, str]],
+    forward_by_event: dict[str, dict[str, str]],
+) -> tuple[list[dict[str, str]], dict[str, dict[str, object]]]:
     rows: list[dict[str, str]] = []
-    for rule_def in RULE_DEFS:
-        matched = [row for row in matrix if rule_matches(row, rule_def)]
-        return_values = [
-            float(forward_by_event[row["event_id"]]["forward_return_5d"])
-            for row in matched
-            if row["event_id"] in forward_by_event and forward_by_event[row["event_id"]]["forward_return_5d"] != ""
-        ]
-        support_count = len(return_values)
-        positive_count = sum(1 for value in return_values if value > 0)
-        win_rate = positive_count / support_count if support_count else 0.0
-        avg_return = mean(return_values) if return_values else 0.0
-        coverage_bonus = min(support_count / 20.0, 1.0) * 0.2
-        score = win_rate * 0.55 + max(avg_return, 0.0) * 4.0 + coverage_bonus
-        status = "qualified" if support_count >= 5 else "below_min_occurrence"
+    rule_defs = generate_rule_defs(matrix, forward_by_event)
+    rule_defs_by_id = {str(rule_def["rule_id"]): rule_def for rule_def in rule_defs}
+    for rule_def in rule_defs:
         rows.append(
             {
                 "rule_id": str(rule_def["rule_id"]),
                 "rule_name": str(rule_def["rule_name"]),
                 "condition": str(rule_def["condition"]),
                 "target_label": str(rule_def["target_label"]),
-                "support_count": str(support_count),
-                "positive_count": str(positive_count),
-                "win_rate": f"{win_rate:.4f}",
-                "avg_forward_return_5d": f"{avg_return:.6f}",
-                "score": f"{score:.4f}",
-                "status": status,
+                "support_count": str(rule_def["support_count"]),
+                "positive_count": str(rule_def["positive_count"]),
+                "win_rate": f"{float(rule_def['win_rate']):.4f}",
+                "avg_forward_return_5d": f"{float(rule_def['avg_return']):.6f}",
+                "score": f"{float(rule_def['score']):.4f}",
+                "status": str(rule_def["status"]),
             }
         )
     write_csv(
@@ -228,16 +392,16 @@ def build_rules(matrix: list[dict[str, str]], forward_by_event: dict[str, dict[s
         ],
         rows,
     )
-    return rows
+    return rows, rule_defs_by_id
 
 
 def build_event_factors(
     matrix: list[dict[str, str]],
     rules: list[dict[str, str]],
+    rule_defs_by_id: dict[str, dict[str, object]],
     forward_by_event: dict[str, dict[str, str]],
 ) -> list[dict[str, str]]:
     rule_by_id = {rule["rule_id"]: rule for rule in rules if rule["status"] == "qualified"}
-    rule_defs_by_id = {str(rule["rule_id"]): rule for rule in RULE_DEFS}
     rows: list[dict[str, str]] = []
     for event_row in matrix:
         triggered_rule_ids = [
@@ -256,11 +420,14 @@ def build_event_factors(
         impact_prior = float(event_row["event_has_short_term_price_impact"])
         raw_score = sum(float(rule_by_id[rule_id]["score"]) for rule_id in triggered_rule_ids)
         factor_value = raw_score * (0.7 * evidence_strength + 0.3 * impact_prior)
+        factor_name = factor_name_for_labels(
+            [str(rule_by_id[rule_id]["target_label"]) for rule_id in triggered_rule_ids]
+        )
         rows.append(
             {
                 "trade_date": forward["entry_trade_date"],
                 "stock_code": event_row["stock_code"],
-                "factor_name": "policy_attention_momentum_score",
+                "factor_name": factor_name,
                 "factor_value": f"{factor_value:.6f}",
                 "raw_score": f"{raw_score:.6f}",
                 "trigger_event_ids": event_row["event_id"],
@@ -298,14 +465,18 @@ def zscore(values: list[float]) -> list[float]:
     return [(value - avg) / std for value in values]
 
 
-def build_factor_snapshot(matrix: list[dict[str, str]], rules: list[dict[str, str]]) -> None:
+def build_factor_snapshot(
+    matrix: list[dict[str, str]],
+    rules: list[dict[str, str]],
+    rule_defs_by_id: dict[str, dict[str, object]],
+) -> None:
     stocks = {row["stock_code"]: row for row in read_csv("stock_pool.csv")}
     last_trade_date = max(row["trade_date"] for row in read_csv("market_data.csv"))
     rule_by_id = {rule["rule_id"]: rule for rule in rules if rule["status"] == "qualified"}
-    rule_defs_by_id = {str(rule["rule_id"]): rule for rule in RULE_DEFS}
     raw_by_stock: dict[str, float] = {stock_code: 0.0 for stock_code in stocks}
     events_by_stock: dict[str, list[str]] = defaultdict(list)
     rules_by_stock: dict[str, set[str]] = defaultdict(set)
+    labels_by_stock: dict[str, set[str]] = defaultdict(set)
     last_date = parse_date(last_trade_date)
 
     for event_row in matrix:
@@ -326,6 +497,7 @@ def build_factor_snapshot(matrix: list[dict[str, str]], rules: list[dict[str, st
         raw_by_stock[stock_code] += score
         events_by_stock[stock_code].append(event_row["event_id"])
         rules_by_stock[stock_code].update(triggered_rule_ids)
+        labels_by_stock[stock_code].update(str(rule_by_id[rule_id]["target_label"]) for rule_id in triggered_rule_ids)
 
     by_sector: dict[str, list[tuple[str, float]]] = defaultdict(list)
     for stock_code, raw_value in raw_by_stock.items():
@@ -346,7 +518,7 @@ def build_factor_snapshot(matrix: list[dict[str, str]], rules: list[dict[str, st
                 "stock_code": stock_code,
                 "stock_name": stock["stock_name"],
                 "industry_sector": stock["industry_sector"],
-                "factor_name": "policy_attention_momentum_score",
+                "factor_name": factor_name_for_labels(sorted(labels_by_stock[stock_code])),
                 "factor_value": f"{z_by_stock[stock_code]:.6f}",
                 "raw_score": f"{raw_by_stock[stock_code]:.6f}",
                 "trigger_event_ids": "|".join(events_by_stock[stock_code]),
@@ -470,9 +642,9 @@ def build_backtest_outputs(factor_rows: list[dict[str, str]]) -> None:
 def main() -> None:
     matrix = build_predicate_matrix()
     forward_by_event = compute_forward_returns()
-    rules = build_rules(matrix, forward_by_event)
-    factor_rows = build_event_factors(matrix, rules, forward_by_event)
-    build_factor_snapshot(matrix, rules)
+    rules, rule_defs_by_id = build_rules(matrix, forward_by_event)
+    factor_rows = build_event_factors(matrix, rules, rule_defs_by_id, forward_by_event)
+    build_factor_snapshot(matrix, rules, rule_defs_by_id)
     build_backtest_outputs(factor_rows)
     print("Research outputs generated: predicate_matrix, returns, rules, factors, metrics.")
 

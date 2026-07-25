@@ -1,6 +1,6 @@
 # AlphaLens A 口径确认建议稿
 
-生成日期：2026-07-15
+生成日期：2026-07-25
 
 本报告仅供研究参考，不构成投资建议
 
@@ -18,27 +18,35 @@
 
 | event_type | 样本数 | A 是否确认 | 备注 |
 |------------|--------|------------|------|
-| `attention_spread` | 80 | 待确认 | 自动抽取候选口径 |
+| `attention_spread` | 82 | 待确认 | 自动抽取候选口径 |
 | `capacity_expansion` | 11 | 待确认 | 自动抽取候选口径 |
 | `earnings_quality_anomaly` | 17 | 待确认 | 自动抽取候选口径 |
 | `inquiry_letter_pressure` | 2 | 待确认 | 自动抽取候选口径 |
-| `policy_support` | 26 | 待确认 | 自动抽取候选口径 |
+| `policy_support` | 98 | 待确认 | 自动抽取候选口径 |
 
 ## 当前谓词覆盖
 
 | predicate_name | 样本数 | A 是否确认 | 建议确认点 |
 |----------------|--------|------------|------------|
-| `announcement_contains_uncertainty` | 136 | 待确认 | true/false 判断边界是否清晰 |
-| `event_evidence_strength` | 136 | 待确认 | 分数区间和解释口径是否合理 |
-| `event_has_short_term_price_impact` | 136 | 待确认 | 分数区间和解释口径是否合理 |
-| `event_mentions_core_product` | 136 | 待确认 | true/false 判断边界是否清晰 |
-| `evidence_from_authoritative_source` | 136 | 待确认 | true/false 判断边界是否清晰 |
-| `has_policy_support` | 136 | 待确认 | true/false 判断边界是否清晰 |
-| `institutional_attention_increases` | 136 | 待确认 | true/false 判断边界是否清晰 |
-| `investor_questions_increase` | 136 | 待确认 | true/false 判断边界是否清晰 |
-| `management_response_vague` | 136 | 待确认 | true/false 判断边界是否清晰 |
-| `policy_directly_related_to_business` | 136 | 待确认 | true/false 判断边界是否清晰 |
-| `social_attention_spikes` | 136 | 待确认 | true/false 判断边界是否清晰 |
+| `announcement_contains_uncertainty` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `capacity_policy_support` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `demand_side_policy` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `event_evidence_strength` | 210 | 待确认 | 分数区间和解释口径是否合理 |
+| `event_has_short_term_price_impact` | 210 | 待确认 | 分数区间和解释口径是否合理 |
+| `event_mentions_core_product` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `evidence_from_authoritative_source` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `has_policy_support` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `institutional_attention_increases` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `investor_questions_increase` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `management_response_vague` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `policy_attention_followup` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `policy_directly_related_to_business` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `risk_or_uncertainty_disclosure` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `social_attention_spikes` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `source_company_announcement` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `source_government_or_exchange` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `source_major_media` | 210 | 待确认 | true/false 判断边界是否清晰 |
+| `supply_side_policy` | 210 | 待确认 | true/false 判断边界是否清晰 |
 
 ## 建议 A 重点确认
 

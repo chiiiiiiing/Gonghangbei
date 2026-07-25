@@ -38,6 +38,10 @@ VIEW_FILES = [
     "答辩问答素材.md",
     "真实文本来源核验报告.md",
     "源文本核验明细.csv",
+    "数据负责人本轮自动处理报告.md",
+    "数据负责人下一步分工与验证报告.md",
+    "新输入文本Demo测试案例说明.md",
+    "新输入文本Demo测试案例.csv",
     "真实行情获取记录.md",
     "真实行情导入模板.csv",
     "真实行情校验报告.md",
@@ -51,6 +55,7 @@ VIEW_FILES = [
     "数据质量报告.md",
     "未来函数审计明细.md",
     "因子研究报告.md",
+    "谓词筛选与规则调参报告.md",
 ]
 
 SAMPLE_FILES = [
@@ -80,6 +85,9 @@ DISCLAIMER_FILES = [
     VIEW_DIR / "Demo演示脚本.md",
     VIEW_DIR / "答辩问答素材.md",
     VIEW_DIR / "真实文本来源核验报告.md",
+    VIEW_DIR / "数据负责人本轮自动处理报告.md",
+    VIEW_DIR / "数据负责人下一步分工与验证报告.md",
+    VIEW_DIR / "新输入文本Demo测试案例说明.md",
     VIEW_DIR / "真实行情获取记录.md",
     VIEW_DIR / "真实行情校验报告.md",
     VIEW_DIR / "流水线输入保护验证报告.md",
@@ -89,6 +97,7 @@ DISCLAIMER_FILES = [
     VIEW_DIR / "数据质量报告.md",
     VIEW_DIR / "未来函数审计明细.md",
     VIEW_DIR / "因子研究报告.md",
+    VIEW_DIR / "谓词筛选与规则调参报告.md",
     ROOT / "README.md",
 ]
 
@@ -153,6 +162,7 @@ def check_directory_boundaries(errors: list[str], warnings: list[str]) -> None:
         "团队对接手册.md",
         "数据质量报告.md",
         "因子研究报告.md",
+        "谓词筛选与规则调参报告.md",
         "PPT案例素材包.md",
         "未来函数审计明细.md",
         "事件人工抽检样本.csv",
@@ -163,6 +173,10 @@ def check_directory_boundaries(errors: list[str], warnings: list[str]) -> None:
         "答辩问答素材.md",
         "真实文本来源核验报告.md",
         "源文本核验明细.csv",
+        "数据负责人本轮自动处理报告.md",
+        "数据负责人下一步分工与验证报告.md",
+        "新输入文本Demo测试案例说明.md",
+        "新输入文本Demo测试案例.csv",
         "真实行情获取记录.md",
         "真实行情导入模板.csv",
         "真实行情校验报告.md",

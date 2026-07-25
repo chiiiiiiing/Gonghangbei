@@ -9,29 +9,16 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 SAMPLE_DIR = ROOT / "data" / "sample"
 REPORT_PATH = ROOT / "查看材料" / "因子研究报告.md"
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
 
+from src.backtest.demo_engine import PREDICATE_COLUMNS
+
 SCHEMAS = {
-    "predicate_matrix.csv": [
-        "event_id",
-        "doc_id",
-        "stock_code",
-        "event_type",
-        "event_time",
-        "has_policy_support",
-        "policy_directly_related_to_business",
-        "event_mentions_core_product",
-        "evidence_from_authoritative_source",
-        "social_attention_spikes",
-        "institutional_attention_increases",
-        "investor_questions_increase",
-        "management_response_vague",
-        "announcement_contains_uncertainty",
-        "event_evidence_strength",
-        "event_has_short_term_price_impact",
-    ],
+    "predicate_matrix.csv": ["event_id", "doc_id", "stock_code", "event_type", "event_time", *PREDICATE_COLUMNS],
     "event_forward_returns.csv": [
         "event_id",
         "stock_code",
@@ -131,8 +118,8 @@ def main() -> int:
         support_count = int(row["support_count"])
         if row["status"] == "qualified" and support_count < 5:
             errors.append(f"rules.csv: qualified rule {row['rule_id']} has support_count < 5")
-        if row["status"] == "below_min_occurrence" and support_count >= 5:
-            errors.append(f"rules.csv: rule {row['rule_id']} incorrectly below threshold")
+        if row["status"] not in {"qualified", "candidate"}:
+            errors.append(f"rules.csv: unexpected status {row['status']} for {row['rule_id']}")
         for field in ["win_rate", "avg_forward_return_5d", "score"]:
             if not is_float(row[field]):
                 errors.append(f"rules.csv: invalid {field} for {row['rule_id']}")

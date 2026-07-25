@@ -36,8 +36,9 @@ def main() -> None:
     candidate_doc_count = sum(1 for row in documents if "待人工核验" in row["content"])
 
     qualified_rules = [rule for rule in rules if rule["status"] == "qualified"]
+    factor_names = sorted({row["factor_name"] for row in snapshot if row["factor_name"]})
     lines = [
-        "# policy_attention_momentum_score 因子研究报告",
+        "# AlphaLens 可解释事件因子研究报告",
         "",
         f"生成日期：{today()}",
         "",
@@ -45,9 +46,9 @@ def main() -> None:
         "",
         "## 因子假设",
         "",
-        "当政策利好或权威事件直接作用于新能源公司主营业务，并伴随主题关注度扩散时，相关事件可被转化为可解释的短期主题动量研究信号。",
+        "当政策、权威来源、核心产品、关注扩散、产能建设或风险披露等文本线索形成稳定谓词组合时，相关事件可被转化为可解释的另类因子研究信号。",
         "",
-        "本报告展示的是 AlphaLens 从文本到事件、谓词、规则、因子和回测审计的自动闭环，不用于预测股票价格。",
+        "本报告展示的是 AlphaLens 从文本到事件、谓词、自动规则、规则族因子和回测审计的自动闭环，不用于预测股票价格。",
         "",
         "## 数据范围",
         "",
@@ -57,6 +58,8 @@ def main() -> None:
         "- 行情：当前使用 `data/sample/market_data.csv`，已联网获取前复权价格候选版，复权因子口径仍需人工复核",
         "",
         "## 规则摘要",
+        "",
+        f"当前因子族：{', '.join(factor_names) if factor_names else '暂无触发'}",
         "",
     ]
 

@@ -15,11 +15,19 @@ PREDICATES = [
     "policy_directly_related_to_business",
     "event_mentions_core_product",
     "evidence_from_authoritative_source",
+    "source_government_or_exchange",
+    "source_company_announcement",
+    "source_major_media",
     "social_attention_spikes",
+    "policy_attention_followup",
     "institutional_attention_increases",
     "investor_questions_increase",
     "management_response_vague",
     "announcement_contains_uncertainty",
+    "risk_or_uncertainty_disclosure",
+    "demand_side_policy",
+    "supply_side_policy",
+    "capacity_policy_support",
     "event_evidence_strength",
     "event_has_short_term_price_impact",
 ]
@@ -84,6 +92,22 @@ def source_is_authoritative(source_type: str, source_name: str) -> bool:
     }
 
 
+def source_is_government_or_exchange(source_type: str, source_name: str) -> bool:
+    return source_type == "policy" or any(
+        keyword in source_name
+        for keyword in ["中国政府网", "国务院", "发改委", "工信部", "财政部", "商务部", "上交所", "深交所"]
+    )
+
+
+def source_is_major_media(source_type: str, source_name: str) -> bool:
+    return source_type == "news" and source_name in {
+        "证券时报",
+        "上海证券报",
+        "中国证券报",
+        "21 世纪经济报道",
+    }
+
+
 def ground_predicates() -> list[dict[str, object]]:
     documents = {doc["doc_id"]: doc for doc in read_csv(SAMPLE_DIR / "raw_documents.csv")}
     stock_pool = {row["stock_code"]: row for row in read_csv(SAMPLE_DIR / "stock_pool.csv")}
@@ -99,16 +123,50 @@ def ground_predicates() -> list[dict[str, object]]:
         mentions_core_product = any(keyword in full_text for keyword in core_keywords)
         has_policy = event["event_type"] == "policy_support"
         source_authoritative = source_is_authoritative(doc["source_type"], doc["source_name"])
+        government_or_exchange = source_is_government_or_exchange(doc["source_type"], doc["source_name"])
+        company_announcement = doc["source_type"] == "announcement"
+        major_media = source_is_major_media(doc["source_type"], doc["source_name"])
         attention_spike = event["event_type"] == "attention_spread" and any(
             word in full_text
             for word in ["装机量", "装车量", "渗透率", "出口量", "招标规模", "市场关注", "多家"]
+        )
+        policy_followup = (has_policy or event["event_type"] == "attention_spread") and any(
+            word in full_text
+            for word in [
+                "行动方案",
+                "以旧换新",
+                "购置税",
+                "补贴",
+                "装机量",
+                "装车量",
+                "渗透率",
+                "出口量",
+                "招标规模",
+                "市场关注",
+                "多家",
+            ]
         )
         investor_questions = event["event_type"] == "investor_question_pressure"
         vague_response = investor_questions and any(word in full_text for word in ["以公司公告", "需结合", "可能影响"])
         uncertain_announcement = doc["source_type"] == "announcement" and any(
             word in full_text for word in ["不确定", "风险", "可能影响", "提示"]
         )
+        risk_disclosure = uncertain_announcement or event["event_type"] in {
+            "regulatory_penalty",
+            "inquiry_letter_pressure",
+            "earnings_quality_anomaly",
+            "supply_chain_disruption",
+        }
         institutional_attention = any(word in full_text for word in ["机构", "调研", "研报"])
+        demand_policy = has_policy and any(
+            word in full_text for word in ["消费", "购置税", "补贴", "以旧换新", "销量", "需求", "车辆购置"]
+        )
+        supply_policy = has_policy and any(
+            word in full_text for word in ["供给", "产业链", "制造", "设备更新", "技术改造", "绿色制造"]
+        )
+        capacity_policy = (has_policy and any(word in full_text for word in ["产能", "扩产", "项目", "设备更新"])) or (
+            event["event_type"] == "capacity_expansion" and source_authoritative
+        )
 
         add_predicate(
             rows,
@@ -145,10 +203,42 @@ def ground_predicates() -> list[dict[str, object]]:
         add_predicate(
             rows,
             event["event_id"],
+            "source_government_or_exchange",
+            bool_value(government_or_exchange),
+            0.95 if government_or_exchange else 0.76,
+            "来源为政府、部委或交易所" if government_or_exchange else "来源不是政府、部委或交易所",
+        )
+        add_predicate(
+            rows,
+            event["event_id"],
+            "source_company_announcement",
+            bool_value(company_announcement),
+            0.94 if company_announcement else 0.78,
+            "来源类型为公司公告" if company_announcement else "来源不是公司公告",
+        )
+        add_predicate(
+            rows,
+            event["event_id"],
+            "source_major_media",
+            bool_value(major_media),
+            0.90 if major_media else 0.76,
+            "来源为主流财经媒体" if major_media else "来源不是主流财经媒体",
+        )
+        add_predicate(
+            rows,
+            event["event_id"],
             "social_attention_spikes",
             bool_value(attention_spike),
             0.82 if attention_spike else 0.68,
             "新闻原文包含可量化或多源关注扩散线索" if attention_spike else "单条来源不足以证明关注度显著上升",
+        )
+        add_predicate(
+            rows,
+            event["event_id"],
+            "policy_attention_followup",
+            bool_value(policy_followup),
+            0.84 if policy_followup else 0.70,
+            "政策或主题文本包含后续关注/扩散线索" if policy_followup else "未发现政策后续关注扩散线索",
         )
         add_predicate(
             rows,
@@ -181,6 +271,38 @@ def ground_predicates() -> list[dict[str, object]]:
             bool_value(uncertain_announcement),
             0.84 if uncertain_announcement else 0.78,
             "公告摘要包含风险或不确定性提示" if uncertain_announcement else "未发现公告不确定性提示",
+        )
+        add_predicate(
+            rows,
+            event["event_id"],
+            "risk_or_uncertainty_disclosure",
+            bool_value(risk_disclosure),
+            0.86 if risk_disclosure else 0.78,
+            "事件属于风险披露、问询、业绩异常或供应链扰动" if risk_disclosure else "未发现集中风险披露线索",
+        )
+        add_predicate(
+            rows,
+            event["event_id"],
+            "demand_side_policy",
+            bool_value(demand_policy),
+            0.86 if demand_policy else 0.74,
+            "政策作用于消费、补贴或终端需求" if demand_policy else "政策未明确作用于需求侧",
+        )
+        add_predicate(
+            rows,
+            event["event_id"],
+            "supply_side_policy",
+            bool_value(supply_policy),
+            0.84 if supply_policy else 0.74,
+            "政策作用于供给、制造或产业链升级" if supply_policy else "政策未明确作用于供给侧",
+        )
+        add_predicate(
+            rows,
+            event["event_id"],
+            "capacity_policy_support",
+            bool_value(capacity_policy),
+            0.84 if capacity_policy else 0.74,
+            "政策或权威事件与产能/项目建设相关" if capacity_policy else "未发现产能政策支持线索",
         )
         add_predicate(
             rows,

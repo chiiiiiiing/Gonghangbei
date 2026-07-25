@@ -1,5 +1,13 @@
 rule_id,rule_name,condition,target_label,support_count,positive_count,win_rate,avg_forward_return_5d,score,status
-R001,policy_attention_momentum,has_policy_support AND policy_directly_related_to_business AND social_attention_spikes,short_term_theme_momentum,0,0,0.0000,0.000000,0.0000,below_min_occurrence
-R002,authoritative_core_event,event_mentions_core_product AND evidence_from_authoritative_source,explainable_event_signal,41,17,0.4146,0.003110,0.4405,qualified
-R003,capacity_authoritative_expansion,event_type = capacity_expansion AND evidence_from_authoritative_source,capacity_expansion_attention,6,3,0.5000,0.015965,0.3989,qualified
-R004,investor_pressure_watch,investor_questions_increase AND management_response_vague,information_uncertainty_watch,0,0,0.0000,0.000000,0.0000,below_min_occurrence
+R001,policy_signal__business_policy__policy_followup,policy_directly_related_to_business AND policy_attention_followup,policy_signal,12,9,0.7500,0.078387,1.0002,qualified
+R002,policy_signal__core__auth__policy_followup,event_mentions_core_product AND evidence_from_authoritative_source AND policy_attention_followup,policy_signal,17,12,0.7059,0.055400,0.9541,qualified
+R003,policy_signal__policy__supply_policy,has_policy_support AND supply_side_policy,policy_signal,13,9,0.6923,0.052225,0.9025,qualified
+R004,attention_signal__auth__institutional,evidence_from_authoritative_source AND institutional_attention_increases,attention_signal,11,9,0.8182,0.046407,0.9022,qualified
+R005,policy_attention_signal__policy__institutional,has_policy_support AND institutional_attention_increases,policy_attention_signal,6,5,0.8333,0.057277,0.8882,qualified
+R006,policy_signal__core__policy_followup,event_mentions_core_product AND policy_attention_followup,policy_signal,59,37,0.6271,0.028662,0.8011,qualified
+R007,attention_signal__core__attention,event_mentions_core_product AND social_attention_spikes,attention_signal,47,28,0.5957,0.015966,0.7191,qualified
+R008,policy_signal__policy__auth,has_policy_support AND evidence_from_authoritative_source,policy_signal,89,46,0.5169,0.017569,0.7132,qualified
+R009,attention_signal__core__institutional,event_mentions_core_product AND institutional_attention_increases,attention_signal,5,4,0.8000,0.033364,0.7130,qualified
+R010,policy_signal__policy__policy_followup,has_policy_support AND policy_attention_followup,policy_signal,52,26,0.5000,0.016509,0.7003,qualified
+R011,policy_signal__auth__policy_followup,evidence_from_authoritative_source AND policy_attention_followup,policy_signal,57,29,0.5088,0.015081,0.6953,qualified
+R012,policy_signal__policy__demand_policy,has_policy_support AND demand_side_policy,policy_signal,16,8,0.5000,0.005057,0.5971,qualified

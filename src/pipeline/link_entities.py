@@ -53,6 +53,38 @@ SECTOR_KEYWORDS = {
 }
 
 
+BROAD_THEME_MAPPINGS = [
+    ("新能源汽车", ["整车", "锂电"], "新能源汽车产业链"),
+    ("电动汽车", ["整车", "锂电", "储能"], "电动汽车与充换电链条"),
+    ("充电设施", ["整车", "储能"], "充电设施服务能力"),
+    ("车网互动", ["整车", "储能"], "车网互动"),
+    ("消费品以旧换新", ["整车"], "消费品以旧换新中的汽车消费"),
+    ("汽车标准化", ["整车"], "汽车标准化"),
+    ("汽车产业", ["整车"], "汽车产业政策"),
+    ("节能降碳", ["光伏", "风电", "储能"], "节能降碳行动"),
+    ("非化石能源", ["光伏", "风电"], "非化石能源消费"),
+    ("能源工作指导意见", ["光伏", "风电", "储能"], "能源工作指导意见"),
+    ("新能源消纳", ["光伏", "风电", "储能"], "新能源消纳"),
+    ("可再生能源", ["光伏", "风电"], "可再生能源"),
+    ("绿证", ["光伏", "风电"], "绿色电力证书"),
+    ("绿色电力", ["光伏", "风电"], "绿色电力"),
+    ("新能源上网电价", ["光伏", "风电"], "新能源上网电价"),
+    ("新型电力系统", ["光伏", "风电", "储能"], "新型电力系统"),
+    ("新型能源体系", ["光伏", "风电", "储能"], "新型能源体系"),
+    ("配电网", ["光伏", "储能"], "配电网高质量发展"),
+    ("电力系统调节", ["储能", "光伏", "风电"], "电力系统调节能力"),
+    ("调节能力", ["储能"], "电力系统调节能力"),
+    ("全国电力工业统计", ["光伏", "风电"], "电力工业统计中的新能源装机"),
+    ("全国电力统计数据", ["光伏", "风电"], "电力统计中的新能源装机"),
+    ("并网运行情况", ["光伏", "风电"], "可再生能源并网运行"),
+    ("绿色低碳", ["光伏", "锂电", "储能"], "绿色低碳先进技术"),
+    ("制造业绿色化", ["光伏", "锂电", "储能"], "制造业绿色化"),
+]
+
+
+BROAD_LINKS_PER_SECTOR = 2
+
+
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open("r", newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
@@ -99,6 +131,8 @@ def link_entities() -> list[dict[str, object]]:
     stocks_by_sector: dict[str, list[dict[str, str]]] = {}
     for stock in stock_pool:
         stocks_by_sector.setdefault(stock["industry_sector"], []).append(stock)
+    for stocks in stocks_by_sector.values():
+        stocks.sort(key=lambda item: float(item["market_cap"]), reverse=True)
     results: list[dict[str, object]] = []
 
     for doc in documents:
@@ -140,6 +174,26 @@ def link_entities() -> list[dict[str, object]]:
                         "industry": sector,
                         "confidence": f"{confidence:.2f}",
                         "evidence": f'产业主题映射"{matched_keyword}"→{sector}',
+                    }
+                )
+                seen_codes.add(stock["stock_code"])
+        if seen_codes or doc["source_type"] not in {"policy", "news"}:
+            continue
+        matched_theme = next((item for item in BROAD_THEME_MAPPINGS if item[0] in text), None)
+        if not matched_theme:
+            continue
+        keyword, sectors, theme = matched_theme
+        confidence = 0.64 if doc["source_type"] == "policy" else 0.58
+        for sector in sectors:
+            for stock in stocks_by_sector.get(sector, [])[:BROAD_LINKS_PER_SECTOR]:
+                results.append(
+                    {
+                        "doc_id": doc["doc_id"],
+                        "stock_code": stock["stock_code"],
+                        "stock_name": stock["stock_name"],
+                        "industry": sector,
+                        "confidence": f"{confidence:.2f}",
+                        "evidence": f'宽主题映射"{keyword}"→{theme}→{sector}代表股票',
                     }
                 )
     return results

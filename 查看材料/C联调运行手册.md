@@ -1,6 +1,6 @@
 # AlphaLens C 联调运行手册
 
-生成日期：2026-07-15
+生成日期：2026-07-25
 
 本报告仅供研究参考，不构成投资建议
 
@@ -20,23 +20,23 @@
 | 文件 | 当前行数 | 字段状态 |
 |------|----------|----------|
 | `data/sample/stock_pool.csv` | 30 | 通过 |
-| `data/sample/raw_documents.csv` | 120 | 通过 |
-| `data/sample/entity_links.csv` | 313 | 通过 |
-| `data/sample/events.csv` | 136 | 通过 |
-| `data/sample/predicates.csv` | 1496 | 通过 |
+| `data/sample/raw_documents.csv` | 130 | 通过 |
+| `data/sample/entity_links.csv` | 461 | 通过 |
+| `data/sample/events.csv` | 210 | 通过 |
+| `data/sample/predicates.csv` | 3990 | 通过 |
 | `data/sample/market_data.csv` | 18002 | 通过 |
 
 ## C 线研究输出
 
 | 文件 | 当前行数 | 字段状态 | 用途 |
 |------|----------|----------|------|
-| `data/sample/predicate_matrix.csv` | 136 | 通过 | 事件-谓词矩阵 |
-| `data/sample/event_forward_returns.csv` | 135 | 通过 | 事件后收益与未来函数审计 |
-| `data/sample/rules.csv` | 4 | 通过 | 候选规则和支持数 |
-| `data/sample/factors.csv` | 44 | 通过 | 事件级因子值与触发路径 |
+| `data/sample/predicate_matrix.csv` | 210 | 通过 | 事件-谓词矩阵 |
+| `data/sample/event_forward_returns.csv` | 209 | 通过 | 事件后收益与未来函数审计 |
+| `data/sample/rules.csv` | 12 | 通过 | 候选规则和支持数 |
+| `data/sample/factors.csv` | 167 | 通过 | 事件级因子值与触发路径 |
 | `data/sample/factor_snapshot.csv` | 30 | 通过 | Demo 截面展示 |
 | `data/sample/group_returns.csv` | 5 | 通过 | 分组收益展示 |
-| `data/sample/rank_ic_timeseries.csv` | 7 | 通过 | Rank IC 时序 |
+| `data/sample/rank_ic_timeseries.csv` | 23 | 通过 | Rank IC 时序 |
 | `data/sample/backtest_metrics.csv` | 5 | 通过 | 报告和 Demo 指标 |
 
 ## 推荐运行顺序
@@ -62,10 +62,10 @@ git pull
 | 指标 | 当前值 | 说明 |
 |------|--------|------|
 | `avg_rank_ic_5d` | 0.000000 | 按事件入场日计算的 Rank IC 均值 |
-| `event_factor_sample_count` | 44 | 事件触发后的因子样本数 |
+| `event_factor_sample_count` | 167 | 事件触发后的因子样本数 |
 | `future_info_audit` | pass | 收益窗口均使用 event_time 之后的交易日 |
-| `positive_forward_return_rate_5d` | 0.409091 | 事件样本 5 日收益为正的比例 |
-| `top_bottom_group_spread_5d` | 0.074152 | G5 减 G1 的 5 日收益差 |
+| `positive_forward_return_rate_5d` | 0.532934 | 事件样本 5 日收益为正的比例 |
+| `top_bottom_group_spread_5d` | 0.027693 | G5 减 G1 的 5 日收益差 |
 
 ## C 侧重点
 
