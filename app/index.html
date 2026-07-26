@@ -59,41 +59,57 @@
   .sec h2 .dot { width:8px; height:8px; border-radius:50%; background:var(--ac); flex-shrink:0 }
   .sec h3 { font-size:.88rem; font-weight:600; margin:20px 0 10px; color:var(--mu) }
 
-  /* table */
-  .tbl { width:100%; border-collapse:collapse; font-family:var(--fm); font-size:.78rem }
-  .tbl th { padding:9px 14px; text-align:left; border-bottom:2px solid var(--bor); color:var(--mu); font-weight:600; font-size:.7rem; letter-spacing:.03em }
-  .tbl td { padding:8px 14px; border-bottom:1px solid var(--bor); font-variant-numeric:tabular-nums }
+  /* table wrapper for horizontal scroll */
+  .tbl-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -4px; padding:0 4px }
+  .tbl { width:100%; border-collapse:collapse; font-family:var(--fm); font-size:.78rem; min-width:600px }
+  .tbl th { padding:9px 14px; text-align:left; border-bottom:2px solid var(--bor); color:var(--mu); font-weight:600; font-size:.7rem; letter-spacing:.03em; white-space:nowrap }
+  .tbl td { padding:8px 14px; border-bottom:1px solid var(--bor); font-variant-numeric:tabular-nums; word-break:break-all }
   .up { color:var(--gr); font-weight:600 } .dn { color:var(--rd); font-weight:600 }
 
   /* bar */
-  .bar { display:flex; align-items:center; gap:10px; margin:5px 0; font-family:var(--fm); font-size:.76rem }
-  .bar .bn { width:90px; text-align:right; flex-shrink:0; overflow:hidden; text-overflow:ellipsis }
+  .bar { display:flex; align-items:center; gap:10px; margin:5px 0; font-family:var(--fm); font-size:.76rem; min-width:0 }
+  .bar .bn { width:90px; text-align:right; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
   .bar .bs { width:48px; font-size:.66rem; color:var(--mu); text-align:right; flex-shrink:0 }
-  .bar .bt { flex:1; height:24px; background:var(--bg); border-radius:6px; overflow:hidden }
+  .bar .bt { flex:1; min-width:20px; height:24px; background:var(--bg); border-radius:6px; overflow:hidden }
   .bar .bf { height:100%; border-radius:6px; background:linear-gradient(90deg, #93c5fd, var(--ac)); transition:width .5s }
   .bar .bv { width:56px; font-weight:600; flex-shrink:0 }
 
   /* report */
-  .report { font-size:.86rem; line-height:1.9; color:#333 }
+  .report { font-size:.86rem; line-height:1.9; color:#333; overflow-wrap:break-word; word-break:break-word }
   .report h2 { font-size:1.1rem; margin:28px 0 12px; padding-bottom:8px; border-bottom:2px solid var(--bor) }
   .report h3 { font-size:.92rem; margin:16px 0 8px }
   .report ul, .report ol { margin:8px 0 8px 20px }
   .report li { margin:3px 0 }
-  .report code { background:#f1f0ed; padding:2px 6px; border-radius:3px; font-size:.8rem }
-  .report pre { background:#f1f0ed; padding:14px 18px; border-radius:8px; overflow-x:auto; font-size:.8rem; line-height:1.5; margin:10px 0 }
-  .report blockquote { border-left:3px solid var(--ac); padding:6px 16px; margin:10px 0; color:var(--mu); background:#f8fafc }
-  .report table { width:100%; border-collapse:collapse; margin:10px 0; font-size:.8rem }
-  .report th, .report td { padding:7px 12px; border:1px solid var(--bor); text-align:left }
+  .report code { background:#f1f0ed; padding:2px 6px; border-radius:3px; font-size:.8rem; word-break:break-all }
+  .report pre { background:#f1f0ed; padding:14px 18px; border-radius:8px; overflow-x:auto; font-size:.8rem; line-height:1.5; margin:10px 0; white-space:pre-wrap; word-break:break-all }
+  .report blockquote { border-left:3px solid var(--ac); padding:6px 16px; margin:10px 0; color:var(--mu); background:#f8fafc; overflow-wrap:break-word }
+  .report table { width:100%; border-collapse:collapse; margin:10px 0; font-size:.8rem; display:block; overflow-x:auto }
+  .report th, .report td { padding:7px 12px; border:1px solid var(--bor); text-align:left; white-space:nowrap }
   .report th { background:#f8fafc; font-weight:600 }
 
-  .chart { width:100%; min-height:380px; margin:12px 0 }
+  .chart { width:100%; min-height:380px; margin:12px 0; overflow:hidden }
   .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite }
   @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* predicate chips */
+  .pwrap { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px }
+  .pchip { font-family:var(--fm); font-size:.68rem; padding:5px 10px; border-radius:4px; white-space:nowrap; flex-shrink:0 }
+  .pchip.on { background:#ecfdf5; border:1px solid #a7f3d0; color:#059669 }
+  .pchip.sc { background:#fffbeb; border:1px solid #fde68a; color:#d97706 }
+  .pchip.off { background:#f9fafb; border:1px solid #e5e7eb; color:#9ca3af }
 
   @media (max-width:600px) {
     .app { padding:20px 12px 40px }
     .inp-card { padding:16px }
     .top h1 { font-size:1.5rem }
+    .kpis { grid-template-columns:repeat(auto-fit,minmax(130px,1fr)) }
+    .bar .bn { width:64px; font-size:.68rem }
+    .bar .bs { display:none }
+    .bar .bv { width:44px; font-size:.68rem }
+    .sec { padding:18px }
+    .tbl { font-size:.7rem }
+    .tbl th, .tbl td { padding:6px 8px }
+    .report { font-size:.8rem }
   }
 </style>
 </head>
@@ -215,7 +231,7 @@ function render(d) {
   h += '<div class="sec"><h2><span class="dot"></span>回测验证</h2>';
 
   // Metrics table
-  h += '<table class="tbl"><tr><th>指标</th><th>数值</th><th>说明</th></tr>';
+  h += '<div class="tbl-wrap"><table class="tbl"><tr><th>指标</th><th>数值</th><th>说明</th></tr>';
   h += btRow('因子样本数', bt.factor_sample_count || 0, '触发事件且可计算前向收益的样本');
   h += btRow('平均 Rank IC (5日)', formatPct(bt.avg_rank_ic), '因子预测收益与实际收益的秩相关性');
   h += btRow('ICIR', formatNum(bt.icir), 'Rank IC / IC 标准差，衡量因子稳定性');
@@ -225,25 +241,25 @@ function render(d) {
   h += btRow('最大回撤', formatPct(bt.max_drawdown), '多空组合最大回撤');
   h += btRow('正收益比例 (5日)', formatPct(bt.positive_return_rate), '事件样本中5日收益为正的比例');
   h += btRow('未来函数审计', bt.future_function_audit === 'pass' ? '<span style="color:var(--gr);font-weight:600">通过</span>' : '<span style="color:var(--rd)">' + (bt.future_function_audit || 'pending') + '</span>', '所有收益入场日严格晚于 event_time');
-  h += '</table>';
+  h += '</table></div>';
 
   // Factor decay
   const decay = bt.factor_decay || {};
   if (Object.keys(decay).length) {
     h += '<h3>因子衰减分析</h3>';
-    h += '<table class="tbl"><tr><th>持有期</th><th>样本数</th><th>平均收益</th><th>胜率</th></tr>';
+    h += '<div class="tbl-wrap"><table class="tbl"><tr><th>持有期</th><th>样本数</th><th>平均收益</th><th>胜率</th></tr>';
     for (const [label, d] of Object.entries(decay)) {
       h += '<tr><td>' + label + '</td><td>' + d.count + '</td><td class="' + (d.avg_return > 0 ? 'up' : 'dn') + '">' + formatPct(d.avg_return) + '</td><td>' + formatPct(d.win_rate) + '</td></tr>';
     }
-    h += '</table>';
+    h += '</table></div>';
   }
 
   // Train/test split
   h += '<h3>训练/测试期对比</h3>';
-  h += '<table class="tbl"><tr><th>周期</th><th>事件数</th><th>平均 Rank IC</th></tr>';
+  h += '<div class="tbl-wrap"><table class="tbl"><tr><th>周期</th><th>事件数</th><th>平均 Rank IC</th></tr>';
   h += '<tr><td>训练期 (2024-2025)</td><td>' + (bt.train_period?.event_count || 0) + '</td><td>' + formatPct(bt.train_period?.avg_rank_ic || 0) + '</td></tr>';
   h += '<tr><td>测试期 (2026)</td><td>' + (bt.test_period?.event_count || 0) + '</td><td>' + formatPct(bt.test_period?.avg_rank_ic || 0) + '</td></tr>';
-  h += '</table>';
+  h += '</table></div>';
 
   h += '<p style="font-size:.78rem;color:var(--mu);margin-top:12px">' + (bt.trading_cost_note || '') + '</p>';
   h += '<p style="font-size:.78rem;color:var(--mu)">' + (bt.turnover_note || '') + '</p>';
@@ -267,20 +283,20 @@ function render(d) {
     h += '<div class="sec"><h2><span class="dot"></span>事件与规则详情</h2>';
     h += '<p style="font-size:.84rem;color:var(--mu);margin-bottom:12px">检测事件：<b style="color:var(--tx)">' + d.event_type + '</b>，证据强度：<b style="color:var(--tx)">' + (d.evidence_strength * 100).toFixed(0) + '%</b></p>';
     // Predicates
-    h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">';
+    h += '<div class="pwrap">';
     for (const p of topStock.predicates) {
       const v = typeof p.value === 'boolean' ? (p.value ? 'true' : 'false') : p.value;
-      const cls = p.value === true ? 'style="background:#ecfdf5;border:1px solid #a7f3d0;color:#059669"' : typeof p.value !== 'boolean' ? 'style="background:#fffbeb;border:1px solid #fde68a;color:#d97706"' : 'style="background:#f9fafb;border:1px solid #e5e7eb;color:#9ca3af"';
-      h += '<span ' + cls + ' title="' + p.rationale + '" style="display:inline-block;padding:4px 10px;border-radius:4px;font-family:var(--fm);font-size:.68rem">' + p.name + ' = ' + v + '</span>';
+      const c = p.value === true ? 'pchip on' : typeof p.value !== 'boolean' ? 'pchip sc' : 'pchip off';
+      h += '<span class="' + c + '" title="' + p.rationale + '">' + p.name + ' = ' + v + '</span>';
     }
     h += '</div>';
     // Rules
     if (d.triggered_rules && d.triggered_rules.length) {
-      h += '<table class="tbl"><tr><th>规则</th><th>条件</th><th>历史样本</th><th>胜率</th><th>平均收益</th><th>评分</th></tr>';
+      h += '<div class="tbl-wrap"><table class="tbl"><tr><th>规则</th><th>条件</th><th>历史样本</th><th>胜率</th><th>平均收益</th><th>评分</th></tr>';
       for (const r of d.triggered_rules) {
         h += '<tr><td style="color:var(--ac);font-weight:600">' + r.id + '</td><td style="font-size:.7rem">' + r.cond + '</td><td>' + (r.support || 0) + '</td><td class="' + (r.win_rate > 0.5 ? 'up' : 'dn') + '">' + formatPct(r.win_rate) + '</td><td class="' + (r.avg_return > 0 ? 'up' : 'dn') + '">' + formatPct(r.avg_return) + '</td><td>' + (r.score || 0).toFixed(2) + '</td></tr>';
       }
-      h += '</table>';
+      h += '</table></div>';
     }
     h += '</div>';
   }
