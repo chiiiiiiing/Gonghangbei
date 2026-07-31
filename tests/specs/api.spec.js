@@ -2,19 +2,19 @@ const { test, expect } = require('@playwright/test');
 
 const EXAMPLES = {
   policy: {
-    title: '新型储能参与电力系统调节能力建设方案',
-    content: '国家发展改革委、国家能源局发布新型储能发展实施方案，强调独立储能、源网荷储协同和新能源消纳，重点支持储能系统集成、逆变器等方向的技术创新和规模化应用。政策后续将开展试点示范并推动市场交易机制建设。',
-    source_type: 'policy', source_name: '国家能源局', event_date: '2025-02-15', source_url: 'https://www.nea.gov.cn/'
+    title: '关于印发《新型储能规模化建设专项行动方案（2025—2027年）》的通知',
+    content: '原文摘要：为推动新型储能高质量发展，国家发展改革委、国家能源局研究制定了《新型储能规模化建设专项行动方案（2025—2027年）》。现予印发，请结合实际认真抓好贯彻落实。',
+    source_type: 'policy', source_name: '中国政府网', event_date: '2025-08-27', source_url: 'https://www.gov.cn/zhengce/zhengceku/202509/content_7040296.htm'
   },
   announcement: {
-    title: '宁德时代披露动力电池产能规划进展',
-    content: '公司公告显示，宁德时代计划新增产能20GWh，预计2025年第三季度投产。公告同时提示项目建设、客户需求和原材料价格存在不确定性。',
-    source_type: 'announcement', source_name: '宁德时代公告', event_date: '2025-03-20', source_url: 'https://www.cninfo.com.cn/'
+    title: '上海璞泰来新能源科技集团股份有限公司关于投资建设年产72亿平方米锂离子电池隔膜建设项目的公告',
+    content: '原文摘要：璞泰来披露年产72亿平方米锂离子电池隔膜建设项目，计划总投资56亿元人民币。重要内容提示：交易实施尚需履行审批及其他相关程序。',
+    source_type: 'announcement', source_name: '巨潮资讯网', event_date: '2026-05-21', source_url: 'http://static.cninfo.com.cn/finalpage/2026-05-21/1225319446.PDF'
   },
   news: {
-    title: '光伏产业链价格出现阶段性企稳迹象',
-    content: '财经新闻摘要称，市场关注产能出清和需求修复节奏。隆基绿能、通威股份、TCL中环等企业受到机构关注，光伏装机量保持增长。',
-    source_type: 'news', source_name: '证券时报', event_date: '2025-04-18', source_url: 'https://www.stcn.com/'
+    title: '315GW+119GW！2025年光伏、风电年新增装机再创新高',
+    content: '原文摘要：国家能源局发布2025年全国电力统计数据，光伏、风电年新增装机量分别达到315GW和119GW。截至2025年底，全国累计发电装机容量38.9亿千瓦，同比增长16.1%；太阳能发电装机容量12.0亿千瓦，同比增长35.4%，风电装机容量6.4亿千瓦，同比增长22.9%。',
+    source_type: 'news', source_name: '腾讯新闻', event_date: '2026-01-28', source_url: 'https://news.qq.com/rain/a/20260128A043VK00'
   }
 };
 
@@ -55,6 +55,14 @@ test('policy text reuses official predicates and frozen rules', async ({ request
   expect(body.stock_results[0].predicates).toHaveLength(19);
   expect(body.triggered_rules.length).toBeGreaterThan(0);
   expect(body.stock_results[0].candidate_factor).toBeGreaterThan(0);
+  const formula = body.stock_results[0].factor_formula;
+  expect(formula.result).toBeCloseTo(
+    formula.rule_score_sum * (
+      formula.evidence_weight * formula.evidence_strength
+      + formula.impact_weight * formula.impact_prior
+    ),
+    5
+  );
   expect(body.historical_backtest.scope).toBe('historical_reference_only');
   expect(body.report).toContain('并非对本次新文本单独回测');
   expect(body.report).toContain('本报告仅供研究参考，不构成投资建议');
@@ -64,17 +72,25 @@ test('announcement grounds uncertainty predicate', async ({ request }) => {
   const { response, body } = await post(request, EXAMPLES.announcement);
   expect(response.ok()).toBeTruthy();
   expect(body.event_type).toBe('capacity_expansion');
-  expect(body.stock_results.map(row => row.name)).toContain('宁德时代');
+  expect(body.stock_results.map(row => row.name)).toContain('璞泰来');
   const predicate = body.stock_results[0].predicates.find(row => row.name === 'announcement_contains_uncertainty');
   expect(predicate.value).toBe(true);
 });
 
-test('news text produces attention event and institutional predicate', async ({ request }) => {
+test('historical factor snapshot keeps event and rule trace ids', async ({ request }) => {
+  const response = await request.get('/api/backtest');
+  const body = await response.json();
+  expect(body.factor_snapshot).toHaveLength(30);
+  expect(body.factor_snapshot[0].trigger_event_ids).toMatch(/^E\d+/);
+  expect(body.factor_snapshot[0].trigger_rule_ids).toMatch(/^R\d+/);
+});
+
+test('news text produces attention event and quantitative attention predicate', async ({ request }) => {
   const { response, body } = await post(request, EXAMPLES.news);
   expect(response.ok()).toBeTruthy();
   expect(body.event_type).toBe('attention_spread');
   expect(body.stock_results.map(row => row.name)).toEqual(expect.arrayContaining(['隆基绿能', '通威股份', 'TCL中环']));
-  const predicate = body.stock_results[0].predicates.find(row => row.name === 'institutional_attention_increases');
+  const predicate = body.stock_results[0].predicates.find(row => row.name === 'social_attention_spikes');
   expect(predicate.value).toBe(true);
 });
 

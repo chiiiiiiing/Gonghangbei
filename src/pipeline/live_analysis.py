@@ -206,7 +206,8 @@ def analyze_new_document(
         triggered = [rule for rule in qualified_rules if rule_matches(rule, predicate_map, event_type)]
         raw_score = sum(float(rule["score"]) for rule in triggered)
         impact_prior = float(predicate_map["event_has_short_term_price_impact"])
-        factor_value = raw_score * (0.7 * evidence_strength + 0.3 * impact_prior)
+        factor_multiplier = 0.7 * evidence_strength + 0.3 * impact_prior
+        factor_value = raw_score * factor_multiplier
         labels = [rule["target_label"] for rule in triggered]
         rule_rows = [
             {
@@ -233,6 +234,15 @@ def analyze_new_document(
                 "factor_name": factor_name_for_labels(labels),
                 "candidate_factor": round(factor_value, 6),
                 "raw_score": round(raw_score, 6),
+                "factor_formula": {
+                    "rule_score_sum": round(raw_score, 6),
+                    "evidence_strength": round(evidence_strength, 2),
+                    "evidence_weight": 0.7,
+                    "impact_prior": round(impact_prior, 2),
+                    "impact_weight": 0.3,
+                    "multiplier": round(factor_multiplier, 6),
+                    "result": round(factor_value, 6),
+                },
                 "predicates": serialize_predicates(predicate_rows),
                 "triggered_rules": rule_rows,
                 "event": event,

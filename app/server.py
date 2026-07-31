@@ -127,6 +127,7 @@ def historical_backtest() -> dict[str, Any]:
             "factor_name": row["factor_name"],
             "factor_value": float(row["factor_value"]),
             "raw_score": float(row["raw_score"]),
+            "trigger_event_ids": row["trigger_event_ids"],
             "trigger_rule_ids": row["trigger_rule_ids"],
         }
         for row in read_csv("factor_snapshot.csv")

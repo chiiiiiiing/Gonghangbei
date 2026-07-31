@@ -18,6 +18,7 @@
   .brand{font-size:20px;font-weight:750}.brand span{color:var(--blue)}.positioning{font-size:12px;color:var(--muted)}
   .status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}.status-dot{width:8px;height:8px;border-radius:50%;background:#adb5bd}.status-dot.on{background:var(--green)}
   main{max-width:1180px;margin:0 auto;padding:24px 20px 60px}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}
+  .view-tabs{display:inline-flex;border:1px solid var(--line);border-radius:6px;background:#fff;padding:3px;margin-bottom:18px}.view-tab{height:34px;border:0;border-radius:4px;background:transparent;color:var(--muted);padding:0 16px;font-size:13px;font-weight:650}.view-tab.active{background:var(--blue);color:#fff}.view{display:none}.view.active{display:block}
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px}.input-panel{padding:22px}.panel-title{font-size:15px;font-weight:700;margin:0 0 16px}.label{display:block;font-size:12px;font-weight:650;color:#46515d;margin:0 0 6px}
   textarea,input,select{width:100%;border:1px solid #cfd5dc;border-radius:6px;background:#fff;color:var(--text);outline:none}textarea:focus,input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(23,105,170,.1)}
   textarea{min-height:180px;padding:13px;resize:vertical}.field{margin-bottom:13px}.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.meta-grid input,.meta-grid select{height:40px;padding:0 10px}.url-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
@@ -35,9 +36,13 @@
   .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-family:var(--mono);font-size:11px;padding:5px 7px;border:1px solid var(--line);border-radius:4px;color:#7b858f;background:#fafbfc}.chip.true{color:var(--green);border-color:#a9d8c8;background:var(--green-soft)}.chip.score{color:var(--amber);border-color:#ecd398;background:var(--amber-soft)}
   .charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}.chart{height:330px;border:1px solid var(--line);border-radius:6px;overflow:hidden}.report{font-size:13px;line-height:1.8;overflow-wrap:anywhere}.report h1{font-size:19px}.report h2{font-size:15px;margin:24px 0 8px}.report h3{font-size:14px}.report blockquote{margin:10px 0;padding:8px 12px;background:var(--blue-soft);border-left:3px solid var(--blue);color:#35546d}.report table{min-width:600px}.report code{font-family:var(--mono);font-size:11px;background:#f0f2f4;padding:2px 4px;border-radius:3px}
   .download{border:1px solid var(--line);border-radius:6px;background:#fff;padding:7px 11px;color:#46515d;font-size:12px}.download:hover{border-color:var(--blue);color:var(--blue)}
+  .run-state{display:none;align-items:center;gap:9px;margin-top:12px;padding:9px 11px;background:var(--blue-soft);color:#35546d;border-radius:6px;font-size:12px}.run-state.on{display:flex}.spinner{width:14px;height:14px;border:2px solid #9dc4df;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+  .source-link{color:var(--blue);text-decoration:none}.source-link:hover{text-decoration:underline}.entity-switch{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}.entity-button{border:1px solid var(--line);border-radius:5px;background:#fff;color:#46515d;padding:7px 10px;font-size:12px}.entity-button.active{border-color:var(--blue);background:var(--blue-soft);color:var(--blue);font-weight:700}
+  .formula{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:16px 0}.formula-item{background:#fff;padding:12px}.formula-item strong{display:block;font-family:var(--mono);font-size:16px}.formula-item span{font-size:11px;color:var(--muted)}.formula-equation{font-family:var(--mono);font-size:12px;background:#f7f8fa;border-left:3px solid var(--blue);padding:10px 12px;overflow-wrap:anywhere}
+  .history-title{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:16px}.history-title h1{font-size:18px;margin:0}.history-title p{font-size:12px;color:var(--muted);margin:3px 0 0}.history-date{font-family:var(--mono);font-size:11px;color:var(--muted)}.metric-note{font-size:11px;color:var(--muted);margin-top:10px}.negative{color:var(--red)}
   footer{max-width:1180px;margin:0 auto;padding:0 20px 28px;color:var(--muted);font-size:11px;text-align:center}
-  @media(max-width:900px){.workspace{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(3,1fr)}.trace{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}}
-  @media(max-width:560px){.topbar{padding:0 14px}.positioning{display:none}main{padding:14px 12px 40px}.input-panel{padding:15px}.meta-grid{grid-template-columns:1fr}.url-row{grid-template-columns:1fr}.primary{width:100%}.kpis{grid-template-columns:1fr 1fr}.kpis .kpi:last-child{grid-column:span 2}.trace{grid-template-columns:1fr}.bar{grid-template-columns:88px 48px minmax(60px,1fr) 58px}.section-body{padding:13px}.section-head{padding:13px}.chart{height:280px}}
+  @media(max-width:900px){.workspace{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(3,1fr)}.trace{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}.formula{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.topbar{padding:0 14px}.positioning{display:none}main{padding:14px 12px 40px}.view-tabs{display:flex}.view-tab{flex:1;padding:0 8px}.input-panel{padding:15px}.meta-grid{grid-template-columns:1fr}.url-row{grid-template-columns:1fr}.primary{width:100%}.kpis{grid-template-columns:1fr 1fr}.kpis .kpi:last-child{grid-column:span 2}.trace{grid-template-columns:1fr}.formula{grid-template-columns:1fr 1fr}.bar{grid-template-columns:88px 66px minmax(52px,1fr) 58px;gap:7px}.section-body{padding:13px}.section-head{padding:13px}.chart{height:280px}.history-title{align-items:start;flex-direction:column;gap:3px}}
 </style>
 </head>
 <body>
@@ -47,6 +52,11 @@
     <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">读取数据版本</span></div>
   </header>
   <main>
+    <div class="view-tabs" role="tablist" aria-label="研究视图">
+      <button class="view-tab active" id="liveTab" role="tab" aria-selected="true" data-view="liveView">新文本分析</button>
+      <button class="view-tab" id="historyTab" role="tab" aria-selected="false" data-view="historyView">历史研究概览</button>
+    </div>
+    <section class="view active" id="liveView" role="tabpanel" aria-labelledby="liveTab">
     <div class="workspace">
       <section class="panel input-panel">
         <h1 class="panel-title">新文本分析</h1>
@@ -59,6 +69,7 @@
           <div class="field"><label class="label" for="sourceUrl">正文链接</label><input id="sourceUrl" type="url" placeholder="https://..."></div>
         </div>
         <div class="url-row"><div class="examples"><button class="example" data-example="0">储能政策</button><button class="example" data-example="1">锂电公告</button><button class="example" data-example="2">光伏新闻</button></div><button class="primary" id="runButton">开始分析</button></div>
+        <div class="run-state" id="runState"><span class="spinner"></span><span>正在执行实体链接、事件抽取、谓词落地与冻结规则匹配</span></div>
       </section>
       <aside class="panel side">
         <div class="stat-head"><h2 class="panel-title" style="margin:0">研究数据</h2><span class="version" id="version">--</span></div>
@@ -68,68 +79,118 @@
       </aside>
     </div>
     <div id="result"></div>
+    </section>
+    <section class="view" id="historyView" role="tabpanel" aria-labelledby="historyTab">
+      <div id="historyContent"><div class="panel empty">正在读取历史研究输出</div></div>
+    </section>
   </main>
   <footer>AlphaLens 是量化研究助手，不预测股票价格，不提供投资建议。</footer>
 </div>
 <script>
 const EXAMPLES = [
-  {title:'新型储能参与电力系统调节能力建设方案',content:'国家发展改革委、国家能源局发布新型储能发展实施方案，强调独立储能、源网荷储协同和新能源消纳，重点支持储能系统集成、逆变器和数据中心电源等方向的技术创新和规模化应用。政策后续将开展试点示范并推动市场交易机制建设。',type:'policy',name:'国家能源局',date:'2025-02-15',url:'https://www.nea.gov.cn/'},
-  {title:'宁德时代披露动力电池与储能业务产能规划进展',content:'公司公告显示，宁德时代继续围绕动力电池、储能电池和新技术产品推进产能建设与客户交付能力建设。公司计划新增产能20GWh，预计2025年第三季度投产。公告同时提示项目建设、客户需求和原材料价格存在不确定性。',type:'announcement',name:'宁德时代公告',date:'2025-03-20',url:'https://www.cninfo.com.cn/'},
-  {title:'光伏产业链价格出现阶段性企稳迹象',content:'财经新闻摘要称，硅料、硅片和组件价格经历调整后出现阶段性企稳迹象，市场关注产能出清和需求修复节奏。隆基绿能、通威股份、TCL中环等企业的产能利用率和海外订单情况受到机构关注，光伏装机量保持增长。',type:'news',name:'证券时报',date:'2025-04-18',url:'https://www.stcn.com/'}
+  {title:'关于印发《新型储能规模化建设专项行动方案（2025—2027年）》的通知',content:'原文摘要：为推动新型储能高质量发展，国家发展改革委、国家能源局研究制定了《新型储能规模化建设专项行动方案（2025—2027年）》。现予印发，请结合实际认真抓好贯彻落实。',type:'policy',name:'中国政府网',date:'2025-08-27',url:'https://www.gov.cn/zhengce/zhengceku/202509/content_7040296.htm'},
+  {title:'上海璞泰来新能源科技集团股份有限公司关于投资建设年产72亿平方米锂离子电池隔膜建设项目的公告',content:'原文摘要：璞泰来披露年产72亿平方米锂离子电池隔膜建设项目，计划总投资56亿元人民币。重要内容提示：交易实施尚需履行审批及其他相关程序。',type:'announcement',name:'巨潮资讯网',date:'2026-05-21',url:'http://static.cninfo.com.cn/finalpage/2026-05-21/1225319446.PDF'},
+  {title:'315GW+119GW！2025年光伏、风电年新增装机再创新高',content:'原文摘要：国家能源局发布2025年全国电力统计数据，光伏、风电年新增装机量分别达到315GW和119GW。截至2025年底，全国累计发电装机容量38.9亿千瓦，同比增长16.1%；太阳能发电装机容量12.0亿千瓦，同比增长35.4%，风电装机容量6.4亿千瓦，同比增长22.9%。',type:'news',name:'腾讯新闻',date:'2026-01-28',url:'https://news.qq.com/rain/a/20260128A043VK00'}
 ];
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 const pct = value => Number.isFinite(Number(value)) ? `${Number(value)>=0?'+':''}${(Number(value)*100).toFixed(2)}%` : '--';
 const fixed = (value, digits=4) => Number.isFinite(Number(value)) ? Number(value).toFixed(digits) : '--';
+let historyData = null;
+let currentAnalysis = null;
 
 document.querySelectorAll('[data-example]').forEach(button => button.addEventListener('click', () => loadExample(Number(button.dataset.example))));
+document.querySelectorAll('.view-tab').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
 $('runButton').addEventListener('click', analyze);
 $('eventDate').value = new Date().toISOString().slice(0,10);
+
+function switchView(viewId){
+  document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === viewId));
+  document.querySelectorAll('.view-tab').forEach(tab => {const active=tab.dataset.view===viewId;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active));});
+  if(viewId==='historyView' && historyData) setTimeout(() => renderBacktestCharts('history', historyData), 0);
+}
 
 function loadExample(index){const x=EXAMPLES[index];$('title').value=x.title;$('content').value=x.content;$('sourceType').value=x.type;$('sourceName').value=x.name;$('eventDate').value=x.date;$('sourceUrl').value=x.url;}
 
 async function loadStatus(){
-  try{const response=await fetch('/api/status');const data=await response.json();$('statusDot').classList.add('on');$('statusText').textContent='正式流水线已连接';$('version').textContent=`git ${data.repository_commit}`;
+  try{
+    const response=await fetch('/api/status');const data=await response.json();
+    $('statusDot').classList.add('on');$('statusText').textContent='正式流水线已连接';$('version').textContent=`git ${data.repository_commit}`;
     const labels={stocks:'股票',documents:'文本',events:'事件',predicates:'谓词',qualified_rules:'规则',factor_samples:'因子样本'};
     $('dataGrid').innerHTML=Object.entries(labels).map(([key,label])=>`<div class="data-cell"><strong>${esc(data.counts[key])}</strong><span>${label}</span></div>`).join('');
     $('marketLimit').textContent=data.adj_factor_placeholder?'adj_factor=1 为占位字段；前复权价格候选版。':`行情区间 ${data.market_period.start} 至 ${data.market_period.end}`;
   }catch(error){$('statusText').textContent='服务未连接';$('dataGrid').innerHTML='<div class="empty">无法读取数据状态</div>';}
 }
 
+async function loadHistory(){
+  try{const response=await fetch('/api/backtest');historyData=await response.json();renderHistory(historyData);}
+  catch(error){$('historyContent').innerHTML=`<div class="error">历史研究输出读取失败：${esc(error.message)}</div>`;}
+}
+
 async function analyze(){
-  const button=$('runButton');const payload={title:$('title').value.trim(),content:$('content').value.trim(),source_type:$('sourceType').value,source_name:$('sourceName').value.trim(),event_date:$('eventDate').value,source_url:$('sourceUrl').value.trim()};
-  if(!payload.content){return showError('请提供正文内容');}if(!payload.source_name){return showError('请填写可核验的来源名称');}if(!payload.event_date){return showError('请填写首次公开日期');}
-  button.disabled=true;button.textContent='分析中';$('result').innerHTML='';
-  try{const response=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await response.json();if(!response.ok||data.error)throw new Error(data.error||`HTTP ${response.status}`);render(data);}
-  catch(error){showError(error.message);}finally{button.disabled=false;button.textContent='开始分析';}
+  const button=$('runButton');
+  const payload={title:$('title').value.trim(),content:$('content').value.trim(),source_type:$('sourceType').value,source_name:$('sourceName').value.trim(),event_date:$('eventDate').value,source_url:$('sourceUrl').value.trim()};
+  if(!payload.content)return showError('请提供正文内容');
+  if(!payload.source_name)return showError('请填写可核验的来源名称');
+  if(!payload.event_date)return showError('请填写首次公开日期');
+  button.disabled=true;button.textContent='分析中';$('runState').classList.add('on');$('result').innerHTML='';
+  try{
+    const response=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await response.json();if(!response.ok||data.error)throw new Error(data.error||`HTTP ${response.status}`);
+    currentAnalysis=data;historyData=data.historical_backtest;renderAnalysis(data);
+  }catch(error){showError(error.message);}finally{button.disabled=false;button.textContent='开始分析';$('runState').classList.remove('on');}
 }
 
 function showError(message){$('result').innerHTML=`<div class="error"><strong>分析未完成</strong><br>${esc(message)}</div>`;}
 function kpi(value,label){return `<div class="kpi"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`;}
 
-function render(data){
-  const history=data.historical_backtest;const metrics=history.metrics;const stocks=data.stock_results||[];const top=stocks[0];const maxFactor=Math.max(...stocks.map(x=>Math.abs(x.candidate_factor)),.0001);
+function renderAnalysis(data){
+  const metrics=data.historical_backtest.metrics;const stocks=data.stock_results||[];const top=stocks[0];const maxFactor=Math.max(...stocks.map(x=>Math.abs(x.candidate_factor)),.0001);
+  const sourceLink=data.source_url?`<a class="source-link" href="${esc(data.source_url)}" target="_blank" rel="noopener noreferrer">查看来源正文</a>`:'未提供链接';
   let html='<div class="kpis">';
   html+=kpi(data.event_type,'事件类型')+kpi(stocks.length,'关联实体')+kpi(data.triggered_rules.length,'触发冻结规则')+kpi(fixed(top?.candidate_factor||0),'最高候选因子')+kpi(metrics.future_info_audit==='pass'?'通过':'待审计','未来函数审计')+'</div>';
-  html+=`<section class="section"><div class="section-head"><h2>新文本处理链路</h2><span class="scope">${esc(data.source_name)} · ${esc(data.event_time)}</span></div><div class="section-body"><div class="trace"><div class="trace-step"><b>实体链接</b><span>${stocks.map(x=>esc(x.name)).join('、')}</span></div><div class="trace-step"><b>事件抽取</b><span>${esc(data.event_type)} · 证据 ${fixed(data.evidence_strength,2)}</span></div><div class="trace-step"><b>谓词落地</b><span>${top?.predicates.length||0} 个锁定字段</span></div><div class="trace-step"><b>规则与因子</b><span>${data.triggered_rules.length} 条规则 · 证据加权</span></div></div></div></section>`;
-  html+=`<section class="section"><div class="section-head"><h2>候选因子排名</h2><span class="scope">新输入即时结果，未使用未来收益</span></div><div class="section-body"><div class="bars">`;
-  html+=stocks.map(stock=>`<div class="bar"><span class="bar-name" title="${esc(stock.link_evidence)}">${esc(stock.name)}</span><span class="bar-sector">${esc(stock.sector)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.abs(stock.candidate_factor)/maxFactor*100}%"></div></div><span class="bar-value">${fixed(stock.candidate_factor)}</span></div>`).join('')||'<div class="empty">未形成候选因子</div>';
+  html+=`<section class="section"><div class="section-head"><h2>新文本处理链路</h2><span class="scope">${esc(data.source_name)} · ${esc(data.event_time)} · ${sourceLink}</span></div><div class="section-body"><div class="trace"><div class="trace-step"><b>实体链接</b><span>${stocks.map(x=>esc(x.name)).join('、')}</span></div><div class="trace-step"><b>事件抽取</b><span>${esc(data.event_type)} · 证据 ${fixed(data.evidence_strength,2)}</span></div><div class="trace-step"><b>谓词落地</b><span>${top?.predicates.length||0} 个锁定字段</span></div><div class="trace-step"><b>规则与因子</b><span>${data.triggered_rules.length} 条规则 · 证据加权</span></div></div></div></section>`;
+  html+=`<section class="section"><div class="section-head"><h2>关联实体候选因子</h2><span class="scope">新输入即时结果，未使用未来收益</span></div><div class="section-body"><div class="bars">`;
+  html+=stocks.map(stock=>`<div class="bar"><span class="bar-name" title="${esc(stock.link_evidence)}">${esc(stock.name)}</span><span class="bar-sector">${esc(stock.sector)} · ${Math.round(stock.confidence*100)}%</span><div class="bar-track"><div class="bar-fill" style="width:${Math.abs(stock.candidate_factor)/maxFactor*100}%"></div></div><span class="bar-value">${fixed(stock.candidate_factor)}</span></div>`).join('')||'<div class="empty">未形成候选因子</div>';
   html+='</div></div></section>';
-  if(top){html+=`<section class="section"><div class="section-head"><h2>事件、谓词与规则追溯</h2><span class="scope">${esc(top.event.event_id)} · ${esc(top.event.event_time)}</span></div><div class="section-body"><div class="trace" style="margin-bottom:16px"><div class="trace-step"><b>主体</b><span>${esc(top.event.subject)}</span></div><div class="trace-step"><b>客体</b><span>${esc(top.event.object)}</span></div><div class="trace-step"><b>影响路径</b><span>${esc(top.event.impact_path)}</span></div><div class="trace-step"><b>原文证据</b><span>${esc(top.event.evidence_text)}</span></div></div><div class="chips">${top.predicates.map(p=>`<span class="chip ${p.value===true?'true':typeof p.value==='number'?'score':''}" title="${esc(p.rationale)}">${esc(p.name)} = ${esc(p.value)}</span>`).join('')}</div><div class="table-wrap" style="margin-top:16px"><table><thead><tr><th>规则</th><th>条件</th><th>标签</th><th>支持数</th><th>历史胜率</th><th>评分</th></tr></thead><tbody>${data.triggered_rules.map(r=>`<tr><td class="mono">${esc(r.id)}</td><td class="mono">${esc(r.condition)}</td><td>${esc(r.target_label)}</td><td>${r.support}</td><td>${pct(r.win_rate)}</td><td>${fixed(r.score)}</td></tr>`).join('')||'<tr><td colspan="6">未触发达到最低样本门槛的冻结规则</td></tr>'}</tbody></table></div></div></section>`;}
-  html+=`<section class="section"><div class="section-head"><h2>历史回测参考</h2><span class="scope">固定历史样本，不是本次文本的单次回测</span></div><div class="section-body"><div class="table-wrap"><table><thead><tr><th>指标</th><th>数值</th><th>口径</th></tr></thead><tbody><tr><td>事件因子样本数</td><td class="mono">${metrics.event_factor_sample_count}</td><td>${esc(history.metric_descriptions.event_factor_sample_count)}</td></tr><tr><td>平均 Rank IC（5日）</td><td class="mono">${fixed(metrics.avg_rank_ic_5d,6)}</td><td>${esc(history.metric_descriptions.avg_rank_ic_5d)}</td></tr><tr><td>G5-G1 五日收益差</td><td class="mono">${pct(metrics.top_bottom_group_spread_5d)}</td><td>${esc(history.metric_descriptions.top_bottom_group_spread_5d)}</td></tr><tr><td>正收益样本比例</td><td class="mono">${pct(metrics.positive_forward_return_rate_5d)}</td><td>${esc(history.metric_descriptions.positive_forward_return_rate_5d)}</td></tr><tr><td>未来函数审计</td><td class="good">${esc(metrics.future_info_audit)}</td><td>${esc(history.metric_descriptions.future_info_audit)}</td></tr></tbody></table></div><div class="limit">${esc(history.scope_note)} ${esc(history.limitations.join(' '))}</div><div class="charts"><div class="chart" id="groupChart"></div><div class="chart" id="icChart"></div></div></div></section>`;
+  if(top)html+=`<section class="section"><div class="section-head"><h2>事件、谓词与规则追溯</h2><span class="scope">选择关联实体查看计算证据</span></div><div class="section-body"><div class="entity-switch">${stocks.map((stock,index)=>`<button class="entity-button ${index===0?'active':''}" data-stock-index="${index}">${esc(stock.name)} · ${esc(stock.code)}</button>`).join('')}</div><div id="stockDetail"></div></div></section>`;
+  html+=`<section class="section"><div class="section-head"><h2>历史回测口径</h2><button class="download" id="openHistory">查看完整历史研究</button></div><div class="section-body"><div class="trace"><div class="trace-step"><b>历史样本</b><span>${metrics.event_factor_sample_count} 条事件因子</span></div><div class="trace-step"><b>平均 Rank IC</b><span>${fixed(metrics.avg_rank_ic_5d,6)}</span></div><div class="trace-step"><b>G5-G1 五日差</b><span>${pct(metrics.top_bottom_group_spread_5d)}</span></div><div class="trace-step"><b>未来函数审计</b><span class="good">${esc(metrics.future_info_audit)}</span></div></div><div class="limit">固定历史样本用于规则研究与回测，不是本次新文本的单次回测结果。</div></div></section>`;
   html+=`<section class="section"><div class="section-head"><h2>自动研究记录</h2><button class="download" id="downloadReport">下载 Markdown</button></div><div class="section-body"><div class="report">${markdown(data.report)}</div></div></section>`;
-  $('result').innerHTML=html;$('downloadReport').addEventListener('click',()=>downloadReport(data.report));renderCharts(history);
+  $('result').innerHTML=html;
+  document.querySelectorAll('[data-stock-index]').forEach(button=>button.addEventListener('click',()=>renderStockDetail(Number(button.dataset.stockIndex))));
+  $('openHistory').addEventListener('click',()=>switchView('historyView'));
+  $('downloadReport').addEventListener('click',()=>downloadReport(data.report));
+  if(top)renderStockDetail(0);
 }
 
-function renderCharts(history){
+function renderStockDetail(index){
+  const stock=currentAnalysis.stock_results[index];const formula=stock.factor_formula;
+  document.querySelectorAll('[data-stock-index]').forEach((button,i)=>button.classList.toggle('active',i===index));
+  const rules=stock.triggered_rules.map(rule=>`<tr><td class="mono">${esc(rule.id)}</td><td class="mono">${esc(rule.condition)}</td><td>${esc(rule.target_label)}</td><td>${rule.support}</td><td>${pct(rule.win_rate)}</td><td>${fixed(rule.score)}</td></tr>`).join('')||'<tr><td colspan="6">未触发达到最低样本门槛的冻结规则</td></tr>';
+  $('stockDetail').innerHTML=`<div class="trace"><div class="trace-step"><b>主体</b><span>${esc(stock.event.subject)}</span></div><div class="trace-step"><b>客体</b><span>${esc(stock.event.object)}</span></div><div class="trace-step"><b>影响路径</b><span>${esc(stock.event.impact_path)}</span></div><div class="trace-step"><b>原文证据</b><span>${esc(stock.event.evidence_text)}</span></div></div><div class="formula"><div class="formula-item"><strong>${fixed(formula.rule_score_sum)}</strong><span>触发规则评分和</span></div><div class="formula-item"><strong>${fixed(formula.evidence_strength,2)}</strong><span>事件证据强度</span></div><div class="formula-item"><strong>${fixed(formula.impact_prior,2)}</strong><span>事件类型先验</span></div><div class="formula-item"><strong>${fixed(formula.result)}</strong><span>候选因子结果</span></div></div><div class="formula-equation">${fixed(formula.rule_score_sum)} × (${formula.evidence_weight} × ${fixed(formula.evidence_strength,2)} + ${formula.impact_weight} × ${fixed(formula.impact_prior,2)}) = ${fixed(formula.result)}</div><div class="chips" style="margin-top:16px">${stock.predicates.map(p=>`<span class="chip ${p.value===true?'true':typeof p.value==='number'?'score':''}" title="${esc(p.rationale)}">${esc(p.name)} = ${esc(p.value)}</span>`).join('')}</div><div class="table-wrap" style="margin-top:16px"><table><thead><tr><th>规则</th><th>条件</th><th>标签</th><th>支持数</th><th>历史胜率</th><th>评分</th></tr></thead><tbody>${rules}</tbody></table></div>`;
+}
+
+function renderHistory(history){
+  const metrics=history.metrics;const snapshot=history.factor_snapshot;const rules=history.qualified_rules;const snapshotDate=snapshot[0]?.trade_date||'--';
+  let html=`<div class="section-body"><div class="history-title"><div><h1>历史研究概览</h1><p>固定历史样本生成的规则、因子截面与回测审计</p></div><span class="history-date">因子截面 ${esc(snapshotDate)}</span></div><div class="kpis">${kpi(metrics.event_factor_sample_count,'事件因子样本')}${kpi(fixed(metrics.avg_rank_ic_5d,6),'平均 Rank IC')}${kpi(pct(metrics.top_bottom_group_spread_5d),'G5-G1 五日差')}${kpi(pct(metrics.positive_forward_return_rate_5d),'正收益样本比例')}${kpi(metrics.future_info_audit==='pass'?'通过':'待审计','未来函数审计')}</div><div class="limit">${esc(history.scope_note)}</div></div>`;
+  html+=`<section class="section" style="border-left:0;border-right:0;border-radius:0"><div class="section-head"><h2>回测诊断</h2><span class="scope">分组收益与按事件入场日 Rank IC</span></div><div class="section-body"><div class="charts"><div class="chart" id="historyGroupChart"></div><div class="chart" id="historyIcChart"></div></div><div class="metric-note">Rank IC 序列当前均为 0，图中使用固定纵轴和数据点显示；这反映当前按日截面因子并列较多，不代表指标缺失。</div></div></section>`;
+  html+=`<section class="section" style="border-left:0;border-right:0;border-radius:0"><div class="section-head"><h2>最新因子截面</h2><span class="scope">行业内标准化因子值 Top 15</span></div><div class="section-body"><div class="table-wrap"><table><thead><tr><th>排名</th><th>股票</th><th>行业</th><th>因子值</th><th>原始分</th><th>触发规则</th></tr></thead><tbody>${snapshot.slice(0,15).map((row,index)=>`<tr><td>${index+1}</td><td>${esc(row.stock_name)} <span class="scope">${esc(row.stock_code)}</span></td><td>${esc(row.industry_sector)}</td><td class="mono ${row.factor_value>=0?'good':'negative'}">${fixed(row.factor_value)}</td><td class="mono">${fixed(row.raw_score)}</td><td class="mono">${esc(row.trigger_rule_ids||'--')}</td></tr>`).join('')}</tbody></table></div></div></section>`;
+  html+=`<section class="section" style="border:0;border-radius:0"><div class="section-head"><h2>冻结规则库</h2><span class="scope">仅展示 status=qualified 且支持数不少于 5 的规则</span></div><div class="section-body"><div class="table-wrap"><table><thead><tr><th>规则</th><th>条件</th><th>目标标签</th><th>支持数</th><th>历史胜率</th><th>五日平均收益</th><th>评分</th></tr></thead><tbody>${rules.map(rule=>`<tr><td class="mono">${esc(rule.rule_id)}</td><td class="mono">${esc(rule.condition)}</td><td>${esc(rule.target_label)}</td><td>${rule.support_count}</td><td>${pct(rule.win_rate)}</td><td>${pct(rule.avg_forward_return_5d)}</td><td class="mono">${fixed(rule.score)}</td></tr>`).join('')}</tbody></table></div><div class="limit">${esc(history.limitations.join(' '))}</div></div></section>`;
+  $('historyContent').innerHTML=html;
+  if($('historyView').classList.contains('active'))renderBacktestCharts('history',history);
+}
+
+function renderBacktestCharts(prefix,history){
+  const groupId=`${prefix}GroupChart`,icId=`${prefix}IcChart`;if(!$(groupId)||!$(icId))return;
   const layout={font:{family:'Inter, sans-serif',size:11,color:'#46515d'},margin:{l:54,r:18,t:42,b:46},paper_bgcolor:'#fff',plot_bgcolor:'#f8f9fb',showlegend:false};
-  Plotly.newPlot('groupChart',[{x:history.group_returns.map(x=>x.group),y:history.group_returns.map(x=>x.avg_forward_return_5d),type:'bar',marker:{color:['#bd3939','#9db9cf','#7da5c4','#4b8bb8','#15805d']},text:history.group_returns.map(x=>pct(x.avg_forward_return_5d)),textposition:'outside'}],{...layout,title:'五组平均前向收益',yaxis:{tickformat:'.1%'}},{responsive:true,displayModeBar:false});
-  Plotly.newPlot('icChart',[{x:history.rank_ic_timeseries.map(x=>x.trade_date),y:history.rank_ic_timeseries.map(x=>x.rank_ic_5d),type:'bar',marker:{color:history.rank_ic_timeseries.map(x=>x.rank_ic_5d>=0?'#15805d':'#bd3939')}}],{...layout,title:'Rank IC 时间序列',yaxis:{zeroline:true,zerolinecolor:'#aeb6bf'}},{responsive:true,displayModeBar:false});
+  Plotly.newPlot(groupId,[{x:history.group_returns.map(x=>x.group),y:history.group_returns.map(x=>x.avg_forward_return_5d),type:'bar',marker:{color:['#bd3939','#9db9cf','#7da5c4','#4b8bb8','#15805d']},text:history.group_returns.map(x=>pct(x.avg_forward_return_5d)),textposition:'outside'}],{...layout,title:'五组平均前向收益',yaxis:{tickformat:'.1%'}},{responsive:true,displayModeBar:false});
+  const icValues=history.rank_ic_timeseries.map(x=>x.rank_ic_5d);const allZero=icValues.every(value=>value===0);
+  Plotly.newPlot(icId,[{x:history.rank_ic_timeseries.map(x=>x.trade_date),y:icValues,type:'scatter',mode:'lines+markers',line:{color:'#1769aa',width:1.5},marker:{color:'#1769aa',size:5}}],{...layout,title:'Rank IC 时间序列',yaxis:{zeroline:true,zerolinecolor:'#7b858f',range:allZero?[-.05,.05]:undefined}},{responsive:true,displayModeBar:false});
 }
 
 function downloadReport(text){const blob=new Blob([text],{type:'text/markdown;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`AlphaLens_研究记录_${new Date().toISOString().slice(0,10)}.md`;link.click();URL.revokeObjectURL(url);}
 function markdown(text){return esc(text).replace(/^# (.+)$/gm,'<h1>$1</h1>').replace(/^## (.+)$/gm,'<h2>$1</h2>').replace(/^### (.+)$/gm,'<h3>$1</h3>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>').replace(/^\|(.+)\|$/gm,(line)=>`<tr>${line.split('|').slice(1,-1).map(cell=>/^\s*:?-+:?\s*$/.test(cell)?'':`<td>${cell.trim()}</td>`).join('')}</tr>`).replace(/(<tr>[\s\S]*?<\/tr>\n?)+/g,rows=>`<div class="table-wrap"><table>${rows}</table></div>`).replace(/^- (.+)$/gm,'<div>• $1</div>').replace(/\n\n/g,'<br>');}
-loadStatus();
+loadStatus();loadHistory();
 </script>
 </body>
 </html>
