@@ -875,7 +875,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--refresh-all",
         action="store_true",
-        help="刷新全部 120 条文本；默认只替换待核验或 URL 不合格的行",
+        help="刷新当前文件中的全部文本；默认只替换待核验或 URL 不合格的行",
     )
     parser.add_argument(
         "--refresh-current-search-pages",

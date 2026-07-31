@@ -1,4 +1,10 @@
 const { defineConfig } = require('@playwright/test');
+const path = require('path');
+
+const root = path.resolve(__dirname, '..');
+const python = process.env.ALPHALENS_PYTHON
+  ? path.resolve(__dirname, process.env.ALPHALENS_PYTHON)
+  : path.join(root, '.venv', 'bin', 'python');
 
 module.exports = defineConfig({
   testDir: './specs',
@@ -14,8 +20,8 @@ module.exports = defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'python3 app/server.py',
-    cwd: '/Users/hechenyu/projects/GongHangBei',
+    command: `"${python}" app/server.py`,
+    cwd: root,
     url: 'http://localhost:8701',
     reuseExistingServer: !process.env.CI,
     timeout: 15000,
