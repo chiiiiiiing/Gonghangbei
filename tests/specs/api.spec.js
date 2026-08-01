@@ -32,8 +32,20 @@ test('status exposes the merged official dataset', async ({ request }) => {
   expect(data.counts.documents).toBe(130);
   expect(data.counts.events).toBe(210);
   expect(data.counts.qualified_rules).toBe(12);
+  expect(data.ai.prompt_version).toBe('alphalens-research-v1.0');
+  expect(data.ai.configured).toBe(false);
   expect(data.adj_factor_placeholder).toBe(true);
   expect(data.disclaimer).toContain('不构成投资建议');
+});
+
+test('AI status reports models without exposing credentials', async ({ request }) => {
+  const response = await request.get('/api/ai/status');
+  const data = await response.json();
+  expect(response.ok()).toBeTruthy();
+  expect(data.chat_model).toBeTruthy();
+  expect(data.embedding_model).toBeTruthy();
+  expect(data.prompt_version).toBe('alphalens-research-v1.0');
+  expect(JSON.stringify(data)).not.toContain('api_key');
 });
 
 test('historical endpoint returns audited files without invented metrics', async ({ request }) => {
@@ -55,6 +67,9 @@ test('policy text reuses official predicates and frozen rules', async ({ request
   expect(body.stock_results[0].predicates).toHaveLength(19);
   expect(body.triggered_rules.length).toBeGreaterThan(0);
   expect(body.stock_results[0].candidate_factor).toBeGreaterThan(0);
+  expect(body.analysis_mode).toBe('deterministic_rule_fallback');
+  expect(body.ai_analysis.requested).toBe(true);
+  expect(body.ai_analysis.used).toBe(false);
   const formula = body.stock_results[0].factor_formula;
   expect(formula.result).toBeCloseTo(
     formula.rule_score_sum * (

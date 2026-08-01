@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import subprocess
 import sys
 from collections import Counter
@@ -20,10 +21,12 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.pipeline.live_analysis import SOURCE_TYPES, analyze_new_document  # noqa: E402
+from src.ai.research_layer import AIResearchLayer  # noqa: E402
 
 
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
 app = Flask(__name__, static_folder=None)
+AI_LAYER = AIResearchLayer()
 
 
 def read_csv(filename: str) -> list[dict[str, str]]:
@@ -80,6 +83,7 @@ def data_status() -> dict[str, Any]:
             "end": max((row["trade_date"] for row in market), default=""),
         },
         "adj_factor_placeholder": adj_placeholder,
+        "ai": AI_LAYER.status(),
         "disclaimer": DISCLAIMER,
     }
 
@@ -154,6 +158,8 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
     metrics = history["metrics"]
     stocks = analysis["stock_results"]
     rules = analysis["triggered_rules"]
+    ai = analysis.get("ai_analysis", {})
+    ai_result = ai.get("result") or {}
     lines = [
         "# AlphaLens 新文本因子研究记录",
         "",
@@ -172,6 +178,15 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         "文本先经过实体链接与事件抽取，再按锁定 Schema 生成可解释谓词；冻结规则只匹配值为 true 的谓词组合，规则历史评分经证据强度和事件类型先验加权后形成候选因子值。",
         "",
         f"本次关联 {len(stocks)} 只样例股票，触发 {len(rules)} 条冻结规则。候选值用于研究排序与追溯，不是收益预测或买卖信号。",
+        "",
+        "### AI 研究层",
+        "",
+        f"- 运行状态：{'已调用并通过结构校验' if ai.get('used') else '未调用或已安全回退'}",
+        f"- 模型：{ai.get('chat_model', '--')}",
+        f"- Prompt 版本：{ai.get('prompt_version', '--')}",
+        f"- Embedding 相似规则：{len(ai.get('embedding_retrieval', {}).get('matches', []))} 条",
+        f"- 待统计验证候选规则：{len(ai_result.get('candidate_rules', []))} 条",
+        "- AI 只提出事件、谓词和规则候选；冻结规则匹配、因子计算与回测由确定性程序完成。",
         "",
         "| 股票 | 行业 | 候选因子 | 原始规则分 | 触发规则 |",
         "|---|---|---:|---:|---|",
@@ -243,6 +258,10 @@ def validate_payload(payload: dict[str, Any]) -> tuple[dict[str, str] | None, st
     source_url = normalized.get("source_url", "")
     if source_url and not source_url.startswith(("https://", "http://")):
         return None, "来源链接必须以 http:// 或 https:// 开头"
+    analysis_mode = normalized.get("analysis_mode", "hybrid")
+    if analysis_mode not in {"hybrid", "rule"}:
+        return None, "分析模式必须是 hybrid 或 rule"
+    normalized["analysis_mode"] = analysis_mode
     return normalized, None
 
 
@@ -266,6 +285,11 @@ def backtest():
     return jsonify(historical_backtest())
 
 
+@app.get("/api/ai/status")
+def ai_status():
+    return jsonify(AI_LAYER.status())
+
+
 @app.post("/api/analyze")
 def analyze():
     payload, error = validate_payload(request.get_json(silent=True) or {})
@@ -273,7 +297,13 @@ def analyze():
         return jsonify({"error": error}), 400
     assert payload is not None
     try:
-        result = analyze_new_document(payload, read_csv("stock_pool.csv"), read_csv("rules.csv"))
+        result = analyze_new_document(
+            payload,
+            read_csv("stock_pool.csv"),
+            read_csv("rules.csv"),
+            ai_layer=AI_LAYER,
+            use_ai=payload["analysis_mode"] == "hybrid",
+        )
     except (KeyError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
     if "error" in result:
@@ -286,4 +316,4 @@ def analyze():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8701, debug=False)
+    app.run(host="127.0.0.1", port=int(os.getenv("ALPHALENS_DEMO_PORT", "8701")), debug=False)

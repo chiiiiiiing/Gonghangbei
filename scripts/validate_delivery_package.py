@@ -24,6 +24,7 @@ REFERENCE_FILES = [
     "事件与谓词Schema.md",
     "事件抽取提示词.txt",
     "谓词判断提示词.txt",
+    "大模型结构化研究提示词.md",
     "RIFT规则归纳论文.pdf",
 ]
 
@@ -34,6 +35,7 @@ VIEW_FILES = [
     "团队对接手册.md",
     "A口径确认建议稿.md",
     "C联调运行手册.md",
+    "大模型API接入与演示手册.md",
     "可演示成果优化与下一步对接说明.md",
     "Demo演示脚本.md",
     "答辩问答素材.md",
@@ -83,6 +85,7 @@ DISCLAIMER_FILES = [
     VIEW_DIR / "团队对接手册.md",
     VIEW_DIR / "A口径确认建议稿.md",
     VIEW_DIR / "C联调运行手册.md",
+    VIEW_DIR / "大模型API接入与演示手册.md",
     VIEW_DIR / "可演示成果优化与下一步对接说明.md",
     VIEW_DIR / "Demo演示脚本.md",
     VIEW_DIR / "答辩问答素材.md",
@@ -170,6 +173,7 @@ def check_directory_boundaries(errors: list[str], warnings: list[str]) -> None:
         "事件人工抽检样本.csv",
         "谓词人工抽检样本.csv",
         "C联调运行手册.md",
+        "大模型API接入与演示手册.md",
         "A口径确认建议稿.md",
         "Demo演示脚本.md",
         "答辩问答素材.md",

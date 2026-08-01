@@ -10,6 +10,8 @@ test('loads operational workspace and data version', async ({ page }) => {
   await expect(page.locator('#sourceName')).toBeVisible();
   await expect(page.locator('#eventDate')).toBeVisible();
   await expect(page.locator('#sourceUrl')).toBeVisible();
+  await expect(page.locator('#analysisMode')).toHaveValue('hybrid');
+  await expect(page.locator('#aiStatus')).toContainText('AI 研究层待配置');
   await expect(page.getByRole('tab', { name: '历史研究概览' })).toBeVisible();
   await expect(page.locator('#statusText')).toContainText('正式流水线已连接');
   await expect(page.locator('#dataGrid')).toContainText('130');
@@ -22,6 +24,7 @@ test('built-in policy example renders trace, factor and historical scope', async
   await expect(page.locator('#liveView .kpis')).toBeVisible();
   await expect(page.locator('#liveView .kpis')).toContainText('policy_support');
   await expect(page.locator('#liveView')).toContainText('关联实体候选因子');
+  await expect(page.locator('#liveView')).toContainText('确定性回退已生效');
   await expect(page.locator('body')).toContainText('事件、谓词与规则追溯');
   await expect(page.locator('body')).toContainText('has_policy_support = true');
   await expect(page.locator('.formula-equation')).toContainText('0.7 ×');

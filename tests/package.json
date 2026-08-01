@@ -2,7 +2,7 @@
   "name": "alphalens-e2e",
   "private": true,
   "scripts": {
-    "test": "npx playwright test",
+    "test": "npx playwright test && npx playwright test -c playwright.ai.config.js",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug",
     "report": "npx playwright show-report"

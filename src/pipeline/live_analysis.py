@@ -152,6 +152,8 @@ def analyze_new_document(
     payload: dict[str, str],
     stock_pool: list[dict[str, str]],
     rules: list[dict[str, str]],
+    ai_layer: Any | None = None,
+    use_ai: bool = False,
 ) -> dict[str, Any]:
     title = payload.get("title", "").strip()
     content = payload.get("content", "").strip()
@@ -172,12 +174,55 @@ def analyze_new_document(
         "source_name": source_name,
         "url": payload.get("source_url", "").strip(),
     }
+    if use_ai and ai_layer is not None:
+        ai_analysis = ai_layer.analyze(doc, stock_pool, rules)
+    elif ai_layer is not None:
+        ai_analysis = ai_layer.skipped("用户选择规则复现模式")
+    else:
+        ai_analysis = {
+            "requested": use_ai,
+            "used": False,
+            "fallback": True,
+            "reason": "AI 研究层不可用",
+            "result": None,
+        }
     event_type = infer_event_type(doc)
     entities = link_document(doc, stock_pool)
+    ai_result = ai_analysis.get("result") if isinstance(ai_analysis, dict) else None
+    ai_event = ai_result.get("event", {}) if isinstance(ai_result, dict) else {}
+    if event_type is None and ai_event.get("evidence_grounded"):
+        event_type = ai_event.get("event_type")
+    if not entities and isinstance(ai_result, dict):
+        stocks_by_code = {row["stock_code"]: row for row in stock_pool}
+        for candidate in ai_result.get("related_stocks", []):
+            if not candidate.get("text_grounded"):
+                continue
+            stock = stocks_by_code.get(candidate["code"])
+            if stock is None:
+                continue
+            entities.append(
+                {
+                    "stock_code": stock["stock_code"],
+                    "stock_name": stock["stock_name"],
+                    "industry": stock["industry_sector"],
+                    "confidence": candidate["confidence"],
+                    "evidence": f"AI 候选经股票池校验：{candidate['rationale']}",
+                }
+            )
     if event_type is None:
-        return {"error": "未检测到明确的金融事件", "entities": entities, "source_type": source_type}
+        return {
+            "error": "未检测到明确的金融事件",
+            "entities": entities,
+            "source_type": source_type,
+            "ai_analysis": ai_analysis,
+        }
     if not entities:
-        return {"error": "检测到事件，但未关联到股票池实体", "entities": [], "source_type": source_type}
+        return {
+            "error": "检测到事件，但未关联到股票池实体",
+            "entities": [],
+            "source_type": source_type,
+            "ai_analysis": ai_analysis,
+        }
 
     evidence_strength = SOURCE_STRENGTH[source_type]
     if event_type in {"policy_support", "capacity_expansion"}:
@@ -251,6 +296,22 @@ def analyze_new_document(
         event_trace.append(event)
 
     stock_results.sort(key=lambda item: (item["candidate_factor"], item["confidence"]), reverse=True)
+    if isinstance(ai_result, dict):
+        ai_predicates = {row["name"]: row for row in ai_result.get("predicates", [])}
+        for stock in stock_results:
+            deterministic = {row["name"]: row["value"] for row in stock["predicates"]}
+            stock["ai_predicate_comparison"] = [
+                {
+                    "name": name,
+                    "ai_value": row["value"],
+                    "rule_value": deterministic.get(name),
+                    "agrees": str(deterministic.get(name)).lower() == str(row["value"]).lower(),
+                    "confidence": row["confidence"],
+                    "rationale": row["rationale"],
+                }
+                for name, row in ai_predicates.items()
+                if name in deterministic
+            ]
     return {
         "event_type": event_type,
         "event_time": event_date,
@@ -262,4 +323,6 @@ def analyze_new_document(
         "events": event_trace,
         "stock_results": stock_results,
         "triggered_rules": list(all_rules.values()),
+        "analysis_mode": "hybrid_ai_rule_validation" if ai_analysis.get("used") else "deterministic_rule_fallback",
+        "ai_analysis": ai_analysis,
     }
