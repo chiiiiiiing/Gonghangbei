@@ -2,7 +2,7 @@
 
 The script uses the existing source-fetching utilities, filters out URLs that
 are already present in raw_documents.csv, appends a balanced batch of new rows,
-and writes a B-role curation report for manual follow-up.
+refreshes the centralized demo cases, and prints a concise run summary.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ import csv
 import sys
 import time
 from collections import Counter, defaultdict
-from datetime import date, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Sequence
 
@@ -44,11 +44,7 @@ from scripts.fetch_verified_text_sources import (  # noqa: E402
 
 SAMPLE_DIR = ROOT / "data" / "sample"
 RAW_PATH = SAMPLE_DIR / "raw_documents.csv"
-VIEW_DIR = ROOT / "查看材料"
-REPORT_PATH = VIEW_DIR / "数据负责人本轮自动处理报告.md"
-DEMO_CASE_PATH = VIEW_DIR / "新输入文本Demo测试案例.csv"
-DEMO_CASE_MD_PATH = VIEW_DIR / "新输入文本Demo测试案例说明.md"
-DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
+DEMO_CASE_PATH = ROOT / "可演示成果" / "测试案例.csv"
 MVP_LOW = "2024-01-01"
 MVP_HIGH = "2026-06-30"
 
@@ -438,34 +434,10 @@ def write_demo_cases() -> None:
         ],
         DEMO_CASES,
     )
-    lines = [
-        "# AlphaLens 新输入文本 Demo 测试案例",
-        "",
-        f"生成日期：{date.today().isoformat()}",
-        "",
-        DISCLAIMER,
-        "",
-        "## 使用方法",
-        "",
-        "这些案例不写入历史训练库，用于演示“新输入文本 → 股票关联 → 事件 → 谓词 → 触发规则 → 每只相关股票因子值”的在线推理路径。",
-        "新文本当下只能生成因子值，不能马上验证未来收益；5 个交易日后才可以把真实收益补入样本外验证。",
-        "",
-        "## 案例清单",
-        "",
-        "| case_id | 类型 | 预期关联股票 | 预期信号 | 人工检查重点 |",
-        "|---------|------|--------------|----------|--------------|",
-    ]
-    for row in DEMO_CASES:
-        lines.append(
-            f"| {row['case_id']} | {row['case_type']} | {row['expected_related_stocks']} | "
-            f"{row['expected_signal']} | {row['manual_check_focus']} |"
-        )
-    DEMO_CASE_MD_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def write_report(
+def print_run_summary(
     appended: list[dict[str, str]],
-    counts: Counter[str],
     shortages: list[str],
     removed: list[dict[str, str]] | None = None,
     *,
@@ -475,79 +447,15 @@ def write_report(
     after_total = len(read_csv(RAW_PATH))
     before_total = max(0, after_total - len(appended) + len(removed))
     valid_generated_count = sum(1 for row in read_csv(RAW_PATH) if row_is_generated_append(row))
-    lines = [
-        "# AlphaLens 数据负责人本轮自动处理报告",
-        "",
-        f"生成日期：{date.today().isoformat()}",
-        "",
-        DISCLAIMER,
-        "",
-        "## 自动处理结论",
-        "",
-        f"- 历史文本库本次变化：{before_total} → {after_total} 条，新增 {len(appended)} 条",
-        f"- 当前有效自动增量文本：{valid_generated_count} 条",
-        f"- 新增来源分布：policy={counts['policy']}，announcement={counts['announcement']}，news={counts['news']}，ir_qa={counts['ir_qa']}",
-        f"- 自动清理低相关新增公告：{len(removed)} 条",
-        f"- 新输入 Demo 测试案例：{len(DEMO_CASES)} 条，已写入 `查看材料/新输入文本Demo测试案例.csv`",
-        "- CSV 字段名保持不变；没有写入 data/raw、data/processed 或 data/external。",
-        "",
-        "## 新增文本明细",
-        "",
-        "| doc_id | source_type | publish_time | source_name | title |",
-        "|--------|-------------|--------------|-------------|-------|",
-    ]
-    for row in appended:
-        title = row["title"].replace("|", "\\|")[:80]
-        lines.append(
-            f"| {row['doc_id']} | {row['source_type']} | {row['publish_time']} | {row['source_name']} | {title} |"
-        )
-    lines.extend(["", "## 已清理的低相关新增公告", ""])
-    if removed:
-        lines.extend(
-            [
-                "| doc_id | title | 清理原因 |",
-                "|--------|-------|----------|",
-            ]
-        )
-        for row in removed:
-            title = row["title"].replace("|", "\\|")[:80]
-            lines.append(f"| {row['doc_id']} | {title} | 例行披露或证据库文本，不适合进入事件规则发现主样本 |")
-    else:
-        lines.append("- 无")
-    lines.extend(
-        [
-            "",
-            "## 自动清洗规则",
-            "",
-            "- 只追加 URL 不重复、日期位于 2024-01-01 至 2026-06-30、正文摘要不为空的文本。",
-            "- 政策和新闻只接受详情页 URL，并保留来源名称、首次公开日期和简短事实摘要。",
-            "- 公告只接受巨潮资讯网 PDF，并优先保留项目、订单、处罚、问询、减值、停复产等事件相关披露。",
-            "- 互动问答只作为证据文本；单条问答不直接生成 `investor_question_pressure`。",
-            "",
-            "## 待人工处理",
-            "",
-        ]
-    )
+    print(f"document_count={before_total}->{after_total}")
+    print(f"valid_generated_documents={valid_generated_count}")
+    print(f"appended_documents={len(appended)}")
+    print(f"removed_low_relevance_documents={len(removed)}")
+    print(f"demo_cases={len(DEMO_CASES)}")
     if demo_cases_only:
-        lines.append("- 本次仅刷新 Demo 案例/清理低相关新增公告，没有执行新增来源抓取。")
+        print("run_mode=demo_cases_only")
     elif shortages:
-        lines.append("- 自动来源池存在缺口：" + "；".join(shortages))
-    else:
-        lines.append("- 本轮各来源类型均达到自动追加目标。")
-    lines.extend(
-        [
-            "- 你需要抽查新增文本的标题、日期和摘要是否与原网页/PDF一致。",
-            "- 对 Demo 案例，需要确认预期关联股票是否过宽或漏掉关键链条。",
-            "",
-            "## 下一步建议",
-            "",
-            "1. 运行全量流水线，检查实体链接、事件、谓词、规则、因子和未来函数审计。",
-            "2. 对新增文本中触发规则最多和完全不触发规则的样本各抽 5 条人工复核。",
-            "3. 如果风险类规则仍偏少，继续补充公告问询、处罚、减值、停复产和需求下滑类样本。",
-            "4. Flask 新输入文本 Demo 必须使用冻结规则库，不把新文本的未来收益写入在线因子值。",
-        ]
-    )
-    REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        print("append_shortages=" + "；".join(shortages))
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
@@ -560,19 +468,18 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv or [])
     write_demo_cases()
-    removed = clean_generated_low_relevance_announcements()
     if args.demo_cases_only:
-        write_report([], Counter(), [], removed, demo_cases_only=True)
+        print_run_summary([], [], demo_cases_only=True)
         print(f"Demo cases written to {DEMO_CASE_PATH}")
         return 0
+    removed = clean_generated_low_relevance_announcements()
     appended, counts, shortages = append_documents(args.per_type)
-    write_report(appended, counts, shortages, removed)
+    print_run_summary(appended, shortages, removed)
     print(f"verified_documents_appended={len(appended)}")
     print(f"low_relevance_generated_announcements_removed={len(removed)}")
     print("append_counts=" + ",".join(f"{key}:{counts[key]}" for key in sorted(counts)))
     if shortages:
         print("append_shortages=" + "；".join(shortages))
-    print(f"data_curation_report={REPORT_PATH}")
     return 0
 
 

@@ -421,13 +421,6 @@ def prepare_view_material_index() -> None:
         ("团队对接手册.md", "B 与 A/C 的交接步骤、确认模板、联调标准和收口顺序"),
         ("A口径确认建议稿.md", "给 A 确认事件类型、谓词和表述边界的建议稿"),
         ("C联调运行手册.md", "给 C 复跑流水线、检查输出和定位问题的运行手册"),
-        ("大模型API接入与演示手册.md", "DeepSeek 页面单次 Key、通用模型配置、结构化输出和现场演示说明"),
-        ("可演示成果优化与下一步对接说明.md", "Flask Demo 架构、演示步骤与团队收口顺序"),
-        ("Demo演示脚本.md", "Flask Demo 演示顺序和讲解词草稿"),
-        ("Demo桌面截图.png", "1440×900 视口的完整分析结果截图"),
-        ("Demo移动端截图.png", "390×844 视口的完整分析结果截图"),
-        ("Demo历史研究截图.png", "正式回测、因子截面和冻结规则库截图"),
-        ("Demo大模型研究层截图.png", "模拟 DeepSeek V4 Flash 服务已连接时的结构化抽取与候选规则截图"),
         ("答辩问答素材.md", "围绕项目定位、数据、谓词、因子和回测的答辩问答素材"),
         ("真实文本来源核验报告.md", "130 条真实文本的联网、域名、详情页、摘要结构和唯一性核验结论"),
         ("源文本核验明细.csv", "逐条真实文本来源核验状态和说明"),
@@ -445,29 +438,27 @@ def prepare_view_material_index() -> None:
         ("未来函数审计明细.md", "事件收益对齐和未来函数审计"),
         ("交付包自检报告.md", "参考文档、查看材料、数据附件和 gitignore 的自动自检结果"),
         ("因子研究报告.md", "自动生成的研究报告初稿"),
+        ("谓词筛选与规则调参报告.md", "谓词触发、规则搜索和调参分析"),
     ]
     lines = [
         "# AlphaLens 查看材料索引",
         "",
-        f"生成日期：{today()}",
+        f"更新日期：{today()}",
         "",
         DISCLAIMER,
         "",
+        "## 首要入口",
+        "",
+        "Demo 的架构、安装、DeepSeek 严格模式、操作步骤、演示话术、测试、限制和交接说明统一在 `../可演示成果/完整说明文档.md`。",
+        "",
         "## 建议阅读顺序",
         "",
-        "1. `任务进度.md`：先看当前自动推进到哪里。",
-        "2. `人工待办.md`：再看哪些必须人工处理。",
-        "3. `团队对接手册.md`：按步骤把材料交给 A 和 C，并完成确认、联调与收口。",
-        "4. `A口径确认建议稿.md`：和 A 确认事件、谓词、对外表达边界前看。",
-        "5. `真实文本来源核验报告.md` / `源文本核验明细.csv`：查看联网获取方法和逐条核验结论。",
-        "6. `真实行情获取记录.md` / `真实行情导入模板.csv` / `真实行情校验报告.md`：替换真实前复权行情前后看。",
-        "7. `流水线输入保护验证报告.md`：确认安全模式不会覆盖真实文本。",
-        "8. `数据质量报告.md` / `未来函数审计明细.md`：查看数据完整性、质量警告和回测时间审计。",
-        "9. `C联调运行手册.md`：和 C 对接字段、行数、回测输入时看。",
-        "10. `大模型API接入与演示手册.md`：配置云端或本地模型并检查 AI 研究层时看。",
-        "11. `可演示成果优化与下一步对接说明.md`：查看 Demo 架构、演示步骤和团队收口顺序。",
-        "12. `Demo演示脚本.md` / `答辩问答素材.md`：准备演示和答辩前看。",
-        "13. `PPT案例素材包.md` / `案例索引.csv`：准备展示材料时看。",
+        "1. `任务进度.md` / `人工待办.md`：查看当前状态和剩余人工工作。",
+        "2. `团队对接手册.md`：按步骤与 A、C 交接。",
+        "3. `A口径确认建议稿.md` / `C联调运行手册.md`：完成口径确认和工程复跑。",
+        "4. `数据质量报告.md` / `未来函数审计明细.md`：确认数据和时间边界。",
+        "5. `因子研究报告.md` / `谓词筛选与规则调参报告.md`：查看研究结果。",
+        "6. `PPT案例素材包.md` / `答辩问答素材.md`：准备展示材料。",
         "",
         "## 文件说明",
         "",
@@ -481,9 +472,12 @@ def prepare_view_material_index() -> None:
             "",
             "## 目录边界",
             "",
-            "- `查看材料/`：报告、进度、待办、核验表、案例和联调材料，面向查看和交付。",
-            "- `参考文档/`：赛题说明、数据规范、工作指南、schema、prompt、论文等底层参考资料。",
-            "- `data/sample/`：代码实际读取的数据契约文件，不为了展示而改名。",
+            "- `可演示成果/`：唯一 Demo 人工入口、完整说明、案例、配置和截图。",
+            "- `查看材料/`：研究报告、审计结果、人工表和团队联调材料。",
+            "- `参考文档/`：赛题、字段契约、Schema、Prompt 和方法资料。",
+            "- `data/sample/`：代码实际读取的唯一演示数据，不为展示复制或改名。",
+            "",
+            DISCLAIMER,
             "",
         ]
     )
@@ -628,7 +622,7 @@ def prepare_c_runbook() -> None:
             ".venv/bin/python scripts/validate_manual_review_results.py",
             ".venv/bin/python scripts/validate_research_outputs.py",
             ".venv/bin/python scripts/validate_delivery_package.py",
-            ".venv/bin/python app/server.py",
+            ".venv/bin/python 可演示成果/启动演示.py",
             "# 另开终端：cd tests && npm ci && npx playwright install chromium && ALPHALENS_PYTHON=../.venv/bin/python npm test",
             "```",
             "",
@@ -906,61 +900,6 @@ def prepare_team_handoff_manual() -> None:
     write_text(VIEW_DIR / "团队对接手册.md", lines)
 
 
-def prepare_demo_script() -> None:
-    docs = read_csv("raw_documents.csv")
-    events = read_csv("events.csv")
-    predicates = read_csv("predicates.csv")
-    rules = read_csv("rules.csv")
-    qualified_rules = sum(1 for row in rules if row["status"] == "qualified")
-    lines = [
-        "# AlphaLens Demo 演示脚本",
-        "",
-        f"生成日期：{today()}",
-        "",
-        DISCLAIMER,
-        "",
-        "## 开场 20 秒",
-        "",
-        "AlphaLens 的定位不是用 AI 预测股价，而是让 AI 帮研究员把政策、公告、新闻和互动问答转化为可解释、可回测、可复用的另类因子研究素材。",
-        "",
-        "## 当前 Demo 数据规模",
-        "",
-        f"- 文本样本：{len(docs)} 条",
-        f"- 结构化事件：{len(events)} 条",
-        f"- 谓词判断：{len(predicates)} 条",
-        f"- 合格规则：{qualified_rules} 条",
-        "",
-        "## 页面讲解顺序",
-        "",
-        "| 操作 | 讲解重点 | 建议话术 |",
-        "|------|----------|----------|",
-        "| 打开历史研究概览 | 展示正式回测、最新因子截面和冻结规则库 | 页面直接读取流水线 CSV，不使用手填演示数字 |",
-        "| 回到新文本分析并点击储能政策 | 填入核验库中的真实正文详情页 | 来源、日期和 URL 均可追溯 |",
-        "| 填写 DeepSeek API Key | 在密码框中临时填写，选择‘大模型候选 + 规则校验’ | Key 只用于本次请求，系统不保存，结束后自动清空 |",
-        "| 检查 AI 研究层状态 | 展示 `deepseek-v4-flash` 和 Prompt 版本 | 大模型提出候选，程序负责约束与统计验证 |",
-        "| 点击开始分析 | 运行本地 Embedding、结构化抽取和规则校验 | 页面显示 `local-char-ngram-embedding-v1`、检索命中数和 DeepSeek 模型；任一步失败直接报错 |",
-        "| 查看 AI 候选规则 | 展示自动归纳及待验证状态 | 候选规则不会直接进入因子，必须经过历史统计和人工审核 |",
-        "| 切换关联实体 | 展示每只股票的事件、谓词和触发规则 | 同一文本可以关联多个实体，每条路径独立追溯 |",
-        "| 查看因子公式 | 展示规则评分和、证据强度与事件先验 | 公式可现场复算，候选值不是买卖信号 |",
-        "| 查看历史回测口径 | 强调固定历史样本与新输入隔离 | 新文本不会临时生成未来收益 |",
-        "| 下载研究记录 | 展示可追溯 Markdown | 报告保留限制与免责声明 |",
-        "",
-        "## 现场启动",
-        "",
-        "```bash",
-        ".venv/bin/python app/server.py",
-        "```",
-        "",
-        "投屏前先准备好 Key。不要把 Key 写进命令、`.env`、PPT 或演示录屏；若需要现场填写，密码框会用掩码显示。没有 Key 或网络异常时，模式一直接报错；需要离线复现必须主动选择模式二，不能把模式二结果说成 AI 结果。",
-        "",
-        "## 收尾 20 秒",
-        "",
-        "这个 Demo 证明了从非结构化舆情文本到结构化因子研究信号的链路可跑通。当前行情采用东方财富前复权价格候选版，adj_factor=1 仅为字段占位；结果用于研究链路验证，不是投资结论。",
-        "",
-    ]
-    write_text(VIEW_DIR / "Demo演示脚本.md", lines)
-
-
 def prepare_defense_qa_material() -> None:
     documents = read_csv("raw_documents.csv")
     source_counts = Counter(row["source_type"] for row in documents)
@@ -1032,7 +971,6 @@ def main() -> None:
     prepare_a_schema_confirmation_brief()
     prepare_c_runbook()
     prepare_team_handoff_manual()
-    prepare_demo_script()
     prepare_defense_qa_material()
     prepare_view_material_index()
     print("B handoff materials prepared.")

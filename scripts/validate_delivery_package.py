@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_DIR = ROOT / "data" / "sample"
 REFERENCE_DIR = ROOT / "参考文档"
 VIEW_DIR = ROOT / "查看材料"
+DEMO_DIR = ROOT / "可演示成果"
 REPORT_PATH = VIEW_DIR / "交付包自检报告.md"
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
 
@@ -35,16 +36,9 @@ VIEW_FILES = [
     "团队对接手册.md",
     "A口径确认建议稿.md",
     "C联调运行手册.md",
-    "大模型API接入与演示手册.md",
-    "可演示成果优化与下一步对接说明.md",
-    "Demo演示脚本.md",
     "答辩问答素材.md",
     "真实文本来源核验报告.md",
     "源文本核验明细.csv",
-    "数据负责人本轮自动处理报告.md",
-    "数据负责人下一步分工与验证报告.md",
-    "新输入文本Demo测试案例说明.md",
-    "新输入文本Demo测试案例.csv",
     "真实行情获取记录.md",
     "真实行情导入模板.csv",
     "真实行情校验报告.md",
@@ -59,6 +53,18 @@ VIEW_FILES = [
     "未来函数审计明细.md",
     "因子研究报告.md",
     "谓词筛选与规则调参报告.md",
+]
+
+DEMO_FILES = [
+    "README.md",
+    "完整说明文档.md",
+    "启动演示.py",
+    "配置示例.env",
+    "测试案例.csv",
+    "截图/01_新文本分析桌面端.png",
+    "截图/02_新文本分析移动端.png",
+    "截图/03_历史研究概览.png",
+    "截图/04_大模型严格模式.png",
 ]
 
 SAMPLE_FILES = [
@@ -85,14 +91,8 @@ DISCLAIMER_FILES = [
     VIEW_DIR / "团队对接手册.md",
     VIEW_DIR / "A口径确认建议稿.md",
     VIEW_DIR / "C联调运行手册.md",
-    VIEW_DIR / "大模型API接入与演示手册.md",
-    VIEW_DIR / "可演示成果优化与下一步对接说明.md",
-    VIEW_DIR / "Demo演示脚本.md",
     VIEW_DIR / "答辩问答素材.md",
     VIEW_DIR / "真实文本来源核验报告.md",
-    VIEW_DIR / "数据负责人本轮自动处理报告.md",
-    VIEW_DIR / "数据负责人下一步分工与验证报告.md",
-    VIEW_DIR / "新输入文本Demo测试案例说明.md",
     VIEW_DIR / "真实行情获取记录.md",
     VIEW_DIR / "真实行情校验报告.md",
     VIEW_DIR / "流水线输入保护验证报告.md",
@@ -103,6 +103,8 @@ DISCLAIMER_FILES = [
     VIEW_DIR / "未来函数审计明细.md",
     VIEW_DIR / "因子研究报告.md",
     VIEW_DIR / "谓词筛选与规则调参报告.md",
+    DEMO_DIR / "README.md",
+    DEMO_DIR / "完整说明文档.md",
     ROOT / "README.md",
 ]
 
@@ -120,6 +122,19 @@ DEPRECATED_VIEW_FILES = {
     "真实文本核验进度.md",
     "源文本核验队列.csv",
     "解释案例草稿.md",
+    "大模型API接入与演示手册.md",
+    "可演示成果优化与下一步对接说明.md",
+    "Demo演示脚本.md",
+    "数据负责人本轮自动处理报告.md",
+    "数据负责人下一步分工与验证报告.md",
+    "新输入文本Demo测试案例说明.md",
+    "新输入文本Demo测试案例.csv",
+    "Demo桌面截图.png",
+    "Demo移动端截图.png",
+    "Demo历史研究截图.png",
+    "Demo大模型研究层截图.png",
+    "00_我需要看",
+    "99_暂不阅读",
 }
 
 
@@ -146,6 +161,9 @@ def check_required_files(errors: list[str]) -> None:
     for filename in VIEW_FILES:
         if not (VIEW_DIR / filename).exists():
             errors.append(f"查看材料缺少 `{filename}`")
+    for filename in DEMO_FILES:
+        if not (DEMO_DIR / filename).exists():
+            errors.append(f"可演示成果缺少 `{filename}`")
     for filename in SAMPLE_FILES:
         if not (SAMPLE_DIR / filename).exists():
             errors.append(f"data/sample 缺少 `{filename}`")
@@ -173,16 +191,10 @@ def check_directory_boundaries(errors: list[str], warnings: list[str]) -> None:
         "事件人工抽检样本.csv",
         "谓词人工抽检样本.csv",
         "C联调运行手册.md",
-        "大模型API接入与演示手册.md",
         "A口径确认建议稿.md",
-        "Demo演示脚本.md",
         "答辩问答素材.md",
         "真实文本来源核验报告.md",
         "源文本核验明细.csv",
-        "数据负责人本轮自动处理报告.md",
-        "数据负责人下一步分工与验证报告.md",
-        "新输入文本Demo测试案例说明.md",
-        "新输入文本Demo测试案例.csv",
         "真实行情获取记录.md",
         "真实行情导入模板.csv",
         "真实行情校验报告.md",
@@ -232,6 +244,7 @@ def write_report(errors: list[str], warnings: list[str]) -> None:
         "## 检查范围",
         "",
         "- 必要参考文档是否存在。",
+        "- 可演示成果入口、完整说明、启动脚本、案例、配置和截图是否齐备。",
         "- 查看材料是否完整。",
         "- data/sample 数据文件是否齐备。",
         "- 报告类文件是否保留免责声明。",
