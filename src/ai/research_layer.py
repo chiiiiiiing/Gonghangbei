@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import math
+import re
 from typing import Any
 
 from src.ai.gateway import AIServiceError, AISettings, OpenAICompatibleGateway
@@ -96,7 +98,11 @@ class AIResearchLayer:
             for rule in qualified
         ]
         try:
-            vectors, metadata = self.gateway.embeddings([query, *rule_texts])
+            if self.settings.embedding_model:
+                vectors, metadata = self.gateway.embeddings([query, *rule_texts])
+            else:
+                vectors = [local_text_embedding(text) for text in [query, *rule_texts]]
+                metadata = {"model": "local-char-ngram-embedding-v1"}
             query_vector = vectors[0]
             ranked = sorted(
                 (
@@ -119,6 +125,23 @@ class AIResearchLayer:
             }
         except AIServiceError as exc:
             return {"used": False, "matches": [], "reason": str(exc)}
+
+
+def local_text_embedding(text: str, dimensions: int = 512) -> list[float]:
+    """Build a deterministic lexical embedding for offline rule retrieval."""
+    normalized = re.sub(r"\s+", "", text.lower())
+    features: list[str] = []
+    for size in (2, 3, 4):
+        features.extend(normalized[index : index + size] for index in range(max(len(normalized) - size + 1, 0)))
+    features.extend(re.findall(r"[a-z0-9_]+", text.lower()))
+    vector = [0.0] * dimensions
+    for feature in features:
+        digest = hashlib.blake2b(feature.encode("utf-8"), digest_size=8).digest()
+        bucket = int.from_bytes(digest[:4], "big") % dimensions
+        sign = 1.0 if digest[4] & 1 else -1.0
+        vector[bucket] += sign
+    norm = math.sqrt(sum(value * value for value in vector))
+    return [value / norm for value in vector] if norm else vector
 
 
 def cosine_similarity(left: list[float], right: list[float]) -> float:

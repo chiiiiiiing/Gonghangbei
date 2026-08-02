@@ -39,7 +39,7 @@ python3 -m venv .venv
 .venv/bin/python app/server.py
 ```
 
-打开页面，在左侧填写 DeepSeek API Key，选择“大模型候选 + 规则校验”并点击“开始分析”。默认调用地址为 `https://api.deepseek.com`，模型为 `deepseek-v4-flash`。DeepSeek 路径未配置 Embedding 模型时会跳过语义检索；未填写、超时或返回非法结构时，Demo 会安全回退到原有确定性规则流程。通用 OpenAI 兼容服务和本地模型仍可通过 `.env` 配置。
+打开页面，在左侧填写 DeepSeek API Key，选择“模式一：大模型候选 + 规则校验”并点击“开始分析”。默认调用地址为 `https://api.deepseek.com`，模型为 `deepseek-v4-flash`。模式一固定执行本地字符 n-gram Embedding 检索，再调用大模型返回结构化 JSON；未填写 Key、模型超时或返回非法结构时直接报错，不生成候选因子。需要离线复现时，明确切换到“模式二：仅规则复现”。
 
 ## 安全复跑流水线
 
@@ -90,7 +90,7 @@ raw_documents.csv
 
 在线接口 `src/pipeline/live_analysis.py` 复用批处理的实体别名、事件类型判断和 `ground_event_predicates()`，避免维护第二套演示规则。
 
-AI 运行时位于 `src/ai/`：`gateway.py` 负责 OpenAI 兼容 HTTP 请求，`prompts.py` 维护版本化 Prompt 与 JSON Schema，`research_layer.py` 负责可选 Embedding 检索、输出校验和候选规则状态管理。`app/server.py` 为页面 Key 创建请求级 DeepSeek 客户端，不保存或回传凭证。
+AI 运行时位于 `src/ai/`：`gateway.py` 负责 OpenAI 兼容 HTTP 请求，`prompts.py` 维护版本化 Prompt 与 JSON Schema，`research_layer.py` 负责本地 Embedding 检索、输出校验和候选规则状态管理。`app/server.py` 为页面 Key 创建请求级 DeepSeek 客户端，不保存或回传凭证。
 
 ## 文档入口
 

@@ -78,7 +78,7 @@ git pull
 - Demo 至少检查两个工作区、来源元数据、因子公式、事件/谓词追溯、冻结规则、历史因子截面和报告下载。
 - DeepSeek 联调从页面密码框临时填写 Key，确认调用模型为 `deepseek-v4-flash`；不得把 Key 写入代码、`.env`、截图、终端命令或联调记录。
 - 打开浏览器开发者工具检查 `/api/analyze`：请求后 Key 输入框自动清空，响应体不含 Key，响应头包含 `Cache-Control: no-store`。
-- 当前 DeepSeek 路径不配置 Embedding 模型时，“语义检索不可用”是已知状态，不应误判为 Chat 调用失败。
+- 模式一必须显示 `local-char-ngram-embedding-v1` 和相似冻结规则命中数；Embedding、DeepSeek 或结构校验任一步失败都应返回错误且不生成候选因子。
 - AI 候选规则必须保持待统计验证状态，不得直接写入 rules.csv 或参与因子评分。
 - 新文本接口不得临时生成未来收益；历史指标只能读取正式 CSV。
 

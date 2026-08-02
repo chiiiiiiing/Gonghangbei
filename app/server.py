@@ -204,7 +204,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         "",
         "### AI 研究层",
         "",
-        f"- 运行状态：{'已调用并通过结构校验' if ai.get('used') else '未调用或已安全回退'}",
+        f"- 运行状态：{'模式一已调用并通过结构校验' if ai.get('used') else '模式二仅规则复现，未调用 AI'}",
         f"- 模型：{ai.get('chat_model', '--')}",
         f"- Prompt 版本：{ai.get('prompt_version', '--')}",
         f"- Embedding 相似规则：{len(ai.get('embedding_retrieval', {}).get('matches', []))} 条",
@@ -334,7 +334,8 @@ def analyze():
     except (KeyError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
     if "error" in result:
-        return jsonify(result), 422
+        status_code = 503 if result.get("error_code") in {"ai_required", "embedding_required"} else 422
+        return jsonify(result), status_code
     result["ai_analysis"]["credential_source"] = "request" if api_key else "environment_or_fallback"
     history = historical_backtest()
     result["historical_backtest"] = history

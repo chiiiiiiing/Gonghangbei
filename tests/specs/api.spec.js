@@ -19,7 +19,7 @@ const EXAMPLES = {
 };
 
 async function post(request, data) {
-  const response = await request.post('/api/analyze', { data });
+  const response = await request.post('/api/analyze', { data: { analysis_mode: 'rule', ...data } });
   return { response, body: await response.json() };
 }
 
@@ -67,8 +67,8 @@ test('policy text reuses official predicates and frozen rules', async ({ request
   expect(body.stock_results[0].predicates).toHaveLength(19);
   expect(body.triggered_rules.length).toBeGreaterThan(0);
   expect(body.stock_results[0].candidate_factor).toBeGreaterThan(0);
-  expect(body.analysis_mode).toBe('deterministic_rule_fallback');
-  expect(body.ai_analysis.requested).toBe(true);
+  expect(body.analysis_mode).toBe('deterministic_rule_only');
+  expect(body.ai_analysis.requested).toBe(false);
   expect(body.ai_analysis.used).toBe(false);
   const formula = body.stock_results[0].factor_formula;
   expect(formula.result).toBeCloseTo(
@@ -81,6 +81,14 @@ test('policy text reuses official predicates and frozen rules', async ({ request
   expect(body.historical_backtest.scope).toBe('historical_reference_only');
   expect(body.report).toContain('并非对本次新文本单独回测');
   expect(body.report).toContain('本报告仅供研究参考，不构成投资建议');
+});
+
+test('hybrid mode rejects the request when AI is unavailable', async ({ request }) => {
+  const { response, body } = await post(request, { ...EXAMPLES.policy, analysis_mode: 'hybrid' });
+  expect(response.status()).toBe(503);
+  expect(body.error).toContain('模式一需要大模型成功参与');
+  expect(body.ai_analysis.used).toBe(false);
+  expect(body.stock_results).toBeUndefined();
 });
 
 test('announcement grounds uncertainty predicate', async ({ request }) => {

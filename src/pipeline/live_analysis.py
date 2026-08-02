@@ -176,6 +176,19 @@ def analyze_new_document(
     }
     if use_ai and ai_layer is not None:
         ai_analysis = ai_layer.analyze(doc, stock_pool, rules)
+        if not ai_analysis.get("used"):
+            return {
+                "error": f"模式一需要大模型成功参与：{ai_analysis.get('reason') or 'AI 未返回有效结果'}",
+                "error_code": "ai_required",
+                "ai_analysis": ai_analysis,
+            }
+        retrieval = ai_analysis.get("embedding_retrieval", {})
+        if not retrieval.get("used"):
+            return {
+                "error": f"模式一需要先完成 Embedding 检索：{retrieval.get('reason') or '向量检索未执行'}",
+                "error_code": "embedding_required",
+                "ai_analysis": ai_analysis,
+            }
     elif ai_layer is not None:
         ai_analysis = ai_layer.skipped("用户选择规则复现模式")
     else:
@@ -323,6 +336,6 @@ def analyze_new_document(
         "events": event_trace,
         "stock_results": stock_results,
         "triggered_rules": list(all_rules.values()),
-        "analysis_mode": "hybrid_ai_rule_validation" if ai_analysis.get("used") else "deterministic_rule_fallback",
+        "analysis_mode": "hybrid_ai_rule_validation" if ai_analysis.get("used") else "deterministic_rule_only",
         "ai_analysis": ai_analysis,
     }

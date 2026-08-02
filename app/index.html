@@ -68,7 +68,7 @@
           <div class="field"><label class="label" for="sourceName">来源名称</label><input id="sourceName" type="text" placeholder="例如：国家能源局"></div>
           <div class="field"><label class="label" for="eventDate">首次公开日期</label><input id="eventDate" type="date"></div>
           <div class="field"><label class="label" for="sourceUrl">正文链接</label><input id="sourceUrl" type="url" placeholder="https://..."></div>
-          <div class="field"><label class="label" for="analysisMode">分析引擎</label><select id="analysisMode"><option value="hybrid">大模型候选 + 规则校验</option><option value="rule">仅规则复现</option></select></div>
+          <div class="field"><label class="label" for="analysisMode">分析引擎</label><select id="analysisMode"><option value="hybrid">模式一：大模型候选 + 规则校验</option><option value="rule">模式二：仅规则复现</option></select></div>
           <div class="field"><label class="label" for="apiKey">DeepSeek API Key（单次使用）</label><input id="apiKey" type="password" autocomplete="off" spellcheck="false" maxlength="512" placeholder="sk-..."></div>
         </div>
         <div class="url-row"><div class="examples"><button class="example" data-example="0">储能政策</button><button class="example" data-example="1">锂电公告</button><button class="example" data-example="2">光伏新闻</button></div><button class="primary" id="runButton">开始分析</button></div>
@@ -141,6 +141,8 @@ async function analyze(){
   if(!payload.content)return showError('请提供正文内容');
   if(!payload.source_name)return showError('请填写可核验的来源名称');
   if(!payload.event_date)return showError('请填写首次公开日期');
+  if(payload.analysis_mode==='hybrid'&&!payload.api_key)return showError('模式一必须填写 DeepSeek API Key；未调用 AI 时不会生成结果。');
+  $('runState').querySelector('span:last-child').textContent=payload.analysis_mode==='hybrid'?'正在执行 Embedding 检索、大模型结构化抽取、规则校验与候选因子计算':'正在执行实体链接、事件抽取、谓词落地与冻结规则匹配';
   button.disabled=true;button.textContent='分析中';$('runState').classList.add('on');$('result').innerHTML='';
   try{
     const response=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -155,10 +157,24 @@ function kpi(value,label){return `<div class="kpi"><strong>${esc(value)}</strong
 function renderAnalysis(data){
   const metrics=data.historical_backtest.metrics;const stocks=data.stock_results||[];const top=stocks[0];const maxFactor=Math.max(...stocks.map(x=>Math.abs(x.candidate_factor)),.0001);
   const sourceLink=data.source_url?`<a class="source-link" href="${esc(data.source_url)}" target="_blank" rel="noopener noreferrer">查看来源正文</a>`:'未提供链接';
+  const retrieval=data.ai_analysis?.embedding_retrieval||{};const validation=data.ai_analysis?.validation||{};const comparisons=top?.ai_predicate_comparison||[];const agreements=comparisons.filter(row=>row.agrees).length;
+  const executionTrace=data.ai_analysis?.used?[
+    ['Embedding 检索',`${retrieval.model} · 命中 ${retrieval.matches.length} 条`],
+    ['AI 结构化 JSON',`${data.ai_analysis.chat_model} · ${data.event_type}`],
+    ['程序合法性校验',`${validation.accepted_predicate_count||0}/19 个谓词通过`],
+    ['确定性谓词与 AI 对照',`${agreements}/${comparisons.length} 个判断一致`],
+    ['冻结规则匹配',`${data.triggered_rules.length} 条合格规则`],
+    ['候选因子',`${top?.factor_name||'--'} · ${fixed(top?.candidate_factor||0)}`],
+  ]:[
+    ['实体链接',stocks.map(x=>x.name).join('、')],
+    ['事件抽取',`${data.event_type} · 证据 ${fixed(data.evidence_strength,2)}`],
+    ['谓词落地',`${top?.predicates.length||0} 个锁定字段`],
+    ['规则与因子',`${data.triggered_rules.length} 条规则 · 证据加权`],
+  ];
   let html='<div class="kpis">';
   html+=kpi(data.event_type,'事件类型')+kpi(stocks.length,'关联实体')+kpi(data.triggered_rules.length,'触发冻结规则')+kpi(fixed(top?.candidate_factor||0),'最高候选因子')+kpi(metrics.future_info_audit==='pass'?'通过':'待审计','未来函数审计')+'</div>';
   html+=renderAIResearch(data.ai_analysis);
-  html+=`<section class="section"><div class="section-head"><h2>新文本处理链路</h2><span class="scope">${esc(data.source_name)} · ${esc(data.event_time)} · ${sourceLink}</span></div><div class="section-body"><div class="trace"><div class="trace-step"><b>实体链接</b><span>${stocks.map(x=>esc(x.name)).join('、')}</span></div><div class="trace-step"><b>事件抽取</b><span>${esc(data.event_type)} · 证据 ${fixed(data.evidence_strength,2)}</span></div><div class="trace-step"><b>谓词落地</b><span>${top?.predicates.length||0} 个锁定字段</span></div><div class="trace-step"><b>规则与因子</b><span>${data.triggered_rules.length} 条规则 · 证据加权</span></div></div></div></section>`;
+  html+=`<section class="section"><div class="section-head"><h2>新文本处理链路</h2><span class="scope">${esc(data.source_name)} · ${esc(data.event_time)} · ${sourceLink}</span></div><div class="section-body"><div class="trace">${executionTrace.map(([label,value])=>`<div class="trace-step"><b>${esc(label)}</b><span>${esc(value)}</span></div>`).join('')}</div></div></section>`;
   html+=`<section class="section"><div class="section-head"><h2>关联实体候选因子</h2><span class="scope">新输入即时结果，未使用未来收益</span></div><div class="section-body"><div class="bars">`;
   html+=stocks.map(stock=>`<div class="bar"><span class="bar-name" title="${esc(stock.link_evidence)}">${esc(stock.name)}</span><span class="bar-sector">${esc(stock.sector)} · ${Math.round(stock.confidence*100)}%</span><div class="bar-track"><div class="bar-fill" style="width:${Math.abs(stock.candidate_factor)/maxFactor*100}%"></div></div><span class="bar-value">${fixed(stock.candidate_factor)}</span></div>`).join('')||'<div class="empty">未形成候选因子</div>';
   html+='</div></div></section>';
@@ -184,12 +200,12 @@ function renderStockDetail(index){
 function renderAIResearch(ai){
   if(!ai)return '';
   if(!ai.used){
-    return `<section class="section"><div class="section-head"><h2>AI 研究层</h2><span class="scope">确定性回退已生效</span></div><div class="section-body"><div class="ai-summary ai-fallback"><strong>本次未调用大模型</strong><br>${esc(ai.reason||'模型不可用')}。事件、谓词、冻结规则和因子仍由可复现规则流程完成。</div></div></section>`;
+    return `<section class="section"><div class="section-head"><h2>规则研究层</h2><span class="scope">模式二：仅规则复现</span></div><div class="section-body"><div class="ai-summary ai-fallback"><strong>本次未调用大模型</strong><br>${esc(ai.reason||'用户选择规则复现模式')}。事件、谓词、冻结规则和因子由可复现规则流程完成。</div></div></section>`;
   }
   const result=ai.result||{};const retrieval=ai.embedding_retrieval||{};const candidates=result.candidate_rules||[];const validation=ai.validation||{};
   const candidateRows=candidates.map(rule=>`<tr><td>${esc(rule.name)}</td><td class="mono">${esc(rule.conditions.join(' AND '))}</td><td>${esc(rule.target_label)}</td><td class="warn">待统计验证</td></tr>`).join('')||'<tr><td colspan="4">本次未提出新候选规则</td></tr>';
   const formatNote=ai.response_format==='json_schema'?'严格 JSON Schema 返回':'JSON 对象 + 程序校验';
-  return `<section class="section"><div class="section-head"><h2>AI 研究层</h2><span class="scope">${esc(ai.chat_model)} · ${esc(ai.prompt_version)}</span></div><div class="section-body"><div class="ai-grid"><div class="ai-item"><strong>结构化事件</strong><span>${esc(result.event?.event_type||'--')} · ${formatNote}</span></div><div class="ai-item"><strong>Embedding 检索</strong><span>${retrieval.used?`${retrieval.matches.length} 条相似冻结规则`:'检索不可用'}</span></div><div class="ai-item"><strong>候选谓词</strong><span>${validation.accepted_predicate_count||0}/19 通过合法值校验</span></div><div class="ai-item"><strong>候选规则</strong><span>${candidates.length} 条，尚未进入因子计算</span></div></div><div class="ai-summary">${esc(result.summary||'模型已返回结构化研究候选。')}</div><div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>AI 候选规则</th><th>条件</th><th>研究标签</th><th>状态</th></tr></thead><tbody>${candidateRows}</tbody></table></div></div></section>`;
+  return `<section class="section"><div class="section-head"><h2>AI 研究层</h2><span class="scope">${esc(ai.chat_model)} · ${esc(ai.prompt_version)}</span></div><div class="section-body"><div class="ai-grid"><div class="ai-item"><strong>结构化事件</strong><span>${esc(result.event?.event_type||'--')} · ${formatNote}</span></div><div class="ai-item"><strong>Embedding 检索</strong><span>${retrieval.used?`${retrieval.matches.length} 条相似冻结规则 · ${esc(retrieval.model)}`:'检索不可用'}</span></div><div class="ai-item"><strong>候选谓词</strong><span>${validation.accepted_predicate_count||0}/19 通过合法值校验</span></div><div class="ai-item"><strong>候选规则</strong><span>${candidates.length} 条，尚未进入因子计算</span></div></div><div class="ai-summary">${esc(result.summary||'模型已返回结构化研究候选。')}</div><div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>AI 候选规则</th><th>条件</th><th>研究标签</th><th>状态</th></tr></thead><tbody>${candidateRows}</tbody></table></div></div></section>`;
 }
 
 function renderHistory(history){

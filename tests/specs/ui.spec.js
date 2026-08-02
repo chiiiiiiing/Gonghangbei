@@ -21,11 +21,12 @@ test('loads operational workspace and data version', async ({ page }) => {
 
 test('built-in policy example renders trace, factor and historical scope', async ({ page }) => {
   await page.getByRole('button', { name: '储能政策' }).click();
+  await page.locator('#analysisMode').selectOption('rule');
   await page.getByRole('button', { name: '开始分析' }).click();
   await expect(page.locator('#liveView .kpis')).toBeVisible();
   await expect(page.locator('#liveView .kpis')).toContainText('policy_support');
   await expect(page.locator('#liveView')).toContainText('关联实体候选因子');
-  await expect(page.locator('#liveView')).toContainText('确定性回退已生效');
+  await expect(page.locator('#liveView')).toContainText('用户选择规则复现模式');
   await expect(page.locator('body')).toContainText('事件、谓词与规则追溯');
   await expect(page.locator('body')).toContainText('has_policy_support = true');
   await expect(page.locator('.formula-equation')).toContainText('0.7 ×');
@@ -33,6 +34,13 @@ test('built-in policy example renders trace, factor and historical scope', async
   await expect(page.locator('.entity-button')).toHaveCount(5);
   await expect(page.getByRole('link', { name: '查看来源正文' })).toHaveAttribute('href', /^https:\/\//);
   await expect(page.locator('.report')).toContainText('不构成投资建议');
+});
+
+test('hybrid mode requires a DeepSeek key instead of falling back', async ({ page }) => {
+  await page.getByRole('button', { name: '储能政策' }).click();
+  await page.getByRole('button', { name: '开始分析' }).click();
+  await expect(page.locator('.error')).toContainText('模式一必须填写 DeepSeek API Key');
+  await expect(page.locator('#liveView .kpis')).toHaveCount(0);
 });
 
 test('historical workspace shows audited backtest, snapshot and rule library', async ({ page }) => {
@@ -49,6 +57,7 @@ test('historical workspace shows audited backtest, snapshot and rule library', a
 
 test('announcement example exposes uncertainty predicate', async ({ page }) => {
   await page.getByRole('button', { name: '锂电公告' }).click();
+  await page.locator('#analysisMode').selectOption('rule');
   await page.getByRole('button', { name: '开始分析' }).click();
   await expect(page.locator('#liveView .kpis')).toContainText('capacity_expansion');
   await expect(page.locator('body')).toContainText('announcement_contains_uncertainty = true');

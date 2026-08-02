@@ -8,7 +8,7 @@ import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from src.ai.gateway import AISettings, OpenAICompatibleGateway
-from src.ai.research_layer import AIResearchLayer
+from src.ai.research_layer import AIResearchLayer, cosine_similarity, local_text_embedding
 
 
 MODEL_OUTPUT = {
@@ -151,6 +151,15 @@ class AIResearchLayerTest(unittest.TestCase):
         self.assertFalse(result["used"])
         self.assertTrue(result["fallback"])
         self.assertIn("模型未配置", result["reason"])
+
+    def test_local_embedding_is_deterministic_and_retrieves_related_text(self) -> None:
+        query = local_text_embedding("新型储能政策推动项目建设")
+        related = local_text_embedding("政策支持新型储能项目建设")
+        unrelated = local_text_embedding("公司公告披露董事会人员变更")
+
+        self.assertEqual(query, local_text_embedding("新型储能政策推动项目建设"))
+        self.assertGreater(cosine_similarity(query, related), cosine_similarity(query, unrelated))
+        self.assertAlmostEqual(sum(value * value for value in query), 1.0)
 
 
 if __name__ == "__main__":

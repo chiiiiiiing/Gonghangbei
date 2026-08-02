@@ -23,17 +23,8 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0"))
         payload = json.loads(self.rfile.read(length).decode("utf-8"))
         if self.path.endswith("/embeddings"):
-            if payload.get("model") != "fake-embedding":
-                self.send_error(400)
-                return
-            body = {
-                "model": "fake-embedding",
-                "data": [
-                    {"index": index, "embedding": [1.0, 0.1 + index / 100]}
-                    for index, _ in enumerate(payload["input"])
-                ],
-                "usage": {"total_tokens": 42},
-            }
+            self.send_error(501, "unexpected embedding request")
+            return
         elif self.path.endswith("/chat/completions"):
             if payload.get("model") != "deepseek-v4-flash":
                 self.send_error(400)

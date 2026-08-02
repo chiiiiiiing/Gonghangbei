@@ -123,7 +123,7 @@ def write_progress_doc() -> None:
         f"- 交付包自检报告：已生成 `查看材料/交付包自检报告.md`",
         "- Flask Demo：已具备 `app/server.py`，可用 `.venv/bin/python app/server.py` 启动",
         "- Demo 双工作区：新文本页已支持真实详情页案例、实体切换与因子公式；历史页已展示正式回测、因子截面和冻结规则库",
-        "- AI 研究层：已接入页面单次 DeepSeek API Key、`deepseek-v4-flash` 结构化 Chat、候选谓词/规则校验和离线规则回退",
+        "- AI 研究层：模式一已强制执行本地 Embedding、`deepseek-v4-flash` 结构化 Chat 和程序校验，AI 失败直接报错；模式二独立提供规则复现",
         "",
         "## 数据来源分布",
         "",
