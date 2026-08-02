@@ -27,7 +27,7 @@ module.exports = defineConfig({
       timeout: 15000,
     },
     {
-      command: `ALPHALENS_AI_MODE=local ALPHALENS_LLM_BASE_URL=http://127.0.0.1:8799/v1 ALPHALENS_LLM_MODEL=fake-chat ALPHALENS_EMBEDDING_MODEL=fake-embedding ALPHALENS_DEMO_PORT=8702 "${python}" app/server.py`,
+      command: `ALPHALENS_DEEPSEEK_BASE_URL=http://127.0.0.1:8799/v1 ALPHALENS_DEEPSEEK_EMBEDDING_MODEL=fake-embedding ALPHALENS_DEMO_PORT=8702 "${python}" app/server.py`,
       cwd: root,
       url: 'http://localhost:8702',
       reuseExistingServer: false,

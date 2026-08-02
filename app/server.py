@@ -20,13 +20,36 @@ APP_DIR = ROOT / "app"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.pipeline.live_analysis import SOURCE_TYPES, analyze_new_document  # noqa: E402
+from src.ai.gateway import AISettings  # noqa: E402
 from src.ai.research_layer import AIResearchLayer  # noqa: E402
+from src.pipeline.live_analysis import SOURCE_TYPES, analyze_new_document  # noqa: E402
 
 
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
 app = Flask(__name__, static_folder=None)
 AI_LAYER = AIResearchLayer()
+
+
+def request_ai_layer(api_key: str) -> AIResearchLayer:
+    if not api_key:
+        return AI_LAYER
+    settings = AISettings(
+        mode="api",
+        base_url=os.getenv("ALPHALENS_DEEPSEEK_BASE_URL", "https://api.deepseek.com").rstrip("/"),
+        api_key=api_key,
+        chat_model="deepseek-v4-flash",
+        embedding_model=os.getenv("ALPHALENS_DEEPSEEK_EMBEDDING_MODEL", "").strip(),
+        timeout_seconds=float(os.getenv("ALPHALENS_AI_TIMEOUT", "45")),
+        json_mode="object",
+    )
+    return AIResearchLayer(settings)
+
+
+@app.after_request
+def disable_api_caching(response):
+    if request.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 def read_csv(filename: str) -> list[dict[str, str]]:
@@ -261,6 +284,8 @@ def validate_payload(payload: dict[str, Any]) -> tuple[dict[str, str] | None, st
     analysis_mode = normalized.get("analysis_mode", "hybrid")
     if analysis_mode not in {"hybrid", "rule"}:
         return None, "分析模式必须是 hybrid 或 rule"
+    if len(normalized.get("api_key", "")) > 512:
+        return None, "API Key 长度不合法"
     normalized["analysis_mode"] = analysis_mode
     return normalized, None
 
@@ -296,18 +321,21 @@ def analyze():
     if error:
         return jsonify({"error": error}), 400
     assert payload is not None
+    api_key = payload.pop("api_key", "")
+    ai_layer = request_ai_layer(api_key)
     try:
         result = analyze_new_document(
             payload,
             read_csv("stock_pool.csv"),
             read_csv("rules.csv"),
-            ai_layer=AI_LAYER,
+            ai_layer=ai_layer,
             use_ai=payload["analysis_mode"] == "hybrid",
         )
     except (KeyError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
     if "error" in result:
         return jsonify(result), 422
+    result["ai_analysis"]["credential_source"] = "request" if api_key else "environment_or_fallback"
     history = historical_backtest()
     result["historical_backtest"] = history
     result["report"] = generate_report(result, history)

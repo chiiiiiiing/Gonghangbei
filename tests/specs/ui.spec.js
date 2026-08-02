@@ -11,7 +11,8 @@ test('loads operational workspace and data version', async ({ page }) => {
   await expect(page.locator('#eventDate')).toBeVisible();
   await expect(page.locator('#sourceUrl')).toBeVisible();
   await expect(page.locator('#analysisMode')).toHaveValue('hybrid');
-  await expect(page.locator('#aiStatus')).toContainText('AI 研究层待配置');
+  await expect(page.locator('#apiKey')).toHaveAttribute('type', 'password');
+  await expect(page.locator('#aiStatus')).toContainText('AI 研究层待凭证');
   await expect(page.getByRole('tab', { name: '历史研究概览' })).toBeVisible();
   await expect(page.locator('#statusText')).toContainText('正式流水线已连接');
   await expect(page.locator('#dataGrid')).toContainText('130');

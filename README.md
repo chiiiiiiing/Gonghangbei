@@ -17,7 +17,7 @@ AlphaLens 将政策、公告、财经新闻和互动问答等非结构化金融�
 - **新文本分析**：使用核验库中的真实详情页案例，展示来源、实体、事件、19 个谓词、冻结规则和候选因子公式，可在关联股票之间切换追溯。
 - **历史研究概览**：独立展示正式回测指标、分组收益、Rank IC、30 只股票的最新因子截面和 12 条冻结规则。
 
-新文本页已接入可选的 OpenAI 兼容 AI 研究层：先用 Embedding 检索相似冻结规则，再让模型按严格 JSON Schema 提出事件、实体、19 个谓词和候选规则。程序会校验股票池、枚举、数值和原文证据；AI 候选不直接覆盖冻结规则，也不直接产生回测指标。
+新文本页已接入可选的 AI 研究层。页面提供 `DeepSeek API Key（单次使用）` 密码框，填写后由后端调用 `deepseek-v4-flash`，让模型按结构化 JSON 提出事件、实体、19 个谓词和候选规则。Key 仅随本次分析请求使用，响应后自动清空，不写入浏览器存储、CSV 或仓库。程序会校验股票池、枚举、数值和原文证据；AI 候选不直接覆盖冻结规则，也不直接产生回测指标。
 
 当前跟踪样例包含 30 只新能源股票、130 条文本、210 个事件、12 条合格规则和 167 条历史因子样本。具体数量以演示页右侧的数据版本状态为准。
 
@@ -33,16 +33,13 @@ python3 -m venv .venv
 
 ## 大模型 API
 
-配置说明见 `查看材料/大模型API接入与演示手册.md`。最短配置方式：
+配置说明见 `查看材料/大模型API接入与演示手册.md`。最短使用方式：
 
 ```bash
-cp 配置示例.env .env
-# 在 .env 中填写 OPENAI_API_KEY，并把 ALPHALENS_AI_MODE 改为 api
 .venv/bin/python app/server.py
-curl http://127.0.0.1:8701/api/ai/status
 ```
 
-也可以把 `ALPHALENS_LLM_BASE_URL` 指向同时兼容 `/v1/chat/completions` 和 `/v1/embeddings` 的本地服务。未配置、超时或返回非法结构时，Demo 会安全回退到原有确定性规则流程。
+打开页面，在左侧填写 DeepSeek API Key，选择“大模型候选 + 规则校验”并点击“开始分析”。默认调用地址为 `https://api.deepseek.com`，模型为 `deepseek-v4-flash`。DeepSeek 路径未配置 Embedding 模型时会跳过语义检索；未填写、超时或返回非法结构时，Demo 会安全回退到原有确定性规则流程。通用 OpenAI 兼容服务和本地模型仍可通过 `.env` 配置。
 
 ## 安全复跑流水线
 
@@ -93,7 +90,7 @@ raw_documents.csv
 
 在线接口 `src/pipeline/live_analysis.py` 复用批处理的实体别名、事件类型判断和 `ground_event_predicates()`，避免维护第二套演示规则。
 
-AI 运行时位于 `src/ai/`：`gateway.py` 负责 OpenAI 兼容 HTTP 请求，`prompts.py` 维护版本化 Prompt 与 JSON Schema，`research_layer.py` 负责 Embedding 检索、输出校验和候选规则状态管理。
+AI 运行时位于 `src/ai/`：`gateway.py` 负责 OpenAI 兼容 HTTP 请求，`prompts.py` 维护版本化 Prompt 与 JSON Schema，`research_layer.py` 负责可选 Embedding 检索、输出校验和候选规则状态管理。`app/server.py` 为页面 Key 创建请求级 DeepSeek 客户端，不保存或回传凭证。
 
 ## 文档入口
 

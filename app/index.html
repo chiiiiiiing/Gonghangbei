@@ -69,6 +69,7 @@
           <div class="field"><label class="label" for="eventDate">首次公开日期</label><input id="eventDate" type="date"></div>
           <div class="field"><label class="label" for="sourceUrl">正文链接</label><input id="sourceUrl" type="url" placeholder="https://..."></div>
           <div class="field"><label class="label" for="analysisMode">分析引擎</label><select id="analysisMode"><option value="hybrid">大模型候选 + 规则校验</option><option value="rule">仅规则复现</option></select></div>
+          <div class="field"><label class="label" for="apiKey">DeepSeek API Key（单次使用）</label><input id="apiKey" type="password" autocomplete="off" spellcheck="false" maxlength="512" placeholder="sk-..."></div>
         </div>
         <div class="url-row"><div class="examples"><button class="example" data-example="0">储能政策</button><button class="example" data-example="1">锂电公告</button><button class="example" data-example="2">光伏新闻</button></div><button class="primary" id="runButton">开始分析</button></div>
         <div class="run-state" id="runState"><span class="spinner"></span><span>正在执行实体链接、事件抽取、谓词落地与冻结规则匹配</span></div>
@@ -122,7 +123,9 @@ async function loadStatus(){
     const labels={stocks:'股票',documents:'文本',events:'事件',predicates:'谓词',qualified_rules:'规则',factor_samples:'因子样本'};
     $('dataGrid').innerHTML=Object.entries(labels).map(([key,label])=>`<div class="data-cell"><strong>${esc(data.counts[key])}</strong><span>${label}</span></div>`).join('');
     $('aiStatus').className=`ai-status ${data.ai.configured?'on':'off'}`;
-    $('aiStatus').innerHTML=`<strong>${data.ai.configured?'AI 研究层已配置':'AI 研究层待配置'}</strong><span>${esc(data.ai.chat_model)} · ${esc(data.ai.embedding_model)} · ${esc(data.ai.prompt_version)}</span>`;
+    $('aiStatus').innerHTML=data.ai.configured
+      ?`<strong>AI 研究层已配置</strong><span>${esc(data.ai.chat_model)} · ${esc(data.ai.embedding_model||'无向量模型')} · ${esc(data.ai.prompt_version)}</span>`
+      :`<strong>AI 研究层待凭证</strong><span>DeepSeek V4 Flash · 可在左侧临时填写 Key</span>`;
     $('marketLimit').textContent=data.adj_factor_placeholder?'adj_factor=1 为占位字段；前复权价格候选版。':`行情区间 ${data.market_period.start} 至 ${data.market_period.end}`;
   }catch(error){$('statusText').textContent='服务未连接';$('dataGrid').innerHTML='<div class="empty">无法读取数据状态</div>';}
 }
@@ -134,7 +137,7 @@ async function loadHistory(){
 
 async function analyze(){
   const button=$('runButton');
-  const payload={title:$('title').value.trim(),content:$('content').value.trim(),source_type:$('sourceType').value,source_name:$('sourceName').value.trim(),event_date:$('eventDate').value,source_url:$('sourceUrl').value.trim(),analysis_mode:$('analysisMode').value};
+  const payload={title:$('title').value.trim(),content:$('content').value.trim(),source_type:$('sourceType').value,source_name:$('sourceName').value.trim(),event_date:$('eventDate').value,source_url:$('sourceUrl').value.trim(),analysis_mode:$('analysisMode').value,api_key:$('apiKey').value.trim()};
   if(!payload.content)return showError('请提供正文内容');
   if(!payload.source_name)return showError('请填写可核验的来源名称');
   if(!payload.event_date)return showError('请填写首次公开日期');
@@ -143,7 +146,7 @@ async function analyze(){
     const response=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await response.json();if(!response.ok||data.error)throw new Error(data.error||`HTTP ${response.status}`);
     currentAnalysis=data;historyData=data.historical_backtest;renderAnalysis(data);
-  }catch(error){showError(error.message);}finally{button.disabled=false;button.textContent='开始分析';$('runState').classList.remove('on');}
+  }catch(error){showError(error.message);}finally{button.disabled=false;button.textContent='开始分析';$('runState').classList.remove('on');$('apiKey').value='';}
 }
 
 function showError(message){$('result').innerHTML=`<div class="error"><strong>分析未完成</strong><br>${esc(message)}</div>`;}

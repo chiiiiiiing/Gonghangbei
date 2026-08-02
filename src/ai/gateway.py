@@ -66,17 +66,19 @@ class AISettings:
 
     @property
     def enabled(self) -> bool:
-        has_models = bool(self.base_url and self.chat_model and self.embedding_model)
+        has_models = bool(self.base_url and self.chat_model)
         return has_models and (self.mode == "local" or (self.mode == "api" and bool(self.api_key)))
 
     @property
     def provider(self) -> str:
+        if "api.deepseek.com" in self.base_url or self.chat_model.startswith("deepseek-"):
+            return "deepseek"
         return "local-openai-compatible" if self.mode == "local" else "openai-compatible-api"
 
     def public_status(self) -> dict[str, Any]:
         reason = ""
         if not self.enabled:
-            reason = "AI_MODE=off 或未配置 OPENAI_API_KEY"
+            reason = "AI_MODE=off 或未配置 API Key"
         return {
             "configured": self.enabled,
             "mode": self.mode,
@@ -137,6 +139,8 @@ class OpenAICompatibleGateway:
             "messages": messages,
             "response_format": response_format,
         }
+        if self.settings.provider == "deepseek":
+            payload["thinking"] = {"type": "disabled"}
         try:
             response = self._post("chat/completions", payload)
         except AIServiceError as exc:
@@ -161,6 +165,8 @@ class OpenAICompatibleGateway:
         return parsed, metadata
 
     def embeddings(self, inputs: list[str]) -> tuple[list[list[float]], dict[str, Any]]:
+        if not self.settings.embedding_model:
+            raise AIServiceError("当前提供方未配置 Embedding 模型")
         response = self._post(
             "embeddings",
             {"model": self.settings.embedding_model, "input": inputs},
