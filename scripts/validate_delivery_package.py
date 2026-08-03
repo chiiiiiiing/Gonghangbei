@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_DIR = ROOT / "data" / "sample"
 REFERENCE_DIR = ROOT / "参考文档"
 VIEW_DIR = ROOT / "查看材料"
-DEMO_DIR = ROOT / "可演示成果"
+DEMO_DIR = ROOT
 REPORT_PATH = VIEW_DIR / "交付包自检报告.md"
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
 

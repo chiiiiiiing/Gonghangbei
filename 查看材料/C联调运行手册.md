@@ -52,7 +52,7 @@ git pull
 .venv/bin/python scripts/validate_manual_review_results.py
 .venv/bin/python scripts/validate_research_outputs.py
 .venv/bin/python scripts/validate_delivery_package.py
-.venv/bin/python 可演示成果/启动演示.py
+.venv/bin/python 启动演示.py
 # 另开终端：cd tests && npm ci && npx playwright install chromium && ALPHALENS_PYTHON=../.venv/bin/python npm test
 ```
 

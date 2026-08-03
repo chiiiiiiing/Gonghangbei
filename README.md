@@ -6,14 +6,14 @@ AlphaLens 将政策、公告、财经新闻和互动问答等非结构化金融�
 
 ## 从这里开始
 
-比赛 Demo、完整使用说明、测试案例、配置示例和验收截图统一放在 [`可演示成果/`](可演示成果/README.md)。
+当前仓库根目录就是可演示成果目录，不再嵌套第二层同名文件夹。完整使用说明见 [`完整说明文档.md`](完整说明文档.md)。
 
 最快启动方式：
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python 可演示成果/启动演示.py
+.venv/bin/python 启动演示.py
 ```
 
 浏览器打开 [http://127.0.0.1:8701](http://127.0.0.1:8701)。
@@ -21,7 +21,11 @@ python3 -m venv .venv
 ## 仓库结构
 
 ```text
-├── 可演示成果/       # Demo 统一入口、完整说明、案例、配置和截图
+├── 完整说明文档.md    # Demo 架构、操作、演示和交接说明
+├── 启动演示.py        # 统一启动入口
+├── 测试案例.csv       # 新文本演示案例
+├── 配置示例.env       # 可选配置示例，不含密钥
+├── 截图/              # 桌面端、移动端和严格 AI 模式截图
 ├── app/              # Flask API、单页界面和本地 Plotly
 ├── src/              # AI、文本流水线、回测和报告代码
 ├── data/sample/      # Git 跟踪的正式样例 CSV
@@ -31,7 +35,7 @@ python3 -m venv .venv
 └── 参考文档/         # 赛题、字段契约、Schema、Prompt 和方法资料
 ```
 
-源码和正式数据只保留一份。`可演示成果/` 通过统一入口复用 `app/`、`src/` 和 `data/sample/`，不维护第二套 Demo 数据。
+源码和正式数据只保留一份。根目录的启动入口直接复用 `app/`、`src/` 和 `data/sample/`，不维护第二套 Demo 数据。
 
 ## AI 模式
 
