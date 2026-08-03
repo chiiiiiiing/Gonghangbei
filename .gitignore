@@ -34,9 +34,6 @@ data/external/
 tmp/
 output/
 logs/
-tests/node_modules/
-tests/report/
-tests/test-results/
 
 # Notebook checkpoints
 .ipynb_checkpoints/
@@ -44,7 +41,6 @@ tests/test-results/
 # Environment
 .env
 .env.local
-.streamlit/secrets.toml
 
 # Model caches (large, do not commit)
 *.h5
@@ -52,18 +48,3 @@ tests/test-results/
 *.pt
 *.bin
 *.gguf
-
-# Demo recordings and large media
-演示/*.mp4
-演示/*.mov
-演示/*.avi
-
-# Docker artifacts
-.docker/
-
-# Agent rules (local only)
-AGENTS.md
-
-# Local task tracking (generated, do not commit)
-查看材料/任务进度.md
-查看材料/人工待办.md
