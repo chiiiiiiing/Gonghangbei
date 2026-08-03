@@ -569,6 +569,60 @@ def correlation(left: list[float], right: list[float]) -> float:
     return numerator / denominator if denominator else 0.0
 
 
+def build_rank_ic_rows(factor_rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Compute daily cross-sectional IC after stock-date aggregation and neutralization."""
+    stocks = {row["stock_code"]: row for row in read_csv("stock_pool.csv")}
+    market_by_stock = build_market_by_stock()
+    forward_return_by_date_stock: dict[tuple[str, str], float] = {}
+    for stock_code, rows in market_by_stock.items():
+        for index in range(max(len(rows) - 4, 0)):
+            entry = rows[index]
+            exit_5d = rows[index + 4]
+            forward_return_by_date_stock[(entry["trade_date"], stock_code)] = (
+                float(exit_5d["close"]) / float(entry["open"]) - 1
+            )
+
+    factor_by_date_stock: dict[tuple[str, str], float] = defaultdict(float)
+    for row in factor_rows:
+        if row["forward_return_5d"] == "":
+            continue
+        factor_by_date_stock[(row["trade_date"], row["stock_code"])] += float(row["factor_value"])
+
+    ic_rows: list[dict[str, str]] = []
+    for trade_date in sorted({key[0] for key in factor_by_date_stock}):
+        raw_by_stock = {
+            stock_code: factor_by_date_stock.get((trade_date, stock_code), 0.0)
+            for stock_code in stocks
+        }
+        by_sector: dict[str, list[str]] = defaultdict(list)
+        for stock_code, stock in stocks.items():
+            by_sector[stock["industry_sector"]].append(stock_code)
+
+        neutralized: dict[str, float] = {}
+        for stock_codes in by_sector.values():
+            scores = zscore([raw_by_stock[stock_code] for stock_code in stock_codes])
+            neutralized.update(zip(stock_codes, scores))
+
+        cross_section = [
+            (neutralized[stock_code], forward_return_by_date_stock[(trade_date, stock_code)])
+            for stock_code in stocks
+            if (trade_date, stock_code) in forward_return_by_date_stock
+        ]
+        if len(cross_section) < 3 or len({item[0] for item in cross_section}) < 2:
+            continue
+        factor_values = [item[0] for item in cross_section]
+        returns = [item[1] for item in cross_section]
+        rank_ic = correlation(rank(factor_values), rank(returns))
+        ic_rows.append(
+            {
+                "trade_date": trade_date,
+                "rank_ic_5d": f"{rank_ic:.6f}",
+                "sample_count": str(len(cross_section)),
+            }
+        )
+    return ic_rows
+
+
 def build_backtest_outputs(factor_rows: list[dict[str, str]]) -> None:
     valid_rows = [row for row in factor_rows if row["forward_return_5d"] != ""]
     sorted_rows = sorted(valid_rows, key=lambda row: float(row["factor_value"]))
@@ -588,21 +642,12 @@ def build_backtest_outputs(factor_rows: list[dict[str, str]]) -> None:
         )
     write_csv(SAMPLE_DIR / "group_returns.csv", ["group", "sample_count", "avg_forward_return_5d"], group_rows)
 
-    by_date: dict[str, list[dict[str, str]]] = defaultdict(list)
-    for row in valid_rows:
-        by_date[row["trade_date"]].append(row)
-    ic_rows = []
-    for trade_date, rows in sorted(by_date.items()):
-        if len(rows) < 3:
-            continue
-        factor_values = [float(row["factor_value"]) for row in rows]
-        returns = [float(row["forward_return_5d"]) for row in rows]
-        rank_ic = correlation(rank(factor_values), rank(returns))
-        ic_rows.append({"trade_date": trade_date, "rank_ic_5d": f"{rank_ic:.6f}", "sample_count": str(len(rows))})
+    ic_rows = build_rank_ic_rows(valid_rows)
     write_csv(SAMPLE_DIR / "rank_ic_timeseries.csv", ["trade_date", "rank_ic_5d", "sample_count"], ic_rows)
 
     rank_ic_values = [float(row["rank_ic_5d"]) for row in ic_rows]
     avg_rank_ic = mean(rank_ic_values) if rank_ic_values else 0.0
+    nonzero_rank_ic_count = sum(abs(value) > 1e-12 for value in rank_ic_values)
     group_spread = float(group_rows[-1]["avg_forward_return_5d"]) - float(group_rows[0]["avg_forward_return_5d"])
     win_rate = (
         sum(1 for row in valid_rows if float(row["forward_return_5d"]) > 0) / len(valid_rows)
@@ -618,7 +663,17 @@ def build_backtest_outputs(factor_rows: list[dict[str, str]]) -> None:
         {
             "metric": "avg_rank_ic_5d",
             "value": f"{avg_rank_ic:.6f}",
-            "description": "按事件入场日计算的 Rank IC 均值",
+            "description": "按交易日全股票行业中性横截面计算的 Rank IC 均值",
+        },
+        {
+            "metric": "rank_ic_valid_date_count",
+            "value": str(len(rank_ic_values)),
+            "description": "具备有效因子差异和未来收益的 Rank IC 截面数",
+        },
+        {
+            "metric": "rank_ic_nonzero_date_count",
+            "value": str(nonzero_rank_ic_count),
+            "description": "Rank IC 非零截面数",
         },
         {
             "metric": "top_bottom_group_spread_5d",

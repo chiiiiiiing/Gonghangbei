@@ -128,6 +128,7 @@ SYSTEM_PROMPT = """你是 AlphaLens 的金融文本研究助手。你的职责�
 5. 候选规则只能组合给定谓词，不能包含收益方向、目标价或买卖建议。
 6. 候选规则状态永远是待统计验证，不能声称已经有效。
 7. 信息不足时降低置信度并明确说明，不得编造公司关联。
+8. 只输出一个合法 JSON 对象，不要输出 Markdown、代码块或 JSON 之外的说明文字。
 """
 
 
@@ -164,6 +165,7 @@ def build_analysis_messages(
             "判断全部 19 个谓词",
             "提出最多 3 条等待历史统计验证的候选组合规则",
         ],
+        "output_contract": "只返回合法 JSON object，必须包含 summary、event、related_stocks、predicates、candidate_rules。",
     }
     return [
         {"role": "system", "content": SYSTEM_PROMPT},

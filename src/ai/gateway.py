@@ -17,6 +17,32 @@ ROOT = Path(__file__).resolve().parents[2]
 class AIServiceError(RuntimeError):
     """Raised when a configured model endpoint cannot complete a request."""
 
+    def __init__(self, message: str, status_code: int | None = None) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+
+
+def _http_error_message(status_code: int, detail: str) -> str:
+    provider_message = ""
+    try:
+        payload = json.loads(detail)
+        error = payload.get("error", {}) if isinstance(payload, dict) else {}
+        if isinstance(error, dict):
+            provider_message = str(error.get("message", "")).strip()
+        elif error:
+            provider_message = str(error).strip()
+    except json.JSONDecodeError:
+        provider_message = detail.strip()
+
+    common = {
+        401: "DeepSeek API Key 无效或已失效，请重新复制平台中的 Key",
+        402: "DeepSeek 账户余额不足，请充值后重试",
+        403: "当前 API Key 没有该模型的访问权限",
+        429: "DeepSeek 请求频率过高，请稍后重试",
+    }
+    message = common.get(status_code, f"DeepSeek 接口返回 HTTP {status_code}")
+    return f"{message}：{provider_message[:300]}" if provider_message else message
+
 
 def _load_local_env() -> dict[str, str]:
     values: dict[str, str] = {}
@@ -112,7 +138,7 @@ class OpenAICompatibleGateway:
                 return json.loads(response.read().decode("utf-8"))
         except HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")[:500]
-            raise AIServiceError(f"模型接口 HTTP {exc.code}: {detail}") from exc
+            raise AIServiceError(_http_error_message(exc.code, detail), status_code=exc.code) from exc
         except (URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise AIServiceError(f"模型接口不可用: {exc}") from exc
 
@@ -138,24 +164,43 @@ class OpenAICompatibleGateway:
             "model": self.settings.chat_model,
             "messages": messages,
             "response_format": response_format,
+            "max_tokens": 8192,
+            "stream": False,
         }
         if self.settings.provider == "deepseek":
             payload["thinking"] = {"type": "disabled"}
         try:
             response = self._post("chat/completions", payload)
         except AIServiceError as exc:
-            if response_format["type"] != "json_schema" or "HTTP 4" not in str(exc):
+            if response_format["type"] != "json_schema" or not (
+                exc.status_code is not None and 400 <= exc.status_code < 500
+            ):
                 raise
             response_format = {"type": "json_object"}
             payload["response_format"] = response_format
             response = self._post("chat/completions", payload)
-        try:
-            content = response["choices"][0]["message"]["content"]
-            if isinstance(content, list):
-                content = "".join(str(item.get("text", "")) for item in content if isinstance(item, dict))
-            parsed = _parse_json_content(str(content))
-        except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
-            raise AIServiceError("模型未返回可解析的结构化 JSON") from exc
+        parsed: dict[str, Any] | None = None
+        parse_error: Exception | None = None
+        for attempt in range(2):
+            try:
+                content = response["choices"][0]["message"]["content"]
+                if isinstance(content, list):
+                    content = "".join(str(item.get("text", "")) for item in content if isinstance(item, dict))
+                parsed = _parse_json_content(str(content))
+                break
+            except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+                parse_error = exc
+                if attempt == 0:
+                    payload["messages"] = [
+                        *messages,
+                        {
+                            "role": "user",
+                            "content": "上一条输出为空或不是合法 JSON。请重新只输出一个完整 JSON object，不要输出其他文字。",
+                        },
+                    ]
+                    response = self._post("chat/completions", payload)
+        if parsed is None:
+            raise AIServiceError("DeepSeek 连续两次未返回可解析的结构化 JSON，请重试") from parse_error
         metadata = {
             "request_id": response.get("id", ""),
             "model": response.get("model", self.settings.chat_model),
