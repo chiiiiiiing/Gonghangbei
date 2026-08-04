@@ -29,6 +29,10 @@ data/raw/
 data/processed/
 data/external/
 
+# 项目过程状态仅本地维护
+查看材料/任务进度.md
+查看材料/人工待办.md
+
 # Temp and output
 *.tmp
 tmp/

@@ -14,6 +14,9 @@ from datetime import datetime
 from pathlib import Path
 from statistics import mean
 
+from src.pipeline.ground_predicates_rule_based import ground_predicates
+from src.research.scoring import beta_impact_probability, transparent_rule_score
+
 
 ROOT = Path(__file__).resolve().parents[2]
 SAMPLE_DIR = ROOT / "data" / "sample"
@@ -195,6 +198,45 @@ def build_excess_returns(
     return excess
 
 
+def build_event_type_impact_priors(
+    forward_by_event: dict[str, dict[str, str]],
+) -> list[dict[str, str]]:
+    """Calibrate numeric impact predicates on Discovery documents only."""
+    excess_by_event = build_excess_returns(forward_by_event)
+    grouped: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
+    for event in read_csv("events.csv"):
+        if event["event_time"] > DISCOVERY_END_DATE or event["event_id"] not in excess_by_event:
+            continue
+        grouped[event["event_type"]][event["doc_id"]].append(excess_by_event[event["event_id"]])
+    rows: list[dict[str, str]] = []
+    for event_type in sorted(grouped):
+        document_returns = [mean(values) for values in grouped[event_type].values()]
+        hit_count = sum(abs(value) >= 0.02 for value in document_returns)
+        rows.append(
+            {
+                "event_type": event_type,
+                "independent_document_count": str(len(document_returns)),
+                "impact_hit_count": str(hit_count),
+                "impact_threshold": "0.020000",
+                "posterior_impact_probability": f"{beta_impact_probability(hit_count, len(document_returns)):.6f}",
+                "calibration_split": "discovery_2024_2025",
+            }
+        )
+    write_csv(
+        SAMPLE_DIR / "event_type_impact_priors.csv",
+        [
+            "event_type",
+            "independent_document_count",
+            "impact_hit_count",
+            "impact_threshold",
+            "posterior_impact_probability",
+            "calibration_split",
+        ],
+        rows,
+    )
+    return rows
+
+
 def build_market_excess_returns() -> dict[tuple[str, str], float]:
     stocks = {row["stock_code"]: row for row in read_csv("stock_pool.csv")}
     raw_returns = build_market_forward_returns()
@@ -294,6 +336,8 @@ def evaluate_rule_candidate(
     forward_by_event: dict[str, dict[str, str]],
     excess_by_event: dict[str, float],
     predicate_names: tuple[str, ...],
+    global_return: float,
+    global_return_scale: float,
 ) -> dict[str, object] | None:
     matched = [
         row
@@ -322,10 +366,28 @@ def evaluate_rule_candidate(
     stock_count = len({row["stock_code"] for row in eligible})
     date_count = len({row["event_time"] for row in eligible})
     event_ids = frozenset(row["event_id"] for row in eligible)
-    coverage_bonus = min(support_count / 20.0, 1.0) * 0.18
-    diversity_bonus = min(stock_count / 10.0, 1.0) * 0.10
-    evidence_bonus = avg_evidence * 0.12
-    score = win_rate * 0.45 + max(avg_return, 0.0) * 5.0 + coverage_bonus + diversity_bonus + evidence_bonus
+    document_period = {
+        row["doc_id"]: f"{row['event_time'][:4]}H{'1' if int(row['event_time'][5:7]) <= 6 else '2'}"
+        for row in eligible
+    }
+    period_values: dict[str, list[float]] = defaultdict(list)
+    for doc_id, values in by_document.items():
+        period_values[document_period[doc_id]].append(mean(values))
+    positive_period_count = sum(mean(values) > 0 for values in period_values.values())
+    score_components = transparent_rule_score(
+        positive_count=positive_count,
+        support_count=support_count,
+        avg_return=avg_return,
+        global_return=global_return,
+        global_return_scale=global_return_scale,
+        positive_period_count=positive_period_count,
+        period_count=len(period_values),
+        document_count=len(by_document),
+        stock_count=stock_count,
+        avg_evidence=avg_evidence,
+        term_count=len(predicate_names),
+    )
+    score = score_components["score"]
     qualified = (
         support_count >= MIN_RULE_OCCURRENCES
         and win_rate >= MIN_RULE_WIN_RATE
@@ -346,6 +408,9 @@ def evaluate_rule_candidate(
         "stock_count": stock_count,
         "document_count": len(by_document),
         "date_count": date_count,
+        "positive_period_count": positive_period_count,
+        "period_count": len(period_values),
+        "score_components": score_components,
         "score": score,
         "status": "qualified" if qualified else "candidate",
     }
@@ -356,6 +421,17 @@ def generate_rule_defs(
     forward_by_event: dict[str, dict[str, str]],
 ) -> list[dict[str, object]]:
     excess_by_event = build_excess_returns(forward_by_event)
+    discovery_by_document: dict[str, list[float]] = defaultdict(list)
+    for row in matrix:
+        if is_discovery_event(row) and row["event_id"] in excess_by_event:
+            discovery_by_document[row["doc_id"]].append(excess_by_event[row["event_id"]])
+    global_values = [mean(values) for values in discovery_by_document.values()]
+    global_return = mean_float(global_values)
+    global_return_scale = (
+        math.sqrt(mean([(value - global_return) ** 2 for value in global_values]))
+        if global_values
+        else 0.01
+    )
     active_predicates = [
         predicate_name
         for predicate_name in BOOLEAN_PREDICATE_COLUMNS
@@ -364,7 +440,14 @@ def generate_rule_defs(
     candidates: list[dict[str, object]] = []
     for term_count in range(2, MAX_RULE_TERMS + 1):
         for predicate_names in itertools.combinations(active_predicates, term_count):
-            candidate = evaluate_rule_candidate(matrix, forward_by_event, excess_by_event, predicate_names)
+            candidate = evaluate_rule_candidate(
+                matrix,
+                forward_by_event,
+                excess_by_event,
+                predicate_names,
+                global_return,
+                global_return_scale,
+            )
             if candidate:
                 candidates.append(candidate)
 
@@ -410,6 +493,9 @@ def generate_rule_defs(
                 "positive_count": candidate["positive_count"],
                 "win_rate": candidate["win_rate"],
                 "avg_return": candidate["avg_return"],
+                "positive_period_count": candidate["positive_period_count"],
+                "period_count": candidate["period_count"],
+                "score_components": candidate["score_components"],
                 "score": candidate["score"],
                 "status": candidate["status"],
             }
@@ -480,6 +566,13 @@ def build_rules(
                 "discovery_avg_excess_return_5d": f"{mean_float(discovery_values):.6f}",
                 "oos_document_count": str(len({row["doc_id"] for row in oos_rows})),
                 "oos_avg_excess_return_5d": f"{mean_float(oos_values):.6f}",
+                "posterior_win_rate": f"{float(rule_def['score_components']['posterior_win_rate']):.6f}",
+                "shrunk_return": f"{float(rule_def['score_components']['shrunk_return']):.6f}",
+                "return_component": f"{float(rule_def['score_components']['return_component']):.6f}",
+                "half_year_stability": f"{float(rule_def['score_components']['stability']):.6f}",
+                "coverage_component": f"{float(rule_def['score_components']['coverage']):.6f}",
+                "evidence_component": f"{float(rule_def['score_components']['evidence_component']):.6f}",
+                "complexity_penalty": f"{float(rule_def['score_components']['complexity_penalty']):.6f}",
                 "status": str(rule_def["status"]),
             }
         )
@@ -493,6 +586,13 @@ def build_rules(
             "discovery_avg_excess_return_5d",
             "oos_document_count",
             "oos_avg_excess_return_5d",
+            "posterior_win_rate",
+            "shrunk_return",
+            "return_component",
+            "half_year_stability",
+            "coverage_component",
+            "evidence_component",
+            "complexity_penalty",
             "status",
         ],
         diagnostic_rows,
@@ -883,8 +983,10 @@ def build_backtest_outputs(factor_rows: list[dict[str, str]]) -> None:
 
 
 def main() -> None:
-    matrix = build_predicate_matrix()
     forward_by_event = compute_forward_returns()
+    build_event_type_impact_priors(forward_by_event)
+    ground_predicates()
+    matrix = build_predicate_matrix()
     rules, rule_defs_by_id = build_rules(matrix, forward_by_event)
     factor_rows = build_event_factors(matrix, rules, rule_defs_by_id, forward_by_event)
     build_factor_snapshot(matrix, rules, rule_defs_by_id)

@@ -3,13 +3,23 @@ from __future__ import annotations
 import hashlib
 import unittest
 import csv
+import json
+import tempfile
 from copy import deepcopy
 from datetime import datetime
+from pathlib import Path
 
 from app.server import SAMPLE_DIR, app, load_replay_cases
-from src.ai.gateway import AIServiceError
+from src.ai.gateway import AIServiceError, AISettings, OpenAICompatibleGateway
 from src.ai.research_layer import AIResearchLayer, validate_ai_output
-from src.pipeline.live_analysis import build_predicate_consensus, rule_matches
+from src.ingestion.text_import import FIELDS, stage_manifest
+from src.pipeline.live_analysis import (
+    build_entity_consensus,
+    build_event_consensus,
+    build_predicate_consensus,
+    rule_matches,
+)
+from src.research.scoring import beta_impact_probability, evidence_score_breakdown
 
 
 class AlphaLensAcceptanceTests(unittest.TestCase):
@@ -26,6 +36,8 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         payload = response.get_json()
         self.assertTrue(payload["is_replay"])
         self.assertEqual(payload["replay_metadata"]["provenance"], "curated_demo_fixture_not_live_api")
+        self.assertTrue(payload["consensus_gate_passed"])
+        self.assertEqual(payload["disputed_predicates"], [])
 
     def test_ai_check_requires_key_without_retaining_credentials(self) -> None:
         response = self.client.post("/api/ai/check", json={})
@@ -54,6 +66,38 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
                 case["request"],
                 self._stock_pool(),
             )
+
+    def test_live_ai_requires_per_stock_predicates(self) -> None:
+        case = deepcopy(self.replay_case)
+        case["ai_output"].pop("stock_analyses")
+        with self.assertRaises(AIServiceError):
+            validate_ai_output(
+                case["ai_output"],
+                case["request"],
+                self._stock_pool(),
+                require_stock_level=True,
+            )
+
+    def test_model_identity_mismatch_is_rejected(self) -> None:
+        settings = AISettings(
+            mode="api",
+            base_url="https://api.deepseek.com",
+            api_key="test-key",
+            chat_model="deepseek-v4-flash",
+            embedding_model="",
+            timeout_seconds=1,
+            json_mode="object",
+        )
+
+        class MismatchGateway(OpenAICompatibleGateway):
+            def _get(self, path):
+                return {"data": [{"id": "deepseek-v4-flash", "owned_by": "deepseek"}]}
+
+            def _post(self, path, payload):
+                return {"id": "request-test", "model": "deepseek-v4-pro"}
+
+        with self.assertRaises(AIServiceError):
+            MismatchGateway(settings).check_connection()
 
     def test_invalid_event_type_is_repaired_by_second_ai_call(self) -> None:
         valid_output = deepcopy(self.replay_case["ai_output"])
@@ -134,6 +178,44 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
             )
         )
 
+    def test_event_and_entity_gates_fail_closed(self) -> None:
+        event_gate = build_event_consensus(
+            "policy_support",
+            {"event_type": "attention_spread", "evidence_grounded": True},
+        )
+        self.assertEqual(event_gate["status"], "disputed")
+        self.assertFalse(event_gate["accepted"])
+        entity_gate = build_entity_consensus(
+            {
+                "stock_code": "605117",
+                "evidence": "产业主题映射",
+            },
+            {
+                "relationship_grounded": False,
+                "relationship_confidence": 0.99,
+                "relationship_evidence": "不存在于原文",
+            },
+        )
+        self.assertFalse(entity_gate["accepted"])
+
+    def test_evidence_score_uses_conservative_ai_minimum(self) -> None:
+        document = {
+            "source_type": "policy",
+            "source_name": "国家能源局",
+            "title": "关于印发储能建设行动方案的通知",
+            "content": "国家能源局印发储能建设行动方案，项目规模为 10GWh。",
+        }
+        event = {"evidence_text": "国家能源局印发储能建设行动方案"}
+        entity = {"stock_name": "德业股份", "evidence": "产业主题映射\"储能\"→储能"}
+        result = evidence_score_breakdown(
+            document,
+            event,
+            entity,
+            {"evidence_grounding": 0.2, "information_specificity": 1, "business_relevance": 1},
+        )
+        self.assertEqual(result["final_components"]["evidence_grounding"], 0.2)
+        self.assertEqual(beta_impact_probability(1, 17), 3 / 21)
+
     def test_oos_is_separate_and_truthfully_insufficient(self) -> None:
         payload = self.client.get("/api/backtest").get_json()
         self.assertIn("discovery", payload["splits"])
@@ -154,6 +236,38 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.client.get("/api/backtest")
         after = hashlib.sha256(raw_path.read_bytes()).hexdigest()
         self.assertEqual(before, after)
+
+    def test_text_manifest_stages_without_touching_raw_input(self) -> None:
+        before = hashlib.sha256((SAMPLE_DIR / "raw_documents.csv").read_bytes()).hexdigest()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = root / "manifest.csv"
+            with manifest.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=FIELDS, lineterminator="\n")
+                writer.writeheader()
+                writer.writerow(
+                    {
+                        "doc_id": "REAL-001",
+                        "source_type": "policy",
+                        "title": "关于新能源项目建设的正式通知",
+                        "content": "原文摘要：主管部门发布新能源项目建设正式通知，并明确项目范围、执行日期和责任单位。",
+                        "publish_time": "2025-01-02",
+                        "source_name": "政府网站",
+                        "url": "https://example.gov.cn/policy/real-001.html",
+                    }
+                )
+            staged = stage_manifest(manifest, root / "staging")
+            self.assertTrue(staged.exists())
+            report = json.loads((root / "staging" / "文本导入校验报告.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["status"], "pass")
+        after = hashlib.sha256((SAMPLE_DIR / "raw_documents.csv").read_bytes()).hexdigest()
+        self.assertEqual(before, after)
+
+    def test_homepage_does_not_show_audit_versions(self) -> None:
+        html = (Path(__file__).resolve().parents[1] / "app" / "index.html").read_text(encoding="utf-8")
+        self.assertNotIn("Git", html)
+        self.assertNotIn("Prompt", html)
+        self.assertNotIn("原始文本", html)
 
     def test_locked_csv_headers_and_basic_formats(self) -> None:
         schemas = {

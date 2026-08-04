@@ -1,0 +1,3 @@
+event_type,independent_document_count,impact_hit_count,impact_threshold,posterior_impact_probability,calibration_split
+attention_spread,8,0,0.020000,0.166667,discovery_2024_2025
+policy_support,17,1,0.020000,0.142857,discovery_2024_2025

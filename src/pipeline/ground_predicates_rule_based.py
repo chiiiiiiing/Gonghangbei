@@ -7,6 +7,8 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from src.research.scoring import load_impact_priors
+
 
 ROOT = Path(__file__).resolve().parents[2]
 SAMPLE_DIR = ROOT / "data" / "sample"
@@ -41,19 +43,6 @@ CORE_PRODUCT_KEYWORDS = {
     "风电": ["风电", "海上风电", "风机", "叶片", "机组"],
     "储能": ["储能", "逆变器", "系统集成", "大储", "户储"],
     "整车": ["新能源汽车", "整车", "车型", "销量", "出口", "插混"],
-}
-
-
-PRICE_IMPACT_SCORE = {
-    "policy_support": 0.78,
-    "attention_spread": 0.68,
-    "capacity_expansion": 0.63,
-    "product_price_increase": 0.66,
-    "investor_question_pressure": 0.50,
-    "regulatory_penalty": 0.62,
-    "inquiry_letter_pressure": 0.58,
-    "earnings_quality_anomaly": 0.64,
-    "supply_chain_disruption": 0.61,
 }
 
 
@@ -115,6 +104,7 @@ def ground_event_predicates(
     doc: dict[str, str],
     sector: str,
     temporal_flags: dict[str, bool] | None = None,
+    impact_prior: float | None = None,
 ) -> list[dict[str, object]]:
     """Ground the locked predicate schema for one event without writing files."""
     rows: list[dict[str, object]] = []
@@ -210,9 +200,9 @@ def ground_event_predicates(
         rows,
         event["event_id"],
         "event_has_short_term_price_impact",
-        f"{PRICE_IMPACT_SCORE.get(event_type, 0.55):.2f}",
+        f"{(impact_prior if impact_prior is not None else load_impact_priors().get(event_type, 0.50)):.2f}",
         0.70,
-        "基于事件类型的先验市场反应强度，用于规则归纳初始特征",
+        "基于 Discovery 同类事件绝对行业超额收益的 Beta 后验概率",
     )
     return rows
 

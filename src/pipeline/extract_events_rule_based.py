@@ -7,6 +7,8 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from src.research.scoring import evidence_score_breakdown
+
 
 ROOT = Path(__file__).resolve().parents[2]
 SAMPLE_DIR = ROOT / "data" / "sample"
@@ -27,14 +29,6 @@ IMPACT_PATH_BY_SECTOR = {
     "风电": "项目核准/招标改善→风机订单与交付→设备链关注提升",
     "储能": "新型储能建设→系统集成与逆变器需求→订单关注提升",
     "整车": "政策活动/需求变化→终端销量关注→整车与电池链条联动",
-}
-
-
-SOURCE_STRENGTH = {
-    "policy": 0.92,
-    "announcement": 0.88,
-    "news": 0.76,
-    "ir_qa": 0.72,
 }
 
 
@@ -181,23 +175,20 @@ def extract_events() -> list[dict[str, object]]:
             if current_event_type is None:
                 continue
             sector = link["industry"]
-            strength = SOURCE_STRENGTH[doc["source_type"]]
-            if current_event_type in {"policy_support", "capacity_expansion"}:
-                strength += 0.02
-            rows.append(
-                {
-                    "event_id": current_event_id,
-                    "doc_id": doc_id,
-                    "stock_code": link["stock_code"],
-                    "event_type": current_event_type,
-                    "event_time": doc["publish_time"],
-                    "subject": infer_subject(doc),
-                    "object": CORE_OBJECT_BY_SECTOR[sector],
-                    "impact_path": IMPACT_PATH_BY_SECTOR[sector],
-                    "evidence_text": evidence_sentence(doc, link["stock_name"]),
-                    "evidence_strength": f"{min(strength, 0.98):.2f}",
-                }
-            )
+            event = {
+                "event_id": current_event_id,
+                "doc_id": doc_id,
+                "stock_code": link["stock_code"],
+                "event_type": current_event_type,
+                "event_time": doc["publish_time"],
+                "subject": infer_subject(doc),
+                "object": CORE_OBJECT_BY_SECTOR[sector],
+                "impact_path": IMPACT_PATH_BY_SECTOR[sector],
+                "evidence_text": evidence_sentence(doc, link["stock_name"]),
+            }
+            breakdown = evidence_score_breakdown(doc, event, link)
+            event["evidence_strength"] = f"{breakdown['score']:.2f}"
+            rows.append(event)
     return rows
 
 

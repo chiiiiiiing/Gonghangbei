@@ -1,0 +1,2 @@
+# 可选：本地中文语义检索。主流程在未安装时自动降级到字符 n-gram。
+sentence-transformers>=2.7,<4

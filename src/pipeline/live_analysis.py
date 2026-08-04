@@ -10,7 +10,6 @@ from src.backtest.demo_engine import factor_name_for_labels
 from src.pipeline.extract_events_rule_based import (
     CORE_OBJECT_BY_SECTOR,
     IMPACT_PATH_BY_SECTOR,
-    SOURCE_STRENGTH,
     evidence_sentence,
     infer_event_type,
     infer_subject,
@@ -23,9 +22,68 @@ from src.pipeline.link_entities import (
     build_alias_rows,
     confidence_for_match,
 )
+from src.research.scoring import evidence_score_breakdown, load_impact_priors
 
 
 SOURCE_TYPES = {"policy", "announcement", "news", "ir_qa"}
+
+
+def build_event_consensus(
+    deterministic_type: str | None,
+    ai_event: dict[str, Any],
+) -> dict[str, Any]:
+    """Compare the event type before allowing predicates or rules to run."""
+    ai_type = str(ai_event.get("event_type", "")).strip()
+    grounded = bool(ai_event.get("evidence_grounded"))
+    if not ai_type or not grounded:
+        status = "invalid"
+        accepted_type = None
+    elif deterministic_type is None:
+        status = "ai_validated"
+        accepted_type = ai_type
+    elif deterministic_type == ai_type:
+        status = "agreed"
+        accepted_type = deterministic_type
+    else:
+        status = "disputed"
+        accepted_type = None
+    return {
+        "deterministic_event_type": deterministic_type or "",
+        "ai_event_type": ai_type,
+        "ai_evidence_grounded": grounded,
+        "status": status,
+        "accepted": accepted_type is not None,
+        "accepted_event_type": accepted_type or "",
+    }
+
+
+def build_entity_consensus(
+    entity: dict[str, Any],
+    ai_stock_analysis: dict[str, Any] | None,
+    *,
+    legacy_document_predicates: bool = False,
+) -> dict[str, Any]:
+    """Require a grounded AI relationship for live v2 stock-level analysis."""
+    if ai_stock_analysis is None:
+        status = "legacy_validated" if legacy_document_predicates else "invalid"
+        return {
+            "stock_code": entity["stock_code"],
+            "status": status,
+            "accepted": legacy_document_predicates,
+            "deterministic_evidence": entity["evidence"],
+            "ai_evidence": "",
+        }
+    grounded = bool(ai_stock_analysis.get("relationship_grounded"))
+    confidence = float(ai_stock_analysis.get("relationship_confidence", 0.0))
+    accepted = grounded and confidence >= 0.50
+    return {
+        "stock_code": entity["stock_code"],
+        "status": "agreed" if accepted else "invalid",
+        "accepted": accepted,
+        "deterministic_evidence": entity["evidence"],
+        "ai_evidence": ai_stock_analysis.get("relationship_evidence", ""),
+        "ai_confidence": confidence,
+    }
 
 
 def infer_source_type(title: str, content: str, source_name: str) -> str:
@@ -240,12 +298,14 @@ def analyze_new_document(
             "reason": "AI 研究层不可用",
             "result": None,
         }
-    event_type = infer_event_type(doc)
+    deterministic_event_type = infer_event_type(doc)
     entities = link_document(doc, stock_pool)
     ai_result = ai_analysis.get("result") if isinstance(ai_analysis, dict) else None
     ai_event = ai_result.get("event", {}) if isinstance(ai_result, dict) else {}
-    if event_type is None and ai_event.get("evidence_grounded"):
-        event_type = ai_event.get("event_type")
+    event_consensus = build_event_consensus(deterministic_event_type, ai_event)
+    event_type = deterministic_event_type
+    if isinstance(ai_result, dict):
+        event_type = event_consensus["accepted_event_type"] or None
     if not entities and isinstance(ai_result, dict):
         stocks_by_code = {row["stock_code"]: row for row in stock_pool}
         for candidate in ai_result.get("related_stocks", []):
@@ -265,10 +325,11 @@ def analyze_new_document(
             )
     if event_type is None:
         return {
-            "error": "未检测到明确的金融事件",
+            "error": "事件一致性门控未通过，未生成候选因子",
             "entities": entities,
             "source_type": source_type,
             "ai_analysis": ai_analysis,
+            "event_consensus": event_consensus,
         }
     if not entities:
         return {
@@ -278,16 +339,26 @@ def analyze_new_document(
             "ai_analysis": ai_analysis,
         }
 
-    evidence_strength = SOURCE_STRENGTH[source_type]
-    if event_type in {"policy_support", "capacity_expansion"}:
-        evidence_strength += 0.02
-    evidence_strength = min(evidence_strength, 0.98)
     qualified_rules = [rule for rule in rules if rule["status"] == "qualified" and int(rule["support_count"]) >= 5]
     stock_results: list[dict[str, Any]] = []
     all_rules: dict[str, dict[str, Any]] = {}
     event_trace: list[dict[str, Any]] = []
 
+    ai_stock_by_code = {
+        str(row.get("code", "")): row
+        for row in (ai_result.get("stock_analyses", []) if isinstance(ai_result, dict) else [])
+        if isinstance(row, dict)
+    }
+    legacy_ai_predicates = list(ai_result.get("predicates", [])) if isinstance(ai_result, dict) else []
+    impact_priors = load_impact_priors()
+
     for index, entity in enumerate(entities, start=1):
+        ai_stock = ai_stock_by_code.get(entity["stock_code"])
+        entity_consensus = build_entity_consensus(
+            entity,
+            ai_stock,
+            legacy_document_predicates=bool(legacy_ai_predicates),
+        )
         event = {
             "event_id": f"LIVE-E{index:03d}",
             "doc_id": doc["doc_id"],
@@ -298,19 +369,37 @@ def analyze_new_document(
             "object": CORE_OBJECT_BY_SECTOR[entity["industry"]],
             "impact_path": IMPACT_PATH_BY_SECTOR[entity["industry"]],
             "evidence_text": evidence_sentence(doc, entity["stock_name"]),
-            "evidence_strength": f"{evidence_strength:.2f}",
         }
-        predicate_rows = ground_event_predicates(event, doc, entity["industry"])
+        score_breakdown = evidence_score_breakdown(
+            doc,
+            event,
+            entity,
+            ai_stock.get("score_components", {}) if ai_stock else {},
+        )
+        evidence_strength = float(score_breakdown["score"])
+        event["evidence_strength"] = f"{evidence_strength:.2f}"
+        predicate_rows = ground_event_predicates(
+            event,
+            doc,
+            entity["industry"],
+            impact_prior=impact_priors.get(event_type, 0.50),
+        )
         deterministic_map = {str(row["predicate_name"]): str(row["value"]) for row in predicate_rows}
         if isinstance(ai_result, dict):
+            ai_predicates = list(ai_stock.get("predicates", [])) if ai_stock else legacy_ai_predicates
             consensus, predicate_map = build_predicate_consensus(
                 predicate_rows,
-                list(ai_result.get("predicates", [])),
+                ai_predicates,
             )
         else:
             consensus = []
             predicate_map = deterministic_map
-        triggered = [rule for rule in qualified_rules if rule_matches(rule, predicate_map, event_type)]
+        gate_open = event_consensus["accepted"] and entity_consensus["accepted"]
+        triggered = (
+            [rule for rule in qualified_rules if rule_matches(rule, predicate_map, event_type)]
+            if gate_open
+            else []
+        )
         best_by_family: dict[str, dict[str, str]] = {}
         for rule in triggered:
             family = rule["target_label"]
@@ -344,6 +433,7 @@ def analyze_new_document(
                 "sector": entity["industry"],
                 "confidence": entity["confidence"],
                 "link_evidence": entity["evidence"],
+                "entity_consensus": entity_consensus,
                 "factor_name": factor_name_for_labels(labels),
                 "candidate_factor": round(factor_value, 6),
                 "raw_score": round(raw_score, 6),
@@ -357,6 +447,7 @@ def analyze_new_document(
                     "result": round(factor_value, 6),
                     "consensus_mode": "ai_rule_agreement" if isinstance(ai_result, dict) else "rule_only",
                 },
+                "evidence_score_breakdown": score_breakdown,
                 "predicates": serialize_predicates(predicate_rows),
                 "predicate_consensus": consensus,
                 "triggered_rules": rule_rows,
@@ -377,7 +468,10 @@ def analyze_new_document(
     return {
         "event_type": event_type,
         "event_time": event_date,
-        "evidence_strength": round(evidence_strength, 2),
+        "evidence_strength": round(
+            max((float(stock["event"]["evidence_strength"]) for stock in stock_results), default=0.0),
+            2,
+        ),
         "source_type": source_type,
         "source_name": source_name,
         "source_url": doc["url"],
@@ -387,7 +481,14 @@ def analyze_new_document(
         "triggered_rules": list(all_rules.values()),
         "analysis_mode": "hybrid_ai_rule_validation" if ai_analysis.get("used") else "deterministic_rule_only",
         "ai_analysis": ai_analysis,
+        "event_consensus": event_consensus,
+        "entity_consensus": [stock["entity_consensus"] for stock in stock_results],
         "predicate_consensus": stock_results[0].get("predicate_consensus", []) if stock_results else [],
         "disputed_predicates": disputed,
-        "consensus_gate_passed": bool(ai_analysis.get("used")) and not disputed,
+        "consensus_gate_passed": (
+            bool(ai_analysis.get("used"))
+            and event_consensus["accepted"]
+            and all(stock["entity_consensus"]["accepted"] for stock in stock_results)
+            and not disputed
+        ),
     }

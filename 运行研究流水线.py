@@ -7,7 +7,6 @@ from pathlib import Path
 
 from src.backtest.demo_engine import main as build_research_outputs
 from src.pipeline.extract_events_rule_based import main as extract_events
-from src.pipeline.ground_predicates_rule_based import main as ground_predicates
 from src.pipeline.link_entities import main as link_entities
 
 
@@ -27,7 +26,6 @@ def main() -> None:
     before = file_hash(RAW_DOCUMENTS)
     link_entities()
     extract_events()
-    ground_predicates()
     build_research_outputs()
     after = file_hash(RAW_DOCUMENTS)
     if before != after:

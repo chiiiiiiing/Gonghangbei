@@ -6,7 +6,7 @@ AlphaLens 将政策、公告、财经新闻和互动问答等非结构化文本�
 
 ## 启动
 
-需要 Python 3.10 或更高版本。在当前目录执行：
+需要 Python 3.9 或更高版本。在当前目录执行：
 
 ```bash
 python3 -m venv .venv
@@ -29,7 +29,8 @@ python3 -m venv .venv
 ## 关键保证
 
 - 实时模式缺少 Key、API 失败或模型未返回完整 19 个谓词时直接报错。
-- 只有 AI 和确定性程序同时判定为真的 `agreed_true` 谓词可以触发冻结规则。
+- 系统先后执行事件、实体关系和逐股票谓词三层门控；只有 `agreed_true` 谓词可以触发冻结规则。
+- API 检查同时核对 `/models` 权限和聊天接口实际返回的模型名；返回 Pro 或其他模型时拒绝结果。
 - Discovery 与 OOS 分开展示；当前 OOS 有效日期过少，页面明确判定为“证据不足”。
 - 规则支持度按独立 `doc_id`、日期和股票覆盖共同判定，一份政策映射多只股票仍只计一份文档。
 - 回测使用行业等权超额收益，按交易日做横截面五组分组和 Rank IC。
@@ -45,6 +46,36 @@ python3 -m venv .venv
 
 该入口不生成 `raw_documents.csv`，并在重算前后强制比对 SHA-256，防止覆盖人工核验成果。
 
+## 可选能力
+
+本地 BGE 语义检索：
+
+```bash
+.venv/bin/pip install -r requirements-ai.txt
+ALPHALENS_BGE_ALLOW_DOWNLOAD=1 .venv/bin/python 准备本地向量模型.py
+```
+
+未安装或未缓存 BGE 时，页面如实标记并降级到确定性字符 n-gram 检索。
+
+历史 DeepSeek 标注缓存：
+
+```bash
+DEEPSEEK_API_KEY=你的Key .venv/bin/python 批量生成AI标注.py --limit 10
+```
+
+真实文本和行情默认只写入 `data/external/` 暂存区；必须添加 `--apply` 才会替换输入：
+
+```bash
+.venv/bin/python 导入真实文本.py 核验后的采集清单.csv
+.venv/bin/python 导入真实文本.py 核验后的采集清单.csv --apply
+
+.venv/bin/pip install -r requirements-data.txt
+.venv/bin/python 更新真实行情.py --start 2024-01-01 --end 2026-06-30
+.venv/bin/python 更新真实行情.py --start 2024-01-01 --end 2026-06-30 --apply
+```
+
+行情接口请求前复权价格；按已确认口径，`adj_factor=1` 保留为占位字段并在审计页披露。
+
 ## 验证
 
 ```bash
@@ -55,12 +86,15 @@ python3 -m venv .venv
 ## 文件
 
 ```text
-├── app/                    # Flask API、网页和本地 Plotly
-├── src/                    # AI、文本抽取、谓词与回测源码
+├── app/                    # Flask API、独立前端资源和本地依赖
+├── src/                    # AI、文本抽取、数据导入、评分与回测源码
 ├── data/sample/            # 演示数据、回放和研究输出
 ├── tests/                  # 精简验收测试
 ├── 启动演示.py             # 统一启动入口
 ├── 运行研究流水线.py       # 保护原始文本的重算入口
+├── 导入真实文本.py         # 默认暂存的真实文本导入入口
+├── 更新真实行情.py         # 默认暂存的前复权行情入口
+├── 批量生成AI标注.py       # 可恢复的历史模型标注缓存
 ├── 技术文档.md
 ├── 第三方依赖说明.md
 ├── 原创性证明.md

@@ -25,6 +25,7 @@ if str(ROOT) not in sys.path:
 from src.ai.gateway import AIServiceError, AISettings  # noqa: E402
 from src.ai.research_layer import AIResearchLayer, validate_ai_output  # noqa: E402
 from src.pipeline.live_analysis import SOURCE_TYPES, analyze_new_document  # noqa: E402
+from src.research.scoring import SCORING_VERSION  # noqa: E402
 
 
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
@@ -206,6 +207,15 @@ def historical_backtest() -> dict[str, Any]:
             "independent_date_count": int(diagnostics.get(row["rule_id"], {}).get("independent_date_count", 0)),
             "oos_document_count": int(diagnostics.get(row["rule_id"], {}).get("oos_document_count", 0)),
             "oos_avg_excess_return_5d": float(diagnostics.get(row["rule_id"], {}).get("oos_avg_excess_return_5d", 0.0)),
+            "score_components": {
+                "posterior_win_rate": float(diagnostics.get(row["rule_id"], {}).get("posterior_win_rate", 0.0)),
+                "shrunk_return": float(diagnostics.get(row["rule_id"], {}).get("shrunk_return", 0.0)),
+                "return_component": float(diagnostics.get(row["rule_id"], {}).get("return_component", 0.0)),
+                "half_year_stability": float(diagnostics.get(row["rule_id"], {}).get("half_year_stability", 0.0)),
+                "coverage": float(diagnostics.get(row["rule_id"], {}).get("coverage_component", 0.0)),
+                "evidence": float(diagnostics.get(row["rule_id"], {}).get("evidence_component", 0.0)),
+                "complexity_penalty": float(diagnostics.get(row["rule_id"], {}).get("complexity_penalty", 0.0)),
+            },
         }
         for row in read_csv("rules.csv")
         if row["status"] == "qualified"
@@ -299,6 +309,34 @@ def research_audit() -> dict[str, Any]:
     review_path = SAMPLE_DIR / "manual_review_summary.json"
     review = json.loads(review_path.read_text(encoding="utf-8")) if review_path.exists() else {}
     source_review = review.get("source_verification", {})
+    split_source_counts: dict[str, Counter[str]] = {
+        "discovery": Counter(),
+        "oos": Counter(),
+    }
+    for row in documents:
+        split = "discovery" if row["publish_time"] < "2026-01-01" else "oos"
+        split_source_counts[split][row["source_type"]] += 1
+    target_per_type = 25
+    split_coverage = {
+        split: {
+            source_type: {
+                "count": counts[source_type],
+                "target": target_per_type,
+                "remaining": max(target_per_type - counts[source_type], 0),
+                "status": "met" if counts[source_type] >= target_per_type else "insufficient",
+            }
+            for source_type in sorted(SOURCE_TYPES)
+        }
+        for split, counts in split_source_counts.items()
+    }
+    annotation_path = SAMPLE_DIR / "ai_annotations.jsonl"
+    annotation_records = []
+    if annotation_path.exists():
+        annotation_records = [
+            json.loads(line)
+            for line in annotation_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
     return {
         "counts": {
             "stocks": len(read_csv("stock_pool.csv")),
@@ -309,6 +347,7 @@ def research_audit() -> dict[str, Any]:
             "market_rows": len(market),
         },
         "source_type_counts": dict(sorted(Counter(row["source_type"] for row in documents).items())),
+        "split_source_coverage": split_coverage,
         "event_type_counts": dict(sorted(Counter(row["event_type"] for row in events).items())),
         "source_verification": {
             "automated_pass_count": int(source_review.get("automated_pass_count", len(documents))),
@@ -327,7 +366,16 @@ def research_audit() -> dict[str, Any]:
             "chat_model": "deepseek-v4-flash",
             "prompt_version": AI_LAYER.status()["prompt_version"],
             "rule_version": "R1",
+            "scoring_version": SCORING_VERSION,
             "repository_commit": repository_commit(),
+        },
+        "ai_annotation_cache": {
+            "success_count": sum(row.get("status") == "success" for row in annotation_records),
+            "failed_count": sum(row.get("status") == "failed" for row in annotation_records),
+            "document_count": len(documents),
+            "status": "complete"
+            if documents and sum(row.get("status") == "success" for row in annotation_records) >= len(documents)
+            else "incomplete",
         },
         "future_info_audit": historical_backtest()["metrics"].get("future_info_audit", "pending"),
         "disclaimer": DISCLAIMER,
@@ -461,6 +509,11 @@ def index():
 @app.get("/vendor/<path:filename>")
 def vendor(filename: str):
     return send_from_directory(APP_DIR / "vendor", filename)
+
+
+@app.get("/assets/<path:filename>")
+def assets(filename: str):
+    return send_from_directory(APP_DIR / "assets", filename)
 
 
 @app.get("/api/status")

@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 
@@ -142,6 +143,26 @@ class OpenAICompatibleGateway:
         except (URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise AIServiceError(f"模型接口不可用: {exc}") from exc
 
+    def _get(self, path: str) -> dict[str, Any]:
+        if not self.settings.enabled:
+            raise AIServiceError("模型网关尚未配置")
+        headers = {"Accept": "application/json"}
+        if self.settings.api_key:
+            headers["Authorization"] = f"Bearer {self.settings.api_key}"
+        request = Request(
+            f"{self.settings.base_url}/{path.lstrip('/')}",
+            headers=headers,
+            method="GET",
+        )
+        try:
+            with urlopen(request, timeout=self.settings.timeout_seconds) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")[:500]
+            raise AIServiceError(_http_error_message(exc.code, detail), status_code=exc.code) from exc
+        except (URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise AIServiceError(f"模型接口不可用: {exc}") from exc
+
     def chat_json(
         self,
         messages: list[dict[str, str]],
@@ -204,6 +225,7 @@ class OpenAICompatibleGateway:
         metadata = {
             "request_id": response.get("id", ""),
             "model": response.get("model", self.settings.chat_model),
+            "system_fingerprint": response.get("system_fingerprint", ""),
             "usage": response.get("usage", {}),
             "response_format": response_format["type"],
         }
@@ -229,7 +251,24 @@ class OpenAICompatibleGateway:
         }
 
     def check_connection(self) -> dict[str, Any]:
-        """Run a minimal authenticated request without retaining credentials."""
+        """Verify credentials, model entitlement and the model actually returned."""
+        model_payload = self._get("models")
+        models = model_payload.get("data", [])
+        if not isinstance(models, list):
+            raise AIServiceError("模型列表接口返回格式不合法")
+        model_record = next(
+            (
+                row
+                for row in models
+                if isinstance(row, dict) and row.get("id") == self.settings.chat_model
+            ),
+            None,
+        )
+        if model_record is None:
+            raise AIServiceError(
+                f"当前 Key 的模型列表不包含 {self.settings.chat_model}，不能确认 Flash 权限",
+                status_code=403,
+            )
         payload: dict[str, Any] = {
             "model": self.settings.chat_model,
             "messages": [
@@ -243,10 +282,19 @@ class OpenAICompatibleGateway:
         if self.settings.provider == "deepseek":
             payload["thinking"] = {"type": "disabled"}
         response = self._post("chat/completions", payload)
+        returned_model = str(response.get("model", "")).strip()
+        if returned_model != self.settings.chat_model:
+            raise AIServiceError(
+                f"请求模型为 {self.settings.chat_model}，接口实际返回 {returned_model or '未知模型'}，身份校验未通过"
+            )
         return {
             "ok": True,
-            "model": response.get("model", self.settings.chat_model),
+            "requested_model": self.settings.chat_model,
+            "returned_model": returned_model,
+            "owned_by": str(model_record.get("owned_by", "")),
             "request_id": response.get("id", ""),
+            "system_fingerprint": response.get("system_fingerprint", ""),
+            "base_url_host": urlparse(self.settings.base_url).netloc,
         }
 
 
