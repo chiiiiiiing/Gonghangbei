@@ -228,6 +228,27 @@ class OpenAICompatibleGateway:
             "usage": response.get("usage", {}),
         }
 
+    def check_connection(self) -> dict[str, Any]:
+        """Run a minimal authenticated request without retaining credentials."""
+        payload: dict[str, Any] = {
+            "model": self.settings.chat_model,
+            "messages": [
+                {"role": "system", "content": "只输出 JSON。"},
+                {"role": "user", "content": '返回 {"ok": true}。'},
+            ],
+            "response_format": {"type": "json_object"},
+            "max_tokens": 16,
+            "stream": False,
+        }
+        if self.settings.provider == "deepseek":
+            payload["thinking"] = {"type": "disabled"}
+        response = self._post("chat/completions", payload)
+        return {
+            "ok": True,
+            "model": response.get("model", self.settings.chat_model),
+            "request_id": response.get("id", ""),
+        }
+
 
 def _parse_json_content(content: str) -> dict[str, Any]:
     value = content.strip()

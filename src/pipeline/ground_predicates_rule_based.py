@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import csv
+from collections import defaultdict
+from datetime import datetime, timedelta
 from pathlib import Path
 
 
@@ -112,6 +114,7 @@ def ground_event_predicates(
     event: dict[str, str],
     doc: dict[str, str],
     sector: str,
+    temporal_flags: dict[str, bool] | None = None,
 ) -> list[dict[str, object]]:
     """Ground the locked predicate schema for one event without writing files."""
     rows: list[dict[str, object]] = []
@@ -126,10 +129,8 @@ def ground_event_predicates(
     government_or_exchange = source_is_government_or_exchange(source_type, source_name)
     company_announcement = source_type == "announcement"
     major_media = source_is_major_media(source_type, source_name)
-    attention_spike = event_type == "attention_spread" and any(
-        word in full_text
-        for word in ["装机量", "装车量", "渗透率", "出口量", "招标规模", "市场关注", "多家"]
-    )
+    temporal_flags = temporal_flags or {}
+    attention_spike = temporal_flags.get("social_attention_spikes", False)
     policy_followup = (has_policy or event_type == "attention_spread") and any(
         word in full_text
         for word in [
@@ -157,7 +158,7 @@ def ground_event_predicates(
         "earnings_quality_anomaly",
         "supply_chain_disruption",
     }
-    institutional_attention = any(word in full_text for word in ["机构", "调研", "研报"])
+    institutional_attention = temporal_flags.get("institutional_attention_increases", False)
     demand_policy = has_policy and any(
         word in full_text for word in ["消费", "购置税", "补贴", "以旧换新", "销量", "需求", "车辆购置"]
     )
@@ -219,9 +220,66 @@ def ground_event_predicates(
 def ground_predicates() -> list[dict[str, object]]:
     documents = {doc["doc_id"]: doc for doc in read_csv(SAMPLE_DIR / "raw_documents.csv")}
     stock_pool = {row["stock_code"]: row for row in read_csv(SAMPLE_DIR / "stock_pool.csv")}
+    links = read_csv(SAMPLE_DIR / "entity_links.csv")
+    sectors_by_doc: dict[str, set[str]] = defaultdict(set)
+    for link in links:
+        sectors_by_doc[link["doc_id"]].add(link["industry"])
+    dated_docs_by_sector: dict[str, list[tuple[datetime, str, bool]]] = defaultdict(list)
+    for doc_id, doc in documents.items():
+        publish_date = datetime.strptime(doc["publish_time"], "%Y-%m-%d")
+        source_text = f'{doc["title"]} {doc["content"].split("项目关联：", 1)[0]}'
+        institutional = any(word in source_text for word in ["机构", "调研", "研报"])
+        for sector in sectors_by_doc.get(doc_id, set()):
+            dated_docs_by_sector[sector].append((publish_date, doc_id, institutional))
+
+    def temporal_flags(event: dict[str, str], sector: str) -> dict[str, bool]:
+        current = datetime.strptime(event["event_time"], "%Y-%m-%d")
+        items = dated_docs_by_sector.get(sector, [])
+        short_docs = {
+            doc_id for date, doc_id, _ in items if current - timedelta(days=2) <= date <= current
+        }
+        baseline_docs = {
+            doc_id
+            for date, doc_id, _ in items
+            if current - timedelta(days=22) <= date < current - timedelta(days=2)
+        }
+        short_institutional = {
+            doc_id
+            for date, doc_id, institutional in items
+            if institutional and current - timedelta(days=2) <= date <= current
+        }
+        baseline_institutional = {
+            doc_id
+            for date, doc_id, institutional in items
+            if institutional and current - timedelta(days=22) <= date < current - timedelta(days=2)
+        }
+        attention_rate = len(short_docs) / 3
+        baseline_rate = len(baseline_docs) / 20
+        institutional_rate = len(short_institutional) / 3
+        institutional_baseline = len(baseline_institutional) / 20
+        return {
+            "social_attention_spikes": (
+                event["event_type"] == "attention_spread"
+                and len(short_docs) >= 2
+                and attention_rate >= max(baseline_rate, 0.05) * 1.5
+            ),
+            "institutional_attention_increases": (
+                len(short_institutional) >= 2
+                and institutional_rate >= max(institutional_baseline, 0.05) * 1.5
+            ),
+        }
+
     rows: list[dict[str, object]] = []
     for event in read_csv(SAMPLE_DIR / "events.csv"):
-        rows.extend(ground_event_predicates(event, documents[event["doc_id"]], stock_pool[event["stock_code"]]["industry_sector"]))
+        sector = stock_pool[event["stock_code"]]["industry_sector"]
+        rows.extend(
+            ground_event_predicates(
+                event,
+                documents[event["doc_id"]],
+                sector,
+                temporal_flags(event, sector),
+            )
+        )
     return rows
 
 

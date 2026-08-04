@@ -148,6 +148,47 @@ def serialize_predicates(rows: list[dict[str, object]]) -> list[dict[str, Any]]:
     return serialized
 
 
+def build_predicate_consensus(
+    predicate_rows: list[dict[str, object]],
+    ai_predicates: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    """Gate rule predicates through AI and deterministic agreement."""
+    deterministic = {str(row["predicate_name"]): str(row["value"]).lower() for row in predicate_rows}
+    ai_by_name = {str(row.get("name", "")): row for row in ai_predicates}
+    consensus: list[dict[str, Any]] = []
+    gated_values: dict[str, str] = {}
+    for name, rule_value in deterministic.items():
+        ai_row = ai_by_name.get(name)
+        ai_value = str(ai_row.get("value", "")).lower() if ai_row else ""
+        if not ai_row:
+            status = "invalid"
+        elif rule_value in {"true", "false"}:
+            if ai_value not in {"true", "false"}:
+                status = "invalid"
+            elif ai_value == rule_value:
+                status = "agreed_true" if rule_value == "true" else "agreed_false"
+            else:
+                status = "disputed"
+        else:
+            try:
+                status = "agreed_true" if abs(float(ai_value) - float(rule_value)) <= 0.10 else "disputed"
+            except ValueError:
+                status = "invalid"
+        gated_values[name] = "true" if status == "agreed_true" and rule_value == "true" else "false"
+        consensus.append(
+            {
+                "name": name,
+                "ai_value": ai_value,
+                "rule_value": rule_value,
+                "status": status,
+                "accepted_for_rule": gated_values[name] == "true",
+                "confidence": ai_row.get("confidence", 0.0) if ai_row else 0.0,
+                "rationale": ai_row.get("rationale", "AI 未返回该谓词") if ai_row else "AI 未返回该谓词",
+            }
+        )
+    return consensus, gated_values
+
+
 def analyze_new_document(
     payload: dict[str, str],
     stock_pool: list[dict[str, str]],
@@ -260,10 +301,24 @@ def analyze_new_document(
             "evidence_strength": f"{evidence_strength:.2f}",
         }
         predicate_rows = ground_event_predicates(event, doc, entity["industry"])
-        predicate_map = {str(row["predicate_name"]): str(row["value"]) for row in predicate_rows}
+        deterministic_map = {str(row["predicate_name"]): str(row["value"]) for row in predicate_rows}
+        if isinstance(ai_result, dict):
+            consensus, predicate_map = build_predicate_consensus(
+                predicate_rows,
+                list(ai_result.get("predicates", [])),
+            )
+        else:
+            consensus = []
+            predicate_map = deterministic_map
         triggered = [rule for rule in qualified_rules if rule_matches(rule, predicate_map, event_type)]
+        best_by_family: dict[str, dict[str, str]] = {}
+        for rule in triggered:
+            family = rule["target_label"]
+            if family not in best_by_family or float(rule["score"]) > float(best_by_family[family]["score"]):
+                best_by_family[family] = rule
+        triggered = sorted(best_by_family.values(), key=lambda row: row["rule_id"])
         raw_score = sum(float(rule["score"]) for rule in triggered)
-        impact_prior = float(predicate_map["event_has_short_term_price_impact"])
+        impact_prior = float(deterministic_map["event_has_short_term_price_impact"])
         factor_multiplier = 0.7 * evidence_strength + 0.3 * impact_prior
         factor_value = raw_score * factor_multiplier
         labels = [rule["target_label"] for rule in triggered]
@@ -300,8 +355,10 @@ def analyze_new_document(
                     "impact_weight": 0.3,
                     "multiplier": round(factor_multiplier, 6),
                     "result": round(factor_value, 6),
+                    "consensus_mode": "ai_rule_agreement" if isinstance(ai_result, dict) else "rule_only",
                 },
                 "predicates": serialize_predicates(predicate_rows),
+                "predicate_consensus": consensus,
                 "triggered_rules": rule_rows,
                 "event": event,
             }
@@ -309,22 +366,14 @@ def analyze_new_document(
         event_trace.append(event)
 
     stock_results.sort(key=lambda item: (item["candidate_factor"], item["confidence"]), reverse=True)
-    if isinstance(ai_result, dict):
-        ai_predicates = {row["name"]: row for row in ai_result.get("predicates", [])}
-        for stock in stock_results:
-            deterministic = {row["name"]: row["value"] for row in stock["predicates"]}
-            stock["ai_predicate_comparison"] = [
-                {
-                    "name": name,
-                    "ai_value": row["value"],
-                    "rule_value": deterministic.get(name),
-                    "agrees": str(deterministic.get(name)).lower() == str(row["value"]).lower(),
-                    "confidence": row["confidence"],
-                    "rationale": row["rationale"],
-                }
-                for name, row in ai_predicates.items()
-                if name in deterministic
-            ]
+    disputed = sorted(
+        {
+            row["name"]
+            for stock in stock_results
+            for row in stock.get("predicate_consensus", [])
+            if row["status"] in {"disputed", "invalid"}
+        }
+    )
     return {
         "event_type": event_type,
         "event_time": event_date,
@@ -338,4 +387,7 @@ def analyze_new_document(
         "triggered_rules": list(all_rules.values()),
         "analysis_mode": "hybrid_ai_rule_validation" if ai_analysis.get("used") else "deterministic_rule_only",
         "ai_analysis": ai_analysis,
+        "predicate_consensus": stock_results[0].get("predicate_consensus", []) if stock_results else [],
+        "disputed_predicates": disputed,
+        "consensus_gate_passed": bool(ai_analysis.get("used")) and not disputed,
     }

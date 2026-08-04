@@ -45,6 +45,7 @@ BOOLEAN_PREDICATE_COLUMNS = [
     predicate_name for predicate_name in PREDICATE_COLUMNS if predicate_name not in SCORE_PREDICATES
 ]
 DISCOVERY_END_DATE = "2025-12-31"
+OOS_START_DATE = "2026-01-01"
 MIN_RULE_OCCURRENCES = 5
 MIN_RULE_WIN_RATE = 0.50
 MIN_RULE_AVG_RETURN = 0.0
@@ -156,6 +157,58 @@ def compute_forward_returns() -> dict[str, dict[str, str]]:
     return by_event
 
 
+def build_market_forward_returns() -> dict[tuple[str, str], float]:
+    """Return open-to-fifth-trading-day-close returns by stock and entry date."""
+    values: dict[tuple[str, str], float] = {}
+    for stock_code, rows in build_market_by_stock().items():
+        for index in range(max(len(rows) - 4, 0)):
+            entry = rows[index]
+            exit_5d = rows[index + 4]
+            values[(entry["trade_date"], stock_code)] = float(exit_5d["close"]) / float(entry["open"]) - 1
+    return values
+
+
+def build_excess_returns(
+    forward_by_event: dict[str, dict[str, str]],
+) -> dict[str, float]:
+    """Compute industry-equal-weight excess returns for rule evaluation."""
+    stocks = {row["stock_code"]: row for row in read_csv("stock_pool.csv")}
+    by_sector: dict[str, list[str]] = defaultdict(list)
+    for stock_code, stock in stocks.items():
+        by_sector[stock["industry_sector"]].append(stock_code)
+    market_returns = build_market_forward_returns()
+    sector_benchmark: dict[tuple[str, str], float] = {}
+    for trade_date in {row["entry_trade_date"] for row in forward_by_event.values()}:
+        for sector, stock_codes in by_sector.items():
+            values = [
+                market_returns[(trade_date, stock_code)]
+                for stock_code in stock_codes
+                if (trade_date, stock_code) in market_returns
+            ]
+            if values:
+                sector_benchmark[(trade_date, sector)] = mean(values)
+    excess: dict[str, float] = {}
+    for event_id, row in forward_by_event.items():
+        sector = stocks[row["stock_code"]]["industry_sector"]
+        benchmark = sector_benchmark.get((row["entry_trade_date"], sector), 0.0)
+        excess[event_id] = float(row["forward_return_5d"]) - benchmark
+    return excess
+
+
+def build_market_excess_returns() -> dict[tuple[str, str], float]:
+    stocks = {row["stock_code"]: row for row in read_csv("stock_pool.csv")}
+    raw_returns = build_market_forward_returns()
+    grouped: dict[tuple[str, str], list[float]] = defaultdict(list)
+    for (trade_date, stock_code), value in raw_returns.items():
+        grouped[(trade_date, stocks[stock_code]["industry_sector"])].append(value)
+    benchmarks = {key: mean(values) for key, values in grouped.items()}
+    return {
+        (trade_date, stock_code): value
+        - benchmarks[(trade_date, stocks[stock_code]["industry_sector"])]
+        for (trade_date, stock_code), value in raw_returns.items()
+    }
+
+
 def rule_matches(event_row: dict[str, str], rule_def: dict[str, object]) -> bool:
     event_types = rule_def.get("event_types", [])
     if event_types and event_row["event_type"] not in event_types:
@@ -239,6 +292,7 @@ def factor_name_for_labels(labels: list[str]) -> str:
 def evaluate_rule_candidate(
     matrix: list[dict[str, str]],
     forward_by_event: dict[str, dict[str, str]],
+    excess_by_event: dict[str, float],
     predicate_names: tuple[str, ...],
 ) -> dict[str, object] | None:
     matched = [
@@ -247,11 +301,11 @@ def evaluate_rule_candidate(
         if all(row.get(predicate_name) == "true" for predicate_name in predicate_names)
     ]
     discovery_matched = [row for row in matched if is_discovery_event(row)]
-    return_values = [
-        float(forward_by_event[row["event_id"]]["forward_return_5d"])
-        for row in discovery_matched
-        if row["event_id"] in forward_by_event and forward_by_event[row["event_id"]]["forward_return_5d"] != ""
-    ]
+    eligible = [row for row in discovery_matched if row["event_id"] in excess_by_event]
+    by_document: dict[str, list[float]] = defaultdict(list)
+    for row in eligible:
+        by_document[row["doc_id"]].append(excess_by_event[row["event_id"]])
+    return_values = [mean(values) for values in by_document.values()]
     if len(return_values) < 3:
         return None
 
@@ -259,14 +313,15 @@ def evaluate_rule_candidate(
     positive_count = sum(1 for value in return_values if value > 0)
     win_rate = positive_count / support_count if support_count else 0.0
     avg_return = mean_float(return_values)
-    evidence_values = [
-        float(row["event_evidence_strength"])
-        for row in discovery_matched
-        if row.get("event_evidence_strength") != ""
-    ]
+    evidence_by_document: dict[str, list[float]] = defaultdict(list)
+    for row in eligible:
+        if row.get("event_evidence_strength") != "":
+            evidence_by_document[row["doc_id"]].append(float(row["event_evidence_strength"]))
+    evidence_values = [mean(values) for values in evidence_by_document.values() if values]
     avg_evidence = mean_float(evidence_values)
-    stock_count = len({row["stock_code"] for row in discovery_matched})
-    event_ids = frozenset(row["event_id"] for row in discovery_matched)
+    stock_count = len({row["stock_code"] for row in eligible})
+    date_count = len({row["event_time"] for row in eligible})
+    event_ids = frozenset(row["event_id"] for row in eligible)
     coverage_bonus = min(support_count / 20.0, 1.0) * 0.18
     diversity_bonus = min(stock_count / 10.0, 1.0) * 0.10
     evidence_bonus = avg_evidence * 0.12
@@ -277,6 +332,7 @@ def evaluate_rule_candidate(
         and avg_return >= MIN_RULE_AVG_RETURN
         and avg_evidence >= MIN_RULE_AVG_EVIDENCE
         and stock_count >= MIN_RULE_STOCK_COUNT
+        and date_count >= MIN_RULE_OCCURRENCES
         and len(predicate_names) <= MAX_RULE_TERMS
     )
     return {
@@ -288,6 +344,8 @@ def evaluate_rule_candidate(
         "avg_return": avg_return,
         "avg_evidence": avg_evidence,
         "stock_count": stock_count,
+        "document_count": len(by_document),
+        "date_count": date_count,
         "score": score,
         "status": "qualified" if qualified else "candidate",
     }
@@ -297,6 +355,7 @@ def generate_rule_defs(
     matrix: list[dict[str, str]],
     forward_by_event: dict[str, dict[str, str]],
 ) -> list[dict[str, object]]:
+    excess_by_event = build_excess_returns(forward_by_event)
     active_predicates = [
         predicate_name
         for predicate_name in BOOLEAN_PREDICATE_COLUMNS
@@ -305,7 +364,7 @@ def generate_rule_defs(
     candidates: list[dict[str, object]] = []
     for term_count in range(2, MAX_RULE_TERMS + 1):
         for predicate_names in itertools.combinations(active_predicates, term_count):
-            candidate = evaluate_rule_candidate(matrix, forward_by_event, predicate_names)
+            candidate = evaluate_rule_candidate(matrix, forward_by_event, excess_by_event, predicate_names)
             if candidate:
                 candidates.append(candidate)
 
@@ -343,7 +402,11 @@ def generate_rule_defs(
                 "target_label": target_label,
                 "predicate_true": list(predicate_names),
                 "event_types": [],
+                "event_ids": candidate["event_ids"],
                 "support_count": candidate["support_count"],
+                "document_count": candidate["document_count"],
+                "date_count": candidate["date_count"],
+                "stock_count": candidate["stock_count"],
                 "positive_count": candidate["positive_count"],
                 "win_rate": candidate["win_rate"],
                 "avg_return": candidate["avg_return"],
@@ -392,6 +455,48 @@ def build_rules(
         ],
         rows,
     )
+    excess_by_event = build_excess_returns(forward_by_event)
+    diagnostic_rows: list[dict[str, str]] = []
+    for rule_def in rule_defs:
+        matched = [row for row in matrix if rule_matches(row, rule_def)]
+        discovery_rows = [row for row in matched if row["event_time"] <= DISCOVERY_END_DATE]
+        oos_rows = [row for row in matched if row["event_time"] >= OOS_START_DATE]
+
+        def document_returns(items: list[dict[str, str]]) -> list[float]:
+            grouped: dict[str, list[float]] = defaultdict(list)
+            for item in items:
+                if item["event_id"] in excess_by_event:
+                    grouped[item["doc_id"]].append(excess_by_event[item["event_id"]])
+            return [mean(values) for values in grouped.values()]
+
+        discovery_values = document_returns(discovery_rows)
+        oos_values = document_returns(oos_rows)
+        diagnostic_rows.append(
+            {
+                "rule_id": str(rule_def["rule_id"]),
+                "independent_document_count": str(len({row["doc_id"] for row in discovery_rows})),
+                "independent_date_count": str(len({row["event_time"] for row in discovery_rows})),
+                "stock_count": str(len({row["stock_code"] for row in discovery_rows})),
+                "discovery_avg_excess_return_5d": f"{mean_float(discovery_values):.6f}",
+                "oos_document_count": str(len({row["doc_id"] for row in oos_rows})),
+                "oos_avg_excess_return_5d": f"{mean_float(oos_values):.6f}",
+                "status": str(rule_def["status"]),
+            }
+        )
+    write_csv(
+        SAMPLE_DIR / "rule_diagnostics.csv",
+        [
+            "rule_id",
+            "independent_document_count",
+            "independent_date_count",
+            "stock_count",
+            "discovery_avg_excess_return_5d",
+            "oos_document_count",
+            "oos_avg_excess_return_5d",
+            "status",
+        ],
+        diagnostic_rows,
+    )
     return rows, rule_defs_by_id
 
 
@@ -411,6 +516,13 @@ def build_event_factors(
         ]
         if not triggered_rule_ids:
             continue
+        best_by_family: dict[str, str] = {}
+        for rule_id in triggered_rule_ids:
+            family = rule_by_id[rule_id]["target_label"]
+            current = best_by_family.get(family)
+            if current is None or float(rule_by_id[rule_id]["score"]) > float(rule_by_id[current]["score"]):
+                best_by_family[family] = rule_id
+        triggered_rule_ids = sorted(best_by_family.values())
         forward = forward_by_event.get(event_row["event_id"])
         if not forward:
             continue
@@ -489,6 +601,13 @@ def build_factor_snapshot(
         ]
         if not triggered_rule_ids:
             continue
+        best_by_family: dict[str, str] = {}
+        for rule_id in triggered_rule_ids:
+            family = rule_by_id[rule_id]["target_label"]
+            current = best_by_family.get(family)
+            if current is None or float(rule_by_id[rule_id]["score"]) > float(rule_by_id[current]["score"]):
+                best_by_family[family] = rule_id
+        triggered_rule_ids = sorted(best_by_family.values())
         days_since = max((last_date - parse_date(event_row["event_time"])).days, 0)
         recency_decay = 0.5 ** (days_since / 45.0)
         event_weight = float(event_row["event_evidence_strength"]) * recency_decay
@@ -569,50 +688,47 @@ def correlation(left: list[float], right: list[float]) -> float:
     return numerator / denominator if denominator else 0.0
 
 
-def build_rank_ic_rows(factor_rows: list[dict[str, str]]) -> list[dict[str, str]]:
-    """Compute daily cross-sectional IC after stock-date aggregation and neutralization."""
+def build_factor_cross_sections(
+    factor_rows: list[dict[str, str]],
+) -> dict[str, list[tuple[str, float, float]]]:
+    """Build unique daily stock factor and industry-excess-return cross sections."""
     stocks = {row["stock_code"]: row for row in read_csv("stock_pool.csv")}
-    market_by_stock = build_market_by_stock()
-    forward_return_by_date_stock: dict[tuple[str, str], float] = {}
-    for stock_code, rows in market_by_stock.items():
-        for index in range(max(len(rows) - 4, 0)):
-            entry = rows[index]
-            exit_5d = rows[index + 4]
-            forward_return_by_date_stock[(entry["trade_date"], stock_code)] = (
-                float(exit_5d["close"]) / float(entry["open"]) - 1
-            )
-
+    excess_returns = build_market_excess_returns()
     factor_by_date_stock: dict[tuple[str, str], float] = defaultdict(float)
     for row in factor_rows:
-        if row["forward_return_5d"] == "":
-            continue
-        factor_by_date_stock[(row["trade_date"], row["stock_code"])] += float(row["factor_value"])
+        if row["forward_return_5d"] != "":
+            factor_by_date_stock[(row["trade_date"], row["stock_code"])] += float(row["factor_value"])
+    by_sector: dict[str, list[str]] = defaultdict(list)
+    for stock_code, stock in stocks.items():
+        by_sector[stock["industry_sector"]].append(stock_code)
 
-    ic_rows: list[dict[str, str]] = []
+    result: dict[str, list[tuple[str, float, float]]] = {}
     for trade_date in sorted({key[0] for key in factor_by_date_stock}):
         raw_by_stock = {
             stock_code: factor_by_date_stock.get((trade_date, stock_code), 0.0)
             for stock_code in stocks
         }
-        by_sector: dict[str, list[str]] = defaultdict(list)
-        for stock_code, stock in stocks.items():
-            by_sector[stock["industry_sector"]].append(stock_code)
-
         neutralized: dict[str, float] = {}
         for stock_codes in by_sector.values():
             scores = zscore([raw_by_stock[stock_code] for stock_code in stock_codes])
             neutralized.update(zip(stock_codes, scores))
-
-        cross_section = [
-            (neutralized[stock_code], forward_return_by_date_stock[(trade_date, stock_code)])
+        result[trade_date] = [
+            (stock_code, neutralized[stock_code], excess_returns[(trade_date, stock_code)])
             for stock_code in stocks
-            if (trade_date, stock_code) in forward_return_by_date_stock
+            if (trade_date, stock_code) in excess_returns
         ]
-        if len(cross_section) < 3 or len({item[0] for item in cross_section}) < 2:
+    return result
+
+
+def build_rank_ic_rows(factor_rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    ic_rows: list[dict[str, str]] = []
+    for trade_date, cross_section in build_factor_cross_sections(factor_rows).items():
+        if len(cross_section) < 3 or len({item[1] for item in cross_section}) < 2:
             continue
-        factor_values = [item[0] for item in cross_section]
-        returns = [item[1] for item in cross_section]
-        rank_ic = correlation(rank(factor_values), rank(returns))
+        rank_ic = correlation(
+            rank([item[1] for item in cross_section]),
+            rank([item[2] for item in cross_section]),
+        )
         ic_rows.append(
             {
                 "trade_date": trade_date,
@@ -623,75 +739,147 @@ def build_rank_ic_rows(factor_rows: list[dict[str, str]]) -> list[dict[str, str]
     return ic_rows
 
 
+def build_group_return_rows(factor_rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    daily_values: dict[int, list[float]] = defaultdict(list)
+    sample_counts: dict[int, int] = defaultdict(int)
+    for cross_section in build_factor_cross_sections(factor_rows).values():
+        if len(cross_section) < 5 or len({item[1] for item in cross_section}) < 2:
+            continue
+        factor_ranks = rank([item[1] for item in cross_section])
+        grouped: dict[int, list[float]] = defaultdict(list)
+        for item, factor_rank in zip(cross_section, factor_ranks):
+            group = min(5, int((factor_rank - 1) * 5 / len(cross_section)) + 1)
+            grouped[group].append(item[2])
+        for group, values in grouped.items():
+            daily_values[group].append(mean(values))
+            sample_counts[group] += len(values)
+    return [
+        {
+            "group": f"G{group}",
+            "sample_count": str(sample_counts[group]),
+            "avg_forward_return_5d": f"{mean_float(daily_values[group]):.6f}",
+        }
+        for group in range(1, 6)
+    ]
+
+
+def metrics_for_split(
+    split: str,
+    factor_rows: list[dict[str, str]],
+    group_rows: list[dict[str, str]],
+    ic_rows: list[dict[str, str]],
+    excess_by_event: dict[str, float],
+    eligible_stock_dates: int,
+) -> list[dict[str, str]]:
+    ic_values = [float(row["rank_ic_5d"]) for row in ic_rows]
+    avg_ic = mean_float(ic_values)
+    variance = mean([(value - avg_ic) ** 2 for value in ic_values]) if ic_values else 0.0
+    icir = avg_ic / math.sqrt(variance) if variance > 0 else 0.0
+    event_values = [
+        excess_by_event[event_id]
+        for row in factor_rows
+        for event_id in row["trigger_event_ids"].split("|")
+        if event_id in excess_by_event
+    ]
+    spread = float(group_rows[-1]["avg_forward_return_5d"]) - float(group_rows[0]["avg_forward_return_5d"])
+    evidence_status = "sufficient" if len(ic_values) >= 20 and len(event_values) >= 50 else "insufficient"
+    factor_stock_dates = len({(row["trade_date"], row["stock_code"]) for row in factor_rows})
+    values = {
+        "event_factor_sample_count": (str(len(factor_rows)), "事件触发后的因子样本数"),
+        "factor_coverage_rate": (
+            f"{factor_stock_dates / eligible_stock_dates:.6f}" if eligible_stock_dates else "0.000000",
+            "有因子值的股票日占可用行情股票日的比例",
+        ),
+        "avg_rank_ic_5d": (f"{avg_ic:.6f}", "行业中性因子与行业超额收益的 Rank IC"),
+        "rank_ic_ir": (f"{icir:.6f}", "稀疏有效截面的 Rank IC 均值除以标准差"),
+        "rank_ic_valid_date_count": (str(len(ic_values)), "具备因子差异的有效横截面数"),
+        "active_factor_date_count": (str(len({row['trade_date'] for row in factor_rows})), "出现有效因子事件的交易日数"),
+        "top_bottom_group_spread_5d": (f"{spread:.6f}", "逐日横截面 G5 减 G1 的行业超额收益差"),
+        "positive_excess_return_rate_5d": (
+            f"{sum(value > 0 for value in event_values) / len(event_values):.6f}" if event_values else "0.000000",
+            "事件样本行业超额收益为正的比例",
+        ),
+        "evidence_status": (evidence_status, "有效日期和事件样本是否达到展示门槛"),
+    }
+    return [
+        {"split": split, "metric": metric, "value": value, "description": description}
+        for metric, (value, description) in values.items()
+    ]
+
+
 def build_backtest_outputs(factor_rows: list[dict[str, str]]) -> None:
     valid_rows = [row for row in factor_rows if row["forward_return_5d"] != ""]
-    sorted_rows = sorted(valid_rows, key=lambda row: float(row["factor_value"]))
-    group_count = 5
-    group_rows = []
-    for group_index in range(group_count):
-        start = group_index * len(sorted_rows) // group_count
-        end = (group_index + 1) * len(sorted_rows) // group_count
-        rows = sorted_rows[start:end]
-        avg_return = mean([float(row["forward_return_5d"]) for row in rows]) if rows else 0.0
-        group_rows.append(
-            {
-                "group": f"G{group_index + 1}",
-                "sample_count": str(len(rows)),
-                "avg_forward_return_5d": f"{avg_return:.6f}",
-            }
-        )
-    write_csv(SAMPLE_DIR / "group_returns.csv", ["group", "sample_count", "avg_forward_return_5d"], group_rows)
-
+    group_rows = build_group_return_rows(valid_rows)
     ic_rows = build_rank_ic_rows(valid_rows)
+    write_csv(SAMPLE_DIR / "group_returns.csv", ["group", "sample_count", "avg_forward_return_5d"], group_rows)
     write_csv(SAMPLE_DIR / "rank_ic_timeseries.csv", ["trade_date", "rank_ic_5d", "sample_count"], ic_rows)
 
-    rank_ic_values = [float(row["rank_ic_5d"]) for row in ic_rows]
-    avg_rank_ic = mean(rank_ic_values) if rank_ic_values else 0.0
-    nonzero_rank_ic_count = sum(abs(value) > 1e-12 for value in rank_ic_values)
-    group_spread = float(group_rows[-1]["avg_forward_return_5d"]) - float(group_rows[0]["avg_forward_return_5d"])
-    win_rate = (
-        sum(1 for row in valid_rows if float(row["forward_return_5d"]) > 0) / len(valid_rows)
-        if valid_rows
-        else 0.0
+    split_rows = {
+        "discovery": [row for row in valid_rows if row["trade_date"] < OOS_START_DATE],
+        "oos": [row for row in valid_rows if row["trade_date"] >= OOS_START_DATE],
+    }
+    forward_by_event = {row["event_id"]: row for row in read_csv("event_forward_returns.csv")}
+    excess_by_event = build_excess_returns(forward_by_event)
+    eligible_market_dates = build_market_excess_returns()
+    metric_rows: list[dict[str, str]] = []
+    group_split_rows: list[dict[str, str]] = []
+    for split, rows in split_rows.items():
+        split_groups = build_group_return_rows(rows)
+        split_ic = build_rank_ic_rows(rows)
+        eligible_count = sum(
+            (trade_date < OOS_START_DATE) == (split == "discovery")
+            for trade_date, _ in eligible_market_dates
+        )
+        metric_rows.extend(metrics_for_split(split, rows, split_groups, split_ic, excess_by_event, eligible_count))
+        group_split_rows.extend({"split": split, **row} for row in split_groups)
+    write_csv(
+        SAMPLE_DIR / "backtest_metrics_by_split.csv",
+        ["split", "metric", "value", "description"],
+        metric_rows,
     )
-    metrics = [
-        {
-            "metric": "event_factor_sample_count",
-            "value": str(len(valid_rows)),
-            "description": "事件触发后的因子样本数",
-        },
-        {
-            "metric": "avg_rank_ic_5d",
-            "value": f"{avg_rank_ic:.6f}",
-            "description": "按交易日全股票行业中性横截面计算的 Rank IC 均值",
-        },
-        {
-            "metric": "rank_ic_valid_date_count",
-            "value": str(len(rank_ic_values)),
-            "description": "具备有效因子差异和未来收益的 Rank IC 截面数",
-        },
-        {
-            "metric": "rank_ic_nonzero_date_count",
-            "value": str(nonzero_rank_ic_count),
-            "description": "Rank IC 非零截面数",
-        },
-        {
-            "metric": "top_bottom_group_spread_5d",
-            "value": f"{group_spread:.6f}",
-            "description": "G5 减 G1 的 5 日收益差",
-        },
-        {
-            "metric": "positive_forward_return_rate_5d",
-            "value": f"{win_rate:.6f}",
-            "description": "事件样本 5 日收益为正的比例",
-        },
+    write_csv(
+        SAMPLE_DIR / "group_returns_by_split.csv",
+        ["split", "group", "sample_count", "avg_forward_return_5d"],
+        group_split_rows,
+    )
+
+    overall_metrics = metrics_for_split(
+        "overall",
+        valid_rows,
+        group_rows,
+        ic_rows,
+        excess_by_event,
+        len(eligible_market_dates),
+    )
+    legacy_metrics = [
+        {"metric": row["metric"], "value": row["value"], "description": row["description"]}
+        for row in overall_metrics
+    ]
+    positive_excess = next(
+        row["value"] for row in overall_metrics if row["metric"] == "positive_excess_return_rate_5d"
+    )
+    legacy_metrics.extend(
+        [
+            {
+                "metric": "positive_forward_return_rate_5d",
+                "value": positive_excess,
+                "description": "兼容字段；当前值为事件样本行业超额收益为正的比例",
+            },
+            {
+                "metric": "rank_ic_nonzero_date_count",
+                "value": str(sum(abs(float(row["rank_ic_5d"])) > 1e-12 for row in ic_rows)),
+                "description": "Rank IC 非零截面数",
+            },
+        ]
+    )
+    legacy_metrics.append(
         {
             "metric": "future_info_audit",
             "value": "pass",
             "description": "收益窗口均使用 event_time 之后的交易日",
-        },
-    ]
-    write_csv(SAMPLE_DIR / "backtest_metrics.csv", ["metric", "value", "description"], metrics)
+        }
+    )
+    write_csv(SAMPLE_DIR / "backtest_metrics.csv", ["metric", "value", "description"], legacy_metrics)
 
 
 def main() -> None:

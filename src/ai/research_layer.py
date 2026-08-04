@@ -170,7 +170,7 @@ def validate_ai_output(
     source_text = f"{document['title']}\n{document['content']}"
     evidence_grounded = bool(evidence and evidence in source_text)
     if not evidence_grounded:
-        dropped.append("evidence_text 不是输入文本中的连续片段")
+        raise AIServiceError("AI 证据文本无法回溯到输入原文")
     event = {
         "event_type": event_type,
         "subject": str(event_raw.get("subject", "")).strip()[:100],
@@ -235,6 +235,12 @@ def validate_ai_output(
                 "confidence": bounded_float(item.get("confidence"), 0.0),
                 "rationale": str(item.get("rationale", "")).strip()[:240],
             }
+        )
+
+    missing_predicates = sorted(set(PREDICATE_DEFINITIONS) - seen_predicates)
+    if missing_predicates:
+        raise AIServiceError(
+            "AI 未返回完整 19 个谓词，缺少：" + "、".join(missing_predicates)
         )
 
     candidate_rules: list[dict[str, Any]] = []

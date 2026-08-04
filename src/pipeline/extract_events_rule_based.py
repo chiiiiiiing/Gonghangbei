@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 from collections import defaultdict
+from datetime import datetime, timedelta
 from pathlib import Path
 
 
@@ -115,6 +116,31 @@ def infer_event_type(doc: dict[str, str]) -> str | None:
     return None
 
 
+def build_ir_pressure_documents(
+    documents: dict[str, dict[str, str]],
+    links_by_doc: dict[str, list[dict[str, str]]],
+) -> set[tuple[str, str]]:
+    """Identify question-pressure events only from company-level time windows."""
+    dates_by_stock: dict[str, list[tuple[datetime, str]]] = defaultdict(list)
+    for doc_id, doc in documents.items():
+        if doc["source_type"] != "ir_qa":
+            continue
+        publish_date = datetime.strptime(doc["publish_time"], "%Y-%m-%d")
+        for link in links_by_doc.get(doc_id, []):
+            dates_by_stock[link["stock_code"]].append((publish_date, doc_id))
+    pressure: set[tuple[str, str]] = set()
+    for stock_code, items in dates_by_stock.items():
+        for current_date, doc_id in items:
+            short_count = sum(current_date - timedelta(days=6) <= date <= current_date for date, _ in items)
+            baseline_count = sum(
+                current_date - timedelta(days=36) <= date < current_date - timedelta(days=6)
+                for date, _ in items
+            )
+            if short_count >= 3 and short_count / 7 > max(baseline_count / 30, 0.05) * 2:
+                pressure.add((doc_id, stock_code))
+    return pressure
+
+
 def evidence_sentence(doc: dict[str, str], stock_name: str) -> str:
     text = doc["content"].split("项目关联：", 1)[0].replace("。", "。\n")
     priority_words = [stock_name, "政策", "订单", "产能", "储能", "电池", "光伏", "风电", "销量", "投资者"]
@@ -139,6 +165,7 @@ def extract_events() -> list[dict[str, object]]:
     links_by_doc: dict[str, list[dict[str, str]]] = defaultdict(list)
     for link in read_csv(SAMPLE_DIR / "entity_links.csv"):
         links_by_doc[link["doc_id"]].append(link)
+    ir_pressure = build_ir_pressure_documents(documents, links_by_doc)
 
     rows: list[dict[str, object]] = []
     event_idx = 1
@@ -148,18 +175,21 @@ def extract_events() -> list[dict[str, object]]:
         for link in links_by_doc.get(doc_id, []):
             current_event_id = f"E{event_idx:03d}"
             event_idx += 1
-            if event_type is None:
+            current_event_type = event_type
+            if doc["source_type"] == "ir_qa" and (doc_id, link["stock_code"]) in ir_pressure:
+                current_event_type = "investor_question_pressure"
+            if current_event_type is None:
                 continue
             sector = link["industry"]
             strength = SOURCE_STRENGTH[doc["source_type"]]
-            if event_type in {"policy_support", "capacity_expansion"}:
+            if current_event_type in {"policy_support", "capacity_expansion"}:
                 strength += 0.02
             rows.append(
                 {
                     "event_id": current_event_id,
                     "doc_id": doc_id,
                     "stock_code": link["stock_code"],
-                    "event_type": event_type,
+                    "event_type": current_event_type,
                     "event_time": doc["publish_time"],
                     "subject": infer_subject(doc),
                     "object": CORE_OBJECT_BY_SECTOR[sector],

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import os
 import subprocess
 import sys
@@ -17,17 +18,64 @@ from flask import Flask, jsonify, request, send_from_directory
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_DIR = ROOT / "data" / "sample"
 APP_DIR = ROOT / "app"
+REPLAY_PATH = SAMPLE_DIR / "replay_cases.json"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.ai.gateway import AISettings  # noqa: E402
-from src.ai.research_layer import AIResearchLayer  # noqa: E402
+from src.ai.gateway import AIServiceError, AISettings  # noqa: E402
+from src.ai.research_layer import AIResearchLayer, validate_ai_output  # noqa: E402
 from src.pipeline.live_analysis import SOURCE_TYPES, analyze_new_document  # noqa: E402
 
 
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
 app = Flask(__name__, static_folder=None)
 AI_LAYER = AIResearchLayer()
+
+
+class FrozenAIResearchLayer:
+    """Replay an explicitly labelled model fixture through current validators."""
+
+    def __init__(self, case: dict[str, Any]) -> None:
+        self.case = case
+
+    def analyze(
+        self,
+        document: dict[str, str],
+        stock_pool: list[dict[str, str]],
+        rules: list[dict[str, str]],
+    ) -> dict[str, Any]:
+        validated, audit = validate_ai_output(self.case["ai_output"], document, stock_pool)
+        metadata = self.case["metadata"]
+        offline_settings = AISettings(
+            mode="off",
+            base_url="",
+            api_key="",
+            chat_model=metadata["model"],
+            embedding_model="",
+            timeout_seconds=1,
+            json_mode="object",
+        )
+        retrieval = AIResearchLayer(offline_settings)._retrieve_rules(document, rules)
+        return {
+            "configured": True,
+            "mode": "replay",
+            "provider": "frozen-demo-fixture",
+            "base_url": "",
+            "chat_model": metadata["model"],
+            "embedding_model": retrieval.get("model", ""),
+            "structured_output": True,
+            "prompt_version": metadata["prompt_version"],
+            "requested": True,
+            "used": True,
+            "fallback": False,
+            "reason": "",
+            "request_id": metadata["request_id"],
+            "usage": metadata.get("usage", {}),
+            "response_format": "json_object",
+            "embedding_retrieval": retrieval,
+            "validation": audit,
+            "result": validated,
+        }
 
 
 def request_ai_layer(api_key: str) -> AIResearchLayer:
@@ -43,6 +91,13 @@ def request_ai_layer(api_key: str) -> AIResearchLayer:
         json_mode="object",
     )
     return AIResearchLayer(settings)
+
+
+def load_replay_cases() -> dict[str, dict[str, Any]]:
+    if not REPLAY_PATH.exists():
+        return {}
+    payload = json.loads(REPLAY_PATH.read_text(encoding="utf-8"))
+    return {str(case["case_id"]): case for case in payload.get("cases", [])}
 
 
 @app.after_request
@@ -91,6 +146,8 @@ def data_status() -> dict[str, Any]:
     return {
         "repository_commit": repository_commit(),
         "pipeline_mode": "official-shared-functions",
+        "rule_version": "R1",
+        "replay_case_count": len(load_replay_cases()),
         "counts": {
             "stocks": len(stock_pool),
             "documents": len(documents),
@@ -131,6 +188,10 @@ def historical_backtest() -> dict[str, Any]:
         }
         for row in read_csv("rank_ic_timeseries.csv")
     ]
+    diagnostics = {
+        row["rule_id"]: row
+        for row in (read_csv("rule_diagnostics.csv") if (SAMPLE_DIR / "rule_diagnostics.csv").exists() else [])
+    }
     rules = [
         {
             "rule_id": row["rule_id"],
@@ -141,6 +202,10 @@ def historical_backtest() -> dict[str, Any]:
             "win_rate": float(row["win_rate"]),
             "avg_forward_return_5d": float(row["avg_forward_return_5d"]),
             "score": float(row["score"]),
+            "independent_document_count": int(diagnostics.get(row["rule_id"], {}).get("independent_document_count", row["support_count"])),
+            "independent_date_count": int(diagnostics.get(row["rule_id"], {}).get("independent_date_count", 0)),
+            "oos_document_count": int(diagnostics.get(row["rule_id"], {}).get("oos_document_count", 0)),
+            "oos_avg_excess_return_5d": float(diagnostics.get(row["rule_id"], {}).get("oos_avg_excess_return_5d", 0.0)),
         }
         for row in read_csv("rules.csv")
         if row["status"] == "qualified"
@@ -159,6 +224,44 @@ def historical_backtest() -> dict[str, Any]:
         }
         for row in read_csv("factor_snapshot.csv")
     ]
+    split_metrics: dict[str, dict[str, Any]] = {}
+    split_groups: dict[str, list[dict[str, Any]]] = {"discovery": [], "oos": []}
+    split_metric_path = SAMPLE_DIR / "backtest_metrics_by_split.csv"
+    if split_metric_path.exists():
+        for row in read_csv("backtest_metrics_by_split.csv"):
+            split_metrics.setdefault(row["split"], {})[row["metric"]] = numeric_value(row["value"])
+    split_group_path = SAMPLE_DIR / "group_returns_by_split.csv"
+    if split_group_path.exists():
+        for row in read_csv("group_returns_by_split.csv"):
+            split_groups.setdefault(row["split"], []).append(
+                {
+                    "group": row["group"],
+                    "sample_count": int(row["sample_count"]),
+                    "avg_forward_return_5d": float(row["avg_forward_return_5d"]),
+                }
+            )
+    splits = {
+        split: {
+            "metrics": split_metrics.get(split, {}),
+            "group_returns": split_groups.get(split, []),
+            "rank_ic_timeseries": [
+                row
+                for row in rank_ic
+                if (row["trade_date"] < "2026-01-01") == (split == "discovery")
+            ],
+        }
+        for split in ("discovery", "oos")
+    }
+    oos_metrics = splits["oos"]["metrics"]
+    decay_assessment = {
+        "status": "insufficient_evidence"
+        if int(oos_metrics.get("rank_ic_valid_date_count", 0)) < 20
+        else "measurable",
+        "label": "无法判断衰减"
+        if int(oos_metrics.get("rank_ic_valid_date_count", 0)) < 20
+        else "可评估衰减",
+        "warning": "OOS 有效日期不足，既不能证明稳定有效，也不能据此确认因子已失效。",
+    }
     return {
         "scope": "historical_reference_only",
         "scope_note": "以下指标来自固定历史样本，不是本次新输入文本的事后收益或单次回测结果。",
@@ -168,6 +271,14 @@ def historical_backtest() -> dict[str, Any]:
         "rank_ic_timeseries": rank_ic,
         "qualified_rules": rules,
         "factor_snapshot": snapshot,
+        "splits": splits,
+        "decay_assessment": decay_assessment,
+        "audit": {
+            "discovery_period": "2024-01-01 至 2025-12-31",
+            "oos_period": "2026-01-01 至 2026-06-30",
+            "return_label": "5 日行业等权超额收益",
+            "rule_support_unit": "独立文档 + 独立日期 + 股票覆盖",
+        },
         "limitations": [
             "当前行情为前复权候选价，adj_factor=1 仅作占位字段，不是真实复权因子序列。",
             "事件样本与规则数量仍有限，历史统计不代表未来表现。",
@@ -177,8 +288,55 @@ def historical_backtest() -> dict[str, Any]:
     }
 
 
+def research_audit() -> dict[str, Any]:
+    documents = read_csv("raw_documents.csv")
+    events = read_csv("events.csv")
+    predicates = read_csv("predicates.csv")
+    rules = read_csv("rules.csv")
+    market = read_csv("market_data.csv")
+    diagnostics_path = SAMPLE_DIR / "rule_diagnostics.csv"
+    diagnostics = read_csv("rule_diagnostics.csv") if diagnostics_path.exists() else []
+    review_path = SAMPLE_DIR / "manual_review_summary.json"
+    review = json.loads(review_path.read_text(encoding="utf-8")) if review_path.exists() else {}
+    source_review = review.get("source_verification", {})
+    return {
+        "counts": {
+            "stocks": len(read_csv("stock_pool.csv")),
+            "documents": len(documents),
+            "events": len(events),
+            "predicates": len(predicates),
+            "qualified_rules": sum(row["status"] == "qualified" for row in rules),
+            "market_rows": len(market),
+        },
+        "source_type_counts": dict(sorted(Counter(row["source_type"] for row in documents).items())),
+        "event_type_counts": dict(sorted(Counter(row["event_type"] for row in events).items())),
+        "source_verification": {
+            "automated_pass_count": int(source_review.get("automated_pass_count", len(documents))),
+            "unique_url_count": len({row["url"] for row in documents}),
+            "status": source_review.get("status", "队伍人工抽样确认待完成"),
+        },
+        "event_review": review.get("event_review", {"reviewed_count": 0, "status": "待人工抽检"}),
+        "predicate_review": review.get("predicate_review", {"reviewed_count": 0, "status": "待人工抽检"}),
+        "market": {
+            "start": min(row["trade_date"] for row in market),
+            "end": max(row["trade_date"] for row in market),
+            "adj_factor_placeholder": all(float(row["adj_factor"]) == 1.0 for row in market),
+        },
+        "rule_diagnostics": diagnostics,
+        "model": {
+            "chat_model": "deepseek-v4-flash",
+            "prompt_version": AI_LAYER.status()["prompt_version"],
+            "rule_version": "R1",
+            "repository_commit": repository_commit(),
+        },
+        "future_info_audit": historical_backtest()["metrics"].get("future_info_audit", "pending"),
+        "disclaimer": DISCLAIMER,
+    }
+
+
 def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
     metrics = history["metrics"]
+    oos_metrics = history.get("splits", {}).get("oos", {}).get("metrics", {})
     stocks = analysis["stock_results"]
     rules = analysis["triggered_rules"]
     ai = analysis.get("ai_analysis", {})
@@ -198,7 +356,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         "",
         "## 二、因子形成路径",
         "",
-        "文本先经过实体链接与事件抽取，再按锁定 Schema 生成可解释谓词；冻结规则只匹配值为 true 的谓词组合，规则历史评分经证据强度和事件类型先验加权后形成候选因子值。",
+        "文本先经过 Embedding 检索和大模型结构化抽取，再按锁定 Schema 生成 19 个谓词。每个 AI 谓词必须与确定性程序对照，只有 agreed_true 可以触发冻结规则；disputed 和 invalid 不进入因子计算。",
         "",
         f"本次关联 {len(stocks)} 只样例股票，触发 {len(rules)} 条冻结规则。候选值用于研究排序与追溯，不是收益预测或买卖信号。",
         "",
@@ -209,7 +367,9 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         f"- Prompt 版本：{ai.get('prompt_version', '--')}",
         f"- Embedding 相似规则：{len(ai.get('embedding_retrieval', {}).get('matches', []))} 条",
         f"- 待统计验证候选规则：{len(ai_result.get('candidate_rules', []))} 条",
-        "- AI 只提出事件、谓词和规则候选；冻结规则匹配、因子计算与回测由确定性程序完成。",
+        f"- 一致性门控：{'通过' if analysis.get('consensus_gate_passed') else '存在排除项'}",
+        f"- 门控排除谓词：{'、'.join(analysis.get('disputed_predicates', [])) or '无'}",
+        "- AI 只提出事件、谓词和规则候选；门控、冻结规则匹配、因子计算与回测由确定性程序完成。",
         "",
         "| 股票 | 行业 | 候选因子 | 原始规则分 | 触发规则 |",
         "|---|---|---:|---:|---|",
@@ -242,15 +402,17 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
             "",
             "> 这一部分来自固定历史样本，并非对本次新文本单独回测。",
             "",
-            f"- 事件因子样本数：{metrics.get('event_factor_sample_count', 0)}",
-            f"- 平均 Rank IC（5 日）：{metrics.get('avg_rank_ic_5d', 0):.6f}",
-            f"- G5-G1 五日收益差：{metrics.get('top_bottom_group_spread_5d', 0):.6f}",
-            f"- 正收益样本比例：{metrics.get('positive_forward_return_rate_5d', 0):.6f}",
+            f"- OOS 平均 Rank IC（5 日）：{float(oos_metrics.get('avg_rank_ic_5d', 0)):.6f}",
+            f"- OOS ICIR：{float(oos_metrics.get('rank_ic_ir', 0)):.6f}",
+            f"- OOS 有效 IC 日数：{int(oos_metrics.get('rank_ic_valid_date_count', 0))}",
+            f"- OOS G5-G1 行业超额收益差：{float(oos_metrics.get('top_bottom_group_spread_5d', 0)):.6f}",
+            f"- OOS 证据状态：{oos_metrics.get('evidence_status', 'insufficient')}",
             f"- 未来函数审计：{metrics.get('future_info_audit', 'pending')}",
             "",
             "## 五、限制",
             "",
             "- 当前行情为前复权候选价，`adj_factor=1` 仅作占位字段，不是真实复权因子序列。",
+            "- 当前 OOS 有效日期过少，证据不足，不能宣称因子稳定有效。",
             "- 新文本只生成候选因子；只有积累到后续真实收益并遵守时间边界后，才能纳入下一轮历史检验。",
             "- 当前样本、规则与股票池规模有限，结果用于验证研究链路，不代表未来表现。",
             "",
@@ -282,8 +444,8 @@ def validate_payload(payload: dict[str, Any]) -> tuple[dict[str, str] | None, st
     if source_url and not source_url.startswith(("https://", "http://")):
         return None, "来源链接必须以 http:// 或 https:// 开头"
     analysis_mode = normalized.get("analysis_mode", "hybrid")
-    if analysis_mode not in {"hybrid", "rule"}:
-        return None, "分析模式必须是 hybrid 或 rule"
+    if analysis_mode != "hybrid":
+        return None, "实时分析必须使用 hybrid（大模型候选 + 规则校验）"
     if len(normalized.get("api_key", "")) > 512:
         return None, "API Key 长度不合法"
     normalized["analysis_mode"] = analysis_mode
@@ -310,9 +472,56 @@ def backtest():
     return jsonify(historical_backtest())
 
 
+@app.get("/api/audit")
+def audit():
+    return jsonify(research_audit())
+
+
 @app.get("/api/ai/status")
 def ai_status():
     return jsonify(AI_LAYER.status())
+
+
+@app.post("/api/ai/check")
+def ai_check():
+    payload = request.get_json(silent=True) or {}
+    api_key = str(payload.get("api_key", "")).strip()
+    if not api_key:
+        return jsonify({"ok": False, "error": "请填写 DeepSeek API Key"}), 400
+    if len(api_key) > 512:
+        return jsonify({"ok": False, "error": "API Key 长度不合法"}), 400
+    layer = request_ai_layer(api_key)
+    try:
+        result = layer.gateway.check_connection()
+    except AIServiceError as exc:
+        status_code = exc.status_code if exc.status_code in {401, 402, 403, 429} else 503
+        return jsonify({"ok": False, "error": str(exc)}), status_code
+    return jsonify({**result, "provider": "deepseek", "credential_retained": False})
+
+
+@app.get("/api/replay/<case_id>")
+def replay(case_id: str):
+    case = load_replay_cases().get(case_id)
+    if case is None:
+        return jsonify({"error": "冻结回放案例不存在"}), 404
+    payload = {key: str(value) for key, value in case["request"].items()}
+    payload["analysis_mode"] = "hybrid"
+    result = analyze_new_document(
+        payload,
+        read_csv("stock_pool.csv"),
+        read_csv("rules.csv"),
+        ai_layer=FrozenAIResearchLayer(case),
+        use_ai=True,
+    )
+    if "error" in result:
+        return jsonify(result), 422
+    result["is_replay"] = True
+    result["replay_metadata"] = case["metadata"]
+    history = historical_backtest()
+    result["historical_backtest"] = history
+    result["report"] = generate_report(result, history)
+    result["disclaimer"] = DISCLAIMER
+    return jsonify(result)
 
 
 @app.post("/api/analyze")
@@ -329,7 +538,7 @@ def analyze():
             read_csv("stock_pool.csv"),
             read_csv("rules.csv"),
             ai_layer=ai_layer,
-            use_ai=payload["analysis_mode"] == "hybrid",
+            use_ai=True,
         )
     except (KeyError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400

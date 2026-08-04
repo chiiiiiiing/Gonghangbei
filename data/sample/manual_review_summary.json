@@ -1,0 +1,18 @@
+{
+  "source_verification": {
+    "automated_pass_count": 130,
+    "status": "来源自动核验通过，队伍人工抽样确认待完成"
+  },
+  "event_review": {
+    "reviewed_count": 10,
+    "pass_count": 0,
+    "revise_count": 0,
+    "drop_count": 10,
+    "remediated_drop_count": 10,
+    "status": "已完成并处理 drop 项"
+  },
+  "predicate_review": {
+    "reviewed_count": 0,
+    "status": "待人工抽检"
+  }
+}

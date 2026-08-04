@@ -443,7 +443,7 @@ E034,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E034,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E034,source_company_announcement,false,0.78,来源不是公司公告
 E034,source_major_media,false,0.76,来源不是主流财经媒体
-E034,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E034,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E034,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E034,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E034,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -462,7 +462,7 @@ E035,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E035,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E035,source_company_announcement,false,0.78,来源不是公司公告
 E035,source_major_media,false,0.76,来源不是主流财经媒体
-E035,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E035,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E035,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E035,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E035,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -481,7 +481,7 @@ E036,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E036,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E036,source_company_announcement,false,0.78,来源不是公司公告
 E036,source_major_media,false,0.76,来源不是主流财经媒体
-E036,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E036,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E036,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E036,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E036,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -500,7 +500,7 @@ E037,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E037,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E037,source_company_announcement,false,0.78,来源不是公司公告
 E037,source_major_media,false,0.76,来源不是主流财经媒体
-E037,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E037,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E037,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E037,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E037,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -519,7 +519,7 @@ E038,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E038,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E038,source_company_announcement,false,0.78,来源不是公司公告
 E038,source_major_media,false,0.76,来源不是主流财经媒体
-E038,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E038,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E038,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E038,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E038,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -538,7 +538,7 @@ E039,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E039,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E039,source_company_announcement,false,0.78,来源不是公司公告
 E039,source_major_media,false,0.76,来源不是主流财经媒体
-E039,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E039,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E039,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E039,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E039,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -557,7 +557,7 @@ E040,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E040,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E040,source_company_announcement,false,0.78,来源不是公司公告
 E040,source_major_media,false,0.76,来源不是主流财经媒体
-E040,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E040,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E040,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E040,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E040,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -576,7 +576,7 @@ E041,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E041,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E041,source_company_announcement,false,0.78,来源不是公司公告
 E041,source_major_media,false,0.76,来源不是主流财经媒体
-E041,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E041,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E041,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E041,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E041,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -595,7 +595,7 @@ E042,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E042,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E042,source_company_announcement,false,0.78,来源不是公司公告
 E042,source_major_media,false,0.76,来源不是主流财经媒体
-E042,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E042,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E042,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E042,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E042,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -823,7 +823,7 @@ E071,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E071,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E071,source_company_announcement,false,0.78,来源不是公司公告
 E071,source_major_media,false,0.76,来源不是主流财经媒体
-E071,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E071,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E071,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E071,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E071,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -842,7 +842,7 @@ E072,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E072,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E072,source_company_announcement,false,0.78,来源不是公司公告
 E072,source_major_media,false,0.76,来源不是主流财经媒体
-E072,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E072,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E072,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E072,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E072,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -861,7 +861,7 @@ E073,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E073,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E073,source_company_announcement,false,0.78,来源不是公司公告
 E073,source_major_media,false,0.76,来源不是主流财经媒体
-E073,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E073,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E073,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E073,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E073,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -880,7 +880,7 @@ E074,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E074,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E074,source_company_announcement,false,0.78,来源不是公司公告
 E074,source_major_media,false,0.76,来源不是主流财经媒体
-E074,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E074,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E074,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E074,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E074,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -899,7 +899,7 @@ E075,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E075,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E075,source_company_announcement,false,0.78,来源不是公司公告
 E075,source_major_media,false,0.76,来源不是主流财经媒体
-E075,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E075,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E075,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E075,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E075,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -918,7 +918,7 @@ E076,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E076,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E076,source_company_announcement,false,0.78,来源不是公司公告
 E076,source_major_media,false,0.76,来源不是主流财经媒体
-E076,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E076,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E076,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E076,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E076,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -937,7 +937,7 @@ E077,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E077,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E077,source_company_announcement,false,0.78,来源不是公司公告
 E077,source_major_media,false,0.76,来源不是主流财经媒体
-E077,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E077,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E077,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E077,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E077,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -956,7 +956,7 @@ E078,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E078,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E078,source_company_announcement,false,0.78,来源不是公司公告
 E078,source_major_media,false,0.76,来源不是主流财经媒体
-E078,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E078,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E078,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E078,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E078,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -975,7 +975,7 @@ E079,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E079,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E079,source_company_announcement,false,0.78,来源不是公司公告
 E079,source_major_media,false,0.76,来源不是主流财经媒体
-E079,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E079,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E079,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E079,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E079,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -1319,7 +1319,7 @@ E111,source_company_announcement,true,0.94,来源类型为公司公告
 E111,source_major_media,false,0.76,来源不是主流财经媒体
 E111,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E111,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E111,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E111,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E111,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E111,management_response_vague,false,0.76,未发现明显模糊回复
 E111,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -1338,7 +1338,7 @@ E112,source_company_announcement,false,0.78,来源不是公司公告
 E112,source_major_media,true,0.90,来源为主流财经媒体
 E112,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E112,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E112,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E112,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E112,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E112,management_response_vague,false,0.76,未发现明显模糊回复
 E112,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -1357,7 +1357,7 @@ E113,source_company_announcement,false,0.78,来源不是公司公告
 E113,source_major_media,true,0.90,来源为主流财经媒体
 E113,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E113,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E113,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E113,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E113,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E113,management_response_vague,false,0.76,未发现明显模糊回复
 E113,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -1376,7 +1376,7 @@ E114,source_company_announcement,false,0.78,来源不是公司公告
 E114,source_major_media,true,0.90,来源为主流财经媒体
 E114,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E114,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E114,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E114,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E114,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E114,management_response_vague,false,0.76,未发现明显模糊回复
 E114,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -1395,7 +1395,7 @@ E115,source_company_announcement,false,0.78,来源不是公司公告
 E115,source_major_media,true,0.90,来源为主流财经媒体
 E115,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E115,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E115,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E115,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E115,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E115,management_response_vague,false,0.76,未发现明显模糊回复
 E115,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -1414,7 +1414,7 @@ E116,source_company_announcement,false,0.78,来源不是公司公告
 E116,source_major_media,true,0.90,来源为主流财经媒体
 E116,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E116,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E116,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E116,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E116,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E116,management_response_vague,false,0.76,未发现明显模糊回复
 E116,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -1785,6 +1785,25 @@ E157,supply_side_policy,false,0.74,政策未明确作用于供给侧
 E157,capacity_policy_support,true,0.84,政策或权威事件与产能/项目建设相关
 E157,event_evidence_strength,0.90,0.92,沿用事件抽取阶段的证据强度评分
 E157,event_has_short_term_price_impact,0.63,0.70,基于事件类型的先验市场反应强度，用于规则归纳初始特征
+E169,has_policy_support,false,0.88,事件不是政策利好类型
+E169,policy_directly_related_to_business,false,0.78,政策原文证据未明确涉及锂电主营业务或核心产品
+E169,event_mentions_core_product,true,0.88,文本提及核心产品/业务关键词
+E169,evidence_from_authoritative_source,true,0.94,来源为深交所互动易
+E169,source_government_or_exchange,true,0.95,来源为政府、部委或交易所
+E169,source_company_announcement,false,0.78,来源不是公司公告
+E169,source_major_media,false,0.76,来源不是主流财经媒体
+E169,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
+E169,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
+E169,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
+E169,investor_questions_increase,true,0.86,事件已由时间窗聚合证据确认提问增加
+E169,management_response_vague,false,0.76,未发现明显模糊回复
+E169,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
+E169,risk_or_uncertainty_disclosure,false,0.78,未发现集中风险披露线索
+E169,demand_side_policy,false,0.74,政策未明确作用于需求侧
+E169,supply_side_policy,false,0.74,政策未明确作用于供给侧
+E169,capacity_policy_support,false,0.74,未发现产能政策支持线索
+E169,event_evidence_strength,0.72,0.92,沿用事件抽取阶段的证据强度评分
+E169,event_has_short_term_price_impact,0.50,0.70,基于事件类型的先验市场反应强度，用于规则归纳初始特征
 E170,has_policy_support,true,0.96,事件类型为 policy_support
 E170,policy_directly_related_to_business,false,0.78,政策原文证据未明确涉及光伏主营业务或核心产品
 E170,event_mentions_core_product,false,0.74,文本未显式提及核心产品关键词
@@ -1944,7 +1963,7 @@ E189,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E189,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E189,source_company_announcement,false,0.78,来源不是公司公告
 E189,source_major_media,false,0.76,来源不是主流财经媒体
-E189,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E189,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E189,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E189,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E189,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -1963,7 +1982,7 @@ E190,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E190,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E190,source_company_announcement,false,0.78,来源不是公司公告
 E190,source_major_media,false,0.76,来源不是主流财经媒体
-E190,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E190,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E190,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E190,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E190,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2191,7 +2210,7 @@ E209,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E209,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E209,source_company_announcement,false,0.78,来源不是公司公告
 E209,source_major_media,false,0.76,来源不是主流财经媒体
-E209,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E209,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E209,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E209,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E209,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2210,7 +2229,7 @@ E210,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E210,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E210,source_company_announcement,false,0.78,来源不是公司公告
 E210,source_major_media,false,0.76,来源不是主流财经媒体
-E210,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E210,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E210,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E210,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E210,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2229,7 +2248,7 @@ E211,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E211,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E211,source_company_announcement,false,0.78,来源不是公司公告
 E211,source_major_media,false,0.76,来源不是主流财经媒体
-E211,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E211,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E211,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E211,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E211,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2248,7 +2267,7 @@ E212,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E212,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E212,source_company_announcement,false,0.78,来源不是公司公告
 E212,source_major_media,false,0.76,来源不是主流财经媒体
-E212,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E212,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E212,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E212,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E212,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2267,7 +2286,7 @@ E213,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E213,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E213,source_company_announcement,false,0.78,来源不是公司公告
 E213,source_major_media,false,0.76,来源不是主流财经媒体
-E213,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E213,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E213,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E213,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E213,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2286,7 +2305,7 @@ E214,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E214,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E214,source_company_announcement,false,0.78,来源不是公司公告
 E214,source_major_media,false,0.76,来源不是主流财经媒体
-E214,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E214,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E214,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E214,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E214,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2305,7 +2324,7 @@ E215,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E215,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E215,source_company_announcement,false,0.78,来源不是公司公告
 E215,source_major_media,false,0.76,来源不是主流财经媒体
-E215,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E215,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E215,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E215,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E215,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2324,7 +2343,7 @@ E216,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E216,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E216,source_company_announcement,false,0.78,来源不是公司公告
 E216,source_major_media,false,0.76,来源不是主流财经媒体
-E216,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E216,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E216,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E216,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E216,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2343,7 +2362,7 @@ E217,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E217,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E217,source_company_announcement,false,0.78,来源不是公司公告
 E217,source_major_media,false,0.76,来源不是主流财经媒体
-E217,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E217,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E217,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E217,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E217,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2362,7 +2381,7 @@ E218,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E218,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E218,source_company_announcement,false,0.78,来源不是公司公告
 E218,source_major_media,false,0.76,来源不是主流财经媒体
-E218,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E218,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E218,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E218,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E218,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2381,7 +2400,7 @@ E219,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E219,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E219,source_company_announcement,false,0.78,来源不是公司公告
 E219,source_major_media,false,0.76,来源不是主流财经媒体
-E219,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E219,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E219,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E219,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E219,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2400,7 +2419,7 @@ E220,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E220,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E220,source_company_announcement,false,0.78,来源不是公司公告
 E220,source_major_media,false,0.76,来源不是主流财经媒体
-E220,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E220,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E220,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E220,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E220,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2419,7 +2438,7 @@ E221,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E221,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E221,source_company_announcement,false,0.78,来源不是公司公告
 E221,source_major_media,false,0.76,来源不是主流财经媒体
-E221,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E221,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E221,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E221,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E221,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2438,7 +2457,7 @@ E222,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E222,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E222,source_company_announcement,false,0.78,来源不是公司公告
 E222,source_major_media,false,0.76,来源不是主流财经媒体
-E222,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E222,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E222,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E222,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E222,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2609,7 +2628,7 @@ E244,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E244,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E244,source_company_announcement,false,0.78,来源不是公司公告
 E244,source_major_media,false,0.76,来源不是主流财经媒体
-E244,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E244,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E244,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E244,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E244,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2628,7 +2647,7 @@ E245,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E245,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E245,source_company_announcement,false,0.78,来源不是公司公告
 E245,source_major_media,false,0.76,来源不是主流财经媒体
-E245,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E245,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E245,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E245,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E245,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2668,7 +2687,7 @@ E265,source_company_announcement,true,0.94,来源类型为公司公告
 E265,source_major_media,false,0.76,来源不是主流财经媒体
 E265,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E265,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E265,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E265,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E265,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E265,management_response_vague,false,0.76,未发现明显模糊回复
 E265,announcement_contains_uncertainty,true,0.84,公告摘要包含风险或不确定性提示
@@ -2697,6 +2716,25 @@ E276,supply_side_policy,false,0.74,政策未明确作用于供给侧
 E276,capacity_policy_support,false,0.74,未发现产能政策支持线索
 E276,event_evidence_strength,0.88,0.92,沿用事件抽取阶段的证据强度评分
 E276,event_has_short_term_price_impact,0.64,0.70,基于事件类型的先验市场反应强度，用于规则归纳初始特征
+E281,has_policy_support,false,0.88,事件不是政策利好类型
+E281,policy_directly_related_to_business,false,0.78,政策原文证据未明确涉及锂电主营业务或核心产品
+E281,event_mentions_core_product,true,0.88,文本提及核心产品/业务关键词
+E281,evidence_from_authoritative_source,true,0.94,来源为深交所互动易
+E281,source_government_or_exchange,true,0.95,来源为政府、部委或交易所
+E281,source_company_announcement,false,0.78,来源不是公司公告
+E281,source_major_media,false,0.76,来源不是主流财经媒体
+E281,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
+E281,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
+E281,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
+E281,investor_questions_increase,true,0.86,事件已由时间窗聚合证据确认提问增加
+E281,management_response_vague,false,0.76,未发现明显模糊回复
+E281,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
+E281,risk_or_uncertainty_disclosure,false,0.78,未发现集中风险披露线索
+E281,demand_side_policy,false,0.74,政策未明确作用于需求侧
+E281,supply_side_policy,false,0.74,政策未明确作用于供给侧
+E281,capacity_policy_support,false,0.74,未发现产能政策支持线索
+E281,event_evidence_strength,0.72,0.92,沿用事件抽取阶段的证据强度评分
+E281,event_has_short_term_price_impact,0.50,0.70,基于事件类型的先验市场反应强度，用于规则归纳初始特征
 E282,has_policy_support,true,0.96,事件类型为 policy_support
 E282,policy_directly_related_to_business,false,0.78,政策原文证据未明确涉及整车主营业务或核心产品
 E282,event_mentions_core_product,false,0.74,文本未显式提及核心产品关键词
@@ -2811,6 +2849,25 @@ E287,supply_side_policy,false,0.74,政策未明确作用于供给侧
 E287,capacity_policy_support,false,0.74,未发现产能政策支持线索
 E287,event_evidence_strength,0.94,0.92,沿用事件抽取阶段的证据强度评分
 E287,event_has_short_term_price_impact,0.78,0.70,基于事件类型的先验市场反应强度，用于规则归纳初始特征
+E294,has_policy_support,false,0.88,事件不是政策利好类型
+E294,policy_directly_related_to_business,false,0.78,政策原文证据未明确涉及锂电主营业务或核心产品
+E294,event_mentions_core_product,true,0.88,文本提及核心产品/业务关键词
+E294,evidence_from_authoritative_source,true,0.94,来源为深交所互动易
+E294,source_government_or_exchange,true,0.95,来源为政府、部委或交易所
+E294,source_company_announcement,false,0.78,来源不是公司公告
+E294,source_major_media,false,0.76,来源不是主流财经媒体
+E294,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
+E294,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
+E294,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
+E294,investor_questions_increase,true,0.86,事件已由时间窗聚合证据确认提问增加
+E294,management_response_vague,false,0.76,未发现明显模糊回复
+E294,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
+E294,risk_or_uncertainty_disclosure,false,0.78,未发现集中风险披露线索
+E294,demand_side_policy,false,0.74,政策未明确作用于需求侧
+E294,supply_side_policy,false,0.74,政策未明确作用于供给侧
+E294,capacity_policy_support,false,0.74,未发现产能政策支持线索
+E294,event_evidence_strength,0.72,0.92,沿用事件抽取阶段的证据强度评分
+E294,event_has_short_term_price_impact,0.50,0.70,基于事件类型的先验市场反应强度，用于规则归纳初始特征
 E300,has_policy_support,false,0.88,事件不是政策利好类型
 E300,policy_directly_related_to_business,false,0.78,政策原文证据未明确涉及储能主营业务或核心产品
 E300,event_mentions_core_product,false,0.74,文本未显式提及核心产品关键词
@@ -2830,6 +2887,25 @@ E300,supply_side_policy,false,0.74,政策未明确作用于供给侧
 E300,capacity_policy_support,true,0.84,政策或权威事件与产能/项目建设相关
 E300,event_evidence_strength,0.90,0.92,沿用事件抽取阶段的证据强度评分
 E300,event_has_short_term_price_impact,0.63,0.70,基于事件类型的先验市场反应强度，用于规则归纳初始特征
+E327,has_policy_support,false,0.88,事件不是政策利好类型
+E327,policy_directly_related_to_business,false,0.78,政策原文证据未明确涉及锂电主营业务或核心产品
+E327,event_mentions_core_product,true,0.88,文本提及核心产品/业务关键词
+E327,evidence_from_authoritative_source,true,0.94,来源为深交所互动易
+E327,source_government_or_exchange,true,0.95,来源为政府、部委或交易所
+E327,source_company_announcement,false,0.78,来源不是公司公告
+E327,source_major_media,false,0.76,来源不是主流财经媒体
+E327,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
+E327,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
+E327,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
+E327,investor_questions_increase,true,0.86,事件已由时间窗聚合证据确认提问增加
+E327,management_response_vague,false,0.76,未发现明显模糊回复
+E327,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
+E327,risk_or_uncertainty_disclosure,false,0.78,未发现集中风险披露线索
+E327,demand_side_policy,false,0.74,政策未明确作用于需求侧
+E327,supply_side_policy,false,0.74,政策未明确作用于供给侧
+E327,capacity_policy_support,false,0.74,未发现产能政策支持线索
+E327,event_evidence_strength,0.72,0.92,沿用事件抽取阶段的证据强度评分
+E327,event_has_short_term_price_impact,0.50,0.70,基于事件类型的先验市场反应强度，用于规则归纳初始特征
 E343,has_policy_support,false,0.88,事件不是政策利好类型
 E343,policy_directly_related_to_business,false,0.78,政策原文证据未明确涉及储能主营业务或核心产品
 E343,event_mentions_core_product,false,0.74,文本未显式提及核心产品关键词
@@ -2856,7 +2932,7 @@ E356,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E356,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E356,source_company_announcement,false,0.78,来源不是公司公告
 E356,source_major_media,false,0.76,来源不是主流财经媒体
-E356,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E356,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E356,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E356,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E356,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2875,7 +2951,7 @@ E357,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E357,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E357,source_company_announcement,false,0.78,来源不是公司公告
 E357,source_major_media,false,0.76,来源不是主流财经媒体
-E357,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E357,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E357,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E357,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E357,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2894,7 +2970,7 @@ E358,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E358,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E358,source_company_announcement,false,0.78,来源不是公司公告
 E358,source_major_media,false,0.76,来源不是主流财经媒体
-E358,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E358,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E358,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E358,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E358,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2913,7 +2989,7 @@ E359,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E359,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E359,source_company_announcement,false,0.78,来源不是公司公告
 E359,source_major_media,false,0.76,来源不是主流财经媒体
-E359,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E359,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E359,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E359,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E359,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -2932,7 +3008,7 @@ E360,evidence_from_authoritative_source,false,0.72,来源为新浪财经
 E360,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E360,source_company_announcement,false,0.78,来源不是公司公告
 E360,source_major_media,false,0.76,来源不是主流财经媒体
-E360,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E360,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E360,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E360,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E360,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3236,7 +3312,7 @@ E387,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E387,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E387,source_company_announcement,false,0.78,来源不是公司公告
 E387,source_major_media,false,0.76,来源不是主流财经媒体
-E387,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E387,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E387,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E387,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E387,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3255,7 +3331,7 @@ E388,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E388,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E388,source_company_announcement,false,0.78,来源不是公司公告
 E388,source_major_media,false,0.76,来源不是主流财经媒体
-E388,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E388,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E388,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E388,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E388,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3274,7 +3350,7 @@ E389,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E389,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E389,source_company_announcement,false,0.78,来源不是公司公告
 E389,source_major_media,false,0.76,来源不是主流财经媒体
-E389,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E389,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E389,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E389,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E389,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3293,7 +3369,7 @@ E390,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E390,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E390,source_company_announcement,false,0.78,来源不是公司公告
 E390,source_major_media,false,0.76,来源不是主流财经媒体
-E390,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E390,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E390,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E390,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E390,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3312,7 +3388,7 @@ E391,evidence_from_authoritative_source,false,0.72,来源为腾讯新闻
 E391,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E391,source_company_announcement,false,0.78,来源不是公司公告
 E391,source_major_media,false,0.76,来源不是主流财经媒体
-E391,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E391,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E391,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E391,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E391,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3350,7 +3426,7 @@ E399,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E399,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E399,source_company_announcement,false,0.78,来源不是公司公告
 E399,source_major_media,false,0.76,来源不是主流财经媒体
-E399,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E399,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E399,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E399,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E399,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3369,7 +3445,7 @@ E400,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E400,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E400,source_company_announcement,false,0.78,来源不是公司公告
 E400,source_major_media,false,0.76,来源不是主流财经媒体
-E400,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E400,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E400,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E400,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E400,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3388,7 +3464,7 @@ E401,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E401,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E401,source_company_announcement,false,0.78,来源不是公司公告
 E401,source_major_media,false,0.76,来源不是主流财经媒体
-E401,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E401,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E401,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E401,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E401,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3407,7 +3483,7 @@ E402,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E402,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E402,source_company_announcement,false,0.78,来源不是公司公告
 E402,source_major_media,false,0.76,来源不是主流财经媒体
-E402,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E402,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E402,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E402,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E402,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3426,7 +3502,7 @@ E403,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E403,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E403,source_company_announcement,false,0.78,来源不是公司公告
 E403,source_major_media,false,0.76,来源不是主流财经媒体
-E403,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E403,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E403,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E403,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E403,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3445,7 +3521,7 @@ E404,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E404,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E404,source_company_announcement,false,0.78,来源不是公司公告
 E404,source_major_media,false,0.76,来源不是主流财经媒体
-E404,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E404,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E404,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E404,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E404,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3464,7 +3540,7 @@ E405,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E405,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E405,source_company_announcement,false,0.78,来源不是公司公告
 E405,source_major_media,false,0.76,来源不是主流财经媒体
-E405,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E405,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E405,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E405,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E405,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3483,7 +3559,7 @@ E406,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E406,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E406,source_company_announcement,false,0.78,来源不是公司公告
 E406,source_major_media,false,0.76,来源不是主流财经媒体
-E406,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E406,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E406,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E406,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E406,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3502,7 +3578,7 @@ E407,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E407,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E407,source_company_announcement,false,0.78,来源不是公司公告
 E407,source_major_media,false,0.76,来源不是主流财经媒体
-E407,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E407,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E407,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E407,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E407,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3521,7 +3597,7 @@ E408,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E408,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E408,source_company_announcement,false,0.78,来源不是公司公告
 E408,source_major_media,false,0.76,来源不是主流财经媒体
-E408,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E408,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E408,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E408,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E408,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3540,7 +3616,7 @@ E409,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E409,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E409,source_company_announcement,false,0.78,来源不是公司公告
 E409,source_major_media,false,0.76,来源不是主流财经媒体
-E409,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E409,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E409,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E409,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E409,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3559,7 +3635,7 @@ E410,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E410,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E410,source_company_announcement,false,0.78,来源不是公司公告
 E410,source_major_media,false,0.76,来源不是主流财经媒体
-E410,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E410,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E410,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E410,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E410,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3578,7 +3654,7 @@ E411,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E411,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E411,source_company_announcement,false,0.78,来源不是公司公告
 E411,source_major_media,false,0.76,来源不是主流财经媒体
-E411,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E411,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E411,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E411,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E411,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3597,7 +3673,7 @@ E412,evidence_from_authoritative_source,false,0.72,来源为工业和信息化�
 E412,source_government_or_exchange,false,0.76,来源不是政府、部委或交易所
 E412,source_company_announcement,false,0.78,来源不是公司公告
 E412,source_major_media,false,0.76,来源不是主流财经媒体
-E412,social_attention_spikes,true,0.82,新闻原文包含可量化或多源关注扩散线索
+E412,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E412,policy_attention_followup,true,0.84,政策或主题文本包含后续关注/扩散线索
 E412,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E412,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
@@ -3618,7 +3694,7 @@ E414,source_company_announcement,false,0.78,来源不是公司公告
 E414,source_major_media,false,0.76,来源不是主流财经媒体
 E414,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E414,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E414,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E414,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E414,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E414,management_response_vague,false,0.76,未发现明显模糊回复
 E414,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -3637,7 +3713,7 @@ E415,source_company_announcement,false,0.78,来源不是公司公告
 E415,source_major_media,false,0.76,来源不是主流财经媒体
 E415,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E415,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E415,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E415,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E415,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E415,management_response_vague,false,0.76,未发现明显模糊回复
 E415,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -3656,7 +3732,7 @@ E416,source_company_announcement,false,0.78,来源不是公司公告
 E416,source_major_media,false,0.76,来源不是主流财经媒体
 E416,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E416,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E416,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E416,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E416,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E416,management_response_vague,false,0.76,未发现明显模糊回复
 E416,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -3675,7 +3751,7 @@ E417,source_company_announcement,false,0.78,来源不是公司公告
 E417,source_major_media,false,0.76,来源不是主流财经媒体
 E417,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E417,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E417,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E417,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E417,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E417,management_response_vague,false,0.76,未发现明显模糊回复
 E417,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -3694,7 +3770,7 @@ E418,source_company_announcement,false,0.78,来源不是公司公告
 E418,source_major_media,false,0.76,来源不是主流财经媒体
 E418,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E418,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E418,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E418,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E418,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E418,management_response_vague,false,0.76,未发现明显模糊回复
 E418,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示
@@ -3713,7 +3789,7 @@ E419,source_company_announcement,false,0.78,来源不是公司公告
 E419,source_major_media,false,0.76,来源不是主流财经媒体
 E419,social_attention_spikes,false,0.68,单条来源不足以证明关注度显著上升
 E419,policy_attention_followup,false,0.70,未发现政策后续关注扩散线索
-E419,institutional_attention_increases,true,0.76,文本出现机构关注线索
+E419,institutional_attention_increases,false,0.70,文本未出现机构调研或研报线索
 E419,investor_questions_increase,false,0.82,未发现时间窗内提问数量增加的聚合证据
 E419,management_response_vague,false,0.76,未发现明显模糊回复
 E419,announcement_contains_uncertainty,false,0.78,未发现公告不确定性提示

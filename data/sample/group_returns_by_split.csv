@@ -1,0 +1,11 @@
+split,group,sample_count,avg_forward_return_5d
+discovery,G1,33,-0.001254
+discovery,G2,23,0.000730
+discovery,G3,81,0.000000
+discovery,G4,11,0.000000
+discovery,G5,32,0.000876
+oos,G1,0,0.000000
+oos,G2,0,0.000000
+oos,G3,0,0.000000
+oos,G4,0,0.000000
+oos,G5,0,0.000000

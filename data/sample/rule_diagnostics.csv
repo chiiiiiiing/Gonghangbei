@@ -1,0 +1,14 @@
+rule_id,independent_document_count,independent_date_count,stock_count,discovery_avg_excess_return_5d,oos_document_count,oos_avg_excess_return_5d,status
+R001,10,9,16,0.000525,1,0.000000,qualified
+R002,11,9,16,0.000478,1,0.000000,qualified
+R003,17,15,20,-0.001522,2,0.000840,candidate
+R004,8,7,19,-0.001278,3,-0.005528,candidate
+R005,3,2,5,-0.003408,0,0.000000,candidate
+R006,9,8,21,-0.001136,7,0.015088,candidate
+R007,4,3,10,-0.002556,0,0.000000,candidate
+R008,4,4,16,-0.000000,0,0.000000,candidate
+R009,5,4,11,-0.002045,0,0.000000,candidate
+R010,4,4,15,-0.000152,0,0.000000,candidate
+R011,4,4,9,-0.001370,1,0.000000,candidate
+R012,3,3,11,-0.013622,0,0.000000,candidate
+R013,3,3,5,-0.002119,1,0.000000,candidate
