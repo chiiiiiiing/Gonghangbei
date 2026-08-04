@@ -183,7 +183,8 @@ async function analyze(){
     const response=runMode==='replay'?await fetch('/api/replay/storage-policy'):await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await response.json();if(!response.ok||data.error)throw new Error(data.error||`HTTP ${response.status}`);
     currentAnalysis=data;historyData=data.historical_backtest;renderAnalysis(data);
-  }catch(error){showError(error.message);}finally{button.disabled=false;button.textContent=runMode==='replay'?'运行冻结回放':'开始分析';$('runState').classList.remove('on');if(runMode==='live')$('apiKey').value='';}
+    if(runMode==='live')setConnection(`实时调用成功 · ${data.ai_analysis?.chat_model||'DeepSeek V4 Flash'} · 密钥未保存`,true);
+  }catch(error){if(runMode==='live')setConnection('本次 AI 调用或结构校验未完成，请查看下方原因',false);showError(error.message);}finally{button.disabled=false;button.textContent=runMode==='replay'?'运行冻结回放':'开始分析';$('runState').classList.remove('on');if(runMode==='live')$('apiKey').value='';}
 }
 
 function showError(message){$('result').innerHTML=`<div class="error"><strong>分析未完成</strong><br>${esc(message)}</div>`;}
@@ -228,8 +229,8 @@ function renderAIResearch(ai){
   }
   const result=ai.result||{};const retrieval=ai.embedding_retrieval||{};const candidates=result.candidate_rules||[];const validation=ai.validation||{};
   const candidateRows=candidates.map(rule=>`<tr><td>${esc(rule.name)}</td><td class="mono">${esc(rule.conditions.join(' AND '))}</td><td>${esc(rule.target_label)}</td><td class="warn">待统计验证</td></tr>`).join('')||'<tr><td colspan="4">本次未提出新候选规则</td></tr>';
-  const formatNote=ai.response_format==='json_schema'?'严格 JSON Schema 返回':'JSON 对象 + 程序校验';
-  return `<section class="section"><div class="section-head"><h2>AI 研究层</h2><span class="scope">${esc(ai.chat_model)} · ${esc(ai.prompt_version)}</span></div><div class="section-body"><div class="ai-grid"><div class="ai-item"><strong>结构化事件</strong><span>${esc(result.event?.event_type||'--')} · ${formatNote}</span></div><div class="ai-item"><strong>Embedding 检索</strong><span>${retrieval.used?`${retrieval.matches.length} 条相似冻结规则 · ${esc(retrieval.model)}`:'检索不可用'}</span></div><div class="ai-item"><strong>候选谓词</strong><span>${validation.accepted_predicate_count||0}/19 通过合法值校验</span></div><div class="ai-item"><strong>候选规则</strong><span>${candidates.length} 条，尚未进入因子计算</span></div></div><div class="ai-summary">${esc(result.summary||'模型已返回结构化研究候选。')}</div><div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>AI 候选规则</th><th>条件</th><th>研究标签</th><th>状态</th></tr></thead><tbody>${candidateRows}</tbody></table></div></div></section>`;
+  const formatNote=ai.response_format==='json_schema'?'严格 JSON Schema 返回':'JSON 对象 + 程序校验';const repairNote=ai.repair_attempted?' · 自动修复后通过':' · 首次校验通过';
+  return `<section class="section"><div class="section-head"><h2>AI 研究层</h2><span class="scope">${esc(ai.chat_model)} · ${esc(ai.prompt_version)}</span></div><div class="section-body"><div class="ai-grid"><div class="ai-item"><strong>结构化事件</strong><span>${esc(result.event?.event_type||'--')} · ${formatNote}${repairNote}</span></div><div class="ai-item"><strong>Embedding 检索</strong><span>${retrieval.used?`${retrieval.matches.length} 条相似冻结规则 · ${esc(retrieval.model)}`:'检索不可用'}</span></div><div class="ai-item"><strong>候选谓词</strong><span>${validation.accepted_predicate_count||0}/19 通过合法值校验</span></div><div class="ai-item"><strong>候选规则</strong><span>${candidates.length} 条，尚未进入因子计算</span></div></div><div class="ai-summary">${esc(result.summary||'模型已返回结构化研究候选。')}</div><div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>AI 候选规则</th><th>条件</th><th>研究标签</th><th>状态</th></tr></thead><tbody>${candidateRows}</tbody></table></div></div></section>`;
 }
 
 function renderHistory(history){

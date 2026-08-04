@@ -6,7 +6,7 @@ import json
 from typing import Any
 
 
-PROMPT_VERSION = "alphalens-research-v1.0"
+PROMPT_VERSION = "alphalens-research-v1.1"
 
 EVENT_TYPES = [
     "policy_support",
@@ -128,8 +128,49 @@ SYSTEM_PROMPT = """你是 AlphaLens 的金融文本研究助手。你的职责�
 5. 候选规则只能组合给定谓词，不能包含收益方向、目标价或买卖建议。
 6. 候选规则状态永远是待统计验证，不能声称已经有效。
 7. 信息不足时降低置信度并明确说明，不得编造公司关联。
-8. 只输出一个合法 JSON 对象，不要输出 Markdown、代码块或 JSON 之外的说明文字。
+8. event.event_type 只能原样复制 allowed_event_types 中的一个英文值，禁止翻译成中文或自行创建类型。
+9. predicates 必须恰好包含 predicate_definitions 的全部 19 个英文键，每个键恰好出现一次。
+10. 只输出一个合法 JSON 对象，不要输出 Markdown、代码块或 JSON 之外的说明文字。
 """
+
+
+def output_contract() -> dict[str, Any]:
+    """Return a compact concrete template for providers without JSON Schema support."""
+    return {
+        "summary": "string",
+        "event": {
+            "event_type": f"one of: {', '.join(EVENT_TYPES)}",
+            "subject": "string",
+            "object": "string",
+            "impact_path": "string",
+            "evidence_text": "原文连续片段，最长 80 字符",
+            "evidence_strength": "number from 0 to 1",
+        },
+        "related_stocks": [
+            {
+                "code": "股票池中的 6 位代码",
+                "name": "股票池中的名称",
+                "confidence": "number from 0 to 1",
+                "rationale": "string",
+            }
+        ],
+        "predicates": [
+            {
+                "name": "predicate_definitions 中的英文键",
+                "value": "boolean 谓词为字符串 true/false，score 谓词为 0 到 1 的数字字符串",
+                "confidence": "number from 0 to 1",
+                "rationale": "string",
+            }
+        ],
+        "candidate_rules": [
+            {
+                "name": "string",
+                "conditions": ["predicate_definitions 中的英文键"],
+                "target_label": "string",
+                "rationale": "string",
+            }
+        ],
+    }
 
 
 def build_analysis_messages(
@@ -165,9 +206,32 @@ def build_analysis_messages(
             "判断全部 19 个谓词",
             "提出最多 3 条等待历史统计验证的候选组合规则",
         ],
-        "output_contract": "只返回合法 JSON object，必须包含 summary、event、related_stocks、predicates、candidate_rules。",
+        "output_contract": output_contract(),
     }
     return [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
+    ]
+
+
+def build_repair_messages(
+    messages: list[dict[str, str]],
+    invalid_output: dict[str, Any],
+    validation_error: str,
+) -> list[dict[str, str]]:
+    """Ask the model to repair a parseable JSON result that failed domain validation."""
+    repair = {
+        "validation_error": validation_error,
+        "repair_requirements": [
+            "保留对原文的研究判断，但修正所有不符合契约的字段",
+            f"event.event_type 必须严格选择：{', '.join(EVENT_TYPES)}",
+            "predicates 必须包含 predicate_definitions 的全部 19 个英文键且不重复",
+            "evidence_text 必须逐字复制输入标题或正文中的连续片段",
+            "只返回修复后的完整 JSON object",
+        ],
+    }
+    return [
+        *messages,
+        {"role": "assistant", "content": json.dumps(invalid_output, ensure_ascii=False)},
+        {"role": "user", "content": json.dumps(repair, ensure_ascii=False)},
     ]

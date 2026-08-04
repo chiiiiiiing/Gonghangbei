@@ -14,6 +14,7 @@ from src.ai.prompts import (
     PREDICATE_DEFINITIONS,
     PROMPT_VERSION,
     build_analysis_messages,
+    build_repair_messages,
 )
 
 
@@ -61,7 +62,25 @@ class AIResearchLayer:
         messages = build_analysis_messages(document, stock_pool, retrieval["matches"])
         try:
             raw, metadata = self.gateway.chat_json(messages, ANALYSIS_SCHEMA, "alphalens_research")
-            validated, audit = validate_ai_output(raw, document, stock_pool)
+            repair_attempted = False
+            first_request_id = ""
+            try:
+                validated, audit = validate_ai_output(raw, document, stock_pool)
+            except AIServiceError as first_error:
+                repair_attempted = True
+                first_request_id = str(metadata.get("request_id", ""))
+                repair_messages = build_repair_messages(messages, raw, str(first_error))
+                raw, metadata = self.gateway.chat_json(
+                    repair_messages,
+                    ANALYSIS_SCHEMA,
+                    "alphalens_research_repair",
+                )
+                try:
+                    validated, audit = validate_ai_output(raw, document, stock_pool)
+                except AIServiceError as second_error:
+                    raise AIServiceError(
+                        f"AI 结构化结果校验连续失败：{second_error}"
+                    ) from second_error
         except AIServiceError as exc:
             return {
                 **self.status(),
@@ -79,8 +98,10 @@ class AIResearchLayer:
             "fallback": False,
             "reason": "",
             "request_id": metadata["request_id"],
+            "initial_request_id": first_request_id,
             "usage": metadata["usage"],
             "response_format": metadata["response_format"],
+            "repair_attempted": repair_attempted,
             "embedding_retrieval": retrieval,
             "validation": audit,
             "result": validated,
@@ -163,9 +184,12 @@ def validate_ai_output(
     dropped: list[str] = []
     stock_by_code = {row["stock_code"]: row for row in stock_pool}
     event_raw = raw.get("event") if isinstance(raw.get("event"), dict) else {}
-    event_type = str(event_raw.get("event_type", ""))
+    event_type = str(event_raw.get("event_type", "")).strip()
     if event_type not in EVENT_TYPES:
-        raise AIServiceError("AI 事件类型未通过枚举校验")
+        display_value = event_type[:80] or "<empty>"
+        raise AIServiceError(
+            f"AI 事件类型未通过枚举校验（收到：{display_value}）"
+        )
     evidence = str(event_raw.get("evidence_text", "")).strip()[:80]
     source_text = f"{document['title']}\n{document['content']}"
     evidence_grounded = bool(evidence and evidence in source_text)

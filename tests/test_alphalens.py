@@ -8,7 +8,7 @@ from datetime import datetime
 
 from app.server import SAMPLE_DIR, app, load_replay_cases
 from src.ai.gateway import AIServiceError
-from src.ai.research_layer import validate_ai_output
+from src.ai.research_layer import AIResearchLayer, validate_ai_output
 from src.pipeline.live_analysis import build_predicate_consensus, rule_matches
 
 
@@ -54,6 +54,57 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
                 case["request"],
                 self._stock_pool(),
             )
+
+    def test_invalid_event_type_is_repaired_by_second_ai_call(self) -> None:
+        valid_output = deepcopy(self.replay_case["ai_output"])
+        invalid_output = deepcopy(valid_output)
+        invalid_output["event"]["event_type"] = "政策支持"
+
+        class RepairingGateway:
+            def __init__(self) -> None:
+                self.calls: list[list[dict[str, str]]] = []
+
+            def chat_json(self, messages, schema, schema_name):
+                self.calls.append(messages)
+                output = invalid_output if len(self.calls) == 1 else valid_output
+                return output, {
+                    "request_id": f"request-{len(self.calls)}",
+                    "usage": {},
+                    "response_format": "json_object",
+                }
+
+        gateway = RepairingGateway()
+        layer = AIResearchLayer(gateway=gateway)
+        layer.settings = type(
+            "EnabledSettings",
+            (),
+            {
+                "enabled": True,
+                "embedding_model": "",
+                "public_status": lambda self: {
+                    "configured": True,
+                    "chat_model": "deepseek-v4-flash",
+                },
+            },
+        )()
+        request = self.replay_case["request"]
+        document = {
+            "doc_id": "TEST-DOC",
+            "source_type": request["source_type"],
+            "title": request["title"],
+            "content": request["content"],
+            "publish_time": request["event_date"],
+            "source_name": request["source_name"],
+            "url": request["source_url"],
+        }
+        result = layer.analyze(document, self._stock_pool(), [])
+        self.assertTrue(result["used"])
+        self.assertTrue(result["repair_attempted"])
+        self.assertEqual(result["initial_request_id"], "request-1")
+        self.assertEqual(result["request_id"], "request-2")
+        self.assertEqual(result["result"]["event"]["event_type"], "policy_support")
+        self.assertEqual(len(gateway.calls), 2)
+        self.assertIn("收到：政策支持", gateway.calls[1][-1]["content"])
 
     def test_disputed_predicate_cannot_trigger_rule(self) -> None:
         deterministic = [

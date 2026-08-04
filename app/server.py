@@ -365,6 +365,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         f"- 运行状态：{'模式一已调用并通过结构校验' if ai.get('used') else '模式二仅规则复现，未调用 AI'}",
         f"- 模型：{ai.get('chat_model', '--')}",
         f"- Prompt 版本：{ai.get('prompt_version', '--')}",
+        f"- 结构校验：{'模型自动修复后通过' if ai.get('repair_attempted') else '首次返回通过'}",
         f"- Embedding 相似规则：{len(ai.get('embedding_retrieval', {}).get('matches', []))} 条",
         f"- 待统计验证候选规则：{len(ai_result.get('candidate_rules', []))} 条",
         f"- 一致性门控：{'通过' if analysis.get('consensus_gate_passed') else '存在排除项'}",
