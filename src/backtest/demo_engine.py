@@ -117,10 +117,14 @@ def compute_forward_returns() -> dict[str, dict[str, str]]:
     market_by_stock = build_market_by_stock()
     rows: list[dict[str, object]] = []
     by_event: dict[str, dict[str, str]] = {}
+    skipped_due_to_market: list[str] = []
 
     for event in read_csv("events.csv"):
         future_rows = [row for row in market_by_stock[event["stock_code"]] if row["trade_date"] > event["event_time"]]
         if len(future_rows) < 10:
+            skipped_due_to_market.append(
+                f"{event['event_id']}({event['stock_code']}) 事件日 {event['event_time']} 后行情交易日不足 10 个"
+            )
             continue
         entry = future_rows[0]
         exit_5d = future_rows[4]
@@ -141,6 +145,11 @@ def compute_forward_returns() -> dict[str, dict[str, str]]:
         }
         rows.append(result)
         by_event[event["event_id"]] = {key: str(value) for key, value in result.items()}
+
+    if skipped_due_to_market:
+        print(f"提示：{len(skipped_due_to_market)} 个事件因行情不足未进入前向收益计算")
+        for note in skipped_due_to_market[:10]:
+            print(f"  - {note}")
 
     write_csv(
         SAMPLE_DIR / "event_forward_returns.csv",

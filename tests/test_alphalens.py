@@ -13,6 +13,7 @@ from app.server import SAMPLE_DIR, app, load_replay_cases
 from src.ai.gateway import AIServiceError, AISettings, OpenAICompatibleGateway
 from src.ai.research_layer import AIResearchLayer, validate_ai_output
 from src.ingestion.text_import import FIELDS, stage_manifest
+from src.pipeline.extract_events_rule_based import _truncate_at_boundary
 from src.pipeline.live_analysis import (
     build_entity_consensus,
     build_event_consensus,
@@ -297,6 +298,22 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
             for row in csv.DictReader(handle):
                 self.assertEqual(row["future_info_ok"], "true")
                 self.assertGreater(row["entry_trade_date"], row["event_time"])
+
+    def test_default_ai_settings_match_deepseek(self) -> None:
+        settings = AISettings.from_environment(environ={})
+        self.assertEqual(settings.mode, "off")
+        self.assertEqual(settings.chat_model, "deepseek-v4-flash")
+        self.assertEqual(settings.base_url, "https://api.deepseek.com")
+        self.assertIn("deepseek", settings.provider)
+
+    def test_evidence_sentence_truncates_at_sentence_boundary(self) -> None:
+        long_sentence = "政策明确支持新型储能规模化发展。" + ("持续扩大的项目建设规模。") * 20
+        short_cut = _truncate_at_boundary(long_sentence, 80)
+        self.assertLessEqual(len(short_cut), 80)
+        self.assertTrue(short_cut.endswith("。"))
+        self.assertIn("持续扩大的项目建设规模", short_cut)
+        exact = _truncate_at_boundary("短文本", 80)
+        self.assertEqual(exact, "短文本")
 
     @staticmethod
     def _stock_pool() -> list[dict[str, str]]:

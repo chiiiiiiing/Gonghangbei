@@ -74,7 +74,12 @@ class AISettings:
         local_values = _load_local_env() if environ is None else {}
         source = dict(local_values)
         source.update(dict(os.environ if environ is None else environ))
-        api_key = source.get("OPENAI_API_KEY", "").strip()
+        # AlphaLens 默认 DeepSeek；DEEPSEEK_API_KEY / ALPHALENS_* 环境变量可覆盖，
+        # OPENAI_API_KEY 保留兼容（OpenAI 兼容协议）。
+        api_key = (
+            source.get("DEEPSEEK_API_KEY", "").strip()
+            or source.get("OPENAI_API_KEY", "").strip()
+        )
         mode = source.get("ALPHALENS_AI_MODE", "api" if api_key else "off").strip().lower()
         if mode not in {"off", "api", "local"}:
             mode = "off"
@@ -83,10 +88,10 @@ class AISettings:
             json_mode = "schema"
         return cls(
             mode=mode,
-            base_url=source.get("ALPHALENS_LLM_BASE_URL", "https://api.openai.com/v1").rstrip("/"),
+            base_url=source.get("ALPHALENS_LLM_BASE_URL", "https://api.deepseek.com").rstrip("/"),
             api_key=api_key,
-            chat_model=source.get("ALPHALENS_LLM_MODEL", "gpt-5-mini").strip(),
-            embedding_model=source.get("ALPHALENS_EMBEDDING_MODEL", "text-embedding-3-small").strip(),
+            chat_model=source.get("ALPHALENS_LLM_MODEL", "deepseek-v4-flash").strip(),
+            embedding_model=source.get("ALPHALENS_EMBEDDING_MODEL", "").strip(),
             timeout_seconds=float(source.get("ALPHALENS_AI_TIMEOUT", "45")),
             json_mode=json_mode,
         )

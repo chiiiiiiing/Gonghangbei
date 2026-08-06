@@ -71,15 +71,23 @@ def stage_manifest(manifest: Path, staging_dir: Path) -> Path:
     return output
 
 
-def apply_staged(staged: Path, destination: Path) -> dict[str, int]:
-    with destination.open(encoding="utf-8", newline="") as handle:
-        existing = list(csv.DictReader(handle))
-    with staged.open(encoding="utf-8", newline="") as handle:
-        incoming = list(csv.DictReader(handle))
+def merge_documents(
+    existing: list[dict[str, str]], incoming: list[dict[str, str]]
+) -> list[dict[str, str]]:
+    """Pure merge: replace rows by doc_id, append new rows, reject duplicate URLs."""
     incoming_by_id = {row["doc_id"]: row for row in incoming}
     merged = [incoming_by_id.pop(row["doc_id"], row) for row in existing]
     merged.extend(incoming_by_id.values())
     if len({row["url"] for row in merged}) != len(merged):
         raise ValueError("合并后出现重复 URL，未修改 raw_documents.csv")
+    return merged
+
+
+def apply_staged(staged: Path, destination: Path) -> dict[str, int]:
+    with destination.open(encoding="utf-8", newline="") as handle:
+        existing = list(csv.DictReader(handle))
+    with staged.open(encoding="utf-8", newline="") as handle:
+        incoming = list(csv.DictReader(handle))
+    merged = merge_documents(existing, incoming)
     atomic_write_csv(destination, FIELDS, merged)
     return {"existing": len(existing), "incoming": len(incoming), "merged": len(merged)}

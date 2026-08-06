@@ -135,13 +135,25 @@ def build_ir_pressure_documents(
     return pressure
 
 
+def _truncate_at_boundary(text: str, max_len: int) -> str:
+    """Truncate at a sentence boundary instead of cutting mid-sentence."""
+    if len(text) <= max_len:
+        return text
+    cut = text[:max_len]
+    for boundary in ("。", "；", ";", "！", "？"):
+        index = cut.rfind(boundary)
+        if index >= max_len * 0.5:
+            return cut[: index + 1]
+    return cut
+
+
 def evidence_sentence(doc: dict[str, str], stock_name: str) -> str:
     text = doc["content"].split("项目关联：", 1)[0].replace("。", "。\n")
     priority_words = [stock_name, "政策", "订单", "产能", "储能", "电池", "光伏", "风电", "销量", "投资者"]
     for sentence in text.splitlines():
         if any(word in sentence for word in priority_words):
-            return sentence[:80]
-    return doc["title"][:80]
+            return _truncate_at_boundary(sentence, 80)
+    return _truncate_at_boundary(doc["title"], 80)
 
 
 def infer_subject(doc: dict[str, str]) -> str:
@@ -154,11 +166,16 @@ def infer_subject(doc: dict[str, str]) -> str:
     return doc["source_name"]
 
 
-def extract_events() -> list[dict[str, object]]:
-    documents = {doc["doc_id"]: doc for doc in read_csv(SAMPLE_DIR / "raw_documents.csv")}
-    links_by_doc: dict[str, list[dict[str, str]]] = defaultdict(list)
-    for link in read_csv(SAMPLE_DIR / "entity_links.csv"):
-        links_by_doc[link["doc_id"]].append(link)
+def build_events(
+    documents: dict[str, dict[str, str]],
+    links_by_doc: dict[str, list[dict[str, str]]],
+) -> list[dict[str, object]]:
+    """Pure read-only event construction for an arbitrary corpus (no file IO).
+
+    Predicts what extract_events() would emit for a given document set and its
+    entity links, so the 预演导入 precheck can preview prospective documents
+    without touching any file under data/sample/.
+    """
     ir_pressure = build_ir_pressure_documents(documents, links_by_doc)
 
     rows: list[dict[str, object]] = []
@@ -190,6 +207,15 @@ def extract_events() -> list[dict[str, object]]:
             event["evidence_strength"] = f"{breakdown['score']:.2f}"
             rows.append(event)
     return rows
+
+
+def extract_events() -> list[dict[str, object]]:
+    """Construct events for the live raw_documents.csv corpus."""
+    documents = {doc["doc_id"]: doc for doc in read_csv(SAMPLE_DIR / "raw_documents.csv")}
+    links_by_doc: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for link in read_csv(SAMPLE_DIR / "entity_links.csv"):
+        links_by_doc[link["doc_id"]].append(link)
+    return build_events(documents, links_by_doc)
 
 
 def main() -> None:

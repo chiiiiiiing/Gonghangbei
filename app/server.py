@@ -114,14 +114,26 @@ def read_csv(filename: str) -> list[dict[str, str]]:
 
 
 def repository_commit() -> str:
-    result = subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"],
-        cwd=ROOT,
-        capture_output=True,
-        check=False,
-        text=True,
-    )
-    return result.stdout.strip() or "unknown"
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+        commit = result.stdout.strip()
+    except (FileNotFoundError, OSError):
+        commit = ""
+    if commit:
+        return commit
+    # 打包交付时可能不含 .git 或未安装 git，回退到 VERSION 文件，保证审计页仍有版本标识。
+    version_path = ROOT / "VERSION"
+    if version_path.exists():
+        label = version_path.read_text(encoding="utf-8").strip()
+        if label:
+            return label
+    return "unknown"
 
 
 def numeric_value(value: str) -> int | float | str:
@@ -132,6 +144,19 @@ def numeric_value(value: str) -> int | float | str:
     except ValueError:
         return value
     return int(number) if number.is_integer() else number
+
+
+def int_metric(metrics: dict[str, Any], name: str, default: int = 0) -> int:
+    """Robustly coerce a metric value (int / float / numeric string) to int."""
+    value = metrics.get(name)
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return default
+    try:
+        return int(float(str(value)))
+    except (TypeError, ValueError):
+        return default
 
 
 def data_status() -> dict[str, Any]:
@@ -263,13 +288,10 @@ def historical_backtest() -> dict[str, Any]:
         for split in ("discovery", "oos")
     }
     oos_metrics = splits["oos"]["metrics"]
+    valid_ic_dates = int_metric(oos_metrics, "rank_ic_valid_date_count")
     decay_assessment = {
-        "status": "insufficient_evidence"
-        if int(oos_metrics.get("rank_ic_valid_date_count", 0)) < 20
-        else "measurable",
-        "label": "无法判断衰减"
-        if int(oos_metrics.get("rank_ic_valid_date_count", 0)) < 20
-        else "可评估衰减",
+        "status": "insufficient_evidence" if valid_ic_dates < 20 else "measurable",
+        "label": "无法判断衰减" if valid_ic_dates < 20 else "可评估衰减",
         "warning": "OOS 有效日期不足，既不能证明稳定有效，也不能据此确认因子已失效。",
     }
     return {
@@ -357,13 +379,13 @@ def research_audit() -> dict[str, Any]:
         "event_review": review.get("event_review", {"reviewed_count": 0, "status": "待人工抽检"}),
         "predicate_review": review.get("predicate_review", {"reviewed_count": 0, "status": "待人工抽检"}),
         "market": {
-            "start": min(row["trade_date"] for row in market),
-            "end": max(row["trade_date"] for row in market),
-            "adj_factor_placeholder": all(float(row["adj_factor"]) == 1.0 for row in market),
+            "start": min((row["trade_date"] for row in market), default=""),
+            "end": max((row["trade_date"] for row in market), default=""),
+            "adj_factor_placeholder": bool(market) and all(float(row["adj_factor"]) == 1.0 for row in market),
         },
         "rule_diagnostics": diagnostics,
         "model": {
-            "chat_model": "deepseek-v4-flash",
+            "chat_model": AI_LAYER.status()["chat_model"],
             "prompt_version": AI_LAYER.status()["prompt_version"],
             "rule_version": "R1",
             "scoring_version": SCORING_VERSION,

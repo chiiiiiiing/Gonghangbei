@@ -124,9 +124,14 @@ def confidence_for_match(title: str, content: str, stock_name: str, alias: str) 
     return 0.84
 
 
-def link_entities() -> list[dict[str, object]]:
+def link_documents(documents: list[dict[str, str]]) -> list[dict[str, object]]:
+    """Pure read-only entity linking for an arbitrary document set (no file IO).
+
+    Uses the same alias / sector-keyword / broad-theme rules as link_entities(),
+    so a precheck run on prospective documents predicts what the real pipeline
+    would emit without touching any file under data/sample/.
+    """
     stock_pool = read_csv(SAMPLE_DIR / "stock_pool.csv")
-    documents = read_csv(SAMPLE_DIR / "raw_documents.csv")
     alias_rows = build_alias_rows(stock_pool)
     stocks_by_sector: dict[str, list[dict[str, str]]] = {}
     for stock in stock_pool:
@@ -197,6 +202,12 @@ def link_entities() -> list[dict[str, object]]:
                     }
                 )
     return results
+
+
+def link_entities() -> list[dict[str, object]]:
+    """Link the live raw_documents.csv corpus to pool stocks."""
+    documents = read_csv(SAMPLE_DIR / "raw_documents.csv")
+    return link_documents(documents)
 
 
 def main() -> None:

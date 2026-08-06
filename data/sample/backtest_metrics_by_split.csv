@@ -1,19 +1,19 @@
 split,metric,value,description
-discovery,event_factor_sample_count,57,事件触发后的因子样本数
-discovery,factor_coverage_rate,0.003232,有因子值的股票日占可用行情股票日的比例
-discovery,avg_rank_ic_5d,0.047327,行业中性因子与行业超额收益的 Rank IC
-discovery,rank_ic_ir,0.216253,稀疏有效截面的 Rank IC 均值除以标准差
-discovery,rank_ic_valid_date_count,6,具备因子差异的有效横截面数
-discovery,active_factor_date_count,9,出现有效因子事件的交易日数
-discovery,top_bottom_group_spread_5d,0.002130,逐日横截面 G5 减 G1 的行业超额收益差
-discovery,positive_excess_return_rate_5d,0.614035,事件样本行业超额收益为正的比例
+discovery,event_factor_sample_count,37,事件触发后的因子样本数
+discovery,factor_coverage_rate,0.002476,有因子值的股票日占可用行情股票日的比例
+discovery,avg_rank_ic_5d,0.022268,行业中性因子与行业超额收益的 Rank IC
+discovery,rank_ic_ir,0.182847,稀疏有效截面的 Rank IC 均值除以标准差
+discovery,rank_ic_valid_date_count,20,具备因子差异的有效横截面数
+discovery,active_factor_date_count,20,出现有效因子事件的交易日数
+discovery,top_bottom_group_spread_5d,0.010030,逐日横截面 G5 减 G1 的行业超额收益差
+discovery,positive_excess_return_rate_5d,0.486486,事件样本行业超额收益为正的比例
 discovery,evidence_status,insufficient,有效日期和事件样本是否达到展示门槛
-oos,event_factor_sample_count,5,事件触发后的因子样本数
-oos,factor_coverage_rate,0.001496,有因子值的股票日占可用行情股票日的比例
-oos,avg_rank_ic_5d,0.000000,行业中性因子与行业超额收益的 Rank IC
-oos,rank_ic_ir,0.000000,稀疏有效截面的 Rank IC 均值除以标准差
-oos,rank_ic_valid_date_count,0,具备因子差异的有效横截面数
-oos,active_factor_date_count,1,出现有效因子事件的交易日数
-oos,top_bottom_group_spread_5d,0.000000,逐日横截面 G5 减 G1 的行业超额收益差
-oos,positive_excess_return_rate_5d,0.200000,事件样本行业超额收益为正的比例
+oos,event_factor_sample_count,20,事件触发后的因子样本数
+oos,factor_coverage_rate,0.005984,有因子值的股票日占可用行情股票日的比例
+oos,avg_rank_ic_5d,-0.025834,行业中性因子与行业超额收益的 Rank IC
+oos,rank_ic_ir,-0.218179,稀疏有效截面的 Rank IC 均值除以标准差
+oos,rank_ic_valid_date_count,13,具备因子差异的有效横截面数
+oos,active_factor_date_count,13,出现有效因子事件的交易日数
+oos,top_bottom_group_spread_5d,-0.003968,逐日横截面 G5 减 G1 的行业超额收益差
+oos,positive_excess_return_rate_5d,0.350000,事件样本行业超额收益为正的比例
 oos,evidence_status,insufficient,有效日期和事件样本是否达到展示门槛
