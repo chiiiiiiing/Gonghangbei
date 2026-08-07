@@ -232,6 +232,7 @@ DEEPSEEK_API_KEY=你的Key .venv/bin/python 批量生成AI标注.py --limit 10
 ├── 完整说明文档.md         # 唯一权威完整说明（架构、口径、API、限制）
 ├── 问题与待改进.md         # 问题清单与改进进度
 ├── 原创性证明.md / 精益画布.md
+├── 提交说明.md             # 比赛提交包导航 + 要求核查表
 └── README.md               # 本文件
 ```
 
