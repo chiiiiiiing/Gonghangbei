@@ -9,6 +9,7 @@ from typing import Any
 
 from src.ai.embeddings import bge_embeddings
 from src.ai.gateway import AIServiceError, AISettings, OpenAICompatibleGateway
+from src.ai.rag import retrieve as rag_retrieve
 from src.ai.prompts import (
     ANALYSIS_SCHEMA,
     EVENT_TYPES,
@@ -83,7 +84,12 @@ class AIResearchLayer:
             return result
 
         retrieval = self._retrieve_rules(document, rules)
-        messages = build_analysis_messages(document, stock_pool, retrieval["matches"])
+        messages = build_analysis_messages(
+            document,
+            stock_pool,
+            retrieval["matches"],
+            retrieval.get("historical_references", []),
+        )
         try:
             raw, metadata = self.gateway.chat_json(messages, ANALYSIS_SCHEMA, "alphalens_research")
             self._validate_returned_model(metadata)
@@ -167,6 +173,7 @@ class AIResearchLayer:
             f"{rule['rule_id']} {rule['rule_name']} {rule['condition']} {rule['target_label']}"
             for rule in qualified
         ]
+        historical = rag_retrieve(query, top_k=3)
         try:
             if self.settings.embedding_model:
                 vectors, metadata = self.gateway.embeddings([query, *rule_texts])
@@ -201,10 +208,16 @@ class AIResearchLayer:
                 "backend": metadata.get("backend", "api-embedding"),
                 "fallback": bool(metadata.get("fallback", False)),
                 "matches": ranked[:5],
+                "historical_references": historical,
                 "reason": metadata.get("reason", ""),
             }
         except AIServiceError as exc:
-            return {"used": False, "matches": [], "reason": str(exc)}
+            return {
+                "used": bool(historical),
+                "matches": [],
+                "historical_references": historical,
+                "reason": str(exc),
+            }
 
 
 def local_text_embedding(text: str, dimensions: int = 512) -> list[float]:
@@ -408,6 +421,8 @@ def validate_ai_output(
                 "conditions": conditions[:4],
                 "target_label": str(item.get("target_label", "research_candidate")).strip()[:80],
                 "rationale": str(item.get("rationale", "")).strip()[:240],
+                "evidence_snippet": str(item.get("evidence_snippet", "")).strip()[:120],
+                "confidence": bounded_float(item.get("confidence"), 0.5),
                 "status": "pending_statistical_validation",
             }
         )

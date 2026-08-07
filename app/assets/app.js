@@ -239,20 +239,34 @@ function renderStockDetail(index) {
   const formula = stock.factor_formula;
   const score = stock.evidence_score_breakdown || {};
   const components = score.final_components || {};
+  const fusion = stock.predicate_fusion || {};
   document.querySelectorAll("[data-stock-index]").forEach((button, current) => button.classList.toggle("active", current === index));
-  const consensusRows = (stock.predicate_consensus || []).map((row) => `<tr>
+  const consensusRows = (stock.predicate_consensus || []).map((row) => {
+    const fused = fusion[row.name]?.fused;
+    const triggers = typeof fused === "number" && fused >= 0.5;
+    return `<tr>
     <td class="mono">${esc(row.name)}</td><td class="mono">${esc(row.ai_value)}</td><td class="mono">${esc(row.rule_value)}</td>
-    <td class="status-${esc(row.status)}">${esc(STATUS_LABELS[row.status] || row.status)}</td><td>${row.accepted_for_rule ? "允许触发" : "不进入规则"}</td>
-  </tr>`).join("");
+    <td class="mono">${typeof fused === "number" ? fixed(fused, 3) : "—"}</td>
+    <td class="status-${esc(row.status)}">${esc(STATUS_LABELS[row.status] || row.status)}</td><td>${triggers ? "进入因子" : "不进入因子"}</td>
+  </tr>`;
+  }).join("");
   const ruleRows = (stock.triggered_rules || []).map((rule) => `<tr><td class="mono">${esc(rule.id)}</td><td class="mono">${esc(rule.condition)}</td><td>${esc(rule.target_label)}</td><td>${esc(rule.support)}</td><td>${pct(rule.win_rate)}</td><td class="mono">${fixed(rule.score)}</td></tr>`).join("") || '<tr><td colspan="6">没有冻结规则通过全部门控</td></tr>';
+  const aiCandidateRows = (stock.ai_candidate_rules || []).map((rule) => `<tr><td class="mono">${esc(rule.name)}</td><td class="mono">${esc(rule.condition)}</td><td>${esc(rule.target_label)}</td><td>${pct(rule.confidence)}</td><td>${esc(rule.hit_ratio)}</td><td class="mono">${fixed(rule.ai_candidate_score)}</td></tr>`).join("") || "";
+  const explainBlocks = (stock.rule_explainability || []).map((block) => {
+    const preds = (block.predicates || []).map((p) => `<div class="predicate-line"><span class="mono">${esc(p.name)}</span><span>融合 ${fixed(p.fused, 2)} · ${esc(p.source)} · 置信 ${fixed(p.ai_confidence, 2)}</span><span class="muted">${esc(p.rationale || "")}</span></div>`).join("");
+    const similar = (block.similar_to_frozen || []).map((s) => `${esc(s.rule_id)} ${fixed(s.similarity, 2)}`).join(" · ");
+    return `<details class="disclosure"><summary>${block.source === "ai_candidate" ? badge("AI 实时候选", "warn") : badge("冻结", "info")} ${esc(block.target_label)} · ${block.complexity} 谓词 · 可回溯:${block.traceable ? "是" : "否"} · 与冻结规则相似: ${similar || "—"}</summary><div class="section-body">${preds || "无谓词依据"}${block.evidence_snippet ? `<div class="notice good">原文依据：${esc(block.evidence_snippet)}</div>` : ""}</div></details>`;
+  }).join("");
   const entityGate = stock.entity_consensus?.accepted ? badge("关系通过", "good") : badge("关系未通过", "bad");
   $("stockDetail").innerHTML = `
     <div class="detail-grid"><div class="detail-item"><b>主体</b><span>${esc(stock.event.subject)}</span></div><div class="detail-item"><b>客体</b><span>${esc(stock.event.object)}</span></div><div class="detail-item"><b>关系门控</b><span>${entityGate}<br>${esc(stock.link_evidence)}</span></div><div class="detail-item"><b>原文证据</b><span>${esc(stock.event.evidence_text)}</span></div></div>
-    <div class="formula-band"><div class="formula-item"><strong>${fixed(formula.rule_score_sum)}</strong><span>冻结规则评分和</span></div><div class="formula-item"><strong>${fixed(formula.evidence_strength, 2)}</strong><span>透明证据分</span></div><div class="formula-item"><strong>${fixed(formula.impact_prior, 2)}</strong><span>Discovery 影响后验</span></div><div class="formula-item"><strong>${fixed(formula.result)}</strong><span>候选因子</span></div></div>
-    <div class="equation">${fixed(formula.rule_score_sum)} × (${formula.evidence_weight} × ${fixed(formula.evidence_strength, 2)} + ${formula.impact_weight} × ${fixed(formula.impact_prior, 2)}) = ${fixed(formula.result)}</div>
+    <div class="formula-band"><div class="formula-item"><strong>${fixed(formula.frozen_rule_score_sum)}</strong><span>历史冻结规则分</span></div><div class="formula-item"><strong>${fixed(formula.ai_candidate_rule_score)}</strong><span>AI 实时候选分</span></div><div class="formula-item"><strong>${fixed(formula.rule_score_sum)}</strong><span>规则评分和</span></div><div class="formula-item"><strong>${fixed(formula.evidence_strength, 2)}</strong><span>透明证据分</span></div><div class="formula-item"><strong>${fixed(formula.impact_prior, 2)}</strong><span>Discovery 影响后验</span></div><div class="formula-item"><strong>${fixed(formula.result)}</strong><span>候选因子</span></div></div>
+    <div class="equation">${fixed(formula.frozen_rule_score_sum)}${formula.ai_candidate_rule_score ? ` + ${fixed(formula.ai_candidate_rule_score)} (AI 候选)` : ""} = ${fixed(formula.rule_score_sum)} × (${formula.evidence_weight} × ${fixed(formula.evidence_strength, 2)} + ${formula.impact_weight} × ${fixed(formula.impact_prior, 2)}) = ${fixed(formula.result)}</div>
     <div class="score-grid"><div class="score-part"><strong>${fixed(components.source_reliability, 2)}</strong><span>来源可靠性 · 30%</span></div><div class="score-part"><strong>${fixed(components.evidence_grounding, 2)}</strong><span>证据回溯 · 25%</span></div><div class="score-part"><strong>${fixed(components.information_specificity, 2)}</strong><span>信息具体性 · 25%</span></div><div class="score-part"><strong>${fixed(components.business_relevance, 2)}</strong><span>业务关联 · 20%</span></div></div>
-    <details class="disclosure" open><summary>AI 与确定性谓词对照（${stock.predicate_consensus?.length || 0} 项）</summary><div class="table-wrap"><table><thead><tr><th>谓词</th><th>AI</th><th>确定性程序</th><th>一致性</th><th>门控</th></tr></thead><tbody>${consensusRows}</tbody></table></div></details>
-    <details class="disclosure"><summary>冻结规则匹配（${stock.triggered_rules?.length || 0} 条）</summary><div class="table-wrap"><table><thead><tr><th>规则</th><th>条件</th><th>标签</th><th>独立文档</th><th>后验参考胜率</th><th>评分</th></tr></thead><tbody>${ruleRows}</tbody></table></div></details>`;
+    <details class="disclosure" open><summary>AI 与确定性谓词对照（含融合值 · ${stock.predicate_consensus?.length || 0} 项）</summary><div class="table-wrap"><table><thead><tr><th>谓词</th><th>AI</th><th>确定性程序</th><th>融合值</th><th>一致性</th><th>门控</th></tr></thead><tbody>${consensusRows}</tbody></table></div></details>
+    <details class="disclosure"><summary>冻结规则匹配（${stock.triggered_rules?.length || 0} 条）</summary><div class="table-wrap"><table><thead><tr><th>规则</th><th>条件</th><th>标签</th><th>独立文档</th><th>后验参考胜率</th><th>评分</th></tr></thead><tbody>${ruleRows}</tbody></table></div></details>
+    ${aiCandidateRows ? `<details class="disclosure"><summary>AI 实时候选规则参与（${stock.ai_candidate_rules?.length || 0} 条 · 未历史验证）</summary><div class="table-wrap"><table><thead><tr><th>候选规则</th><th>谓词条件</th><th>标签</th><th>AI 置信</th><th>命中</th><th>暂定分</th></tr></thead><tbody>${aiCandidateRows}</tbody></table></div></details>` : ""}
+    ${explainBlocks ? `<details class="disclosure"><summary>规则可解释性（${stock.rule_explainability?.length || 0} 条）</summary>${explainBlocks}</details>` : ""}`;
 }
 
 function renderAICandidates(ai) {
@@ -260,8 +274,10 @@ function renderAICandidates(ai) {
   const result = ai.result || {};
   const retrieval = ai.embedding_retrieval || {};
   const candidates = result.candidate_rules || [];
-  const rows = candidates.map((rule) => `<tr><td>${esc(rule.name)}</td><td class="mono">${esc(rule.conditions.join(" AND "))}</td><td>${esc(rule.target_label)}</td><td>${badge("待统计验证", "warn")}</td></tr>`).join("") || '<tr><td colspan="4">本次未提出新规则</td></tr>';
-  return `<section class="section"><div class="section-header"><div><h2>AI 候选研究</h2><p>语义检索：${esc(retrieval.model || "未记录")}${retrieval.fallback ? "（降级）" : ""}</p></div>${badge(ai.repair_attempted ? "修复后通过" : "结构校验通过", "info")}</div><div class="section-body"><div class="notice good">${esc(result.summary || "模型已返回结构化研究候选")}</div><details class="disclosure"><summary>查看 AI 提议规则（${candidates.length} 条）</summary><div class="table-wrap"><table><thead><tr><th>候选规则</th><th>谓词条件</th><th>标签</th><th>状态</th></tr></thead><tbody>${rows}</tbody></table></div></details></div></section>`;
+  const refs = retrieval.historical_references || [];
+  const rows = candidates.map((rule) => `<tr><td>${esc(rule.name)}</td><td class="mono">${esc((rule.conditions || []).join(" AND "))}</td><td>${esc(rule.target_label)}</td><td>${pct(rule.confidence)}</td><td>${badge("待统计验证", "warn")}</td></tr>`).join("") || '<tr><td colspan="5">本次未提出新规则</td></tr>';
+  const refRows = refs.map((r) => `<tr><td class="mono">${esc(r.doc_id)}</td><td>${esc(EVENT_LABELS[r.event_type] || r.event_type)}</td><td class="mono">${fixed(r.similarity, 4)}</td><td>${esc(r.summary || "")}</td></tr>`).join("") || "";
+  return `<section class="section"><div class="section-header"><div><h2>AI 候选研究</h2><p>语义检索：${esc(retrieval.model || "未记录")}${retrieval.fallback ? "（降级）" : ""} · RAG 参考 ${refs.length} 条历史 AI 结论</p></div>${badge(ai.repair_attempted ? "修复后通过" : "结构校验通过", "info")}</div><div class="section-body"><div class="notice good">${esc(result.summary || "模型已返回结构化研究候选")}</div>${refRows ? `<details class="disclosure"><summary>参考相似历史 AI 结论（RAG · ${refs.length} 条）</summary><div class="table-wrap"><table><thead><tr><th>历史文档</th><th>事件</th><th>相似度</th><th>AI 结论</th></tr></thead><tbody>${refRows}</tbody></table></div></details>` : ""}<details class="disclosure"><summary>查看 AI 提议规则（${candidates.length} 条 · 可进入实时因子）</summary><div class="table-wrap"><table><thead><tr><th>候选规则</th><th>谓词条件</th><th>标签</th><th>AI 置信</th><th>状态</th></tr></thead><tbody>${rows}</tbody></table></div></details></div></section>`;
 }
 
 function renderHistory(history) {

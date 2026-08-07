@@ -12,11 +12,13 @@
 
 **核心口径（务必不要改坏）**：
 - 模型：DeepSeek `deepseek-v4-flash` @ `https://api.deepseek.com`，prompt 版本 `alphalens-research-v2.0`
-- 19 谓词固定 Schema，三层门控（事件/实体/谓词），只有 `agreed_true` 触发冻结规则
+- 19 谓词固定 Schema，三层门控（事件/实体/谓词）；**实时分析新增「谓词融合」：AI 谓词数值参与判定（一致采纳、冲突按 AI 置信度加权、AI 缺失回退规则值）**；离线流水线仍只有 `agreed_true` 触发冻结规则（可复现）
 - 回测：行业等权超额收益（5 日持有），横截面五组 + Rank IC；Discovery（2024-01-01~2025-12-31）/ OOS（2026-01-01~2026-06-30）分开展示
 - 输入保护：`raw_documents.csv` 是人工核验受保护输入，`运行研究流水线.py` 重算前后强制 SHA-256 比对
 - 数据：196 文档 · 349 事件 · 57 因子样本 · 30 股票 · 5 条合格规则（最新 /api/status 实测）
+- AI 缓存：163/196 篇 DeepSeek 历史标注（83%），33 篇被实时模式严格校验拒绝（证据无法逐字回溯/事件类型与来源不兼容等，按团队决策接受部分覆盖）；审计页如实显示 incomplete
 - 覆盖：8 项缺口收敛到 1 项（仅剩 discovery/互动问答 0/25，见下）；9 类事件类型全部有样本
+- **AI 深度参与（R3 起，仅实时路径）**：AI 候选规则以「未历史统计验证」标注参与实时因子值；RAG 参考历史 AI 结论；规则可解释性面板；AI 规则库 `data/sample/ai_candidate_rules.csv`（独立于 `rules.csv`）
 
 ## 当前状态：代码层面已全部干净（20/20 测试通过）
 
@@ -29,6 +31,12 @@
 6. 恢复答辩 PPT `AlphaLens演示答辩.pptx`（git 悬空删除）
 7. **本轮界面修复**：删除无意义小字（英文眉题/运行面板 meta/自明性说明）、启动时文本分析空白（去掉 `setExample(0)`）、全站字号与排版升级（基础 15px、小字 12px、更大圆角/内边距）
 8. **本轮因子收益实测**（已写入 `问题与待改进.md` §0.1）——详见下节
+9. **R3 AI 深度参与（2026-08-06，仅实时路径，离线零破坏）**：
+   - 谓词融合 `fuse_predicate_values`（`live_analysis.py`）：AI 谓词数值按融合值参与判定，disputed 按 AI 置信度加权（`min(conf,0.5)`）
+   - AI 候选规则参与实时因子（`evaluate_ai_candidate_rules`：`0.8×置信×命中率`，界面标「AI 实时候选、未历史验证」），写入 `data/sample/ai_candidate_rules.csv` 规则库
+   - RAG：`src/ai/rag.py` 内存向量索引，实时分析检索历史 AI 结论注入 prompt 并展示（数据源 `ai_annotations.jsonl`，需 Key 生成）
+   - 规则可解释性 `build_rule_explainability`：谓词依据、复杂度、可回溯率、与冻结规则相似度
+   - 24/24 测试通过；离线 18 个 CSV 重算零 diff（可复现性未破坏）
 
 ## 关键研究结论（答辩核心素材）
 
@@ -48,7 +56,7 @@
 ## 下一步待办（都是可执行的团队任务，非代码缺陷）
 
 1. **补 discovery/互动问答 25 篇（唯一剩余覆盖缺口）**：互动易/上证e互动 API 均被 405 拦截（JS 渲染、无法程序化抓取）。已生成采集模板 `data/external/文本导入暂存/互动问答采集模板.csv` 与说明文档——团队在浏览器手动采集 25 条 2024-25 池内公司问答填进模板 → `.venv/bin/python 导入真实文本.py 互动问答采集模板.csv --apply`。
-2. **生成历史 AI 标注缓存**：需用户提供 DeepSeek Key：`DEEPSEEK_API_KEY=你的Key .venv/bin/python 批量生成AI标注.py --limit 10`。
+2. **生成历史 AI 标注缓存（RAG 数据源 + 审计完整）**：需用户提供 DeepSeek Key：`DEEPSEEK_API_KEY=你的Key .venv/bin/python 批量生成AI标注.py --limit 10`（196 篇分批）。生成后实时分析自动通过 `src/ai/rag.py` 检索相似历史 AI 结论，审计页「历史 AI 缓存」0→196 完整。
 3. **OOS 证据（可选，已确认根因）**：若想从 13 个有效 IC 截面冲过 20，正确方向是补「跨板块、同日期」的 2026 Q1-Q2 OOS 政策/新闻（如同时覆盖光伏+风电+储能的政策，经宽主题映射一次链接 6 只股票）。切勿再堆单板块（整车）政策或产能类公告——实测反而使 IC 截面下降。
 4. **团队决策项**：`raw_documents.csv` 每篇 content 末尾带「项目关联：…」注释（刻意保留的溯源/免责标记，代码用 `split("项目关联：",1)[0]` 剥离，从不泄漏到界面）。如需纯净化须用 CSV 解析改写（`sed` 会破坏带引号字段）。注意：**本轮新增的 66 篇新文档不含此注释**（内容更纯净，代码兼容）。
 5. **答辩包装**：录 Demo 录屏（README 有三分钟演示步骤）、统一口径「DeepSeek V4 Flash + 19 谓词 + 三层门控 + Discovery/OOS」。答辩核心叙事：OOS 证据从 0 到 13 个有效截面的补数实证 + 「+1.41% vs −0.08%」行业贝塔对照。
@@ -57,7 +65,7 @@
 
 ```bash
 .venv/bin/python 启动演示.py                # 启动服务 → http://127.0.0.1:8701
-.venv/bin/python -m unittest discover -s tests -v   # 20 个测试
+.venv/bin/python -m unittest discover -s tests -v   # 24 个测试
 .venv/bin/python -m compileall -q app src tests 运行研究流水线.py
 .venv/bin/python 检查数据覆盖.py            # 数据缺口清单（返回码 0/1）
 .venv/bin/python 运行研究流水线.py          # 受 SHA-256 保护的重算

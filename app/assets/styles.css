@@ -156,6 +156,9 @@ tbody tr:last-child td { border-bottom: 0; }
 .status-agreed_false { color: var(--muted); }
 details.disclosure { margin-top: 14px; border-top: 1px solid var(--line); }
 details.disclosure summary { padding: 14px 2px 0; color: var(--blue); cursor: pointer; font-size: 13px; font-weight: 680; }
+.predicate-line { display: flex; gap: 12px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 12px; }
+.predicate-line .muted { color: var(--muted); flex: 1; }
+.muted { color: var(--muted); }
 .download-button { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink-soft); background: white; font-size: 12px; }
 .download-button:hover { color: var(--blue); border-color: #91bdd7; }
 

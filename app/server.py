@@ -159,6 +159,14 @@ def int_metric(metrics: dict[str, Any], name: str, default: int = 0) -> int:
         return default
 
 
+def ai_candidate_rule_count() -> int:
+    path = SAMPLE_DIR / "ai_candidate_rules.csv"
+    if not path.exists():
+        return 0
+    with path.open(encoding="utf-8", newline="") as handle:
+        return sum(1 for _ in csv.DictReader(handle))
+
+
 def data_status() -> dict[str, Any]:
     stock_pool = read_csv("stock_pool.csv")
     documents = read_csv("raw_documents.csv")
@@ -399,6 +407,7 @@ def research_audit() -> dict[str, Any]:
             if documents and sum(row.get("status") == "success" for row in annotation_records) >= len(documents)
             else "incomplete",
         },
+        "ai_candidate_rules_count": ai_candidate_rule_count(),
         "future_info_audit": historical_backtest()["metrics"].get("future_info_audit", "pending"),
         "disclaimer": DISCLAIMER,
     }
@@ -426,9 +435,9 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         "",
         "## 二、因子形成路径",
         "",
-        "文本先经过 Embedding 检索和大模型结构化抽取，再按锁定 Schema 生成 19 个谓词。每个 AI 谓词必须与确定性程序对照，只有 agreed_true 可以触发冻结规则；disputed 和 invalid 不进入因子计算。",
+        "文本先经过 Embedding 检索（含历史 AI 结论 RAG 参考）和大模型结构化抽取，再按锁定 Schema 生成 19 个谓词。AI 谓词与确定性程序按融合值参与判定：一致采纳、冲突按 AI 置信度加权、AI 缺失回退规则值；AI 提议的候选规则以「未历史统计验证」标注参与实时候选值。",
         "",
-        f"本次关联 {len(stocks)} 只样例股票，触发 {len(rules)} 条冻结规则。候选值用于研究排序与追溯，不是收益预测或买卖信号。",
+        f"本次关联 {len(stocks)} 只样例股票，触发 {len(rules)} 条冻结规则，AI 实时候选规则 {sum(len(stock.get('ai_candidate_rules', [])) for stock in stocks)} 条。候选值用于研究排序与追溯，不是收益预测或买卖信号。",
         "",
         "### AI 研究层",
         "",
@@ -588,6 +597,7 @@ def replay(case_id: str):
         read_csv("rules.csv"),
         ai_layer=FrozenAIResearchLayer(case),
         use_ai=True,
+        persist_ai_candidates=False,
     )
     if "error" in result:
         return jsonify(result), 422

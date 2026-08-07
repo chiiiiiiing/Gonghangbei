@@ -10,6 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 from app.server import SAMPLE_DIR, app, load_replay_cases
+from src.ai import rag
 from src.ai.gateway import AIServiceError, AISettings, OpenAICompatibleGateway
 from src.ai.research_layer import AIResearchLayer, validate_ai_output
 from src.ingestion.text_import import FIELDS, stage_manifest
@@ -18,6 +19,9 @@ from src.pipeline.live_analysis import (
     build_entity_consensus,
     build_event_consensus,
     build_predicate_consensus,
+    build_rule_explainability,
+    evaluate_ai_candidate_rules,
+    fuse_predicate_values,
     rule_matches,
 )
 from src.research.scoring import beta_impact_probability, evidence_score_breakdown
@@ -151,7 +155,9 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertEqual(len(gateway.calls), 2)
         self.assertIn("收到：政策支持", gateway.calls[1][-1]["content"])
 
-    def test_disputed_predicate_cannot_trigger_rule(self) -> None:
+    def test_disputed_predicate_audit_gate_blocks_but_fusion_partially_counts(self) -> None:
+        """Audit table still gates disputed as not-fully-accepted, while the live
+        fusion path lets AI pull a disputed predicate toward its value."""
         deterministic = [
             {
                 "predicate_name": "policy_support_is_clear",
@@ -173,11 +179,103 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertFalse(consensus[0]["accepted_for_rule"])
         self.assertFalse(
             rule_matches(
-                {"condition": "policy_support_is_clear=true"},
+                {"condition": "policy_support_is_clear"},
                 gated,
                 "policy_support",
             )
         )
+        fused = fuse_predicate_values(
+            {"policy_support_is_clear": "true"}, ai_rows
+        )
+        self.assertEqual(fused["policy_support_is_clear"]["source"], "disputed")
+        self.assertAlmostEqual(fused["policy_support_is_clear"]["fused"], 0.5)
+        fused_map = {name: item["fused"] for name, item in fused.items()}
+        self.assertTrue(
+            rule_matches({"condition": "policy_support_is_clear"}, fused_map, "policy_support")
+        )
+
+    def test_fuse_predicate_values_statuses(self) -> None:
+        agreed_true = fuse_predicate_values(
+            {"a": "true"}, [{"name": "a", "value": "true", "confidence": 0.9}]
+        )["a"]
+        self.assertEqual(agreed_true["source"], "agreed_true")
+        self.assertEqual(agreed_true["fused"], 1.0)
+        agreed_false = fuse_predicate_values(
+            {"b": "false"}, [{"name": "b", "value": "false", "confidence": 0.8}]
+        )["b"]
+        self.assertEqual(agreed_false["fused"], 0.0)
+        invalid = fuse_predicate_values({"c": "true"}, [])["c"]
+        self.assertEqual(invalid["source"], "rule_only")
+        self.assertEqual(invalid["fused"], 1.0)
+        score_pull = fuse_predicate_values(
+            {"d": "0.90"}, [{"name": "d", "value": "0.50", "confidence": 0.8}]
+        )["d"]
+        self.assertAlmostEqual(score_pull["fused"], 0.70, places=3)
+
+    def test_ai_candidate_rules_contribute_to_factor(self) -> None:
+        fused_map = {"has_policy_support": 1.0, "policy_attention_followup": 1.0, "demand_side_policy": 0.0}
+        ai_result = {
+            "candidate_rules": [
+                {
+                    "name": "测试候选",
+                    "conditions": ["has_policy_support", "policy_attention_followup"],
+                    "target_label": "policy_signal",
+                    "confidence": 0.8,
+                    "rationale": "测试",
+                }
+            ]
+        }
+        rows, total = evaluate_ai_candidate_rules(ai_result, fused_map, gate_open=True)
+        self.assertEqual(len(rows), 1)
+        self.assertAlmostEqual(total, 0.8 * 0.8 * 1.0, places=6)  # 0.8 * conf * hit_ratio
+        self.assertEqual(rows[0]["hit_ratio"], "2/2")
+        rows_blocked, total_blocked = evaluate_ai_candidate_rules(ai_result, fused_map, gate_open=False)
+        self.assertEqual(total_blocked, 0.0)
+        self.assertEqual(rows_blocked, [])
+
+    def test_rag_retrieval_over_ai_cache(self) -> None:
+        import json
+        import tempfile
+        from pathlib import Path
+
+        tmp = Path(tempfile.mkdtemp()) / "ai_annotations.jsonl"
+        records = [
+            {"cache_key": "k1", "doc_id": "RAG-001", "status": "success",
+             "analysis": {"summary": "新型储能政策推动板块关注度上升", "event": {"event_type": "policy_support"}}},
+            {"cache_key": "k2", "doc_id": "RAG-002", "status": "success",
+             "analysis": {"summary": "宁德时代扩产动力电池项目", "event": {"event_type": "capacity_expansion"}}},
+        ]
+        tmp.write_text("\n".join(json.dumps(record, ensure_ascii=False) for record in records), encoding="utf-8")
+        rag.reset()
+        rag.load_index(tmp)
+        result = rag.retrieve("新型储能 政策", top_k=1)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["doc_id"], "RAG-001")
+        rag.reset()
+
+    def test_rule_explainability_output(self) -> None:
+        fused = {
+            "has_policy_support": {"fused": 1.0, "source": "agreed_true", "ai_confidence": 0.9, "rule_value": "true", "ai_value": "true"},
+            "policy_attention_followup": {"fused": 0.6, "source": "disputed", "ai_confidence": 0.6, "rule_value": "true", "ai_value": "false"},
+        }
+        consensus = [
+            {"name": "has_policy_support", "rationale": "政策原文明确支持"},
+            {"name": "policy_attention_followup", "rationale": "AI 修正"},
+        ]
+        qualified = [{"rule_id": "R001", "condition": "has_policy_support AND policy_attention_followup"}]
+        block = build_rule_explainability(
+            "has_policy_support AND policy_attention_followup",
+            "policy_signal",
+            fused,
+            consensus,
+            "政策原文明确支持补贴政策。",
+            qualified,
+        )
+        self.assertEqual(block["complexity"], 2)
+        self.assertTrue(block["traceable"])
+        self.assertEqual(block["source"], "frozen")
+        self.assertEqual(block["predicates"][0]["name"], "has_policy_support")
+        self.assertGreaterEqual(block["similar_to_frozen"][0]["similarity"], 0.0)
 
     def test_event_and_entity_gates_fail_closed(self) -> None:
         event_gate = build_event_consensus(

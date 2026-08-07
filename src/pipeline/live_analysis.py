@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import csv
 from collections import defaultdict
 from datetime import date
+from pathlib import Path
 from typing import Any
 
 from src.backtest.demo_engine import factor_name_for_labels
@@ -26,6 +28,7 @@ from src.research.scoring import evidence_score_breakdown, load_impact_priors
 
 
 SOURCE_TYPES = {"policy", "announcement", "news", "ir_qa"}
+SAMPLE_DIR = Path(__file__).resolve().parents[2] / "data" / "sample"
 
 
 def build_event_consensus(
@@ -173,14 +176,268 @@ def link_document(
     return results
 
 
-def rule_matches(rule: dict[str, str], predicate_map: dict[str, str], event_type: str) -> bool:
+def rule_matches(
+    rule: dict[str, str],
+    predicate_map: dict[str, str] | dict[str, float],
+    event_type: str,
+    threshold: float = 0.5,
+) -> bool:
+    """Match a frozen/AI rule against a predicate map.
+
+    predicate_map values may be 'true'/'false'/numeric strings (legacy) or the
+    0-1 fused scores from fuse_predicate_values(); a term is satisfied when its
+    value is >= threshold.
+    """
     for term in (part.strip() for part in rule["condition"].split("AND")):
         if term.startswith("event_type") and "=" in term:
             if event_type != term.split("=", 1)[1].strip():
                 return False
-        elif predicate_map.get(term) != "true":
+        elif predicate_value_to_float(predicate_map.get(term, 0.0)) < threshold:
             return False
     return True
+
+
+def evaluate_ai_candidate_rules(
+    ai_result: dict[str, Any] | None,
+    fused_map: dict[str, float],
+    gate_open: bool,
+) -> tuple[list[dict[str, Any]], float]:
+    """Score AI-proposed candidate rules against the fused predicate values.
+
+    Each candidate rule gets a tentative live score
+    `0.8 * AI_confidence * (命中谓词数 / 条件数)` — bounded and explainable.
+    These are labelled "AI 实时候选，未历史统计验证" and only count when the
+    event/entity gates are open.
+    """
+    rows: list[dict[str, Any]] = []
+    total = 0.0
+    if not gate_open or not isinstance(ai_result, dict):
+        return rows, total
+    for item in ai_result.get("candidate_rules", [])[:3]:
+        if not isinstance(item, dict):
+            continue
+        conditions = [str(c) for c in item.get("conditions", []) if isinstance(c, str)]
+        if not conditions:
+            continue
+        hit = sum(
+            1
+            for condition in conditions
+            if predicate_value_to_float(fused_map.get(condition, 0.0)) >= 0.5
+        )
+        confidence = _bounded(item.get("confidence"), 0.5)
+        tentative = 0.8 * confidence * (hit / len(conditions))
+        rows.append(
+            {
+                "id": str(item.get("name", "AI 候选规则")).strip()[:60],
+                "name": str(item.get("name", "AI 候选规则")).strip()[:100],
+                "condition": " AND ".join(conditions),
+                "target_label": str(item.get("target_label", "research_candidate")).strip()[:80],
+                "confidence": round(confidence, 4),
+                "hit_ratio": f"{hit}/{len(conditions)}",
+                "ai_candidate_score": round(tentative, 6),
+                "evidence_snippet": str(item.get("evidence_snippet", "")).strip()[:120],
+                "rationale": str(item.get("rationale", "")).strip()[:240],
+            }
+        )
+        total += tentative
+    return rows, total
+
+
+def build_rule_explainability(
+    condition: str,
+    target_label: str,
+    fused: dict[str, dict[str, Any]],
+    consensus: list[dict[str, Any]],
+    doc_text: str,
+    qualified_rules: list[dict[str, str]],
+    ai_candidate: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Explain a triggered rule: predicate grounds, AI rationale, complexity,
+    traceability of evidence, and similarity to historically frozen rules."""
+    from src.ai.research_layer import cosine_similarity, local_text_embedding
+
+    terms = [part.strip() for part in condition.split("AND") if part.strip()]
+    consensus_by_name = {str(row["name"]): row for row in consensus}
+    predicate_rows: list[dict[str, Any]] = []
+    for term in terms:
+        if term.startswith("event_type") or "=" in term:
+            continue
+        info = fused.get(term, {})
+        cons = consensus_by_name.get(term, {})
+        predicate_rows.append(
+            {
+                "name": term,
+                "fused": round(float(info.get("fused", 0.0)), 4),
+                "source": info.get("source", "rule_only"),
+                "ai_confidence": round(float(info.get("ai_confidence", 0.0)), 2),
+                "rationale": str(cons.get("rationale", info.get("rationale", "")))[:120],
+            }
+        )
+    snippet = str((ai_candidate or {}).get("evidence_snippet", "")).strip()
+    if ai_candidate:
+        traceable = bool(snippet) and snippet in doc_text
+    else:
+        traceable = True  # frozen rules always match on grounded predicates/evidence
+    condition_vector = local_text_embedding(condition)
+    similar = []
+    for rule in qualified_rules:
+        similar.append(
+            {
+                "rule_id": rule["rule_id"],
+                "similarity": round(
+                    cosine_similarity(condition_vector, local_text_embedding(rule["condition"])),
+                    4,
+                ),
+            }
+        )
+    similar.sort(key=lambda item: item["similarity"], reverse=True)
+    return {
+        "source": "ai_candidate" if ai_candidate else "frozen",
+        "target_label": target_label,
+        "complexity": len(predicate_rows),
+        "predicates": predicate_rows,
+        "evidence_snippet": snippet[:120],
+        "traceable": traceable,
+        "similar_to_frozen": similar[:2],
+    }
+
+
+def persist_ai_candidate_rules(
+    doc: dict[str, str],
+    candidate_rules: list[dict[str, Any]],
+) -> None:
+    """Append AI-proposed rules to the AI candidate rule database.
+
+    Separate from rules.csv (which only holds historically validated frozen
+    rules); every row is labelled status=ai_candidate so it is never mistaken
+    for a validated rule. Failures never break the analysis.
+    """
+    if not candidate_rules:
+        return
+    path = SAMPLE_DIR / "ai_candidate_rules.csv"
+    fields = [
+        "doc_id",
+        "rule_name",
+        "conditions",
+        "target_label",
+        "evidence_snippet",
+        "rationale",
+        "ai_confidence",
+        "status",
+        "created_time",
+    ]
+    try:
+        fresh = not path.exists()
+        with path.open("a", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+            if fresh:
+                writer.writeheader()
+            for item in candidate_rules[:3]:
+                writer.writerow(
+                    {
+                        "doc_id": doc.get("doc_id", ""),
+                        "rule_name": str(item.get("name", "")).strip()[:100],
+                        "conditions": " AND ".join(str(c) for c in item.get("conditions", [])),
+                        "target_label": str(item.get("target_label", "")).strip()[:80],
+                        "evidence_snippet": str(item.get("evidence_snippet", "")).strip()[:120],
+                        "rationale": str(item.get("rationale", "")).strip()[:240],
+                        "ai_confidence": f"{_bounded(item.get('confidence'), 0.5):.2f}",
+                        "status": "ai_candidate",
+                        "created_time": str(doc.get("publish_time", "")),
+                    }
+                )
+    except OSError:
+        pass
+
+
+def predicate_value_to_float(value: object) -> float:
+    """Normalize a predicate value ('true'/'false'/numeric string) to 0-1."""
+    text = str(value).strip().lower()
+    if text in {"true", "false"}:
+        return 1.0 if text == "true" else 0.0
+    try:
+        return min(max(float(text), 0.0), 1.0)
+    except ValueError:
+        return 0.0
+
+
+def _bounded(value: object, default: float = 0.0) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return default
+    return min(max(number, 0.0), 1.0)
+
+
+def fuse_predicate_values(
+    deterministic_map: dict[str, str],
+    ai_predicates: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Fuse rule and AI predicate values into a 0-1 score that drives live factors.
+
+    Each predicate keeps a transparent source label:
+    - agreed_true / agreed_false: AI and rule agree -> adopt (conf = max).
+    - disputed: conflict -> pull the rule value toward the AI value by
+      min(AI_confidence, 0.5); the factor only partially counts the predicate.
+    - invalid / missing: no usable AI value -> fall back to the rule value
+      (rule-only), still auditable.
+
+    Returns {predicate_name: {fused, source, ai_confidence, rule_value, ai_value}}.
+    """
+    ai_by_name = {str(row.get("name", "")): row for row in ai_predicates}
+    result: dict[str, dict[str, Any]] = {}
+    for name, rule_value in deterministic_map.items():
+        rule_f = predicate_value_to_float(rule_value)
+        ai_row = ai_by_name.get(name)
+        if ai_row is None:
+            result[name] = {
+                "fused": rule_f,
+                "source": "rule_only",
+                "ai_confidence": 0.0,
+                "rule_value": str(rule_value),
+                "ai_value": "",
+            }
+            continue
+        ai_raw = str(ai_row.get("value", "")).strip().lower()
+        ai_confidence = _bounded(ai_row.get("confidence"), 0.0)
+        ai_valid = ai_raw in {"true", "false"} or _is_numeric(ai_raw)
+        if not ai_valid or not ai_raw:
+            result[name] = {
+                "fused": rule_f,
+                "source": "invalid",
+                "ai_confidence": ai_confidence,
+                "rule_value": str(rule_value),
+                "ai_value": ai_raw,
+            }
+            continue
+        ai_f = predicate_value_to_float(ai_raw)
+        if rule_value in {"true", "false"}:
+            status = (
+                "agreed_true"
+                if ai_f == rule_f and rule_f == 1.0
+                else "agreed_false"
+                if ai_f == rule_f
+                else "disputed"
+            )
+        else:
+            status = "agreed_true" if abs(ai_f - rule_f) <= 0.10 else "disputed"
+        fused = rule_f + (ai_f - rule_f) * min(ai_confidence, 0.5)
+        result[name] = {
+            "fused": round(min(max(fused, 0.0), 1.0), 4),
+            "source": status,
+            "ai_confidence": ai_confidence,
+            "rule_value": str(rule_value),
+            "ai_value": ai_raw,
+        }
+    return result
+
+
+def _is_numeric(value: str) -> bool:
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
 
 def serialize_predicates(rows: list[dict[str, object]]) -> list[dict[str, Any]]:
@@ -253,6 +510,8 @@ def analyze_new_document(
     rules: list[dict[str, str]],
     ai_layer: Any | None = None,
     use_ai: bool = False,
+    *,
+    persist_ai_candidates: bool = True,
 ) -> dict[str, Any]:
     title = payload.get("title", "").strip()
     content = payload.get("content", "").strip()
@@ -387,16 +646,27 @@ def analyze_new_document(
         deterministic_map = {str(row["predicate_name"]): str(row["value"]) for row in predicate_rows}
         if isinstance(ai_result, dict):
             ai_predicates = list(ai_stock.get("predicates", [])) if ai_stock else legacy_ai_predicates
-            consensus, predicate_map = build_predicate_consensus(
+            consensus, _gated = build_predicate_consensus(
                 predicate_rows,
                 ai_predicates,
             )
+            fused = fuse_predicate_values(deterministic_map, ai_predicates)
         else:
             consensus = []
-            predicate_map = deterministic_map
+            fused = {
+                name: {
+                    "fused": predicate_value_to_float(value),
+                    "source": "rule_only",
+                    "ai_confidence": 0.0,
+                    "rule_value": value,
+                    "ai_value": "",
+                }
+                for name, value in deterministic_map.items()
+            }
+        fused_map = {name: item["fused"] for name, item in fused.items()}
         gate_open = event_consensus["accepted"] and entity_consensus["accepted"]
         triggered = (
-            [rule for rule in qualified_rules if rule_matches(rule, predicate_map, event_type)]
+            [rule for rule in qualified_rules if rule_matches(rule, fused_map, event_type)]
             if gate_open
             else []
         )
@@ -407,9 +677,13 @@ def analyze_new_document(
                 best_by_family[family] = rule
         triggered = sorted(best_by_family.values(), key=lambda row: row["rule_id"])
         raw_score = sum(float(rule["score"]) for rule in triggered)
+        ai_candidate_rows, ai_candidate_score = evaluate_ai_candidate_rules(
+            ai_result, fused_map, gate_open
+        )
+        rule_score_sum = raw_score + ai_candidate_score
         impact_prior = float(deterministic_map["event_has_short_term_price_impact"])
         factor_multiplier = 0.7 * evidence_strength + 0.3 * impact_prior
-        factor_value = raw_score * factor_multiplier
+        factor_value = rule_score_sum * factor_multiplier
         labels = [rule["target_label"] for rule in triggered]
         rule_rows = [
             {
@@ -426,6 +700,31 @@ def analyze_new_document(
         ]
         for rule in rule_rows:
             all_rules[rule["id"]] = rule
+        doc_text = f"{title}\n{content}"
+        rule_explainability = [
+            build_rule_explainability(
+                rule["condition"],
+                rule["target_label"],
+                fused,
+                consensus,
+                doc_text,
+                qualified_rules,
+            )
+            for rule in rule_rows
+        ]
+        rule_explainability.extend(
+            build_rule_explainability(
+                row["condition"],
+                row["target_label"],
+                fused,
+                consensus,
+                doc_text,
+                qualified_rules,
+                row,
+            )
+            for row in ai_candidate_rows
+            if row["ai_candidate_score"] > 0
+        )
         stock_results.append(
             {
                 "code": entity["stock_code"],
@@ -437,8 +736,11 @@ def analyze_new_document(
                 "factor_name": factor_name_for_labels(labels),
                 "candidate_factor": round(factor_value, 6),
                 "raw_score": round(raw_score, 6),
+                "ai_candidate_rules": ai_candidate_rows,
                 "factor_formula": {
-                    "rule_score_sum": round(raw_score, 6),
+                    "frozen_rule_score_sum": round(raw_score, 6),
+                    "ai_candidate_rule_score": round(ai_candidate_score, 6),
+                    "rule_score_sum": round(rule_score_sum, 6),
                     "evidence_strength": round(evidence_strength, 2),
                     "evidence_weight": 0.7,
                     "impact_prior": round(impact_prior, 2),
@@ -450,11 +752,16 @@ def analyze_new_document(
                 "evidence_score_breakdown": score_breakdown,
                 "predicates": serialize_predicates(predicate_rows),
                 "predicate_consensus": consensus,
+                "predicate_fusion": fused,
                 "triggered_rules": rule_rows,
+                "rule_explainability": rule_explainability,
                 "event": event,
             }
         )
         event_trace.append(event)
+
+    if persist_ai_candidates and isinstance(ai_result, dict):
+        persist_ai_candidate_rules(doc, ai_result.get("candidate_rules", []))
 
     stock_results.sort(key=lambda item: (item["candidate_factor"], item["confidence"]), reverse=True)
     disputed = sorted(

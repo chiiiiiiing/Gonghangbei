@@ -126,6 +126,8 @@ ANALYSIS_SCHEMA: dict[str, Any] = {
                     },
                     "target_label": {"type": "string"},
                     "rationale": {"type": "string"},
+                    "evidence_snippet": {"type": "string"},
+                    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
                 },
                 "required": ["name", "conditions", "target_label", "rationale"],
             },
@@ -191,6 +193,8 @@ def output_contract() -> dict[str, Any]:
                 "conditions": ["predicate_definitions 中的英文键"],
                 "target_label": "string",
                 "rationale": "string",
+                "evidence_snippet": "输入原文中的连续依据片段（可选）",
+                "confidence": "number from 0 to 1（可选，缺省 0.5）",
             }
         ],
     }
@@ -200,6 +204,7 @@ def build_analysis_messages(
     document: dict[str, str],
     stock_pool: list[dict[str, str]],
     similar_rules: list[dict[str, Any]],
+    historical_references: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, str]]:
     stock_rows = [
         {
@@ -223,6 +228,7 @@ def build_analysis_messages(
         "predicate_definitions": PREDICATE_DEFINITIONS,
         "stock_pool": stock_rows,
         "semantic_retrieval": similar_rules,
+        "historical_ai_references": historical_references or [],
         "task": [
             "抽取一个最主要的金融事件",
             "识别与文本直接相关的股票",
