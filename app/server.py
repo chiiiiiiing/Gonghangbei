@@ -24,6 +24,7 @@ if str(ROOT) not in sys.path:
 
 from src.ai.gateway import AIServiceError, AISettings  # noqa: E402
 from src.ai.research_layer import AIResearchLayer, validate_ai_output  # noqa: E402
+from src.ai.source_quality import assess_source, cached_fetch_full_text  # noqa: E402
 from src.pipeline.live_analysis import SOURCE_TYPES, analyze_new_document  # noqa: E402
 from src.research.scoring import SCORING_VERSION  # noqa: E402
 
@@ -433,7 +434,27 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         f"- 事件类型：`{analysis['event_type']}`",
         f"- 事件证据强度：{analysis['evidence_strength']:.2f}",
         "",
-        "## 二、因子形成路径",
+        "### 来源与完整性",
+        "",
+    ]
+    source_audit = analysis.get("source_audit")
+    if source_audit:
+        lines.extend(
+            [
+                f"- 正文链接：`{source_audit.get('url') or '无'}`",
+                f"- 链接抓取：`{source_audit.get('fetch_status', 'no_url')}`（抓取 {source_audit.get('fetched_chars', 0)} 字 / 摘要 {source_audit.get('summary_chars', 0)} 字）",
+                f"- 链接类型：`{source_audit.get('link_type')}` · 来源权威度：{source_audit.get('authority')}",
+                f"- 完整性：`{source_audit.get('completeness')}`（{source_audit.get('completeness_score'):.2f}）",
+                f"- 置信度校准上限：{source_audit.get('confidence_cap'):.2f} · 被调低项：{analysis.get('confidence_calibrated_count', 0)}",
+                f"- 判定理由：{source_audit.get('reason', '')}",
+                "",
+            ]
+        )
+    else:
+        lines.extend(["", "- 本次为冻结回放或规则复现，未做链接抓取与置信度校准。", ""])
+    lines.extend(
+        [
+            "## 二、因子形成路径",
         "",
         "文本先经过 Embedding 检索（含历史 AI 结论 RAG 参考）和大模型结构化抽取，再按锁定 Schema 生成 19 个谓词。AI 谓词与确定性程序按融合值参与判定：一致采纳、冲突按 AI 置信度加权、AI 缺失回退规则值；AI 提议的候选规则以「未历史统计验证」标注参与实时候选值。",
         "",
@@ -453,7 +474,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         "",
         "| 股票 | 行业 | 候选因子 | 原始规则分 | 触发规则 |",
         "|---|---|---:|---:|---|",
-    ]
+    ])
     for stock in stocks[:15]:
         rule_ids = "、".join(rule["id"] for rule in stock["triggered_rules"]) or "无"
         lines.append(
@@ -506,8 +527,9 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
 
 def validate_payload(payload: dict[str, Any]) -> tuple[dict[str, str] | None, str | None]:
     normalized = {key: str(value or "").strip() for key, value in payload.items()}
-    if not normalized.get("content"):
-        return None, "请提供正文内容"
+    source_url = normalized.get("source_url", "")
+    if not normalized.get("content") and not source_url:
+        return None, "请提供正文内容（或填写正文链接，系统会自动抓取全文）"
     if not normalized.get("source_name"):
         return None, "请填写可核验的来源名称"
     source_type = normalized.get("source_type", "auto")
@@ -618,6 +640,28 @@ def analyze():
     assert payload is not None
     api_key = payload.pop("api_key", "")
     ai_layer = request_ai_layer(api_key)
+    # 实时路径：有正文链接则尽力抓取全文供 AI 阅读；只给链接时用全文补正文。
+    source_url = payload.get("source_url", "").strip()
+    if source_url:
+        fetch = cached_fetch_full_text(source_url)
+        payload["fetch_diagnostics"] = fetch
+        fetched_text = fetch.get("text", "").strip()
+        if not payload.get("content") and fetch.get("status") in {"failed", "no_url"}:
+            return jsonify({"error": f"无法从链接抓取正文：{fetch.get('error') or '链接无效'}"}), 400
+        if fetched_text:
+            payload["fetched_content"] = fetched_text
+            if not payload.get("content"):
+                payload["content"] = fetched_text[:8000]
+        source_diagnostics = assess_source(
+            {
+                "url": source_url,
+                "content": payload.get("content", ""),
+                "source_type": payload.get("source_type", ""),
+                "source_name": payload.get("source_name", ""),
+            },
+            fetch,
+        )
+        payload["source_diagnostics"] = source_diagnostics
     try:
         result = analyze_new_document(
             payload,

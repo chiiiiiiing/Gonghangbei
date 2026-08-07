@@ -196,6 +196,28 @@ function badge(label, kind) {
   return `<span class="badge ${kind}">${esc(label)}</span>`;
 }
 
+function renderSourceAudit(data) {
+  const audit = data.source_audit;
+  if (!audit) return "";
+  const statusLabel = {
+    ok: "抓取成功",
+    partial: "部分抓取",
+    failed: "抓取失败",
+    no_url: "无链接",
+  }[audit.fetch_status] || audit.fetch_status;
+  const statusKind = audit.fetch_status === "ok" ? "good" : audit.fetch_status === "partial" ? "warn" : audit.fetch_status === "failed" ? "error" : "info";
+  const completenessLabel = { full: "全文已读", partial: "部分文本", summary_only: "仅摘要" }[audit.completeness] || audit.completeness;
+  const calibrated = data.confidence_calibrated_count || 0;
+  return `<section class="section"><div class="section-header"><div><h2>来源与完整性</h2><p>正文链接抓取与文本完整度 · 驱动 AI 置信度校准</p></div>${badge(statusLabel, statusKind)}</div>
+  <div class="section-body"><div class="detail-grid">
+    <div class="detail-item"><b>来源类型</b><span>${esc(audit.policy_type)} · ${esc(audit.source_name)}</span></div>
+    <div class="detail-item"><b>链接类型</b><span>${esc(audit.link_type)} · ${esc(audit.authority)}</span></div>
+    <div class="detail-item"><b>完整度</b><span>${completenessLabel}（摘要 ${esc(audit.summary_chars)} 字 / 抓取 ${esc(audit.fetched_chars)} 字）</span></div>
+    <div class="detail-item"><b>置信度上限</b><span class="mono">${esc(audit.confidence_cap)}${calibrated ? ` · 已调低 ${calibrated} 项` : " · 无需下调"}</span></div>
+  </div>
+  <div class="notice ${statusKind}">${esc(audit.reason || "")}</div></div></section>`;
+}
+
 function renderAnalysis(data) {
   const stocks = data.stock_results || [];
   const top = stocks[0];
@@ -219,6 +241,7 @@ function renderAnalysis(data) {
     <div class="metric-cell"><strong>${badge(data.consensus_gate_passed ? "门控通过" : "部分排除", gateKind)}</strong><span>一致性状态</span></div>
   </section>`;
   html += `<section class="section"><div class="section-header"><div><h2>处理链路</h2><p>${esc(data.source_name)} · ${esc(data.event_time)}</p></div>${data.source_url ? `<a class="download-button" href="${esc(data.source_url)}" target="_blank" rel="noopener"><i data-lucide="external-link"></i>查看原文</a>` : ""}</div><div class="pipeline">${steps.map((step, index) => `<div class="pipeline-step"><span class="step-number">${index + 1}</span><b>${esc(step[0])}</b><span>${esc(step[1])}</span></div>`).join("")}</div></section>`;
+  html += renderSourceAudit(data);
   if (data.disputed_predicates?.length) {
     html += `<div class="notice error">已排除：${esc(data.disputed_predicates.join("、"))}。争议或非法谓词不会进入规则匹配和因子计算。</div>`;
   }

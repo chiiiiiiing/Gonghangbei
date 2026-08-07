@@ -12,10 +12,13 @@ from pathlib import Path
 from app.server import SAMPLE_DIR, app, load_replay_cases
 from src.ai import rag
 from src.ai.gateway import AIServiceError, AISettings, OpenAICompatibleGateway
+from src.ai.prompts import build_analysis_messages
 from src.ai.research_layer import AIResearchLayer, validate_ai_output
+from src.ai.source_quality import assess_source, fetch_full_text
 from src.ingestion.text_import import FIELDS, stage_manifest
 from src.pipeline.extract_events_rule_based import _truncate_at_boundary
 from src.pipeline.live_analysis import (
+    _apply_confidence_calibration,
     build_entity_consensus,
     build_event_consensus,
     build_predicate_consensus,
@@ -419,6 +422,204 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
 
         with (SAMPLE_DIR / "stock_pool.csv").open(encoding="utf-8", newline="") as handle:
             return list(csv.DictReader(handle))
+
+
+class SourceQualityAndCalibrationTests(unittest.TestCase):
+    """R4：正文链接全文抓取 + 来源/完整度驱动的 AI 置信度校准。"""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.client = app.test_client()
+        cls.replay_case = load_replay_cases()["storage-policy"]
+
+    def _serve_bytes(self, body: bytes, content_type: str) -> str:
+        import http.server
+        import socketserver
+        import threading
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                self.send_response(200)
+                self.send_header("Content-Type", content_type)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args) -> None:  # noqa: D102
+                pass
+
+        server = socketserver.TCPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.server_close)
+        return f"http://127.0.0.1:{server.server_address[1]}/page"
+
+    def _serve_html(self, body: str) -> str:
+        html = (
+            "<html><head><style>body{}</style><script>var x=1;</script></head>"
+            f"<body><nav>导航</nav><h1>标题</h1><p>{body}</p><footer>版权</footer></body></html>"
+        )
+        return self._serve_bytes(html.encode("utf-8"), "text/html; charset=utf-8")
+
+    @staticmethod
+    def _make_pdf(text: str) -> bytes:
+        content = f"BT /F1 12 Tf 20 150 Td ({text}) Tj ET\n"
+        content_bytes = content.encode()
+        objs = {
+            1: b"<< /Type /Catalog /Pages 2 0 R >>",
+            2: b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            3: b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+            4: b"<< /Length " + str(len(content_bytes)).encode() + b" >>\nstream\n" + content_bytes + b"endstream",
+            5: b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        }
+        out = b"%PDF-1.4\n"
+        offsets: dict[int, int] = {}
+        for num in range(1, 6):
+            offsets[num] = len(out)
+            out += b"%d 0 obj\n" % num + objs[num] + b"\nendobj\n"
+        xref_pos = len(out)
+        out += b"xref\n0 6\n" + b"0000000000 65535 f \n"
+        for num in range(1, 6):
+            out += b"%010d 00000 n \n" % offsets[num]
+        out += b"trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % xref_pos
+        return out
+
+    def test_fetch_full_text_html_extracts_visible_text(self) -> None:
+        body = "国家发展改革委印发新型储能规模化建设专项行动方案。" * 10
+        result = fetch_full_text(self._serve_html(body))
+        self.assertEqual(result["status"], "ok")
+        self.assertIn("新型储能", result["text"])
+        self.assertNotIn("导航", result["text"])
+        self.assertNotIn("版权", result["text"])
+
+    def test_fetch_full_text_failed_degrades_gracefully(self) -> None:
+        result = fetch_full_text("http://127.0.0.1:1/nope", timeout=1)
+        self.assertEqual(result["status"], "failed")
+        self.assertEqual(result["text"], "")
+
+    def test_fetch_full_text_pdf_extracts_text(self) -> None:
+        url = self._serve_bytes(self._make_pdf("Energy Storage Policy Full Text"), "application/pdf")
+        result = fetch_full_text(url)
+        self.assertIn(result["status"], {"ok", "partial"})
+        self.assertIn("Energy Storage", result["text"])
+
+    def test_assess_source_classification_and_caps(self) -> None:
+        gov = assess_source(
+            {"url": "https://www.gov.cn/zhengce/x.htm", "content": "摘要", "source_type": "policy", "source_name": "中国政府网"},
+            {"status": "ok", "fetched_chars": 500, "text": "x" * 500, "error": ""},
+        )
+        self.assertEqual(gov["link_type"], "government")
+        self.assertEqual(gov["completeness"], "full")
+        self.assertEqual(gov["confidence_cap"], 0.95)
+
+        media = assess_source(
+            {"url": "https://news.qq.com/rain/a/x", "content": "摘要", "source_type": "news"},
+            {"status": "ok", "fetched_chars": 500, "text": "x" * 500, "error": ""},
+        )
+        self.assertEqual(media["link_type"], "media")
+        self.assertEqual(media["confidence_cap"], 0.85)
+
+        no_url = assess_source({"url": "", "content": "直接给的正文", "source_type": "news"}, None)
+        self.assertEqual(no_url["completeness"], "summary_only")
+        self.assertEqual(no_url["confidence_cap"], 0.7)
+
+        failed = assess_source(
+            {"url": "https://x.com/fail", "content": "摘要", "source_type": "announcement"},
+            {"status": "failed", "fetched_chars": 0, "error": "timeout"},
+        )
+        self.assertEqual(failed["completeness"], "summary_only")
+        self.assertEqual(failed["confidence_cap"], 0.6)
+
+        cninfo = assess_source(
+            {"url": "http://static.cninfo.com.cn/finalpage/x.pdf", "content": "摘要", "source_type": "announcement"},
+            None,
+        )
+        self.assertEqual(cninfo["link_type"], "cninfo")
+        self.assertEqual(cninfo["confidence_cap"], 0.6)
+
+    def test_apply_confidence_calibration_caps_low_completeness(self) -> None:
+        ai_result = {
+            "stock_analyses": [
+                {
+                    "relationship_confidence": 0.9,
+                    "predicates": [{"name": "has_policy_support", "value": "true", "confidence": 0.9}],
+                }
+            ],
+            "candidate_rules": [{"name": "r", "conditions": ["x"], "target_label": "y", "confidence": 0.9}],
+        }
+        count = _apply_confidence_calibration(ai_result, {"confidence_cap": 0.6})
+        self.assertEqual(count, 3)
+        self.assertEqual(ai_result["stock_analyses"][0]["relationship_confidence"], 0.6)
+        self.assertEqual(ai_result["stock_analyses"][0]["predicates"][0]["confidence"], 0.6)
+        self.assertEqual(ai_result["candidate_rules"][0]["confidence"], 0.6)
+
+    def test_apply_confidence_calibration_high_cap_no_change(self) -> None:
+        ai_result = {
+            "stock_analyses": [
+                {"relationship_confidence": 0.9, "predicates": [{"name": "x", "value": "true", "confidence": 0.9}]}
+            ],
+            "candidate_rules": [],
+        }
+        count = _apply_confidence_calibration(ai_result, {"confidence_cap": 0.95})
+        self.assertEqual(count, 0)
+        self.assertEqual(ai_result["stock_analyses"][0]["predicates"][0]["confidence"], 0.9)
+
+    def test_build_analysis_messages_include_source_quality(self) -> None:
+        doc = {
+            "title": "储能政策",
+            "content": "摘要",
+            "fetched_content": "全文" * 200,
+            "source_diagnostics": {"confidence_cap": 0.6, "completeness": "summary_only"},
+            "source_type": "policy",
+            "source_name": "中国政府网",
+            "publish_time": "2025-08-27",
+            "url": "https://www.gov.cn/x",
+        }
+        messages = build_analysis_messages(
+            doc, [{"stock_code": "000001", "stock_name": "平安银行", "industry_sector": "银行"}], []
+        )
+        payload = json.loads(messages[-1]["content"])
+        self.assertIn("fetched_content", payload["document"])
+        self.assertIn("source_diagnostics", payload["document"])
+        self.assertEqual(payload["document"]["source_diagnostics"]["confidence_cap"], 0.6)
+
+    def test_analyze_endpoint_url_only_fails_fetch_returns_400(self) -> None:
+        request = {
+            "title": "储能政策测试",
+            "content": "",
+            "source_type": "policy",
+            "source_name": "中国政府网",
+            "event_date": "2025-08-27",
+            "source_url": "http://127.0.0.1:1/nope",
+            "analysis_mode": "hybrid",
+        }
+        response = self.client.post("/api/analyze", json=request)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("无法从链接抓取正文", response.get_json()["error"])
+
+    def test_analyze_endpoint_url_only_fills_content_from_fetch(self) -> None:
+        # 本地可抓取页面：只给链接也能走到 AI（无 Key 时如实报 ai_required，
+        # 证明抓取已把全文填进正文并通过校验，而不是卡在"请提供正文内容"）。
+        body = "国家发展改革委印发新型储能规模化建设专项行动方案。" * 20
+        url = self._serve_html(body)
+        request = {
+            "title": "储能政策测试",
+            "content": "",
+            "source_type": "policy",
+            "source_name": "中国政府网",
+            "event_date": "2025-08-27",
+            "source_url": url,
+            "analysis_mode": "hybrid",
+        }
+        response = self.client.post("/api/analyze", json=request)
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json()["error_code"], "ai_required")
+
+    def test_replay_has_no_source_audit_and_no_calibration(self) -> None:
+        response = self.client.get("/api/replay/storage-policy")
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertIsNone(payload.get("source_audit"))
+        self.assertEqual(payload.get("confidence_calibrated_count", 0), 0)
 
 
 if __name__ == "__main__":

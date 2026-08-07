@@ -432,6 +432,49 @@ def fuse_predicate_values(
     return result
 
 
+def _apply_confidence_calibration(
+    ai_result: dict[str, Any],
+    source_diagnostics: dict[str, Any],
+) -> int:
+    """按「来源与完整性」硬上限压低 AI 置信度，返回被调低的项数。
+
+    只做向下校准（min），永不提高。覆盖逐股票谓词置信度、实体关系置信度与
+    AI 候选规则置信度；replay 路径不传 source_diagnostics，天然跳过。
+    """
+    cap = float(source_diagnostics.get("confidence_cap", 1.0))
+    if cap >= 1.0:
+        return 0
+    calibrated_count = 0
+    for stock in ai_result.get("stock_analyses", []) or []:
+        if not isinstance(stock, dict):
+            continue
+        relationship_confidence = stock.get("relationship_confidence")
+        if isinstance(relationship_confidence, (int, float)) and not isinstance(relationship_confidence, bool):
+            lowered = min(relationship_confidence, cap)
+            if lowered < relationship_confidence:
+                stock["relationship_confidence"] = lowered
+                calibrated_count += 1
+        for predicate in stock.get("predicates", []) or []:
+            if not isinstance(predicate, dict):
+                continue
+            confidence = predicate.get("confidence")
+            if isinstance(confidence, (int, float)) and not isinstance(confidence, bool):
+                lowered = min(confidence, cap)
+                if lowered < confidence:
+                    predicate["confidence"] = lowered
+                    calibrated_count += 1
+    for rule in ai_result.get("candidate_rules", []) or []:
+        if not isinstance(rule, dict):
+            continue
+        confidence = rule.get("confidence")
+        if isinstance(confidence, (int, float)) and not isinstance(confidence, bool):
+            lowered = min(confidence, cap)
+            if lowered < confidence:
+                rule["confidence"] = lowered
+                calibrated_count += 1
+    return calibrated_count
+
+
 def _is_numeric(value: str) -> bool:
     try:
         float(value)
@@ -531,6 +574,9 @@ def analyze_new_document(
         "publish_time": event_date,
         "source_name": source_name,
         "url": payload.get("source_url", "").strip(),
+        # 实时路径可选字段：正文链接抓取的全文 + 确定性「来源与完整性」评估。
+        "fetched_content": payload.get("fetched_content", "").strip(),
+        "source_diagnostics": payload.get("source_diagnostics"),
     }
     if use_ai and ai_layer is not None:
         ai_analysis = ai_layer.analyze(doc, stock_pool, rules)
@@ -560,6 +606,11 @@ def analyze_new_document(
     deterministic_event_type = infer_event_type(doc)
     entities = link_document(doc, stock_pool)
     ai_result = ai_analysis.get("result") if isinstance(ai_analysis, dict) else None
+    # 来源与完整性驱动：按确定性上限校准 AI 置信度（仅在实时路径、有评估时生效）。
+    source_diagnostics = doc.get("source_diagnostics")
+    calibrated_count = 0
+    if isinstance(ai_result, dict) and isinstance(source_diagnostics, dict):
+        calibrated_count = _apply_confidence_calibration(ai_result, source_diagnostics)
     ai_event = ai_result.get("event", {}) if isinstance(ai_result, dict) else {}
     event_consensus = build_event_consensus(deterministic_event_type, ai_event)
     event_type = deterministic_event_type
@@ -782,6 +833,8 @@ def analyze_new_document(
         "source_type": source_type,
         "source_name": source_name,
         "source_url": doc["url"],
+        "source_audit": source_diagnostics,
+        "confidence_calibrated_count": calibrated_count,
         "entities": entities,
         "events": event_trace,
         "stock_results": stock_results,
