@@ -33,6 +33,28 @@ DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
 app = Flask(__name__, static_folder=None)
 AI_LAYER = AIResearchLayer()
 
+# 演示示例：正文为可核验摘要，选择示例后系统自动抓取链接全文填充。
+DEMO_EXAMPLES = [
+    {
+        "title": "关于印发《新型储能规模化建设专项行动方案（2025—2027年）》的通知",
+        "content": "原文摘要：为推动新型储能高质量发展，国家发展改革委、国家能源局研究制定了《新型储能规模化建设专项行动方案（2025—2027年）》。现予印发，请结合实际认真抓好贯彻落实。",
+        "type": "policy", "name": "中国政府网", "date": "2025-08-27",
+        "url": "https://www.gov.cn/zhengce/zhengceku/202509/content_7040296.htm",
+    },
+    {
+        "title": "上海璞泰来新能源科技集团股份有限公司关于投资建设年产72亿平方米锂离子电池隔膜建设项目的公告",
+        "content": "原文摘要：璞泰来披露年产72亿平方米锂离子电池隔膜建设项目，计划总投资56亿元人民币。重要内容提示：交易实施尚需履行审批及其他相关程序。",
+        "type": "announcement", "name": "巨潮资讯网", "date": "2026-05-21",
+        "url": "http://static.cninfo.com.cn/finalpage/2026-05-21/1225319446.PDF",
+    },
+    {
+        "title": "315GW+119GW！2025年光伏、风电年新增装机再创新高",
+        "content": "原文摘要：国家能源局发布2025年全国电力统计数据，光伏、风电年新增装机规模再创新高，行业装机量受到市场关注。",
+        "type": "news", "name": "腾讯新闻", "date": "2026-01-28",
+        "url": "https://news.qq.com/rain/a/20260128A043VK00",
+    },
+]
+
 
 class FrozenAIResearchLayer:
     """Replay an explicitly labelled model fixture through current validators."""
@@ -572,6 +594,29 @@ def assets(filename: str):
 @app.get("/api/status")
 def status():
     return jsonify(data_status())
+
+
+@app.get("/api/examples")
+def examples():
+    return jsonify({"examples": DEMO_EXAMPLES})
+
+
+@app.get("/api/example/<int:index>/fulltext")
+def example_fulltext(index: int):
+    """返回示例正文链接的抓取全文（尽力而为，失败回退到摘要）。"""
+    if not 0 <= index < len(DEMO_EXAMPLES):
+        return jsonify({"error": "示例不存在"}), 404
+    example = DEMO_EXAMPLES[index]
+    fetch = cached_fetch_full_text(example["url"])
+    full_text = fetch.get("text", "").strip() or example["content"]
+    return jsonify(
+        {
+            "full_text": full_text,
+            "status": fetch.get("status", "no_url"),
+            "fetched_chars": fetch.get("fetched_chars", 0),
+            "summary_chars": len(example["content"]),
+        }
+    )
 
 
 @app.get("/api/backtest")

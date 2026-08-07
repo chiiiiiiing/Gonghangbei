@@ -63,6 +63,28 @@ def _strip_html(raw: str) -> str:
     return text.strip()
 
 
+def _decode_response_text(response: requests.Response) -> str:
+    """可靠解码网页正文：requests 对无 charset 的 text/html 默认 ISO-8859-1，
+    遇到真实编码为 UTF-8/GBK 的中文网页会产生乱码，这里按实际编码重解。"""
+    raw = response.content
+    declared = (response.encoding or "").lower()
+    if declared in {"iso-8859-1", "latin-1", "latin1", "ascii", ""}:
+        try:
+            detected = response.apparent_encoding or "utf-8"
+        except Exception:  # noqa: BLE001 - chardet 缺失等场景回退
+            detected = "utf-8"
+        for encoding in [detected, "utf-8", "gb18030"]:
+            try:
+                return raw.decode(encoding)
+            except (UnicodeDecodeError, LookupError):
+                continue
+        return response.text
+    try:
+        return raw.decode(response.encoding)
+    except (UnicodeDecodeError, LookupError):
+        return response.text
+
+
 def _extract_pdf(raw: bytes) -> str:
     import io
 
@@ -103,7 +125,7 @@ def fetch_full_text(url: str, timeout: int = 20) -> dict[str, Any]:
         if is_pdf:
             text = _extract_pdf(response.content)
         else:
-            text = _strip_html(response.text[:4_000_000])
+            text = _strip_html(_decode_response_text(response)[:4_000_000])
     except Exception as exc:  # noqa: BLE001
         return {
             "status": "failed",

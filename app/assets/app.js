@@ -58,12 +58,30 @@ function refreshIcons() {
 
 function setExample(index) {
   const item = EXAMPLES[index];
+  if (!item) return;
   $("title").value = item.title;
   $("content").value = item.content;
   $("sourceType").value = item.type;
   $("sourceName").value = item.name;
   $("eventDate").value = item.date;
   $("sourceUrl").value = item.url;
+  // 异步抓取链接全文填入正文（保留摘要前缀，保证冻结回放校验不破坏；失败回退摘要）。
+  fetchJson(`/api/example/${index}/fulltext`)
+    .then((data) => {
+      if (data.full_text && data.full_text !== item.content) {
+        $("content").value = `${item.content}\n\n【正文链接全文】\n${data.full_text}`;
+      }
+    })
+    .catch(() => {});
+}
+
+async function loadExamples() {
+  try {
+    const data = await fetchJson("/api/examples");
+    if (data.examples?.length) EXAMPLES = data.examples;
+  } catch (error) {
+    // 离线时使用 app.js 内置兜底示例（仅摘要）。
+  }
 }
 
 function setConnection(kind, message) {
@@ -283,8 +301,8 @@ function renderStockDetail(index) {
   const entityGate = stock.entity_consensus?.accepted ? badge("关系通过", "good") : badge("关系未通过", "bad");
   $("stockDetail").innerHTML = `
     <div class="detail-grid"><div class="detail-item"><b>主体</b><span>${esc(stock.event.subject)}</span></div><div class="detail-item"><b>客体</b><span>${esc(stock.event.object)}</span></div><div class="detail-item"><b>关系门控</b><span>${entityGate}<br>${esc(stock.link_evidence)}</span></div><div class="detail-item"><b>原文证据</b><span>${esc(stock.event.evidence_text)}</span></div></div>
-    <div class="formula-band"><div class="formula-item"><strong>${fixed(formula.frozen_rule_score_sum)}</strong><span>历史冻结规则分</span></div><div class="formula-item"><strong>${fixed(formula.ai_candidate_rule_score)}</strong><span>AI 实时候选分</span></div><div class="formula-item"><strong>${fixed(formula.rule_score_sum)}</strong><span>规则评分和</span></div><div class="formula-item"><strong>${fixed(formula.evidence_strength, 2)}</strong><span>透明证据分</span></div><div class="formula-item"><strong>${fixed(formula.impact_prior, 2)}</strong><span>Discovery 影响后验</span></div><div class="formula-item"><strong>${fixed(formula.result)}</strong><span>候选因子</span></div></div>
-    <div class="equation">${fixed(formula.frozen_rule_score_sum)}${formula.ai_candidate_rule_score ? ` + ${fixed(formula.ai_candidate_rule_score)} (AI 候选)` : ""} = ${fixed(formula.rule_score_sum)} × (${formula.evidence_weight} × ${fixed(formula.evidence_strength, 2)} + ${formula.impact_weight} × ${fixed(formula.impact_prior, 2)}) = ${fixed(formula.result)}</div>
+    <div class="formula-band"><div class="formula-item"><strong>${fixed(formula.frozen_rule_score_sum)}</strong><span>历史冻结规则分</span></div><div class="formula-item"><strong>${fixed(formula.ai_candidate_rule_score)}</strong><span>AI 实时候选分</span></div><div class="formula-item"><strong>${fixed(formula.rule_score_sum)}</strong><span>规则评分和</span></div><div class="formula-item"><strong>${fixed(formula.evidence_strength, 2)}</strong><span>透明证据分</span></div><div class="formula-item"><strong>${fixed(formula.impact_prior, 2)}</strong><span>Discovery 影响后验</span></div><div class="formula-item"><strong>${typeof formula.stock_relevance === "number" ? fixed(formula.stock_relevance, 2) : "—"}</strong><span>相关性系数</span></div><div class="formula-item"><strong>${fixed(formula.result)}</strong><span>候选因子</span></div></div>
+    <div class="equation">${fixed(formula.frozen_rule_score_sum)}${formula.ai_candidate_rule_score ? ` + ${fixed(formula.ai_candidate_rule_score)} (AI 候选)` : ""} = ${fixed(formula.rule_score_sum)} × (${formula.evidence_weight} × ${fixed(formula.evidence_strength, 2)} + ${formula.impact_weight} × ${fixed(formula.impact_prior, 2)})${typeof formula.stock_relevance === "number" ? ` × 相关性 ${fixed(formula.stock_relevance, 2)}` : ""} = ${fixed(formula.result)}</div>
     <div class="score-grid"><div class="score-part"><strong>${fixed(components.source_reliability, 2)}</strong><span>来源可靠性 · 30%</span></div><div class="score-part"><strong>${fixed(components.evidence_grounding, 2)}</strong><span>证据回溯 · 25%</span></div><div class="score-part"><strong>${fixed(components.information_specificity, 2)}</strong><span>信息具体性 · 25%</span></div><div class="score-part"><strong>${fixed(components.business_relevance, 2)}</strong><span>业务关联 · 20%</span></div></div>
     <details class="disclosure" open><summary>AI 与确定性谓词对照（含融合值 · ${stock.predicate_consensus?.length || 0} 项）</summary><div class="table-wrap"><table><thead><tr><th>谓词</th><th>AI</th><th>确定性程序</th><th>融合值</th><th>一致性</th><th>门控</th></tr></thead><tbody>${consensusRows}</tbody></table></div></details>
     <details class="disclosure"><summary>冻结规则匹配（${stock.triggered_rules?.length || 0} 条）</summary><div class="table-wrap"><table><thead><tr><th>规则</th><th>条件</th><th>标签</th><th>独立文档</th><th>后验参考胜率</th><th>评分</th></tr></thead><tbody>${ruleRows}</tbody></table></div></details>
@@ -387,6 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("runButton").addEventListener("click", runAnalysis);
   refreshIcons();
   loadStatus();
+  loadExamples();
   loadHistory();
   loadAudit();
 });

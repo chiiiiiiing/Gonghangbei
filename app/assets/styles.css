@@ -29,7 +29,7 @@ button { cursor: pointer; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(17,111,174,.18); outline-offset: 1px; }
 
 .topbar { position: sticky; top: 0; z-index: 30; height: 72px; background: rgba(255,255,255,.96); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
-.topbar-inner { width: min(1240px, calc(100% - 40px)); height: 100%; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr 380px; align-items: center; gap: 18px; }
+.topbar-inner { width: min(1240px, calc(100% - 40px)); height: 100%; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr 480px; align-items: center; gap: 18px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-size: 21px; font-weight: 760; }
 .brand strong { color: var(--blue); }
 .brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: var(--ink); color: white; font-size: 16px; }
@@ -37,8 +37,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .nav-tab { height: 100%; padding: 0 18px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); font-weight: 650; font-size: 14px; }
 .nav-tab:hover { color: var(--ink); }
 .nav-tab.active { color: var(--blue); border-color: var(--blue); }
-.service-status { justify-self: end; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; text-align: right; }
-.status-dot, .mini-dot { flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%; background: #a6b0ba; }
+.service-status { justify-self: end; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; text-align: right; white-space: nowrap; line-height: 1.2; }
+.status-dot, .mini-dot { flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%; background: #a6b0ba; margin-top: 1px; }
 .status-dot.on, .connection-state.ok .mini-dot { background: var(--teal); }
 .connection-state.fail .mini-dot { background: var(--red); }
 
@@ -117,9 +117,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--blue); outline: 
 .section-header p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
 .section-body { padding: 20px; }
 .pipeline { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); }
-.pipeline-step { position: relative; min-height: 84px; padding: 10px 14px 10px 38px; border-right: 1px solid var(--line); }
+.pipeline-step { position: relative; min-height: 84px; padding: 10px 14px 10px 30px; border-right: 1px solid var(--line); }
 .pipeline-step:last-child { border-right: 0; }
-.step-number { position: absolute; top: 10px; left: 10px; display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; color: white; background: var(--blue); font: 700 11px/1 var(--mono); }
+.step-number { position: absolute; top: 12px; left: 14px; color: var(--blue); font: 700 13px/1 var(--mono); }
 .pipeline-step b { display: block; font-size: 12px; }
 .pipeline-step span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
 .stock-selector { display: flex; flex-wrap: wrap; gap: 8px; }

@@ -662,6 +662,23 @@ def analyze_new_document(
     legacy_ai_predicates = list(ai_result.get("predicates", [])) if isinstance(ai_result, dict) else []
     impact_priors = load_impact_priors()
 
+    # 逐股票相关性：以市值规模在该批次关联股票中的相对排名作为「行业代表度」信号。
+    cap_by_code = {
+        row["stock_code"]: float(row["market_cap"])
+        for row in stock_pool
+        if str(row.get("market_cap", "")).strip()
+    }
+    cohort_caps = sorted((cap_by_code.get(entity["stock_code"], 0.0) for entity in entities), reverse=True)
+
+    def size_rank(code: str) -> float:
+        cap = cap_by_code.get(code)
+        if cap is None or not cohort_caps:
+            return 0.5
+        lo, hi = cohort_caps[-1], cohort_caps[0]
+        if hi <= lo:
+            return 0.5
+        return (cap - lo) / (hi - lo)
+
     for index, entity in enumerate(entities, start=1):
         ai_stock = ai_stock_by_code.get(entity["stock_code"])
         entity_consensus = build_entity_consensus(
@@ -734,7 +751,16 @@ def analyze_new_document(
         rule_score_sum = raw_score + ai_candidate_score
         impact_prior = float(deterministic_map["event_has_short_term_price_impact"])
         factor_multiplier = 0.7 * evidence_strength + 0.3 * impact_prior
-        factor_value = rule_score_sum * factor_multiplier
+        # 逐股票相关性系数：关联方式置信度 × AI 业务相关性，再叠加行业代表度（市值排名）。
+        ai_business_relevance = (
+            _bounded(ai_stock.get("score_components", {}).get("business_relevance", 0.0), 0.0)
+            if ai_stock
+            else 0.0
+        )
+        relevance = max(float(entity["confidence"]), ai_business_relevance)
+        relevance_size_rank = size_rank(entity["stock_code"])
+        stock_relevance = round(0.5 + 0.5 * (0.7 * relevance + 0.3 * relevance_size_rank), 4)
+        factor_value = rule_score_sum * factor_multiplier * stock_relevance
         labels = [rule["target_label"] for rule in triggered]
         rule_rows = [
             {
@@ -797,8 +823,15 @@ def analyze_new_document(
                     "impact_prior": round(impact_prior, 2),
                     "impact_weight": 0.3,
                     "multiplier": round(factor_multiplier, 6),
+                    "stock_relevance": stock_relevance,
                     "result": round(factor_value, 6),
                     "consensus_mode": "ai_rule_agreement" if isinstance(ai_result, dict) else "rule_only",
+                },
+                "stock_relevance": stock_relevance,
+                "relevance_signals": {
+                    "match_confidence": round(float(entity["confidence"]), 4),
+                    "ai_business_relevance": round(ai_business_relevance, 4),
+                    "size_rank": round(relevance_size_rank, 4),
                 },
                 "evidence_score_breakdown": score_breakdown,
                 "predicates": serialize_predicates(predicate_rows),

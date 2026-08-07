@@ -496,6 +496,15 @@ class SourceQualityAndCalibrationTests(unittest.TestCase):
         self.assertEqual(result["status"], "failed")
         self.assertEqual(result["text"], "")
 
+    def test_fetch_full_text_decodes_chinese_without_charset(self) -> None:
+        # 部分站点（如 gov.cn）响应头不带 charset，requests 默认按 ISO-8859-1
+        # 解码会导致中文乱码；这里模拟无 charset 的 UTF-8 页面验证可靠解码。
+        body = "国家发展改革委印发新型储能规模化建设专项行动方案。" * 15
+        url = self._serve_bytes(body.encode("utf-8"), "text/html")
+        result = fetch_full_text(url)
+        self.assertEqual(result["status"], "ok")
+        self.assertIn("新型储能规模化建设专项行动方案", result["text"])
+
     def test_fetch_full_text_pdf_extracts_text(self) -> None:
         url = self._serve_bytes(self._make_pdf("Energy Storage Policy Full Text"), "application/pdf")
         result = fetch_full_text(url)
@@ -620,6 +629,19 @@ class SourceQualityAndCalibrationTests(unittest.TestCase):
         payload = response.get_json()
         self.assertIsNone(payload.get("source_audit"))
         self.assertEqual(payload.get("confidence_calibrated_count", 0), 0)
+
+    def test_per_stock_factor_relevance_differs(self) -> None:
+        """同一文本下的不同股票因子应通过相关性系数产生区分，而不是完全相同。"""
+        payload = self.client.get("/api/replay/storage-policy").get_json()
+        stocks = payload["stock_results"]
+        self.assertGreaterEqual(len(stocks), 2)
+        factors = [round(stock["candidate_factor"], 4) for stock in stocks]
+        self.assertGreater(len(set(factors)), 1, "不同股票的候选因子不应完全相同")
+        for stock in stocks:
+            formula = stock["factor_formula"]
+            self.assertIn("stock_relevance", formula)
+            self.assertTrue(0.5 <= formula["stock_relevance"] <= 1.0)
+            self.assertIn("relevance_signals", stock)
 
 
 if __name__ == "__main__":
