@@ -16,6 +16,7 @@ from src.ai.prompts import build_analysis_messages
 from src.ai.research_layer import AIResearchLayer, validate_ai_output
 from src.ai.source_quality import assess_source, fetch_full_text
 from src.ingestion.text_import import FIELDS, stage_manifest
+from src.ingestion.discovery_ir_qa import collect_candidates
 from src.pipeline.extract_events_rule_based import _truncate_at_boundary
 from src.pipeline.live_analysis import (
     _apply_confidence_calibration,
@@ -688,6 +689,79 @@ class SourceQualityAndCalibrationTests(unittest.TestCase):
             self.assertIn("stock_relevance", formula)
             self.assertTrue(0.5 <= formula["stock_relevance"] <= 1.0)
             self.assertIn("relevance_signals", stock)
+
+    def test_discovery_ir_candidates_recheck_listing_and_detail_dates(self) -> None:
+        class FakeIRMClient:
+            def resolve_org_id(self, stock_code):
+                return "ORG-1"
+
+            def list_questions(self, stock_code, org_id, page_num, start, end):
+                if page_num > 1:
+                    return []
+                return [
+                    {"indexId": "CURRENT", "stockCode": stock_code, "pubDate": 1770000000000},
+                    {"indexId": "DISCOVERY", "stockCode": stock_code, "pubDate": 1735689600000},
+                ]
+
+            def question_detail(self, question_id):
+                if question_id == "CURRENT":
+                    raise AssertionError("当前日期记录不应请求详情")
+                return {
+                    "data": {
+                        "stockCode": "300750",
+                        "questionDate": 1735689600000,
+                        "questionContent": "请问公司储能电池业务进展如何？",
+                        "replyContent": "您好，公司相关业务进展请以公开披露信息为准。",
+                    }
+                }
+
+        candidates, report = collect_candidates(
+            [{"stock_code": "300750", "stock_name": "宁德时代"}],
+            FakeIRMClient(),
+            pages_per_stock=2,
+        )
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0]["publish_time"], "2025-01-01")
+        self.assertEqual(candidates[0]["review_status"], "pending_manual_review")
+        self.assertIn("投资者提问原文", candidates[0]["content"])
+        self.assertEqual(report["audit_counts"]["listing_out_of_window"], 1)
+
+    def test_discovery_ir_candidates_fail_closed_on_detail_stock_or_date(self) -> None:
+        class FakeIRMClient:
+            def resolve_org_id(self, stock_code):
+                return "ORG-1"
+
+            def list_questions(self, stock_code, org_id, page_num, start, end):
+                return [{"indexId": "BAD", "stockCode": stock_code, "pubDate": 1735689600000}] if page_num == 1 else []
+
+            def question_detail(self, question_id):
+                return {
+                    "data": {
+                        "stockCode": "000001",
+                        "questionDate": 1735689600000,
+                        "questionContent": "问题",
+                        "replyContent": "回复",
+                    }
+                }
+
+        candidates, report = collect_candidates(
+            [{"stock_code": "300750", "stock_name": "宁德时代"}], FakeIRMClient()
+        )
+        self.assertEqual(candidates, [])
+        self.assertEqual(report["status"], "no_verified_candidates")
+        self.assertEqual(report["audit_counts"]["detail_rejected"], 1)
+
+    def test_discovery_ir_candidates_record_network_failure_without_importing(self) -> None:
+        class FailingIRMClient:
+            def resolve_org_id(self, stock_code):
+                raise OSError("temporary network failure")
+
+        candidates, report = collect_candidates(
+            [{"stock_code": "300750", "stock_name": "宁德时代"}], FailingIRMClient()
+        )
+        self.assertEqual(candidates, [])
+        self.assertEqual(report["failed_stock_codes"], ["300750"])
+        self.assertEqual(report["audit_counts"]["org_lookup_failed"], 1)
 
 
 if __name__ == "__main__":
