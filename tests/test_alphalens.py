@@ -25,6 +25,7 @@ from src.pipeline.live_analysis import (
     build_rule_explainability,
     evaluate_ai_candidate_rules,
     fuse_predicate_values,
+    matched_frozen_rules,
     rule_matches,
 )
 from src.research.scoring import beta_impact_probability, evidence_score_breakdown
@@ -196,6 +197,16 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertTrue(
             rule_matches({"condition": "policy_support_is_clear"}, fused_map, "policy_support")
         )
+
+    def test_frozen_rule_match_reads_gated_predicates_not_fusion(self) -> None:
+        """A conflict may be displayed as 0.5, but cannot trigger a frozen rule."""
+        deterministic = [{"predicate_name": "has_policy_support", "value": "true", "confidence": "0.9", "rationale": "x"}]
+        ai_rows = [{"name": "has_policy_support", "value": False, "confidence": 1.0, "rationale": "x"}]
+        _consensus, gated = build_predicate_consensus(deterministic, ai_rows)
+        fused = fuse_predicate_values({"has_policy_support": "true"}, ai_rows)
+        frozen = [{"rule_id": "R-TEST", "condition": "has_policy_support"}]
+        self.assertEqual(fused["has_policy_support"]["fused"], 0.5)
+        self.assertEqual(matched_frozen_rules(frozen, gated, "policy_support"), [])
 
     def test_fuse_predicate_values_statuses(self) -> None:
         agreed_true = fuse_predicate_values(
@@ -590,6 +601,41 @@ class SourceQualityAndCalibrationTests(unittest.TestCase):
         self.assertIn("fetched_content", payload["document"])
         self.assertIn("source_diagnostics", payload["document"])
         self.assertEqual(payload["document"]["source_diagnostics"]["confidence_cap"], 0.6)
+        self.assertEqual(payload["allowed_event_types_for_source"], ["policy_support"])
+
+    def test_fetched_full_text_is_strict_evidence_source(self) -> None:
+        """全文链接正文可作为严格连续证据，不回退为摘要外的宽松匹配。"""
+        case = deepcopy(self.replay_case)
+        output = case["ai_output"]
+        literal_parts = [output["event"]["evidence_text"]]
+        literal_parts.extend(
+            row["relationship_evidence"] for row in output["stock_analyses"]
+        )
+        document = {
+            "doc_id": "FULL-TEXT-001",
+            "source_type": "policy",
+            "title": "仅用于构造严格全文校验的标题",
+            "content": "这是不能作为模型证据的摘要。",
+            "fetched_content": "\n".join(literal_parts),
+            "publish_time": "2025-08-27",
+            "source_name": "中国政府网",
+            "url": "https://example.gov.cn/full-text",
+        }
+        validated, audit = validate_ai_output(
+            output,
+            document,
+            AlphaLensAcceptanceTests._stock_pool(),
+            require_stock_level=True,
+        )
+        self.assertTrue(validated["event"]["evidence_grounded"])
+        self.assertEqual(audit["grounded_stock_count"], len(validated["stock_analyses"]))
+
+    def test_ai_annotation_audit_exposes_strict_failure_categories(self) -> None:
+        payload = self.client.get("/api/audit").get_json()["ai_annotation_cache"]
+        self.assertEqual(payload["success_count"], 163)
+        self.assertEqual(payload["failed_count"], 33)
+        categories = {row["category"]: row["count"] for row in payload["failure_categories"]}
+        self.assertEqual(categories["事件或关系证据不是原文连续片段"], 23)
 
     def test_analyze_endpoint_url_only_fails_fetch_returns_400(self) -> None:
         request = {

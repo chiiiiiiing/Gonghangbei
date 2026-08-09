@@ -2,7 +2,7 @@
 
 > **一句话定位**：AlphaLens 将政策、公告、财经新闻和互动问答等非结构化金融文本，转化为可解释、可回测、可复用的另类因子研究素材。系统是量化研究助手，**不预测股票价格，不提供投资建议**。
 >
-> 版本 `AlphaLens-Demo-v1.0-R4` · DeepSeek V4 Flash · 19 谓词固定 Schema · 三层门控 · 36/36 自动化测试通过
+> 版本 `AlphaLens-Demo-v1.0-R4.1` · DeepSeek V4 Flash · 19 谓词固定 Schema · 三层门控 · 冻结规则仅接受 `agreed_true` 谓词门控
 >
 > **本报告仅供研究参考，不构成投资建议**
 
@@ -11,12 +11,12 @@
 ## 录屏演示视频
 
 - **随包视频**：`演示视频/AlphaLens_演示录屏.webm`（38 秒演示：新文本分析 → 储能政策（示例自动填入链接全文）→ 冻结回放 → 逐股票相关性因子 → 历史研究 → 研究审计）
-- **在线视频**：（占位——评审如需在线版本，可上传至 B 站/腾讯视频/网盘后把链接填在这里）
+- **在线视频**：[AtomGit 仓库内录屏](https://atomgit.com/Chiiiiiiing/Gonghangbei/blob/codex/demo-integration/%E6%BC%94%E7%A4%BA%E8%A7%86%E9%A2%91/AlphaLens_%E6%BC%94%E7%A4%BA%E5%BD%95%E5%B1%8F.webm)（同时保留包内 [相对链接](演示视频/AlphaLens_演示录屏.webm)）。不依赖临时网盘。
 
 ## 项目源码仓库
 
-- GitHub：`https://github.com/chiiiiiiing/Gonghangbei`（分支 `codex/demo-integration`）
-- AtomGit：比赛要求源码托管于 AtomGit，可推送至 `https://atomgit.com/<账号>/AlphaLens`（按比赛要求创建仓库后 `git remote add atomgit <地址> && git push atomgit codex/demo-integration`）
+- GitHub：[`chiiiiiiing/Gonghangbei`](https://github.com/chiiiiiiing/Gonghangbei)（分支 `codex/demo-integration`）
+- AtomGit：[`Chiiiiiiing/Gonghangbei`](https://atomgit.com/Chiiiiiiing/Gonghangbei)（分支 `codex/demo-integration`）。远程已配置；本地 R4.1 提交等待当前电脑完成 AtomGit HTTPS 登录后推送，不能在未推送前宣称已同步。
 
 ---
 
@@ -36,7 +36,7 @@
 ### 1.2 核心能力
 
 1. **结构化抽取**：任意文本 → 主事件 + 关联股票 + 19 个标准谓词（政策支持、业绩异常、产能扩张等 9 类事件）。
-2. **AI 深度参与但全程可审计**：DeepSeek V4 Flash 提出事件/谓词/规则候选；AI 谓词与确定性程序做**谓词融合**（一致采纳、冲突按 AI 置信度加权、AI 缺失回退规则值）。
+2. **AI 深度参与但全程可审计**：DeepSeek V4 Flash 提出事件/谓词/规则候选；AI 谓词与确定性程序做**谓词融合**（一致采纳、冲突按 AI 置信度加权、AI 缺失回退规则值）。融合值仅用于展示与置信度分析；**冻结规则只接受 `agreed_true` 谓词门控**。
 3. **来源与完整度校准**（R4）：有正文链接自动抓取全文供 AI 阅读；AI 按**政策类型 / 来源 / 链接 / 文本完整度**四维校准置信度，仅摘要时上限 0.6、全文+权威来源最高 0.95。
 4. **可回测、可复用的因子**：候选因子按行业等权超额收益做横截面五组分组 + Rank IC；Discovery（2024–2025）与 OOS（2026H1）**分开展示**，证据不足如实提示。
 5. **逐股票相关性系数**：同一文本下不同股票按「关联方式置信度 × AI 业务相关性 × 行业代表度（市值排名）」获得不同的因子值，界面公式全程可追溯（如德业股份相关性 0.93 / 派能科技 0.77）。
@@ -131,7 +131,7 @@ flowchart TD
 | 行情 | 18002 行日线（2024-01-02 ~ 2026-06-30）|
 | 合格冻结规则 | 5 条 |
 | OOS 证据 | 0 → 13 个有效 IC 截面 |
-| 事件类型覆盖 | 9 类全覆盖；缺口 8 项收敛到 1 项（discovery 互动问答 0/25，待人工采集）|
+| 事件类型覆盖 | 9 类全覆盖；当前最大缺口为 Discovery 互动问答 0/25，待人工采集 |
 | 历史 AI 标注缓存 | 163/196（83%），33 篇被严格校验拒绝，审计页如实显示 incomplete |
 
 ### 4.2 接口延迟（本机实测）
@@ -147,7 +147,7 @@ flowchart TD
 
 ### 4.3 质量与可复现性
 
-- 自动化测试：**36/36 通过**（覆盖抓取、来源评估、置信度校准、逐股票相关性、冻结回放零破坏），约 5 s 跑完。
+- 自动化测试：**39/39 通过**（R4.1 实测；覆盖抓取、来源评估、置信度校准、逐股票相关性、全文严格证据、冻结规则谓词门控、冻结回放零破坏）。
 - `compileall` 全量编译通过。
 - 离线 18 个 CSV 重算零 diff（`运行研究流水线.py` 前后 SHA-256 强制比对，可复现性未破坏）。
 - 代码规模：src + app 约 5000 行 Python，前端单页应用，无第三方数据库依赖。
@@ -212,7 +212,7 @@ DEEPSEEK_API_KEY=你的Key .venv/bin/python 批量生成AI标注.py --limit 10
 ### 验证
 
 ```bash
-.venv/bin/python -m unittest discover -s tests -v   # 36 个测试
+.venv/bin/python -m unittest discover -s tests -v   # 39 个测试
 .venv/bin/python -m compileall -q app src tests 运行研究流水线.py
 ```
 
@@ -224,7 +224,7 @@ DEEPSEEK_API_KEY=你的Key .venv/bin/python 批量生成AI标注.py --limit 10
 ├── app/                    # Flask API、前端资源、本地依赖
 ├── src/                    # AI、链接抓取、抽取、评分与回测源码
 ├── data/sample/            # 演示数据、回放、研究输出
-├── tests/                  # 36 个精简验收测试
+├── tests/                  # 自动化验收测试
 ├── 演示截图/                # 核心模块截图
 ├── 启动演示.py             # 统一启动入口
 ├── 运行研究流水线.py       # 受 SHA-256 保护的重算入口
@@ -233,7 +233,8 @@ DEEPSEEK_API_KEY=你的Key .venv/bin/python 批量生成AI标注.py --limit 10
 ├── 完整说明文档.md         # 唯一权威完整说明（架构、口径、API、限制）
 ├── 原创性证明.md
 ├── 提交说明.md             # 比赛提交包导航 + 要求核查表
+├── AI标注拒绝分析.md        # 33 条严格拒绝的分类、修复与重试口径
 └── README.md               # 本文件
 ```
 
-项目概览、系统架构、数据口径、API、第三方依赖与已知限制详见 [完整说明文档.md](完整说明文档.md)。
+项目概览、系统架构、数据口径、API、第三方依赖与已知限制详见 [完整说明文档.md](完整说明文档.md)；历史 AI 拒绝的严格校验与重试口径见 [AI标注拒绝分析.md](AI标注拒绝分析.md)。

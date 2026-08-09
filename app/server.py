@@ -190,6 +190,69 @@ def ai_candidate_rule_count() -> int:
         return sum(1 for _ in csv.DictReader(handle))
 
 
+def _latest_annotation_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Collapse append-only retry records to the latest result per document."""
+    latest: dict[str, dict[str, Any]] = {}
+    for record in records:
+        doc_id = str(record.get("doc_id", "")).strip()
+        if not doc_id:
+            continue
+        previous = latest.get(doc_id)
+        if previous is None or str(record.get("generated_at", "")) >= str(previous.get("generated_at", "")):
+            latest[doc_id] = record
+    return list(latest.values())
+
+
+def _annotation_failure_category(reason: str) -> str:
+    """Group strict cache rejections without hiding their original reason."""
+    if "证据文本无法回溯" in reason:
+        return "事件或关系证据不是原文连续片段"
+    if "事件类型" in reason and "来源类型" in reason:
+        return "事件类型与来源类型不相容"
+    if "19 个谓词" in reason:
+        return "逐股票 19 个谓词不完整"
+    if "stock_analyses" in reason or "关系证据校验" in reason:
+        return "逐股票关系证据或股票池校验未通过"
+    if "未返回可解析的结构化 JSON" in reason:
+        return "模型未返回可解析的结构化 JSON"
+    return "其他严格结构校验拒绝"
+
+
+def ai_annotation_cache_summary(document_count: int) -> dict[str, Any]:
+    """Expose coverage and rejection categories for replayable AI-cache audit."""
+    path = SAMPLE_DIR / "ai_annotations.jsonl"
+    records: list[dict[str, Any]] = []
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(record, dict):
+                records.append(record)
+    latest_records = _latest_annotation_records(records)
+    success_count = sum(record.get("status") == "success" for record in latest_records)
+    failed_records = [record for record in latest_records if record.get("status") == "failed"]
+    categories = Counter(
+        _annotation_failure_category(str(record.get("reason", "")))
+        for record in failed_records
+    )
+    return {
+        "success_count": success_count,
+        "failed_count": len(failed_records),
+        "document_count": document_count,
+        "missing_count": max(document_count - success_count - len(failed_records), 0),
+        "record_count": len(records),
+        "status": "complete" if document_count and success_count >= document_count else "incomplete",
+        "failure_categories": [
+            {"category": category, "count": count}
+            for category, count in sorted(categories.items(), key=lambda item: (-item[1], item[0]))
+        ],
+    }
+
+
 def data_status() -> dict[str, Any]:
     stock_pool = read_csv("stock_pool.csv")
     documents = read_csv("raw_documents.csv")
@@ -382,14 +445,6 @@ def research_audit() -> dict[str, Any]:
         }
         for split, counts in split_source_counts.items()
     }
-    annotation_path = SAMPLE_DIR / "ai_annotations.jsonl"
-    annotation_records = []
-    if annotation_path.exists():
-        annotation_records = [
-            json.loads(line)
-            for line in annotation_path.read_text(encoding="utf-8").splitlines()
-            if line.strip()
-        ]
     return {
         "counts": {
             "stocks": len(read_csv("stock_pool.csv")),
@@ -422,14 +477,7 @@ def research_audit() -> dict[str, Any]:
             "scoring_version": SCORING_VERSION,
             "repository_commit": repository_commit(),
         },
-        "ai_annotation_cache": {
-            "success_count": sum(row.get("status") == "success" for row in annotation_records),
-            "failed_count": sum(row.get("status") == "failed" for row in annotation_records),
-            "document_count": len(documents),
-            "status": "complete"
-            if documents and sum(row.get("status") == "success" for row in annotation_records) >= len(documents)
-            else "incomplete",
-        },
+        "ai_annotation_cache": ai_annotation_cache_summary(len(documents)),
         "ai_candidate_rules_count": ai_candidate_rule_count(),
         "future_info_audit": historical_backtest()["metrics"].get("future_info_audit", "pending"),
         "disclaimer": DISCLAIMER,
