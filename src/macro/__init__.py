@@ -1,8 +1,8 @@
-"""AlphaLens monthly industrial-nowcast and strategy research layer."""
+"""AlphaLens industrial-activity prediction and strategy research layer."""
 
 from .engine import (
     build_macro_outputs,
-    live_macro_impact,
+    live_text_forecast,
     load_macro_backtest,
     load_macro_forecast,
     load_macro_status,
@@ -10,7 +10,7 @@ from .engine import (
 
 __all__ = [
     "build_macro_outputs",
-    "live_macro_impact",
+    "live_text_forecast",
     "load_macro_backtest",
     "load_macro_forecast",
     "load_macro_status",

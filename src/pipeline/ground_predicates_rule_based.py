@@ -76,6 +76,7 @@ def add_predicate(
 
 def source_is_authoritative(source_type: str, source_name: str) -> bool:
     return source_type in {"policy", "announcement", "ir_qa"} or source_name in {
+        "国家统计局",
         "证券时报",
         "上海证券报",
         "中国证券报",
@@ -86,7 +87,7 @@ def source_is_authoritative(source_type: str, source_name: str) -> bool:
 def source_is_government_or_exchange(source_type: str, source_name: str) -> bool:
     return source_type == "policy" or any(
         keyword in source_name
-        for keyword in ["中国政府网", "国务院", "发改委", "工信部", "财政部", "商务部", "上交所", "深交所"]
+        for keyword in ["中国政府网", "国务院", "国家统计局", "发改委", "工信部", "财政部", "商务部", "上交所", "深交所"]
     )
 
 

@@ -20,6 +20,8 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Iterable
 
+from src.backtest.demo_engine import PREDICATE_COLUMNS
+
 
 ROOT = Path(__file__).resolve().parents[2]
 SAMPLE_DIR = ROOT / "data" / "sample"
@@ -53,6 +55,19 @@ PREDICTOR_FIELDS = [
     "wind_exposure", "factor_mean", "factor_std", "factor_positive_rate",
 ]
 
+EVENT_TYPES = (
+    "policy_support", "capacity_expansion", "attention_spread", "regulatory_penalty",
+    "inquiry_letter_pressure", "earnings_quality_anomaly", "supply_chain_disruption",
+    "product_price_increase", "investor_question_pressure",
+)
+SINGLE_TEXT_FIELDS = [
+    "source_policy", "source_announcement", "source_news", "source_ir_qa",
+    *[f"event_{name}" for name in EVENT_TYPES],
+    "stock_count", "avg_event_evidence", "avg_entity_confidence",
+    *[f"predicate_{name}" for name in PREDICATE_COLUMNS],
+    "latest_published_yoy", "season_sin", "season_cos",
+]
+
 
 def _read_csv(name: str) -> list[dict[str, str]]:
     path = SAMPLE_DIR / name
@@ -65,7 +80,7 @@ def _read_csv(name: str) -> list[dict[str, str]]:
 def _write_csv(name: str, fields: list[str], rows: Iterable[dict[str, Any]]) -> None:
     path = SAMPLE_DIR / name
     with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fields, extrasaction="ignore")
+        writer = csv.DictWriter(handle, fieldnames=fields, extrasaction="ignore", lineterminator="\n")
         writer.writeheader()
         for row in rows:
             rendered: dict[str, Any] = {}
@@ -141,10 +156,10 @@ def _target_periods() -> list[dict[str, str]]:
 
 def aggregate_monthly_features() -> list[dict[str, Any]]:
     """Aggregate unique verified documents and downstream audited results by period."""
-    documents = _read_csv("raw_documents.csv")
-    events = _read_csv("events.csv")
-    predicates = _read_csv("predicates.csv")
-    links = _read_csv("entity_links.csv")
+    documents = [*_read_csv("raw_documents.csv"), *_read_csv("macro_historical_documents.csv")]
+    events = [*_read_csv("events.csv"), *_read_csv("macro_historical_events.csv")]
+    predicates = [*_read_csv("predicates.csv"), *_read_csv("macro_historical_predicates.csv")]
+    links = [*_read_csv("entity_links.csv"), *_read_csv("macro_historical_entity_links.csv")]
     factors = _read_csv("factors.csv")
     rules = {row["rule_id"]: row for row in _read_csv("rules.csv") if row.get("status") == "qualified"}
 
@@ -310,6 +325,139 @@ def _elastic_net_fit(
         if largest_change < 1e-8:
             break
     return [intercept, *coefficients], means, scales
+
+
+def _target_for_document(document_date: str) -> dict[str, str] | None:
+    for row in _target_periods():
+        if row["period_start"] <= document_date <= row["period_end"] and row.get("actual_yoy"):
+            return row
+    return None
+
+
+def _latest_actual_at(information_date: str, *, exclude_period_end: str = "") -> float:
+    available = [
+        row for row in _read_csv("macro_target_history.csv")
+        if row.get("actual_yoy") and row.get("release_date")
+        and row["release_date"] <= information_date
+        and (not exclude_period_end or row["period_end"] < exclude_period_end)
+    ]
+    available.sort(key=lambda row: row["release_date"])
+    return _f(available[-1]["actual_yoy"]) if available else 0.0
+
+
+def _single_text_base(source_type: str, event_type: str, information_date: str, target_end: str) -> dict[str, float]:
+    values = {field: 0.0 for field in SINGLE_TEXT_FIELDS}
+    source_field = f"source_{source_type}"
+    event_field = f"event_{event_type}"
+    if source_field in values:
+        values[source_field] = 1.0
+    if event_field in values:
+        values[event_field] = 1.0
+    month = int(target_end[5:7])
+    values["latest_published_yoy"] = _latest_actual_at(information_date, exclude_period_end=target_end)
+    values["season_sin"] = math.sin(month * math.pi / 6)
+    values["season_cos"] = math.cos(month * math.pi / 6)
+    return values
+
+
+def _historical_single_text_rows() -> list[dict[str, Any]]:
+    documents = _read_csv("macro_historical_documents.csv")
+    events = _read_csv("macro_historical_events.csv")
+    predicates = _read_csv("macro_historical_predicates.csv")
+    links = _read_csv("macro_historical_entity_links.csv")
+    events_by_doc: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for event in events:
+        events_by_doc[event["doc_id"]].append(event)
+    predicates_by_event: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for predicate in predicates:
+        predicates_by_event[predicate["event_id"]].append(predicate)
+    links_by_doc: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for link in links:
+        links_by_doc[link["doc_id"]].append(link)
+    rows: list[dict[str, Any]] = []
+    for document in documents:
+        target = _target_for_document(document["publish_time"])
+        if target is None:
+            continue
+        doc_events = events_by_doc.get(document["doc_id"], [])
+        if not doc_events:
+            continue
+        event_counts = Counter(event["event_type"] for event in doc_events)
+        dominant_event = event_counts.most_common(1)[0][0]
+        values = _single_text_base(
+            document["source_type"], dominant_event, document["publish_time"], target["period_end"],
+        )
+        values["stock_count"] = float(len({event["stock_code"] for event in doc_events}))
+        values["avg_event_evidence"] = _mean([_f(event["evidence_strength"]) for event in doc_events])
+        values["avg_entity_confidence"] = _mean([_f(link["confidence"]) for link in links_by_doc.get(document["doc_id"], [])])
+        predicate_values: dict[str, list[float]] = defaultdict(list)
+        for event in doc_events:
+            for predicate in predicates_by_event.get(event["event_id"], []):
+                raw = predicate["value"].lower()
+                predicate_values[predicate["predicate_name"]].append(
+                    1.0 if raw == "true" else 0.0 if raw == "false" else _f(raw)
+                )
+        for name in PREDICATE_COLUMNS:
+            values[f"predicate_{name}"] = _mean(predicate_values.get(name, []))
+        rows.append({
+            "doc_id": document["doc_id"], "information_date": document["publish_time"],
+            "source_type": document["source_type"],
+            "target_period_end": target["period_end"], "split": _split(target["period_end"]),
+            "actual_yoy": _f(target["actual_yoy"]), "values": values,
+        })
+    return rows
+
+
+def build_single_text_model() -> dict[str, Any]:
+    """Freeze a low-variance model mapping one audited text to the target YoY value."""
+    rows = _historical_single_text_rows()
+    train = [row for row in rows if row["split"] == "train"]
+    validation = [row for row in rows if row["split"] == "validation"]
+    train_x = [[row["values"][field] for field in SINGLE_TEXT_FIELDS] for row in train]
+    train_y = [row["actual_yoy"] for row in train]
+    candidates: list[tuple[float, tuple[list[float], list[float], list[float]], float]] = []
+    for alpha in (5.0, 20.0, 50.0, 100.0):
+        model = _ridge_fit(train_x, train_y, alpha)
+        errors = [
+            _ridge_predict(model, [row["values"][field] for field in SINGLE_TEXT_FIELDS]) - row["actual_yoy"]
+            for row in validation
+        ]
+        candidates.append((alpha, model, _mean([abs(error) for error in errors])))
+    alpha, model, validation_mae = min(candidates, key=lambda item: item[2])
+    validation_errors = [
+        _ridge_predict(model, [row["values"][field] for field in SINGLE_TEXT_FIELDS]) - row["actual_yoy"]
+        for row in validation
+    ]
+    persistence_errors = [row["values"]["latest_published_yoy"] - row["actual_yoy"] for row in validation]
+    persistence_mae = _mean([abs(error) for error in persistence_errors])
+    absolute_improvement = persistence_mae - validation_mae
+    relative_improvement = absolute_improvement / persistence_mae if persistence_mae else 0.0
+    source_type_counts = Counter(row["source_type"] for row in rows)
+    payload = {
+        "model_name": "single_text_ridge", "alpha": alpha, "feature_fields": SINGLE_TEXT_FIELDS,
+        "coefficients": model[0], "means": model[1], "scales": model[2],
+        "training_document_count": len(train), "validation_document_count": len(validation),
+        "training_period": "2015-01-01 至 2021-12-31",
+        "validation_period": "2022-01-01 至 2023-12-31",
+        "validation_mae": validation_mae,
+        "validation_rmse": math.sqrt(_mean([error * error for error in validation_errors])) if validation_errors else 0.0,
+        "persistence_validation_mae": persistence_mae,
+        "validation_mae_improvement": absolute_improvement,
+        "validation_relative_improvement": relative_improvement,
+        "historical_source_type_counts": dict(sorted(source_type_counts.items())),
+        "prediction_interval_half_width_90": _quantile([abs(error) for error in validation_errors], .9) if validation_errors else 4.0,
+        "text_increment_status": "validated_positive" if absolute_improvement >= 0.10 and relative_improvement >= 0.05 else "not_established",
+        "information_boundary": "每篇历史文本只使用其首次发布日期当日可见信息；目标值发布日期必须严格晚于文本日期。",
+    }
+    (SAMPLE_DIR / "macro_single_text_model.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+    )
+    _write_csv(
+        "macro_single_text_metrics.csv",
+        ["model", "training_document_count", "validation_document_count", "validation_mae", "validation_rmse", "persistence_validation_mae", "validation_mae_improvement", "validation_relative_improvement", "text_increment_status"],
+        [{"model": payload["model_name"], **payload}],
+    )
+    return payload
 
 
 def _ar_prediction(history: list[float]) -> float:
@@ -599,10 +747,15 @@ def _write_strategy_bootstrap(rows: list[dict[str, Any]]) -> None:
 
 def build_macro_outputs() -> None:
     features = aggregate_monthly_features()
+    single_text_model = build_single_text_model()
     forecasts = build_forecasts(features)
     market = ensure_market_data()
     strategy = build_strategy(forecasts, market)
-    print(f"宏观层完成：{len(features)} 期特征，{len(forecasts)} 期预测，{len(strategy)} 条策略净值记录")
+    print(
+        f"宏观层完成：{len(features)} 期特征，{len(forecasts)} 期预测，"
+        f"单文本模型训练/验证 {single_text_model['training_document_count']}/"
+        f"{single_text_model['validation_document_count']} 篇，{len(strategy)} 条策略净值记录"
+    )
 
 
 def load_macro_forecast() -> dict[str, Any]:
@@ -642,48 +795,108 @@ def load_macro_status() -> dict[str, Any]:
     forecasts = _read_csv("macro_forecasts.csv")
     covered = sum(int(_f(row.get("document_count"))) > 0 for row in features)
     latest = forecasts[-1] if forecasts else {}
+    historical_documents = _read_csv("macro_historical_documents.csv")
+    model_path = SAMPLE_DIR / "macro_single_text_model.json"
+    single_text_model = json.loads(model_path.read_text(encoding="utf-8")) if model_path.exists() else {}
     return {
         "version": (ROOT / "VERSION").read_text(encoding="utf-8").strip(),
         "target_name": TARGET_NAME, "target_observations": len(target),
         "target_period": {"start": target[0]["period_start"] if target else "", "end": target[-1]["period_end"] if target else ""},
         "feature_periods": len(features), "text_covered_periods": covered,
+        "verified_historical_texts": len(historical_documents),
+        "single_text_model": {
+            key: single_text_model.get(key)
+            for key in (
+                "model_name", "training_document_count", "validation_document_count",
+                "validation_mae", "validation_rmse", "persistence_validation_mae",
+                "validation_mae_improvement", "validation_relative_improvement",
+                "historical_source_type_counts", "text_increment_status",
+            )
+        },
         "train_period": "2015-01-01 至 2021-12-31", "validation_period": "2022-01-01 至 2023-12-31",
         "oos_period": "2024-01-01 至最新", "latest_forecast": latest,
-        "evidence_warning": "2015—2023 缺少通过现有严格校验的历史文本，当前文本模型不可宣称具有预测增量。" if latest.get("text_increment_status") != "evaluated" else "",
+        "evidence_warning": "单文本模型的验证误差未优于持久性基线，预测值可用于产业研究，但不能宣称文本增量。" if single_text_model.get("text_increment_status") != "validated_positive" else "",
         "research_scope": "预测行业实体景气，不预测股票价格，不提供投资建议",
         "disclaimer": DISCLAIMER,
     }
 
 
-def live_macro_impact(analysis: dict[str, Any]) -> dict[str, Any]:
-    """Return a transparent marginal feature update for one fully analysed text."""
-    forecast_payload = load_macro_forecast()
-    latest = forecast_payload.get("latest", {})
-    before = forecast_payload.get("latest_features", {})
+def _single_text_target_end(event_date: str) -> str:
+    parsed = datetime.strptime(event_date, "%Y-%m-%d").date()
+    if parsed.month in {1, 2}:
+        end = date(parsed.year, 2, 29 if parsed.year % 4 == 0 and (parsed.year % 100 != 0 or parsed.year % 400 == 0) else 28)
+    elif parsed.month == 12:
+        end = date(parsed.year, 12, 31)
+    else:
+        end = date(parsed.year, parsed.month + 1, 1) - timedelta(days=1)
+    return end.isoformat()
+
+
+def live_text_forecast(analysis: dict[str, Any]) -> dict[str, Any]:
+    """Predict the target YoY value from this new text and frozen history only."""
+    model_path = SAMPLE_DIR / "macro_single_text_model.json"
+    model = json.loads(model_path.read_text(encoding="utf-8")) if model_path.exists() else build_single_text_model()
+    event_date = str(analysis.get("event_time", date.today().isoformat()))
+    target_end = _single_text_target_end(event_date)
     stocks = analysis.get("stock_results", [])
-    factors = [_f(row.get("candidate_factor")) for row in stocks]
-    predicate_rows = [item for stock in stocks for item in stock.get("predicate_consensus", [])]
-    accepted = sum(bool(row.get("accepted_for_rule")) for row in predicate_rows)
-    delta = {
-        "document_count": 1, "event_count": len(stocks),
-        "stock_count": len({row.get("code") for row in stocks}),
-        "true_predicate_count": accepted,
-        "qualified_rule_hits": sum(len(row.get("triggered_rules", [])) for row in stocks),
-        "factor_mean": _mean(factors),
-    }
-    after = {key: _f(before.get(key)) + value for key, value in delta.items()}
-    text_ready = latest.get("text_increment_status") == "evaluated"
-    prediction_before = _f(latest.get("predicted_yoy"))
-    prediction_after = prediction_before
+    values = _single_text_base(
+        str(analysis.get("source_type", "news")), str(analysis.get("event_type", "attention_spread")),
+        event_date, target_end,
+    )
+    values["stock_count"] = float(len({stock.get("code") for stock in stocks}))
+    values["avg_event_evidence"] = _mean([
+        _f(stock.get("event", {}).get("evidence_strength", analysis.get("evidence_strength", 0)))
+        for stock in stocks
+    ])
+    values["avg_entity_confidence"] = _mean([_f(stock.get("confidence")) for stock in stocks])
+    predicate_values: dict[str, list[float]] = defaultdict(list)
+    for stock in stocks:
+        for name, item in stock.get("predicate_fusion", {}).items():
+            predicate_values[name].append(_f(item.get("fused")))
+    for name in PREDICATE_COLUMNS:
+        values[f"predicate_{name}"] = _mean(predicate_values.get(name, []))
+    feature_fields = list(model["feature_fields"])
+    row = [values[field] for field in feature_fields]
+    frozen = (list(model["coefficients"]), list(model["means"]), list(model["scales"]))
+    prediction = _ridge_predict(frozen, row)
+    latest_actual = values["latest_published_yoy"]
+    half_width = _f(model.get("prediction_interval_half_width_90"), 4.0)
+    contributions = []
+    for index, field in enumerate(feature_fields):
+        contribution = frozen[0][index + 1] * (row[index] - frozen[1][index]) / frozen[2][index]
+        contributions.append({"feature": field, "contribution_pct_point": round(contribution, 6)})
+    contributions.sort(key=lambda item: abs(item["contribution_pct_point"]), reverse=True)
+    source_type = str(analysis.get("source_type", ""))
+    source_history_count = int(model.get("historical_source_type_counts", {}).get(source_type, 0))
+    source_coverage_status = "covered" if source_history_count >= 5 else "limited"
     return {
-        "target_name": TARGET_NAME, "period_end": latest.get("target_period_end", ""),
-        "feature_delta": delta, "feature_after": after,
-        "prediction_before": prediction_before, "prediction_after": prediction_after,
-        "prediction_change": prediction_after - prediction_before,
-        "interval_90": [_f(latest.get("lower_90")), _f(latest.get("upper_90"))],
-        "evidence_status": "evaluated" if text_ready else "insufficient_history",
-        "explanation": "该文本已进入本月可审计特征，但历史文本覆盖不足，系统不伪造模型系数，因此本次边际预测变化记为 0。" if not text_ready else "按冻结模型系数重算单篇文本的边际贡献。",
-        "single_document_warning": "单篇文本只是月度聚合中的一个证据贡献，不代表其独立预测整个行业。",
-        "trading_timing": "实时输入只更新研究 Nowcast；策略仅在预定月末产生信号，并于下一交易日调仓。",
+        "forecast_mode": "single_new_text_only", "target_name": TARGET_NAME,
+        "information_date": event_date, "target_period_end": target_end,
+        "predicted_yoy": round(prediction, 6), "latest_published_yoy": round(latest_actual, 6),
+        "predicted_acceleration": round(prediction - latest_actual, 6),
+        "lower_90": round(prediction - half_width, 6), "upper_90": round(prediction + half_width, 6),
+        "model_name": model["model_name"], "model_alpha": model["alpha"],
+        "training_document_count": model["training_document_count"],
+        "validation_document_count": model["validation_document_count"],
+        "validation_mae": model["validation_mae"], "validation_rmse": model["validation_rmse"],
+        "persistence_validation_mae": model["persistence_validation_mae"],
+        "text_increment_status": model["text_increment_status"],
+        "source_coverage_status": source_coverage_status,
+        "same_source_type_history_count": source_history_count,
+        "top_contributions": contributions[:8],
+        "new_text_evidence": {
+            "source_type": analysis.get("source_type"), "event_type": analysis.get("event_type"),
+            "stock_count": int(values["stock_count"]),
+            "avg_event_evidence": round(values["avg_event_evidence"], 6),
+            "avg_entity_confidence": round(values["avg_entity_confidence"], 6),
+            "triggered_rule_count": sum(len(stock.get("triggered_rules", [])) for stock in stocks),
+            "candidate_factor_mean": round(_mean([_f(stock.get("candidate_factor")) for stock in stocks]), 6),
+        },
+        "forecast_basis": "预测只使用本次新输入文本的来源、事件、实体和19谓词特征；三层门控、冻结规则与候选因子保留为并列审计证据，不作为股票收益预测。历史文本仅用于冻结规则与模型参数。",
+        "analysis_conclusion": (
+            "单文本模型验证优于持久性基线。"
+            if model["text_increment_status"] == "validated_positive"
+            else "单文本模型验证未建立相对持久性基线的增量，数值仅作产业研究参考。"
+        ) + (" 当前来源类型历史覆盖有限。" if source_coverage_status == "limited" else ""),
         "disclaimer": DISCLAIMER,
     }

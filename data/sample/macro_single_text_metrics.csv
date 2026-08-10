@@ -1,0 +1,2 @@
+model,training_document_count,validation_document_count,validation_mae,validation_rmse,persistence_validation_mae,validation_mae_improvement,validation_relative_improvement,text_increment_status
+single_text_ridge,61,23,2.572133,3.538321,3.008696,0.436562,0.145100,validated_positive

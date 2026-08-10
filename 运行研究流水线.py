@@ -7,6 +7,7 @@ from pathlib import Path
 
 from src.backtest.demo_engine import main as build_research_outputs
 from src.macro.engine import build_macro_outputs
+from src.macro.history import build_historical_text_outputs
 from src.pipeline.extract_events_rule_based import main as extract_events
 from src.pipeline.link_entities import main as link_entities
 
@@ -28,6 +29,7 @@ def main() -> None:
     link_entities()
     extract_events()
     build_research_outputs()
+    build_historical_text_outputs()
     build_macro_outputs()
     after = file_hash(RAW_DOCUMENTS)
     if before != after:

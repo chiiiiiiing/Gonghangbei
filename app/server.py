@@ -28,7 +28,7 @@ from src.ai.source_quality import assess_source, cached_fetch_full_text  # noqa:
 from src.pipeline.live_analysis import SOURCE_TYPES, analyze_new_document  # noqa: E402
 from src.research.scoring import SCORING_VERSION  # noqa: E402
 from src.macro.engine import (  # noqa: E402
-    live_macro_impact,
+    live_text_forecast,
     load_macro_backtest,
     load_macro_forecast,
     load_macro_status,
@@ -498,7 +498,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
     ai = analysis.get("ai_analysis", {})
     ai_result = ai.get("result") or {}
     lines = [
-        "# AlphaLens 新文本因子研究记录",
+        "# AlphaLens 新文本行业景气预测与证据报告",
         "",
         f"生成日期：{date.today().isoformat()}",
         "",
@@ -510,9 +510,31 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         f"- 事件类型：`{analysis['event_type']}`",
         f"- 事件证据强度：{analysis['evidence_strength']:.2f}",
         "",
-        "### 来源与完整性",
+        "## 二、行业同比增速预测",
         "",
     ]
+    forecast = analysis.get("text_forecast") or {}
+    if forecast:
+        lines.extend(
+            [
+                f"- 目标：{forecast.get('target_name', '')}",
+                f"- 目标期：{forecast.get('target_period_end', '')}",
+                f"- 单文本条件预测同比：{float(forecast.get('predicted_yoy', 0)):.2f}%",
+                f"- 90% 预测区间：[{float(forecast.get('lower_90', 0)):.2f}%, {float(forecast.get('upper_90', 0)):.2f}%]",
+                f"- 相对最新已公布值的预测加速度：{float(forecast.get('predicted_acceleration', 0)):.2f} 个百分点",
+                f"- 冻结模型：{forecast.get('model_name', '')}；训练/验证文本 {forecast.get('training_document_count', 0)}/{forecast.get('validation_document_count', 0)} 篇",
+                f"- 验证结论：{forecast.get('analysis_conclusion', '')}",
+                f"- 口径：{forecast.get('forecast_basis', '')}",
+                "",
+                "### 主要文本特征贡献",
+                "",
+            ]
+        )
+        for item in forecast.get("top_contributions", [])[:6]:
+            lines.append(f"- `{item.get('feature')}`：{float(item.get('contribution_pct_point', 0)):+.4f} 个百分点")
+        lines.extend(["", "## 三、来源与完整性", ""])
+    else:
+        lines.extend(["- 未生成单文本同比预测。", "", "## 三、来源与完整性", ""])
     source_audit = analysis.get("source_audit")
     if source_audit:
         lines.extend(
@@ -530,7 +552,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         lines.extend(["", "- 本次为冻结回放或规则复现，未做链接抓取与置信度校准。", ""])
     lines.extend(
         [
-            "## 二、因子形成路径",
+            "## 四、因子形成路径",
         "",
         "文本先经过 Embedding 检索（含历史 AI 结论 RAG 参考）和大模型结构化抽取，再按锁定 Schema 生成 19 个谓词。AI 谓词与确定性程序按融合值参与判定：一致采纳、冲突按 AI 置信度加权、AI 缺失回退规则值；AI 提议的候选规则以「未历史统计验证」标注参与实时候选值。",
         "",
@@ -560,7 +582,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "## 三、规则追溯",
+            "## 五、规则追溯",
             "",
         ]
     )
@@ -575,7 +597,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "## 四、历史回测参考",
+            "## 六、历史回测参考",
             "",
             "> 这一部分来自固定历史样本，并非对本次新文本单独回测。",
             "",
@@ -586,14 +608,14 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
             f"- OOS 证据状态：{oos_metrics.get('evidence_status', 'insufficient')}",
             f"- 未来函数审计：{metrics.get('future_info_audit', 'pending')}",
             "",
-            "## 五、限制",
+            "## 七、限制",
             "",
             "- 当前行情为前复权候选价，`adj_factor=1` 仅作占位字段，不是真实复权因子序列。",
             "- 当前 OOS 有效日期过少，证据不足，不能宣称因子稳定有效。",
-            "- 新文本只生成候选因子；只有积累到后续真实收益并遵守时间边界后，才能纳入下一轮历史检验。",
+            "- 同比预测只使用本次新输入文本的结构化证据；历史文本仅用于冻结模型与规则参数。",
             "- 当前样本、规则与股票池规模有限，结果用于验证研究链路，不代表未来表现。",
             "",
-            "## 六、免责声明",
+            "## 八、免责声明",
             "",
             f"**{DISCLAIMER}**。AlphaLens 是量化研究助手，不提供买卖建议。",
         ]
@@ -743,8 +765,8 @@ def replay(case_id: str):
     result["replay_metadata"] = case["metadata"]
     history = historical_backtest()
     result["historical_backtest"] = history
+    result["text_forecast"] = live_text_forecast(result)
     result["report"] = generate_report(result, history)
-    result["macro_impact"] = live_macro_impact(result)
     result["disclaimer"] = DISCLAIMER
     return jsonify(result)
 
@@ -797,6 +819,7 @@ def _perform_analysis(raw_payload: dict[str, Any]) -> tuple[dict[str, Any], int]
     result["ai_analysis"]["credential_source"] = "request" if api_key else "environment_or_fallback"
     history = historical_backtest()
     result["historical_backtest"] = history
+    result["text_forecast"] = live_text_forecast(result)
     result["report"] = generate_report(result, history)
     result["disclaimer"] = DISCLAIMER
     return result, 200
@@ -811,8 +834,6 @@ def analyze():
 @app.post("/api/macro/analyze")
 def macro_analyze():
     result, status_code = _perform_analysis(request.get_json(silent=True) or {})
-    if status_code == 200:
-        result["macro_impact"] = live_macro_impact(result)
     return jsonify(result), status_code
 
 

@@ -32,6 +32,7 @@ from src.pipeline.live_analysis import (
 )
 from src.research.scoring import beta_impact_probability, evidence_score_breakdown
 from src.macro.engine import DISCLAIMER as MACRO_DISCLAIMER
+from src.macro.engine import live_text_forecast
 
 
 class AlphaLensAcceptanceTests(unittest.TestCase):
@@ -62,9 +63,11 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
 
     def test_macro_replay_preserves_full_ai_rule_audit(self) -> None:
         payload = self.client.get("/api/replay/storage-policy").get_json()
-        self.assertIn("macro_impact", payload)
+        self.assertIn("text_forecast", payload)
+        self.assertNotIn("macro_impact", payload)
         self.assertEqual(len(payload["stock_results"][0]["predicate_consensus"]), 19)
-        self.assertIn("single_document_warning", payload["macro_impact"])
+        self.assertEqual(payload["text_forecast"]["forecast_mode"], "single_new_text_only")
+        self.assertIn("单文本条件预测同比", payload["report"])
 
     def test_macro_target_dates_and_jan_feb_combination(self) -> None:
         with (SAMPLE_DIR / "macro_target_history.csv").open(encoding="utf-8", newline="") as handle:
@@ -91,8 +94,53 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
                 self.assertGreater(row["target_release_date"], row["as_of_date"])
             self.assertIn(row["is_oos"], {"true", "false"})
         latest = rows[-1]
-        self.assertEqual(latest["text_increment_status"], "insufficient_history")
-        self.assertEqual(latest["evidence_status"], "insufficient")
+        self.assertEqual(latest["text_increment_status"], "evaluated")
+        self.assertEqual(latest["evidence_status"], "sufficient")
+
+    def test_verified_historical_texts_and_single_text_model(self) -> None:
+        with (SAMPLE_DIR / "macro_historical_documents.csv").open(encoding="utf-8", newline="") as handle:
+            documents = list(csv.DictReader(handle))
+        self.assertGreaterEqual(len(documents), 100)
+        self.assertGreaterEqual(sum(row["source_type"] == "policy" for row in documents), 18)
+        self.assertTrue(all(row["url"].startswith("https://") for row in documents))
+        with (SAMPLE_DIR / "macro_historical_fetch_audit.csv").open(encoding="utf-8", newline="") as handle:
+            audit = list(csv.DictReader(handle))
+        self.assertEqual(len(audit), len(documents))
+        self.assertTrue(all(row["accepted"] == "true" for row in audit))
+        status = self.client.get("/api/macro/status").get_json()
+        model = status["single_text_model"]
+        self.assertGreaterEqual(model["training_document_count"], 50)
+        self.assertGreaterEqual(model["validation_document_count"], 20)
+
+    def test_single_text_training_has_strict_target_release_boundary(self) -> None:
+        with (SAMPLE_DIR / "macro_target_history.csv").open(encoding="utf-8", newline="") as handle:
+            targets = list(csv.DictReader(handle))
+        with (SAMPLE_DIR / "macro_historical_documents.csv").open(encoding="utf-8", newline="") as handle:
+            documents = list(csv.DictReader(handle))
+        for document in documents:
+            target = next((row for row in targets if row["period_start"] <= document["publish_time"] <= row["period_end"]), None)
+            if target and target["release_date"]:
+                self.assertGreater(target["release_date"], document["publish_time"])
+
+    def test_single_new_text_changes_prediction_without_monthly_merge(self) -> None:
+        payload = self.client.get("/api/replay/storage-policy").get_json()
+        original = payload["text_forecast"]
+        altered_analysis = deepcopy(payload)
+        altered_analysis["source_type"] = "news"
+        altered_analysis["event_type"] = "attention_spread"
+        for stock in altered_analysis["stock_results"]:
+            stock["event"]["evidence_strength"] = "0.55"
+            stock["predicate_fusion"]["has_policy_support"]["fused"] = 0.0
+        changed = live_text_forecast(altered_analysis)
+        self.assertNotEqual(original["predicted_yoy"], changed["predicted_yoy"])
+        self.assertEqual(changed["forecast_mode"], "single_new_text_only")
+        self.assertNotIn("feature_after", changed)
+
+    def test_ui_does_not_describe_prediction_as_realtime_update(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        combined = (root / "app" / "index.html").read_text(encoding="utf-8") + (root / "app" / "assets" / "app.js").read_text(encoding="utf-8")
+        self.assertNotIn("实时更新", combined)
+        self.assertNotIn("Nowcast 边际变化", combined)
 
     def test_macro_strategy_constraints_and_oracle_label(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:

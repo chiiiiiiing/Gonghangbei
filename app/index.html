@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="AlphaLens 金融文本驱动的行业景气 Nowcast 研究台">
-  <title>AlphaLens · 行业景气 Nowcast</title>
+  <meta name="description" content="AlphaLens 单篇金融文本驱动的行业同比增速预测与分析报告">
+  <title>AlphaLens · 新文本行业景气预测</title>
   <link rel="stylesheet" href="/assets/styles.css">
   <script defer src="/vendor/plotly.min.js"></script>
   <script defer src="/vendor/lucide.min.js"></script>
@@ -19,7 +19,7 @@
       </a>
       <nav class="nav-tabs" aria-label="研究视图">
         <button class="nav-tab active" data-view="macroView" type="button">宏观预测</button>
-        <button class="nav-tab" data-view="liveView" type="button">实时 AI 审计</button>
+        <button class="nav-tab" data-view="liveView" type="button">新文本预测</button>
         <button class="nav-tab" data-view="auditView" type="button">研究审计</button>
       </nav>
       <div class="service-status"><span class="status-dot" id="statusDot"></span><span id="statusText">正在连接本地研究服务</span></div>
@@ -28,14 +28,14 @@
 
   <main class="page-shell">
     <section class="view active" id="macroView">
-      <div id="macroContent"><div class="loading-surface">正在读取行业景气 Nowcast</div></div>
+      <div id="macroContent"><div class="loading-surface">正在读取行业同比预测研究</div></div>
     </section>
 
     <section class="view" id="liveView">
       <div class="workspace">
         <section class="surface editor-surface">
           <div class="surface-heading">
-            <div><h1>新文本实时 AI 审计</h1><p class="surface-subtitle">完整保留逐股票 19 谓词、三层门控、冻结规则与候选因子，再更新月度 Nowcast</p></div>
+            <div><h1>新文本行业景气预测</h1><p class="surface-subtitle">仅使用本次输入文本的结构化证据，参考冻结历史规则与模型，给出行业增加值同比预测和完整分析报告</p></div>
             <div class="example-picker" aria-label="示例文本">
               <button class="quiet-button" data-example="0" type="button">储能政策</button>
               <button class="quiet-button" data-example="1" type="button">锂电公告</button>
