@@ -144,10 +144,11 @@ flowchart TD
 | `/api/replay/<case>` | 21 ms | 冻结回放完整分析 |
 | 链接全文抓取（gov.cn 政策） | **0.19 s** / 4048 字 | R4.1 新增 |
 | 链接全文抓取（巨潮 PDF 公告） | **0.37 s** / 5756 字 | R4.1 新增，pypdf 抽取 |
+| DeepSeek 实时全链路验收 | 2026-08-10，HTTP 200 | `/models`、实际返回模型、request_id、system_fingerprint 校验通过；政策全文分析关联 5 只股票，完成逐股票 19 谓词校验；门控未通过时如实不触发冻结规则 |
 
 ### 4.3 质量与可复现性
 
-- 自动化测试：**42/42 通过**（R4.1 实测；覆盖抓取、来源评估、置信度校准、逐股票相关性、全文严格证据、冻结规则谓词门控、冻结回放零破坏、Discovery 候选日期/股票二次校验与网络失败闭合）。
+- 自动化测试：**43/43 通过**（R4.1 实测；覆盖抓取、来源评估、置信度校准、逐股票相关性、全文严格证据、冻结规则谓词门控、冻结回放零破坏、Discovery 候选日期/股票二次校验与网络失败闭合、实时请求零持久化）。
 - `compileall` 全量编译通过。
 - 离线 18 个 CSV 重算零 diff（`运行研究流水线.py` 前后 SHA-256 强制比对，可复现性未破坏）。
 - 代码规模：src + app 约 5000 行 Python，前端单页应用，无第三方数据库依赖。
@@ -217,7 +218,7 @@ DEEPSEEK_API_KEY=你的Key .venv/bin/python 批量生成AI标注.py --limit 10
 ### 验证
 
 ```bash
-.venv/bin/python -m unittest discover -s tests -v   # 42 个测试
+.venv/bin/python -m unittest discover -s tests -v   # 43 个测试
 .venv/bin/python -m compileall -q app src tests 运行研究流水线.py
 ```
 

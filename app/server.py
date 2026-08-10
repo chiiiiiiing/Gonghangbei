@@ -762,6 +762,9 @@ def analyze():
             read_csv("rules.csv"),
             ai_layer=ai_layer,
             use_ai=True,
+            # 实时请求只展示未经历史统计验证的 AI 候选规则，不能污染
+            # 受版本控制的演示样本；入库只能由离线人工核验流程完成。
+            persist_ai_candidates=False,
         )
     except (KeyError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400

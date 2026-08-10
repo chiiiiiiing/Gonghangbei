@@ -8,6 +8,7 @@ import tempfile
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch
 
 from app.server import SAMPLE_DIR, app, load_replay_cases
 from src.ai import rag
@@ -60,6 +61,25 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         response = self.client.post("/api/analyze", json=request)
         self.assertEqual(response.status_code, 400)
         self.assertIn("hybrid", response.get_json()["error"])
+
+    def test_live_endpoint_does_not_persist_unvalidated_ai_candidate_rules(self) -> None:
+        """Real-time input may display candidates, but must not alter sample research data."""
+        fake_result = {"ai_analysis": {}, "stock_results": [], "qualified_rules": []}
+        request = {
+            "title": "实时政策验收文本",
+            "content": "主管部门发布新型储能支持政策，明确项目建设要求。",
+            "source_type": "policy",
+            "source_name": "测试来源",
+            "event_date": "2025-01-02",
+            "analysis_mode": "hybrid",
+            "api_key": "transient-test-key",
+        }
+        with patch("app.server.request_ai_layer", return_value=object()), patch(
+            "app.server.analyze_new_document", return_value=fake_result
+        ) as analyze_mock, patch("app.server.generate_report", return_value="report"):
+            response = self.client.post("/api/analyze", json=request)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(analyze_mock.call_args.kwargs["persist_ai_candidates"])
 
     def test_manual_review_audit_matches_recorded_state(self) -> None:
         payload = self.client.get("/api/audit").get_json()
