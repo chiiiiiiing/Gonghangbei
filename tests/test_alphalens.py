@@ -31,6 +31,7 @@ from src.pipeline.live_analysis import (
     rule_matches,
 )
 from src.research.scoring import beta_impact_probability, evidence_score_breakdown
+from src.macro.engine import DISCLAIMER as MACRO_DISCLAIMER
 
 
 class AlphaLensAcceptanceTests(unittest.TestCase):
@@ -49,6 +50,78 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertEqual(payload["replay_metadata"]["provenance"], "curated_demo_fixture_not_live_api")
         self.assertTrue(payload["consensus_gate_passed"])
         self.assertEqual(payload["disputed_predicates"], [])
+
+    def test_macro_endpoints_and_default_scope(self) -> None:
+        for path in ("/api/macro/status", "/api/macro/forecast", "/api/macro/backtest"):
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 200, path)
+            self.assertEqual(response.get_json()["disclaimer"], MACRO_DISCLAIMER)
+        status = self.client.get("/api/macro/status").get_json()
+        self.assertEqual(status["target_name"], "电气机械和器材制造业增加值同比增速")
+        self.assertIn("不预测股票价格", status["research_scope"])
+
+    def test_macro_replay_preserves_full_ai_rule_audit(self) -> None:
+        payload = self.client.get("/api/replay/storage-policy").get_json()
+        self.assertIn("macro_impact", payload)
+        self.assertEqual(len(payload["stock_results"][0]["predicate_consensus"]), 19)
+        self.assertIn("single_document_warning", payload["macro_impact"])
+
+    def test_macro_target_dates_and_jan_feb_combination(self) -> None:
+        with (SAMPLE_DIR / "macro_target_history.csv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        for row in rows:
+            datetime.strptime(row["period_start"], "%Y-%m-%d")
+            datetime.strptime(row["period_end"], "%Y-%m-%d")
+            datetime.strptime(row["release_date"], "%Y-%m-%d")
+            self.assertGreater(row["release_date"], row["period_end"])
+        combined_years = {row["period_start"][:4] for row in rows if row["period_kind"] == "jan_feb_combined"}
+        self.assertTrue(combined_years)
+        for year in combined_years:
+            self.assertFalse(any(row["period_start"] == f"{year}-01-01" and row["period_kind"] == "monthly" for row in rows))
+            self.assertFalse(any(row["period_start"] == f"{year}-02-01" for row in rows))
+
+    def test_macro_forecast_release_boundary_and_frozen_splits(self) -> None:
+        with (SAMPLE_DIR / "macro_forecasts.csv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertTrue(rows)
+        for row in rows:
+            expected = "validation" if row["target_period_end"] < "2024-01-01" else "oos"
+            self.assertEqual(row["split"], expected)
+            if row["target_release_date"]:
+                self.assertGreater(row["target_release_date"], row["as_of_date"])
+            self.assertIn(row["is_oos"], {"true", "false"})
+        latest = rows[-1]
+        self.assertEqual(latest["text_increment_status"], "insufficient_history")
+        self.assertEqual(latest["evidence_status"], "insufficient")
+
+    def test_macro_strategy_constraints_and_oracle_label(self) -> None:
+        with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertTrue(rows)
+        for row in rows:
+            risk = float(row["risk_weight"])
+            defensive = float(row["defensive_weight"])
+            self.assertGreaterEqual(risk, 0.0)
+            self.assertLessEqual(risk, 1.0)
+            self.assertAlmostEqual(risk + defensive, 1.0, places=5)
+            self.assertIn(row["trend_positive"], {"true", "false"})
+            self.assertIn(row["tradable"], {"true", "false"})
+        oracle = [row for row in rows if row["strategy"] == "oracle_non_tradable"]
+        self.assertTrue(oracle)
+        self.assertTrue(all(row["tradable"] == "false" for row in oracle))
+        backtest = self.client.get("/api/macro/backtest").get_json()
+        self.assertEqual(backtest["risk_asset"]["code"], "516160")
+        self.assertEqual(backtest["defensive_asset"]["code"], "511010")
+        self.assertFalse(backtest["pre_listing_proxy"]["tradable"])
+        self.assertIn("不可交易", backtest["oracle_warning"])
+
+    def test_macro_bootstrap_reports_unestablished_increment(self) -> None:
+        with (SAMPLE_DIR / "macro_strategy_bootstrap.csv").open(encoding="utf-8", newline="") as handle:
+            row = next(csv.DictReader(handle))
+        self.assertEqual(row["block_months"], "3")
+        self.assertEqual(row["bootstrap_iterations"], "1000")
+        self.assertLessEqual(float(row["ci_lower_95"]), float(row["ci_upper_95"]))
+        self.assertIn(row["conclusion"], {"trading_increment_not_established", "positive_increment_observed"})
 
     def test_ai_check_requires_key_without_retaining_credentials(self) -> None:
         response = self.client.post("/api/ai/check", json={})

@@ -25,7 +25,7 @@ const STATUS_LABELS = {
   disputed: "判断冲突",
   invalid: "无效",
 };
-const EXAMPLES = [
+let EXAMPLES = [
   {
     title: "关于印发《新型储能规模化建设专项行动方案（2025—2027年）》的通知",
     content: "原文摘要：为推动新型储能高质量发展，国家发展改革委、国家能源局研究制定了《新型储能规模化建设专项行动方案（2025—2027年）》。现予印发，请结合实际认真抓好贯彻落实。",
@@ -50,6 +50,7 @@ let runMode = "live";
 let currentAnalysis = null;
 let historyData = null;
 let auditData = null;
+let macroData = null;
 let historySplit = "oos";
 
 function refreshIcons() {
@@ -127,10 +128,79 @@ async function loadStatus() {
     const ai = data.ai || {};
     const model = ai.chat_model || "未配置模型";
     const aiState = ai.configured ? "模型已就绪" : "模型待配置";
-    $("statusText").textContent = `本地研究服务已连接 · ${model} ${aiState} · 规则库版本 ${data.rule_version}`;
+    $("statusText").textContent = `行业景气研究服务已连接 · ${model} ${aiState} · ${data.macro?.version || "v2"}`;
   } catch (error) {
     $("statusText").textContent = `本地研究服务未连接 · ${error.message}`;
   }
+}
+
+async function loadMacro() {
+  try {
+    const [status, forecast, backtest] = await Promise.all([
+      fetchJson("/api/macro/status"), fetchJson("/api/macro/forecast"), fetchJson("/api/macro/backtest"),
+    ]);
+    macroData = { status, forecast, backtest };
+    renderMacro(macroData);
+  } catch (error) {
+    $("macroContent").innerHTML = `<div class="error-box"><strong>宏观研究读取失败</strong>${esc(error.message)}</div>`;
+  }
+}
+
+function strategyLabel(name) {
+  return ({ buy_hold: "买入持有", pure_momentum: "纯趋势", published_macro: "趋势 + 已公布数据", alphalens_nowcast: "趋势 + AlphaLens Nowcast", oracle_non_tradable: "Oracle（不可交易）" })[name] || name;
+}
+
+function renderMacro(data) {
+  const latest = data.forecast.latest || {};
+  const oosMetric = (data.forecast.metrics || []).find((row) => row.split === "oos") || {};
+  const primaryMetrics = data.backtest.metrics || [];
+  const alphaMetric = primaryMetrics.find((row) => row.strategy === "alphalens_nowcast") || {};
+  const trendMetric = primaryMetrics.find((row) => row.strategy === "pure_momentum") || {};
+  const bootstrap = data.backtest.bootstrap?.[0] || {};
+  const insufficient = latest.text_increment_status !== "evaluated";
+  const history = (data.forecast.history || []).filter((row) => row.split === "oos");
+  const html = `<div class="macro-hero">
+    <div><span class="eyebrow">AlphaLens · INDUSTRIAL NOWCAST</span><h1>从金融文本到行业实体景气</h1><p>预测国家统计局“电气机械和器材制造业增加值同比增速”的下一次发布值，再作为成熟趋势策略的宏观确认。系统不预测股票价格。</p></div>
+    <button class="primary-button macro-action" id="openLiveAnalysis" type="button"><i data-lucide="sparkles"></i>输入新文本实时更新</button>
+  </div>
+  <div class="macro-kpis">
+    ${metric(`${fixed(latest.predicted_yoy, 2)}%`, `预测同比 · ${latest.target_period_end || "--"}`)}
+    ${metric(`${Number(latest.predicted_acceleration || 0) >= 0 ? "+" : ""}${fixed(latest.predicted_acceleration, 2)}pct`, "相对最新公布值的加速度")}
+    ${metric(`${fixed(latest.lower_90, 2)}% — ${fixed(latest.upper_90, 2)}%`, "90% 预测区间")}
+    ${metric(`${fixed(oosMetric.mae, 2)}pct`, `OOS MAE · ${oosMetric.sample_count || 0} 期`)}
+  </div>
+  <div class="notice ${insufficient ? "error" : "good"}"><strong>${esc(data.forecast.text_increment_conclusion)}</strong>：${esc(data.status.evidence_warning || "文本模型已按验证集选择后冻结。")}</div>
+  <div class="macro-grid">
+    <section class="section macro-panel"><div class="section-header"><div><h2>官方值与严格样本外预测</h2><p>发布日防泄漏 · 1—2月保持合并观测</p></div>${badge(latest.selected_model || "--", "info")}</div><div id="macroForecastChart" class="macro-chart"></div></section>
+    <section class="section macro-panel"><div class="section-header"><div><h2>策略净值（10bp）</h2><p>516160 + 511010 · 月末信号、下一交易日开盘调仓</p></div>${badge("Oracle 不可交易", "warn")}</div><div id="macroNavChart" class="macro-chart"></div></section>
+  </div>
+  <section class="section"><div class="section-header"><div><h2>双层验收</h2><p>预测正确不等于策略有效，两层分别披露</p></div></div><div class="section-body"><div class="acceptance-grid">
+    <div class="acceptance-card"><span>宏观预测层</span><strong>${fixed(oosMetric.acceleration_direction_accuracy * 100, 1)}%</strong><p>OOS 加速度方向准确率；OOS R² ${fixed(oosMetric.oos_r2, 3)}。${insufficient ? "文本覆盖不足，不能认定文本增量。" : "已进入冻结 OOS。"}</p></div>
+    <div class="acceptance-card"><span>金融应用层</span><strong>${fixed((Number(alphaMetric.annual_return || 0) - Number(trendMetric.annual_return || 0)) * 100, 2)}pct</strong><p>AlphaLens 增强策略相对纯趋势的成本后年化收益差。Bootstrap 95% CI：${fixed(bootstrap.ci_lower_95 * 100, 2)}% 至 ${fixed(bootstrap.ci_upper_95 * 100, 2)}%。</p></div>
+    <div class="acceptance-card warning-card"><span>当前结论</span><strong>${bootstrap.conclusion === "positive_increment_observed" ? "观察到正增量" : "未建立交易增量"}</strong><p>若预测或策略证据不足，只说明产业研究链路已打通，不作收益宣传。</p></div>
+  </div></div></section>
+  <section class="section"><div class="section-header"><div><h2>可审计研究边界</h2></div></div><div class="section-body"><div class="detail-grid">
+    <div class="detail-item"><b>训练 / 规则发现</b><span>2015—2021</span></div><div class="detail-item"><b>模型 / 策略验证</b><span>2022—2023</span></div><div class="detail-item"><b>冻结 OOS</b><span>2024—最新</span></div><div class="detail-item"><b>交易代理边界</b><span>399808 仅作上市前研究代理，不冒充 ETF</span></div>
+  </div><p class="disclaimer">本报告仅供研究参考，不构成投资建议</p></div></section>`;
+  $("macroContent").innerHTML = html;
+  $("openLiveAnalysis").addEventListener("click", () => switchView("liveView"));
+  if (window.Plotly) {
+    const actual = history.filter((row) => row.actual_yoy !== "");
+    Plotly.newPlot("macroForecastChart", [
+      { x: actual.map((row) => row.target_period_end), y: actual.map((row) => Number(row.actual_yoy)), name: "官方值", mode: "lines+markers", line: { color: "#15212b" } },
+      { x: history.map((row) => row.target_period_end), y: history.map((row) => Number(row.predicted_yoy)), name: "冻结预测", mode: "lines", line: { color: "#116fae" } },
+    ], chartLayout("同比增速（%）"), { responsive: true, displayModeBar: false });
+    const selectedStrategies = ["pure_momentum", "published_macro", "alphalens_nowcast", "oracle_non_tradable"];
+    Plotly.newPlot("macroNavChart", selectedStrategies.map((strategy) => {
+      const rows = data.backtest.nav.filter((row) => row.strategy === strategy);
+      return { x: rows.map((row) => row.trade_month), y: rows.map((row) => Number(row.nav)), name: strategyLabel(strategy), mode: "lines", line: strategy === "oracle_non_tradable" ? { dash: "dot", color: "#94600c" } : undefined };
+    }), chartLayout("净值"), { responsive: true, displayModeBar: false });
+  }
+  refreshIcons();
+}
+
+function chartLayout(yTitle) {
+  return { margin: { l: 48, r: 18, t: 20, b: 42 }, paper_bgcolor: "transparent", plot_bgcolor: "transparent", hovermode: "x unified", legend: { orientation: "h", y: 1.12 }, xaxis: { gridcolor: "#edf0f2" }, yaxis: { title: yTitle, gridcolor: "#edf0f2" }, font: { family: "Inter, sans-serif", size: 11, color: "#40505e" } };
 }
 
 async function loadHistory() {
@@ -192,7 +262,7 @@ async function runAnalysis() {
   try {
     const data = runMode === "replay"
       ? await fetchJson("/api/replay/storage-policy")
-      : await fetchJson("/api/analyze", {
+      : await fetchJson("/api/macro/analyze", {
           method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(analysisPayload()),
         });
     currentAnalysis = data;
@@ -260,6 +330,10 @@ function renderAnalysis(data) {
   </section>`;
   html += `<section class="section"><div class="section-header"><div><h2>处理链路</h2><p>${esc(data.source_name)} · ${esc(data.event_time)}</p></div>${data.source_url ? `<a class="download-button" href="${esc(data.source_url)}" target="_blank" rel="noopener"><i data-lucide="external-link"></i>查看原文</a>` : ""}</div><div class="pipeline">${steps.map((step, index) => `<div class="pipeline-step"><span class="step-number">${index + 1}</span><b>${esc(step[0])}</b><span>${esc(step[1])}</span></div>`).join("")}</div></section>`;
   html += renderSourceAudit(data);
+  if (data.macro_impact) {
+    const impact = data.macro_impact;
+    html += `<section class="section macro-impact"><div class="section-header"><div><h2>本月聚合与 Nowcast 边际变化</h2><p>候选因子之后的宏观层，不改变原 19 谓词与冻结规则</p></div>${badge(impact.evidence_status === "evaluated" ? "冻结模型已重算" : "历史覆盖不足", impact.evidence_status === "evaluated" ? "good" : "warn")}</div><div class="section-body"><div class="detail-grid"><div class="detail-item"><b>新增文本</b><span class="mono">+${esc(impact.feature_delta.document_count)}</span></div><div class="detail-item"><b>事件 / 股票</b><span class="mono">+${esc(impact.feature_delta.event_count)} / +${esc(impact.feature_delta.stock_count)}</span></div><div class="detail-item"><b>规则触发</b><span class="mono">+${esc(impact.feature_delta.qualified_rule_hits)}</span></div><div class="detail-item"><b>预测边际变化</b><span class="mono">${fixed(impact.prediction_change, 4)} pct</span></div></div><div class="notice ${impact.evidence_status === "evaluated" ? "good" : "error"}">${esc(impact.explanation)}</div><div class="notice">${esc(impact.single_document_warning)} ${esc(impact.trading_timing)}</div></div></section>`;
+  }
   if (data.disputed_predicates?.length) {
     html += `<div class="notice error">已排除：${esc(data.disputed_predicates.join("、"))}。争议或非法谓词不会进入规则匹配和因子计算。</div>`;
   }
@@ -407,6 +481,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("runButton").addEventListener("click", runAnalysis);
   refreshIcons();
   loadStatus();
+  loadMacro();
   loadExamples();
   loadHistory();
   loadAudit();

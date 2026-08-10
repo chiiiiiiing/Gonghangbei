@@ -27,6 +27,12 @@ from src.ai.research_layer import AIResearchLayer, validate_ai_output  # noqa: E
 from src.ai.source_quality import assess_source, cached_fetch_full_text  # noqa: E402
 from src.pipeline.live_analysis import SOURCE_TYPES, analyze_new_document  # noqa: E402
 from src.research.scoring import SCORING_VERSION  # noqa: E402
+from src.macro.engine import (  # noqa: E402
+    live_macro_impact,
+    load_macro_backtest,
+    load_macro_forecast,
+    load_macro_status,
+)
 
 
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
@@ -641,7 +647,24 @@ def assets(filename: str):
 
 @app.get("/api/status")
 def status():
-    return jsonify(data_status())
+    payload = data_status()
+    payload["macro"] = load_macro_status()
+    return jsonify(payload)
+
+
+@app.get("/api/macro/status")
+def macro_status():
+    return jsonify(load_macro_status())
+
+
+@app.get("/api/macro/forecast")
+def macro_forecast():
+    return jsonify(load_macro_forecast())
+
+
+@app.get("/api/macro/backtest")
+def macro_backtest():
+    return jsonify(load_macro_backtest())
 
 
 @app.get("/api/examples")
@@ -721,15 +744,15 @@ def replay(case_id: str):
     history = historical_backtest()
     result["historical_backtest"] = history
     result["report"] = generate_report(result, history)
+    result["macro_impact"] = live_macro_impact(result)
     result["disclaimer"] = DISCLAIMER
     return jsonify(result)
 
 
-@app.post("/api/analyze")
-def analyze():
-    payload, error = validate_payload(request.get_json(silent=True) or {})
+def _perform_analysis(raw_payload: dict[str, Any]) -> tuple[dict[str, Any], int]:
+    payload, error = validate_payload(raw_payload)
     if error:
-        return jsonify({"error": error}), 400
+        return {"error": error}, 400
     assert payload is not None
     api_key = payload.pop("api_key", "")
     ai_layer = request_ai_layer(api_key)
@@ -740,7 +763,7 @@ def analyze():
         payload["fetch_diagnostics"] = fetch
         fetched_text = fetch.get("text", "").strip()
         if not payload.get("content") and fetch.get("status") in {"failed", "no_url"}:
-            return jsonify({"error": f"无法从链接抓取正文：{fetch.get('error') or '链接无效'}"}), 400
+            return {"error": f"无法从链接抓取正文：{fetch.get('error') or '链接无效'}"}, 400
         if fetched_text:
             payload["fetched_content"] = fetched_text
             if not payload.get("content"):
@@ -767,16 +790,30 @@ def analyze():
             persist_ai_candidates=False,
         )
     except (KeyError, ValueError) as exc:
-        return jsonify({"error": str(exc)}), 400
+        return {"error": str(exc)}, 400
     if "error" in result:
         status_code = 503 if result.get("error_code") in {"ai_required", "embedding_required"} else 422
-        return jsonify(result), status_code
+        return result, status_code
     result["ai_analysis"]["credential_source"] = "request" if api_key else "environment_or_fallback"
     history = historical_backtest()
     result["historical_backtest"] = history
     result["report"] = generate_report(result, history)
     result["disclaimer"] = DISCLAIMER
-    return jsonify(result)
+    return result, 200
+
+
+@app.post("/api/analyze")
+def analyze():
+    result, status_code = _perform_analysis(request.get_json(silent=True) or {})
+    return jsonify(result), status_code
+
+
+@app.post("/api/macro/analyze")
+def macro_analyze():
+    result, status_code = _perform_analysis(request.get_json(silent=True) or {})
+    if status_code == 200:
+        result["macro_impact"] = live_macro_impact(result)
+    return jsonify(result), status_code
 
 
 if __name__ == "__main__":

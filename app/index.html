@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="AlphaLens 金融文本另类因子研究台">
-  <title>AlphaLens · 金融文本因子研究台</title>
+  <meta name="description" content="AlphaLens 金融文本驱动的行业景气 Nowcast 研究台">
+  <title>AlphaLens · 行业景气 Nowcast</title>
   <link rel="stylesheet" href="/assets/styles.css">
   <script defer src="/vendor/plotly.min.js"></script>
   <script defer src="/vendor/lucide.min.js"></script>
@@ -18,8 +18,8 @@
         <span>Alpha<strong>Lens</strong></span>
       </a>
       <nav class="nav-tabs" aria-label="研究视图">
-        <button class="nav-tab active" data-view="liveView" type="button">新文本分析</button>
-        <button class="nav-tab" data-view="historyView" type="button">历史研究</button>
+        <button class="nav-tab active" data-view="macroView" type="button">宏观预测</button>
+        <button class="nav-tab" data-view="liveView" type="button">实时 AI 审计</button>
         <button class="nav-tab" data-view="auditView" type="button">研究审计</button>
       </nav>
       <div class="service-status"><span class="status-dot" id="statusDot"></span><span id="statusText">正在连接本地研究服务</span></div>
@@ -27,11 +27,15 @@
   </header>
 
   <main class="page-shell">
-    <section class="view active" id="liveView">
+    <section class="view active" id="macroView">
+      <div id="macroContent"><div class="loading-surface">正在读取行业景气 Nowcast</div></div>
+    </section>
+
+    <section class="view" id="liveView">
       <div class="workspace">
         <section class="surface editor-surface">
           <div class="surface-heading">
-            <div><h1>新文本分析</h1></div>
+            <div><h1>新文本实时 AI 审计</h1><p class="surface-subtitle">完整保留逐股票 19 谓词、三层门控、冻结规则与候选因子，再更新月度 Nowcast</p></div>
             <div class="example-picker" aria-label="示例文本">
               <button class="quiet-button" data-example="0" type="button">储能政策</button>
               <button class="quiet-button" data-example="1" type="button">锂电公告</button>
@@ -81,7 +85,7 @@
       <div id="result" aria-live="polite"></div>
     </section>
 
-    <section class="view" id="historyView"><div id="historyContent"><div class="loading-surface">正在读取历史研究</div></div></section>
+    <section class="view" id="historyView" aria-hidden="true"><div id="historyContent"><div class="loading-surface">正在读取原因子研究审计</div></div></section>
     <section class="view" id="auditView"><div id="auditContent"><div class="loading-surface">正在读取研究审计</div></div></section>
   </main>
 
