@@ -48,11 +48,9 @@ let EXAMPLES = [
 
 let runMode = "live";
 let currentAnalysis = null;
-let historyData = null;
 let auditData = null;
 let auditLoadError = "";
 let macroData = null;
-let historySplit = "oos";
 
 function refreshIcons() {
   if (window.lucide) window.lucide.createIcons({ attrs: { "aria-hidden": "true" } });
@@ -110,9 +108,6 @@ function setRunMode(mode) {
 function switchView(viewId) {
   document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === viewId));
   document.querySelectorAll(".nav-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.view === viewId));
-  if (viewId === "historyView" && historyData) {
-    renderHistory(historyData);
-  }
 }
 
 async function fetchJson(url, options) {
@@ -142,6 +137,11 @@ async function loadMacro() {
     ]);
     macroData = { status, forecast, backtest };
     renderMacro(macroData);
+    if (currentAnalysis && $("strategyBacktest")) {
+      $("strategyBacktest").innerHTML = renderStrategyBacktest(backtest);
+      renderStrategyBacktestChart(backtest);
+      refreshIcons();
+    }
   } catch (error) {
     $("macroContent").innerHTML = `<div class="error-box"><strong>宏观研究读取失败</strong>${esc(error.message)}</div>`;
   }
@@ -169,7 +169,7 @@ function renderMacro(data) {
   <section class="section"><div class="section-header"><div><h2>模型验收与适用边界</h2><p>新输入只读取一篇文本，历史库只训练参数</p></div></div><div class="section-body"><div class="acceptance-grid">
     <div class="acceptance-card"><span>单文本预测层</span><strong>${fixed(singleModel.validation_mae, 2)}pct</strong><p>验证 MAE；持久性基线 ${fixed(singleModel.persistence_validation_mae, 2)}pct。${insufficient ? "未优于基线，仍只作研究参考。" : "验证优于基线。"}</p></div>
     <div class="acceptance-card"><span>历史文本来源</span><strong>${esc(data.status.verified_historical_texts || 0)} 篇</strong><p>国家统计局 ${esc(singleModel.historical_source_type_counts?.news || 0)} 篇；国家能源局、国家发展改革委等政策 ${esc(singleModel.historical_source_type_counts?.policy || 0)} 篇。</p></div>
-    <div class="acceptance-card warning-card"><span>输出边界</span><strong>同比预测报告</strong><p>规则与候选因子并列展示用于审计，不作为回归特征或股票收益预测；每次预测只读取本次输入。</p></div>
+    <div class="acceptance-card warning-card"><span>输出边界</span><strong>同比增长预测</strong><p>逐股票关系、谓词门控和冻结规则只作为预测证据审计；每次预测只读取本次输入，不输出股票涨跌结论。</p></div>
   </div></div></section>
   <section class="section"><div class="section-header"><div><h2>可审计研究边界</h2></div></div><div class="section-body"><div class="detail-grid">
     <div class="detail-item"><b>训练 / 规则发现</b><span>2015—2021</span></div><div class="detail-item"><b>模型 / 策略验证</b><span>2022—2023</span></div><div class="detail-item"><b>冻结 OOS</b><span>2024—最新</span></div><div class="detail-item"><b>交易代理边界</b><span>399808 仅作上市前研究代理，不冒充 ETF</span></div>
@@ -197,15 +197,6 @@ function renderMacro(data) {
 
 function chartLayout(yTitle) {
   return { margin: { l: 48, r: 18, t: 20, b: 42 }, paper_bgcolor: "transparent", plot_bgcolor: "transparent", hovermode: "x unified", legend: { orientation: "h", y: 1.12 }, xaxis: { gridcolor: "#edf0f2" }, yaxis: { title: yTitle, gridcolor: "#edf0f2" }, font: { family: "Inter, sans-serif", size: 11, color: "#40505e" } };
-}
-
-async function loadHistory() {
-  try {
-    historyData = await fetchJson("/api/backtest");
-    renderHistory(historyData);
-  } catch (error) {
-    $("historyContent").innerHTML = `<div class="error-box"><strong>历史研究读取失败</strong>${esc(error.message)}</div>`;
-  }
 }
 
 async function loadAudit() {
@@ -309,24 +300,23 @@ function renderSourceAudit(data) {
 function renderAnalysis(data) {
   const stocks = data.stock_results || [];
   const top = stocks[0];
-  const gateKind = data.consensus_gate_passed ? "good" : "warn";
+  const forecast = data.text_forecast || {};
   const eventName = EVENT_LABELS[data.event_type] || data.event_type || "未识别";
   const aiSummary = data.ai_analysis?.result?.summary || "已完成结构化事件、实体和谓词校验";
   const replayFlag = data.is_replay ? '<span class="replay-flag">冻结回放</span>' : "";
-  const oos = data.historical_backtest?.splits?.oos?.metrics || {};
   const steps = [
     ["结构化事件", eventName],
     ["关联股票", `${stocks.length} 只通过股票池校验`],
     ["谓词对照", `${top?.predicate_consensus?.length || 0} 项逐股票对照`],
     ["一致性门控", data.consensus_gate_passed ? "全部通过" : `${data.disputed_predicates?.length || 0} 项排除`],
     ["冻结规则", `${data.triggered_rules?.length || 0} 条触发`],
-    ["候选因子", top ? fixed(top.candidate_factor) : "0.0000"],
+    ["行业同比预测", data.text_forecast ? `${fixed(forecast.predicted_yoy, 2)}%` : "未生成"],
   ];
   let html = `<section class="result-summary">
     <div class="result-lead">${replayFlag}<h2>${esc(eventName)}</h2><p>${esc(aiSummary)}</p></div>
-    ${metric(top ? `${top.name} · ${top.code}` : "无", "首位关联股票")}
-    ${metric(top ? fixed(top.candidate_factor) : "0.0000", "候选因子值")}
-    <div class="metric-cell"><strong>${badge(data.consensus_gate_passed ? "门控通过" : "部分排除", gateKind)}</strong><span>一致性状态</span></div>
+    ${metric(data.text_forecast ? `${fixed(forecast.predicted_yoy, 2)}%` : "—", "行业同比预测")}
+    ${metric(data.text_forecast ? `${Number(forecast.predicted_acceleration) >= 0 ? "+" : ""}${fixed(forecast.predicted_acceleration, 2)} pct` : "—", "预测加速度")}
+    ${metric(data.text_forecast ? `${fixed(forecast.lower_90, 2)}% — ${fixed(forecast.upper_90, 2)}%` : "—", "90%预测区间")}
   </section>`;
   html += `<section class="section"><div class="section-header"><div><h2>处理链路</h2><p>${esc(data.source_name)} · ${esc(data.event_time)}</p></div>${data.source_url ? `<a class="download-button" href="${esc(data.source_url)}" target="_blank" rel="noopener"><i data-lucide="external-link"></i>查看原文</a>` : ""}</div><div class="pipeline">${steps.map((step, index) => `<div class="pipeline-step"><span class="step-number">${index + 1}</span><b>${esc(step[0])}</b><span>${esc(step[1])}</span></div>`).join("")}</div></section>`;
   html += renderSourceAudit(data);
@@ -341,25 +331,57 @@ function renderAnalysis(data) {
     </div></section>`;
   }
   if (data.disputed_predicates?.length) {
-    html += `<div class="notice error">已排除：${esc(data.disputed_predicates.join("、"))}。争议或非法谓词不会进入规则匹配和因子计算。</div>`;
+    html += `<div class="notice error">已排除：${esc(data.disputed_predicates.join("、"))}。争议或非法谓词不会进入冻结规则或同比增长预测证据。</div>`;
   }
-  html += `<section class="section"><div class="section-header"><div><h2>候选因子与研究证据</h2></div><span>${badge(oos.evidence_status === "sufficient" ? "OOS 证据达标" : "OOS 证据不足", oos.evidence_status === "sufficient" ? "good" : "warn")}</span></div><div class="section-body"><div class="stock-selector">${stocks.map((stock, index) => `<button class="stock-button ${index === 0 ? "active" : ""}" data-stock-index="${index}" type="button">${esc(stock.name)} · ${esc(stock.code)}</button>`).join("") || "未形成股票候选"}</div><div id="stockDetail" class="stock-detail"></div></div></section>`;
+  html += `<section class="section"><div class="section-header"><div><h2>逐股票结构化证据审计</h2><p>股票仅用于核验产业链关系、原文证据和19谓词，不输出个股预测值</p></div>${badge("证据审计", "info")}</div><div class="section-body"><div class="stock-selector">${stocks.map((stock, index) => `<button class="stock-button ${index === 0 ? "active" : ""}" data-stock-index="${index}" type="button">${esc(stock.name)} · ${esc(stock.code)}</button>`).join("") || "未形成关联主体"}</div><div id="stockDetail" class="stock-detail"></div></div></section>`;
   html += renderAICandidates(data.ai_analysis);
-  html += `<section class="section"><div class="section-header"><div><h2>历史样本外参考</h2><p>固定历史样本，不是对本次文本的单次收益预测</p></div><button class="download-button" id="openHistory" type="button"><i data-lucide="chart-no-axes-combined"></i>查看历史研究</button></div><div class="section-body"><div class="detail-grid"><div class="detail-item"><b>OOS Rank IC</b><span class="mono">${fixed(oos.avg_rank_ic_5d, 6)}</span></div><div class="detail-item"><b>OOS ICIR</b><span class="mono">${fixed(oos.rank_ic_ir, 6)}</span></div><div class="detail-item"><b>有效 IC 日</b><span class="mono">${esc(oos.rank_ic_valid_date_count ?? 0)}</span></div><div class="detail-item"><b>样本判定</b><span>${oos.evidence_status === "sufficient" ? "证据达标" : "证据不足"}</span></div></div></div></section>`;
   html += `<section class="section"><div class="section-header"><div><h2>自动研究记录</h2></div><button class="download-button" id="downloadReport" type="button"><i data-lucide="download"></i>下载 Markdown</button></div></section>`;
+  html += `<div id="strategyBacktest">${macroData?.backtest ? renderStrategyBacktest(macroData.backtest) : '<div class="loading-surface strategy-loading">正在读取量化策略回测</div>'}</div>`;
   $("result").innerHTML = html;
   document.querySelectorAll("[data-stock-index]").forEach((button) => button.addEventListener("click", () => renderStockDetail(Number(button.dataset.stockIndex))));
-  $("openHistory").addEventListener("click", () => switchView("historyView"));
   $("downloadReport").addEventListener("click", () => downloadReport(data.report || ""));
   if (top) renderStockDetail(0);
+  if (macroData?.backtest) renderStrategyBacktestChart(macroData.backtest);
   refreshIcons();
+}
+
+function renderStrategyBacktest(backtest) {
+  const labels = {
+    buy_hold: "买入持有",
+    pure_momentum: "纯时间序列动量",
+    published_macro: "动量 + 已公布行业数据",
+    alphalens_nowcast: "动量 + AlphaLens预测",
+    oracle_non_tradable: "Oracle上限（不可交易）",
+  };
+  const metrics = backtest.metrics || [];
+  const alpha = metrics.find((row) => row.strategy === "alphalens_nowcast") || {};
+  const bootstrap = (backtest.bootstrap || [])[0] || {};
+  const incrementEstablished = bootstrap.conclusion === "positive_increment_observed";
+  const metricRows = metrics.map((row) => `<tr><td>${esc(labels[row.strategy] || row.strategy)}${row.tradable === "false" ? ` ${badge("不可交易", "warn")}` : ""}</td><td>${pct(row.annual_return)}</td><td>${pct(row.annual_volatility)}</td><td class="mono">${fixed(row.sharpe, 3)}</td><td>${pct(row.max_drawdown)}</td><td>${pct(row.annual_turnover)}</td></tr>`).join("");
+  return `<section class="section strategy-backtest"><div class="section-header"><div><h2>AlphaLens预测确认策略回测</h2><p>新能源ETF 516160 时间序列动量 + 60日波动率缩放 + 行业同比预测加速度确认；剩余仓位配置5年期国债ETF 511010</p></div>${badge(`${esc(backtest.primary_cost_bps || 10)} bp 成本`, "info")}</div><div class="section-body">
+    <div class="detail-grid"><div class="detail-item"><b>调仓时点</b><span>${esc(backtest.rebalance_timing)}</span></div><div class="detail-item"><b>AlphaLens年化收益</b><span class="mono">${pct(alpha.annual_return)}</span></div><div class="detail-item"><b>AlphaLens Sharpe</b><span class="mono">${fixed(alpha.sharpe, 3)}</span></div><div class="detail-item"><b>相对纯趋势年化差</b><span class="mono ${Number(bootstrap.annualized_net_return_difference) >= 0 ? "positive" : "negative"}">${pct(bootstrap.annualized_net_return_difference)}</span></div></div>
+    <div class="notice ${incrementEstablished ? "good" : "error"}"><strong>${incrementEstablished ? "观察到正向交易增量" : "交易增量尚未建立"}</strong>：AlphaLens增强策略相对纯趋势策略的年化净收益差 ${pct(bootstrap.annualized_net_return_difference)}，3个月时间块 Bootstrap 95%区间为 ${pct(bootstrap.ci_lower_95)} 至 ${pct(bootstrap.ci_upper_95)}。结果按证据如实披露，不作收益宣传。</div>
+    <div id="strategyNavChart" class="strategy-chart"></div>
+    <div class="table-wrap"><table><thead><tr><th>策略</th><th>年化收益</th><th>年化波动</th><th>Sharpe</th><th>最大回撤</th><th>年换手率</th></tr></thead><tbody>${metricRows}</tbody></table></div>
+    <p class="disclaimer">${esc(backtest.oracle_warning)}<br>本报告仅供研究参考，不构成投资建议</p>
+  </div></section>`;
+}
+
+function renderStrategyBacktestChart(backtest) {
+  if (!window.Plotly || !$("strategyNavChart")) return;
+  const nav = backtest.nav || [];
+  const series = [
+    ["pure_momentum", "纯时间序列动量", "#7a8995"],
+    ["alphalens_nowcast", "动量 + AlphaLens预测", "#116fae"],
+  ];
+  Plotly.newPlot("strategyNavChart", series.map(([strategy, name, color]) => {
+    const rows = nav.filter((row) => row.strategy === strategy);
+    return { x: rows.map((row) => row.trade_month), y: rows.map((row) => Number(row.nav)), name, mode: "lines", line: { color, width: strategy === "alphalens_nowcast" ? 2.4 : 1.6 } };
+  }), { ...chartLayout("成本后净值"), margin: { l: 52, r: 18, t: 34, b: 42 } }, { responsive: true, displayModeBar: false });
 }
 
 function renderStockDetail(index) {
   const stock = currentAnalysis.stock_results[index];
-  const formula = stock.factor_formula;
-  const score = stock.evidence_score_breakdown || {};
-  const components = score.final_components || {};
   const fusion = stock.predicate_fusion || {};
   document.querySelectorAll("[data-stock-index]").forEach((button, current) => button.classList.toggle("active", current === index));
   const consensusRows = (stock.predicate_consensus || []).map((row) => {
@@ -368,7 +390,7 @@ function renderStockDetail(index) {
     return `<tr>
     <td class="mono">${esc(row.name)}</td><td class="mono">${esc(row.ai_value)}</td><td class="mono">${esc(row.rule_value)}</td>
     <td class="mono">${typeof fused === "number" ? fixed(fused, 3) : "—"}</td>
-    <td class="status-${esc(row.status)}">${esc(STATUS_LABELS[row.status] || row.status)}</td><td>${triggers ? "进入因子" : "不进入因子"}</td>
+    <td class="status-${esc(row.status)}">${esc(STATUS_LABELS[row.status] || row.status)}</td><td>${triggers ? "可进入规则审计" : "不进入冻结规则"}</td>
   </tr>`;
   }).join("");
   const ruleRows = (stock.triggered_rules || []).map((rule) => `<tr><td class="mono">${esc(rule.id)}</td><td class="mono">${esc(rule.condition)}</td><td>${esc(rule.target_label)}</td><td>${esc(rule.support)}</td><td>${pct(rule.win_rate)}</td><td class="mono">${fixed(rule.score)}</td></tr>`).join("") || '<tr><td colspan="6">没有冻结规则通过全部门控</td></tr>';
@@ -381,10 +403,7 @@ function renderStockDetail(index) {
   const entityGate = stock.entity_consensus?.accepted ? badge("关系通过", "good") : badge("关系未通过", "bad");
   $("stockDetail").innerHTML = `
     <div class="detail-grid"><div class="detail-item"><b>主体</b><span>${esc(stock.event.subject)}</span></div><div class="detail-item"><b>客体</b><span>${esc(stock.event.object)}</span></div><div class="detail-item"><b>关系门控</b><span>${entityGate}<br>${esc(stock.link_evidence)}</span></div><div class="detail-item"><b>原文证据</b><span>${esc(stock.event.evidence_text)}</span></div></div>
-    <div class="formula-band"><div class="formula-item"><strong>${fixed(formula.frozen_rule_score_sum)}</strong><span>历史冻结规则分</span></div><div class="formula-item"><strong>${fixed(formula.ai_candidate_rule_score)}</strong><span>AI 实时候选分</span></div><div class="formula-item"><strong>${fixed(formula.rule_score_sum)}</strong><span>规则评分和</span></div><div class="formula-item"><strong>${fixed(formula.evidence_strength, 2)}</strong><span>透明证据分</span></div><div class="formula-item"><strong>${fixed(formula.impact_prior, 2)}</strong><span>Discovery 影响后验</span></div><div class="formula-item"><strong>${typeof formula.stock_relevance === "number" ? fixed(formula.stock_relevance, 2) : "—"}</strong><span>相关性系数</span></div><div class="formula-item"><strong>${fixed(formula.result)}</strong><span>候选因子</span></div></div>
-    <div class="equation">${fixed(formula.frozen_rule_score_sum)}${formula.ai_candidate_rule_score ? ` + ${fixed(formula.ai_candidate_rule_score)} (AI 候选)` : ""} = ${fixed(formula.rule_score_sum)} × (${formula.evidence_weight} × ${fixed(formula.evidence_strength, 2)} + ${formula.impact_weight} × ${fixed(formula.impact_prior, 2)})${typeof formula.stock_relevance === "number" ? ` × 相关性 ${fixed(formula.stock_relevance, 2)}` : ""} = ${fixed(formula.result)}</div>
-    <div class="score-grid"><div class="score-part"><strong>${fixed(components.source_reliability, 2)}</strong><span>来源可靠性 · 30%</span></div><div class="score-part"><strong>${fixed(components.evidence_grounding, 2)}</strong><span>证据回溯 · 25%</span></div><div class="score-part"><strong>${fixed(components.information_specificity, 2)}</strong><span>信息具体性 · 25%</span></div><div class="score-part"><strong>${fixed(components.business_relevance, 2)}</strong><span>业务关联 · 20%</span></div></div>
-    <details class="disclosure" open><summary>AI 与确定性谓词对照（含融合值 · ${stock.predicate_consensus?.length || 0} 项）</summary><div class="table-wrap"><table><thead><tr><th>谓词</th><th>AI</th><th>确定性程序</th><th>融合值</th><th>一致性</th><th>门控</th></tr></thead><tbody>${consensusRows}</tbody></table></div></details>
+    <details class="disclosure" open><summary>AI 与确定性谓词对照（含融合值 · ${stock.predicate_consensus?.length || 0} 项）</summary><div class="table-wrap"><table><thead><tr><th>谓词</th><th>AI</th><th>确定性程序</th><th>融合值</th><th>一致性</th><th>证据门控</th></tr></thead><tbody>${consensusRows}</tbody></table></div></details>
     <details class="disclosure"><summary>冻结规则匹配（${stock.triggered_rules?.length || 0} 条）</summary><div class="table-wrap"><table><thead><tr><th>规则</th><th>条件</th><th>标签</th><th>独立文档</th><th>后验参考胜率</th><th>评分</th></tr></thead><tbody>${ruleRows}</tbody></table></div></details>
     ${aiCandidateRows ? `<details class="disclosure"><summary>AI 实时候选规则参与（${stock.ai_candidate_rules?.length || 0} 条 · 未历史验证）</summary><div class="table-wrap"><table><thead><tr><th>候选规则</th><th>谓词条件</th><th>标签</th><th>AI 置信</th><th>命中</th><th>暂定分</th></tr></thead><tbody>${aiCandidateRows}</tbody></table></div></details>` : ""}
     ${explainBlocks ? `<details class="disclosure"><summary>规则可解释性（${stock.rule_explainability?.length || 0} 条）</summary>${explainBlocks}</details>` : ""}`;
@@ -398,35 +417,7 @@ function renderAICandidates(ai) {
   const refs = retrieval.historical_references || [];
   const rows = candidates.map((rule) => `<tr><td>${esc(rule.name)}</td><td class="mono">${esc((rule.conditions || []).join(" AND "))}</td><td>${esc(rule.target_label)}</td><td>${pct(rule.confidence)}</td><td>${badge("待统计验证", "warn")}</td></tr>`).join("") || '<tr><td colspan="5">本次未提出新规则</td></tr>';
   const refRows = refs.map((r) => `<tr><td class="mono">${esc(r.doc_id)}</td><td>${esc(EVENT_LABELS[r.event_type] || r.event_type)}</td><td class="mono">${fixed(r.similarity, 4)}</td><td>${esc(r.summary || "")}</td></tr>`).join("") || "";
-  return `<section class="section"><div class="section-header"><div><h2>AI 候选研究</h2><p>语义检索：${esc(retrieval.model || "未记录")}${retrieval.fallback ? "（降级）" : ""} · RAG 参考 ${refs.length} 条历史 AI 结论</p></div>${badge(ai.repair_attempted ? "修复后通过" : "结构校验通过", "info")}</div><div class="section-body"><div class="notice good">${esc(result.summary || "模型已返回结构化研究候选")}</div>${refRows ? `<details class="disclosure"><summary>参考相似历史 AI 结论（RAG · ${refs.length} 条）</summary><div class="table-wrap"><table><thead><tr><th>历史文档</th><th>事件</th><th>相似度</th><th>AI 结论</th></tr></thead><tbody>${refRows}</tbody></table></div></details>` : ""}<details class="disclosure"><summary>查看 AI 提议规则（${candidates.length} 条 · 可进入实时因子）</summary><div class="table-wrap"><table><thead><tr><th>候选规则</th><th>谓词条件</th><th>标签</th><th>AI 置信</th><th>状态</th></tr></thead><tbody>${rows}</tbody></table></div></details></div></section>`;
-}
-
-function renderHistory(history) {
-  const split = history.splits[historySplit];
-  const metrics = split.metrics;
-  const isOos = historySplit === "oos";
-  const evidenceOk = metrics.evidence_status === "sufficient";
-  const splitLabel = isOos ? "OOS · 2026H1" : "Discovery · 2024—2025";
-  const rules = history.qualified_rules || [];
-  let html = `<div class="page-heading"><div><h1>历史研究</h1><p>Discovery 发现规则；OOS 独立检验，不混用指标</p></div><div class="split-control"><button class="split-button ${isOos ? "active" : ""}" data-split="oos" type="button">OOS 样本外</button><button class="split-button ${!isOos ? "active" : ""}" data-split="discovery" type="button">Discovery</button></div></div>`;
-  html += `<div class="metrics">${metric(fixed(metrics.avg_rank_ic_5d, 6), `${splitLabel} Rank IC`)}${metric(fixed(metrics.rank_ic_ir, 6), `${splitLabel} ICIR`)}${metric(pct(metrics.factor_coverage_rate), "因子覆盖率")}${metric(metrics.rank_ic_valid_date_count, "有效 IC 日")}${metric(metrics.active_factor_date_count, "因子活跃日")}${metric(pct(metrics.top_bottom_group_spread_5d), "G5-G1 行业超额")}</div>`;
-  html += `<div class="notice ${evidenceOk ? "good" : ""}"><strong>${evidenceOk ? "证据达到展示门槛" : "证据不足"}</strong> · 当前有效日期 ${esc(metrics.rank_ic_valid_date_count)} 个，${evidenceOk ? "可进入进一步稳健性检验" : "不能宣称因子稳定有效"}。收益为股票 5 日收益减行业等权收益。</div>`;
-  html += `<section class="section"><div class="section-header"><div><h2>${esc(splitLabel)} 回测诊断</h2><p>五组按每日横截面分组；Rank IC 使用行业中性排序</p></div>${badge(evidenceOk ? "证据达标" : "证据不足", evidenceOk ? "good" : "warn")}</div><div class="section-body"><div class="charts"><div class="chart" id="groupChart"></div><div class="chart" id="icChart"></div></div></div></section>`;
-  html += `<section class="section"><div class="section-header"><div><h2>合格冻结规则</h2><p>分数由后验胜率、收缩收益、半年稳定性、覆盖和证据组成</p></div></div><div class="table-wrap"><table><thead><tr><th>规则</th><th>条件</th><th>独立文档</th><th>独立日期</th><th>OOS 文档</th><th>OOS 超额</th><th>评分</th></tr></thead><tbody>${rules.map((rule) => `<tr><td class="mono">${esc(rule.rule_id)}</td><td class="mono">${esc(rule.condition)}</td><td>${rule.independent_document_count}</td><td>${rule.independent_date_count}</td><td>${rule.oos_document_count}</td><td>${pct(rule.oos_avg_excess_return_5d)}</td><td class="mono">${fixed(rule.score)}</td></tr>`).join("")}</tbody></table></div></section>`;
-  $("historyContent").innerHTML = html;
-  document.querySelectorAll("[data-split]").forEach((button) => button.addEventListener("click", () => { historySplit = button.dataset.split; renderHistory(history); }));
-  if ($("historyView").classList.contains("active")) renderCharts(split);
-}
-
-function renderCharts(split) {
-  if (!window.Plotly || !$("groupChart") || !$("icChart")) return;
-  const layout = { font: { family: "Inter, sans-serif", size: 11, color: "#40505e" }, margin: { l: 52, r: 16, t: 42, b: 42 }, paper_bgcolor: "#fff", plot_bgcolor: "#f8fafb", showlegend: false };
-  const groupValues = split.group_returns.map((row) => row.avg_forward_return_5d);
-  const groupsEmpty = groupValues.every((value) => Math.abs(value) < 1e-12);
-  const emptyAnnotation = { text: "有效横截面不足", x: .5, y: .52, xref: "paper", yref: "paper", showarrow: false, font: { color: "#94600c", size: 12 } };
-  Plotly.newPlot("groupChart", [{ x: split.group_returns.map((row) => row.group), y: groupValues, type: "bar", marker: { color: ["#bb624c", "#a7bac7", "#819fb3", "#4386ae", "#127760"] } }], { ...layout, title: "每日五组平均行业超额收益", yaxis: { tickformat: ".1%", range: groupsEmpty ? [-.01, .01] : undefined }, annotations: groupsEmpty ? [emptyAnnotation] : [] }, { responsive: true, displayModeBar: false });
-  const values = split.rank_ic_timeseries.map((row) => row.rank_ic_5d);
-  Plotly.newPlot("icChart", [{ x: split.rank_ic_timeseries.map((row) => row.trade_date), y: values, type: "scatter", mode: "lines+markers", line: { color: "#116fae", width: 1.5 }, marker: { size: 5 } }], { ...layout, title: "Rank IC 时间序列", yaxis: { zeroline: true, zerolinecolor: "#8d9ba6", range: values.length ? undefined : [-.05, .05] }, annotations: values.length ? [] : [emptyAnnotation] }, { responsive: true, displayModeBar: false });
+  return `<section class="section"><div class="section-header"><div><h2>AI 候选研究</h2><p>语义检索：${esc(retrieval.model || "未记录")}${retrieval.fallback ? "（降级）" : ""} · RAG 参考 ${refs.length} 条历史 AI 结论</p></div>${badge(ai.repair_attempted ? "修复后通过" : "结构校验通过", "info")}</div><div class="section-body"><div class="notice good">${esc(result.summary || "模型已返回结构化研究候选")}</div>${refRows ? `<details class="disclosure"><summary>参考相似历史 AI 结论（RAG · ${refs.length} 条）</summary><div class="table-wrap"><table><thead><tr><th>历史文档</th><th>事件</th><th>相似度</th><th>AI 结论</th></tr></thead><tbody>${refRows}</tbody></table></div></details>` : ""}<details class="disclosure"><summary>查看 AI 提议规则（${candidates.length} 条 · 仅作同比预测证据候选）</summary><div class="table-wrap"><table><thead><tr><th>候选规则</th><th>谓词条件</th><th>标签</th><th>AI 置信</th><th>状态</th></tr></thead><tbody>${rows}</tbody></table></div></details></div></section>`;
 }
 
 function distribution(rows, labels = {}) {
@@ -494,6 +485,5 @@ document.addEventListener("DOMContentLoaded", () => {
   loadStatus();
   loadMacro();
   loadExamples();
-  loadHistory();
   loadAudit();
 });

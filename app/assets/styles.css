@@ -210,6 +210,8 @@ footer { padding: 0 20px 32px; color: var(--muted); text-align: center; font-siz
 .forecast-number span, .forecast-number small { display: block; color: var(--ink-soft); }
 .forecast-number strong { display: block; margin: 4px 0; color: var(--blue-dark); font: 780 42px/1.15 var(--mono); }
 .forecast-number small { font-size: 12px; }
+.strategy-loading { margin-top: 18px; }
+.strategy-chart { height: 340px; margin: 18px 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 
 @media (max-width: 980px) {
   .topbar-inner { grid-template-columns: 180px 1fr; }

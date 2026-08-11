@@ -3,7 +3,7 @@ as_of_date,target_period_start,target_period_end,split,selected_model,predicted_
 2022-03-31,2022-03-01,2022-03-31,validation,no_text_ridge,12.155647,10.6,13.600000,-1.444353,6.110099,18.201196,1,62,1,insufficient_history,insufficient,2022-04-18,false
 2022-04-30,2022-04-01,2022-04-30,validation,no_text_ridge,9.901603,1.6,10.600000,-0.698397,3.987522,15.815684,1,62,2,insufficient_history,insufficient,2022-05-16,false
 2022-05-31,2022-05-01,2022-05-31,validation,no_text_ridge,5.380572,7.3,1.600000,3.780572,-1.490125,12.251269,2,62,3,insufficient_history,insufficient,2022-06-15,false
-2022-06-30,2022-06-01,2022-06-30,validation,ar1,9.263747,12.9,7.300000,1.963747,3.756689,14.770804,1,62,4,insufficient_history,insufficient,2022-07-15,false
+2022-06-30,2022-06-01,2022-06-30,validation,no_text_ridge,7.606256,12.9,7.300000,0.306256,0.753731,14.458781,1,62,4,insufficient_history,insufficient,2022-07-15,false
 2022-07-31,2022-07-01,2022-07-31,validation,ar1,11.620375,12.5,12.900000,-1.279625,6.237380,17.003371,2,62,5,insufficient_history,insufficient,2022-08-15,false
 2022-08-31,2022-08-01,2022-08-31,validation,ar1,11.469192,14.8,12.500000,-1.030808,6.133178,16.805206,1,62,6,insufficient_history,insufficient,2022-09-16,false
 2022-09-30,2022-09-01,2022-09-30,validation,ar1,12.464728,15.8,14.800000,-2.335272,7.175696,17.753760,1,62,7,insufficient_history,insufficient,2022-10-24,false

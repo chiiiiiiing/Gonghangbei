@@ -500,9 +500,11 @@ def build_forecasts(features: list[dict[str, Any]]) -> list[dict[str, Any]]:
     feature_by_end = {row["period_end"]: row for row in features}
     known = [{**row, **feature_by_end.get(row["period_end"], {})} for row in targets if row.get("actual_yoy")]
     forecast_rows: list[dict[str, Any]] = []
-    residuals: dict[str, list[float]] = defaultdict(list)
-    validation_errors: dict[str, list[float]] = defaultdict(list)
+    prediction_records: list[dict[str, Any]] = []
+    validation_records: list[dict[str, Any]] = []
+    eligible_models = ("persistence", "seasonal", "ar1", "no_text_ridge")
     selected_model = "no_text_ridge"
+    frozen_oos_model = ""
     for target in targets:
         as_of = target["period_end"]
         feature = feature_by_end.get(as_of, {field: 0 for field in FEATURE_FIELDS})
@@ -512,31 +514,53 @@ def build_forecasts(features: list[dict[str, Any]]) -> list[dict[str, Any]]:
             continue
         predictions = _model_predictions(available, feature)
         actual = target.get("actual_yoy", "")
-        if _split(as_of) == "validation" and actual:
-            for name, value in predictions.items():
-                validation_errors[name].append(abs(value - _f(actual)))
-            eligible = ("persistence", "seasonal", "ar1", "no_text_ridge")
-            selected_model = min(eligible, key=lambda name: _mean(validation_errors[name]) if validation_errors[name] else float("inf"))
+        released_validation = [row for row in validation_records if row["release_date"] <= as_of]
+        validation_errors = {
+            name: [row["errors"][name] for row in released_validation]
+            for name in eligible_models
+        }
+        split = _split(as_of)
+        if split == "validation" and released_validation:
+            selected_model = min(eligible_models, key=lambda name: _mean(validation_errors[name]))
+        elif split == "oos":
+            if not frozen_oos_model:
+                frozen_oos_model = min(
+                    eligible_models,
+                    key=lambda name: _mean(validation_errors[name]) if validation_errors[name] else float("inf"),
+                )
+            selected_model = frozen_oos_model
         if as_of >= "2022-01-01":
             chosen = predictions[selected_model]
             prior_actual = _f(available[-1]["actual_yoy"])
-            width = _quantile([abs(value) for value in residuals[selected_model]], .9) if residuals[selected_model] else 3.0
+            released_residuals = [
+                row["residuals"][selected_model]
+                for row in prediction_records
+                if row["release_date"] <= as_of
+            ]
+            width = _quantile([abs(value) for value in released_residuals], .9) if released_residuals else 3.0
             text_train_count = sum(int(_f(row.get("document_count"))) > 0 for row in available if row["period_end"] <= "2021-12-31")
             text_validation_count = sum(int(_f(row.get("document_count"))) > 0 for row in available if "2022-01-01" <= row["period_end"] <= "2023-12-31")
             text_status = "evaluated" if text_train_count >= TEXT_MIN_TRAIN_MONTHS and text_validation_count >= TEXT_MIN_VALIDATION_MONTHS else "insufficient_history"
             forecast_rows.append({
                 "as_of_date": as_of, "target_period_start": target["period_start"],
-                "target_period_end": as_of, "split": _split(as_of), "selected_model": selected_model,
+                "target_period_end": as_of, "split": split, "selected_model": selected_model,
                 "predicted_yoy": chosen, "actual_yoy": actual, "latest_published_yoy": prior_actual,
                 "predicted_acceleration": chosen - prior_actual, "lower_90": chosen - width,
                 "upper_90": chosen + width, "text_document_count": int(_f(feature.get("document_count"))),
                 "text_train_period_count": text_train_count, "text_validation_period_count": text_validation_count,
                 "text_increment_status": text_status, "evidence_status": "sufficient" if text_status == "evaluated" else "insufficient",
-                "target_release_date": target.get("release_date", ""), "is_oos": _split(as_of) == "oos",
+                "target_release_date": target.get("release_date", ""), "is_oos": split == "oos",
             })
-        if actual:
-            for name, prediction in predictions.items():
-                residuals[name].append(_f(actual) - prediction)
+        release_date = target.get("release_date", "")
+        if actual and release_date:
+            record = {
+                "release_date": release_date,
+                "errors": {name: abs(value - _f(actual)) for name, value in predictions.items()},
+                "residuals": {name: _f(actual) - value for name, value in predictions.items()},
+            }
+            prediction_records.append(record)
+            if split == "validation":
+                validation_records.append(record)
     fields = [
         "as_of_date", "target_period_start", "target_period_end", "split", "selected_model",
         "predicted_yoy", "actual_yoy", "latest_published_yoy", "predicted_acceleration",
@@ -892,7 +916,7 @@ def live_text_forecast(analysis: dict[str, Any]) -> dict[str, Any]:
             "triggered_rule_count": sum(len(stock.get("triggered_rules", [])) for stock in stocks),
             "candidate_factor_mean": round(_mean([_f(stock.get("candidate_factor")) for stock in stocks]), 6),
         },
-        "forecast_basis": "预测只使用本次新输入文本的来源、事件、实体和19谓词特征；三层门控、冻结规则与候选因子保留为并列审计证据，不作为股票收益预测。历史文本仅用于冻结规则与模型参数。",
+        "forecast_basis": "预测只使用本次新输入文本的来源、事件、实体和19谓词特征；逐股票关系、三层门控与冻结规则仅作为可追溯证据，不输出个股预测。历史文本仅用于冻结规则与模型参数。",
         "analysis_conclusion": (
             "单文本模型验证优于持久性基线。"
             if model["text_increment_status"] == "validated_positive"

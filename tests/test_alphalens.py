@@ -32,6 +32,7 @@ from src.pipeline.live_analysis import (
 )
 from src.research.scoring import beta_impact_probability, evidence_score_breakdown
 from src.macro.engine import DISCLAIMER as MACRO_DISCLAIMER
+from src.macro.engine import build_forecasts
 from src.macro.engine import live_text_forecast
 
 
@@ -68,6 +69,8 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertEqual(len(payload["stock_results"][0]["predicate_consensus"]), 19)
         self.assertEqual(payload["text_forecast"]["forecast_mode"], "single_new_text_only")
         self.assertIn("单文本条件预测同比", payload["report"])
+        self.assertIn("AlphaLens 预测确认策略回测", payload["report"])
+        self.assertNotIn("| 股票 | 行业 | 候选因子", payload["report"])
 
     def test_macro_target_dates_and_jan_feb_combination(self) -> None:
         with (SAMPLE_DIR / "macro_target_history.csv").open(encoding="utf-8", newline="") as handle:
@@ -96,6 +99,36 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         latest = rows[-1]
         self.assertEqual(latest["text_increment_status"], "evaluated")
         self.assertEqual(latest["evidence_status"], "sufficient")
+        self.assertEqual(len({row["selected_model"] for row in rows if row["split"] == "oos"}), 1)
+
+    def test_model_selection_cannot_read_current_unreleased_target(self) -> None:
+        targets = []
+        for month in range(1, 13):
+            targets.append({
+                "period_start": f"2021-{month:02d}-01",
+                "period_end": f"2021-{month:02d}-28",
+                "actual_yoy": "1.0",
+                "release_date": f"2021-{month:02d}-28",
+            })
+        targets.extend([
+            {"period_start": "2022-01-01", "period_end": "2022-01-31", "actual_yoy": "0.0", "release_date": "2022-03-15"},
+            {"period_start": "2022-02-01", "period_end": "2022-02-28", "actual_yoy": "0.0", "release_date": "2022-03-15"},
+        ])
+        predictions = {
+            "persistence": 0.0,
+            "seasonal": 2.0,
+            "ar1": 3.0,
+            "no_text_ridge": 4.0,
+            "ridge_text": 4.0,
+            "elastic_net_text": 4.0,
+        }
+        with patch("src.macro.engine._target_periods", return_value=targets), patch(
+            "src.macro.engine._model_predictions", return_value=predictions,
+        ), patch("src.macro.engine._write_csv"), patch("src.macro.engine._write_forecast_metrics"):
+            rows = build_forecasts([])
+        self.assertEqual(len(rows), 2)
+        self.assertTrue(all(row["selected_model"] == "no_text_ridge" for row in rows))
+        self.assertTrue(all(row["predicted_yoy"] == 4.0 for row in rows))
 
     def test_verified_historical_texts_and_single_text_model(self) -> None:
         with (SAMPLE_DIR / "macro_historical_documents.csv").open(encoding="utf-8", newline="") as handle:
@@ -148,10 +181,17 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertIn('data-view="macroView" type="button">研究验证</button>', index)
         self.assertNotIn('data-view="auditView"', index)
         self.assertNotIn('id="auditView"', index)
+        self.assertNotIn('id="historyView"', index)
         self.assertIn('id="validationAuditContent"', combined)
         self.assertNotIn('实际预测入口位于“新文本预测”首页', combined)
         self.assertNotIn('id="openLiveAnalysis"', combined)
         self.assertNotIn('返回新文本预测', combined)
+        self.assertNotIn('首位关联股票', combined)
+        self.assertNotIn('候选因子值', combined)
+        self.assertNotIn('候选因子与研究证据', combined)
+        self.assertNotIn('历史样本外参考', combined)
+        self.assertNotIn('进入因子', combined)
+        self.assertIn('AlphaLens预测确认策略回测', combined)
 
     def test_macro_strategy_constraints_and_oracle_label(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:
@@ -173,6 +213,12 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertEqual(backtest["defensive_asset"]["code"], "511010")
         self.assertFalse(backtest["pre_listing_proxy"]["tradable"])
         self.assertIn("不可交易", backtest["oracle_warning"])
+        with (SAMPLE_DIR / "macro_market_data.csv").open(encoding="utf-8", newline="") as handle:
+            market = list(csv.DictReader(handle))
+        first_trade_date = {}
+        for item in market:
+            first_trade_date.setdefault(item["trade_date"][:7], item["trade_date"])
+        self.assertTrue(all(row["signal_date"] < first_trade_date[row["trade_month"]] for row in rows))
 
     def test_macro_bootstrap_reports_unestablished_increment(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_bootstrap.csv").open(encoding="utf-8", newline="") as handle:

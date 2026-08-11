@@ -491,8 +491,6 @@ def research_audit() -> dict[str, Any]:
 
 
 def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
-    metrics = history["metrics"]
-    oos_metrics = history.get("splits", {}).get("oos", {}).get("metrics", {})
     stocks = analysis["stock_results"]
     rules = analysis["triggered_rules"]
     ai = analysis.get("ai_analysis", {})
@@ -552,15 +550,15 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         lines.extend(["", "- 本次为冻结回放或规则复现，未做链接抓取与置信度校准。", ""])
     lines.extend(
         [
-            "## 四、因子形成路径",
+            "## 四、同比增长预测证据路径",
         "",
-        "文本先经过 Embedding 检索（含历史 AI 结论 RAG 参考）和大模型结构化抽取，再按锁定 Schema 生成 19 个谓词。AI 谓词与确定性程序按融合值参与判定：一致采纳、冲突按 AI 置信度加权、AI 缺失回退规则值；AI 提议的候选规则以「未历史统计验证」标注参与实时候选值。",
+        "文本先经过 Embedding 检索（含历史 AI 结论 RAG 参考）和大模型结构化抽取，再按锁定 Schema 生成19个谓词。AI 与确定性程序的结果经过事件、实体和谓词三层门控，形成行业同比增长预测所需的结构化证据。",
         "",
-        f"本次关联 {len(stocks)} 只样例股票，触发 {len(rules)} 条冻结规则，AI 实时候选规则 {sum(len(stock.get('ai_candidate_rules', [])) for stock in stocks)} 条。候选值用于研究排序与追溯，不是收益预测或买卖信号。",
+        f"本次核验 {len(stocks)} 只产业链关联股票，触发 {len(rules)} 条冻结规则，AI 实时候选规则 {sum(len(stock.get('ai_candidate_rules', [])) for stock in stocks)} 条。股票仅用于关系和证据核验，系统不输出个股涨跌预测。",
         "",
         "### AI 研究层",
         "",
-        f"- 运行状态：{'模式一已调用并通过结构校验' if ai.get('used') else '模式二仅规则复现，未调用 AI'}",
+        f"- 运行状态：{'冻结回放（未发起实时模型请求）' if analysis.get('is_replay') else '实时模型已调用并通过结构校验' if ai.get('used') else '实时模型未完成'}",
         f"- 模型：{ai.get('chat_model', '--')}",
         f"- Prompt 版本：{ai.get('prompt_version', '--')}",
         f"- 结构校验：{'模型自动修复后通过' if ai.get('repair_attempted') else '首次返回通过'}",
@@ -568,16 +566,17 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         f"- 待统计验证候选规则：{len(ai_result.get('candidate_rules', []))} 条",
         f"- 一致性门控：{'通过' if analysis.get('consensus_gate_passed') else '存在排除项'}",
         f"- 门控排除谓词：{'、'.join(analysis.get('disputed_predicates', [])) or '无'}",
-        "- AI 只提出事件、谓词和规则候选；门控、冻结规则匹配、因子计算与回测由确定性程序完成。",
+        "- AI 负责全文语义理解、事件/关系/谓词候选；证据校验、三层门控、冻结规则匹配、同比预测计算与策略回测由确定性程序完成。",
         "",
-        "| 股票 | 行业 | 候选因子 | 原始规则分 | 触发规则 |",
-        "|---|---|---:|---:|---|",
+        "| 关联股票 | 行业 | 通过谓词 | 关系证据 | 触发规则 |",
+        "|---|---|---:|---|---|",
     ])
     for stock in stocks[:15]:
         rule_ids = "、".join(rule["id"] for rule in stock["triggered_rules"]) or "无"
+        accepted_predicates = sum(row.get("status") == "agreed_true" for row in stock.get("predicate_consensus", []))
         lines.append(
             f"| {stock['name']}（{stock['code']}） | {stock['sector']} | "
-            f"{stock['candidate_factor']:.4f} | {stock['raw_score']:.4f} | {rule_ids} |"
+            f"{accepted_predicates} | {stock.get('link_evidence', '')} | {rule_ids} |"
         )
     lines.extend(
         [
@@ -589,29 +588,31 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
     if rules:
         for rule in rules:
             lines.append(
-                f"- `{rule['id']}`：{rule['condition']}；历史支持数 {rule['support']}，"
-                f"历史 5 日平均收益 {rule['avg_return']:.4f}，规则评分 {rule['score']:.4f}。"
+                f"- `{rule['id']}`：{rule['condition']}；独立历史文本支持数 {rule['support']}；"
+                f"仅作为同比增长预测的可追溯结构化证据。"
             )
     else:
-        lines.append("- 本次事件未触发达到最低样本门槛的冻结规则，因此候选因子值为 0。")
+        lines.append("- 本次事件未形成通过全部门控的冻结规则；系统仍保留通过校验的结构化证据用于同比增长预测。")
+    strategy_backtest = load_macro_backtest()
+    strategy_metrics = {row["strategy"]: row for row in strategy_backtest.get("metrics", [])}
+    alpha_strategy = strategy_metrics.get("alphalens_nowcast", {})
+    momentum_strategy = strategy_metrics.get("pure_momentum", {})
+    strategy_bootstrap = (strategy_backtest.get("bootstrap") or [{}])[0]
     lines.extend(
         [
             "",
-            "## 六、历史回测参考",
+            "## 六、AlphaLens 预测确认策略回测",
             "",
-            "> 这一部分来自固定历史样本，并非对本次新文本单独回测。",
-            "",
-            f"- OOS 平均 Rank IC（5 日）：{float(oos_metrics.get('avg_rank_ic_5d', 0)):.6f}",
-            f"- OOS ICIR：{float(oos_metrics.get('rank_ic_ir', 0)):.6f}",
-            f"- OOS 有效 IC 日数：{int(oos_metrics.get('rank_ic_valid_date_count', 0))}",
-            f"- OOS G5-G1 行业超额收益差：{float(oos_metrics.get('top_bottom_group_spread_5d', 0)):.6f}",
-            f"- OOS 证据状态：{oos_metrics.get('evidence_status', 'insufficient')}",
-            f"- 未来函数审计：{metrics.get('future_info_audit', 'pending')}",
+            "- 策略：新能源 ETF `516160` 12个月时间序列动量 + 60日波动率缩放 + AlphaLens 行业同比预测加速度确认；剩余仓位配置5年期国债 ETF `511010`。",
+            f"- 调仓：{strategy_backtest.get('rebalance_timing', '')}；不做空、不加杠杆；主成本 {strategy_backtest.get('primary_cost_bps', 10)} bp。",
+            f"- AlphaLens增强策略：年化收益 {float(alpha_strategy.get('annual_return', 0)):.2%}，Sharpe {float(alpha_strategy.get('sharpe', 0)):.3f}，最大回撤 {float(alpha_strategy.get('max_drawdown', 0)):.2%}。",
+            f"- 纯趋势策略：年化收益 {float(momentum_strategy.get('annual_return', 0)):.2%}，Sharpe {float(momentum_strategy.get('sharpe', 0)):.3f}，最大回撤 {float(momentum_strategy.get('max_drawdown', 0)):.2%}。",
+            f"- AlphaLens相对纯趋势年化净收益差：{float(strategy_bootstrap.get('annualized_net_return_difference', 0)):.2%}；3个月时间块 Bootstrap 95%区间 [{float(strategy_bootstrap.get('ci_lower_95', 0)):.2%}, {float(strategy_bootstrap.get('ci_upper_95', 0)):.2%}]。",
+            f"- 结论：{'观察到正向交易增量' if strategy_bootstrap.get('conclusion') == 'positive_increment_observed' else '交易增量尚未建立'}。{strategy_backtest.get('oracle_warning', '')}",
             "",
             "## 七、限制",
             "",
             "- 当前行情为前复权候选价，`adj_factor=1` 仅作占位字段，不是真实复权因子序列。",
-            "- 当前 OOS 有效日期过少，证据不足，不能宣称因子稳定有效。",
             "- 同比预测只使用本次新输入文本的结构化证据；历史文本仅用于冻结模型与规则参数。",
             "- 当前样本、规则与股票池规模有限，结果用于验证研究链路，不代表未来表现。",
             "",
