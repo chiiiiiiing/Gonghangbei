@@ -152,8 +152,8 @@ function renderMacro(data) {
   const insufficient = singleModel.text_increment_status !== "validated_positive";
   const history = (data.forecast.history || []).filter((row) => row.split === "oos");
   const html = `<div class="macro-hero">
-    <div><span class="eyebrow">AlphaLens · SINGLE-TEXT FORECAST</span><h1>输入一篇新文本，生成行业同比预测报告</h1><p>文本完整经过 DeepSeek、固定19谓词、三层门控和冻结规则审计；冻结模型只读取本次文本的来源、事件、实体和19谓词特征，给出“电气机械和器材制造业增加值同比增速”。历史文本只提供冻结参数，不与新文本混合作为当期输入。</p></div>
-    <button class="primary-button macro-action" id="openLiveAnalysis" type="button"><i data-lucide="sparkles"></i>输入新文本生成报告</button>
+    <div><span class="eyebrow">AlphaLens · MODEL VALIDATION</span><h1>历史数据与单文本模型验证</h1><p>这里展示官方历史文本、目标序列、训练/验证划分及基线误差，只用于说明预测依据和适用边界。实际预测入口位于“新文本预测”首页。</p></div>
+    <button class="primary-button macro-action" id="openLiveAnalysis" type="button"><i data-lucide="sparkles"></i>返回新文本预测</button>
   </div>
   <div class="macro-kpis">
     ${metric(data.status.verified_historical_texts || 0, "可核验历史文本")}
@@ -470,6 +470,10 @@ function downloadReport(text) {
 
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-view]").forEach((tab) => tab.addEventListener("click", () => switchView(tab.dataset.view)));
+  document.querySelector(".brand").addEventListener("click", (event) => {
+    event.preventDefault();
+    switchView("liveView");
+  });
   document.querySelectorAll("[data-run-mode]").forEach((button) => button.addEventListener("click", () => setRunMode(button.dataset.runMode)));
   document.querySelectorAll("[data-example]").forEach((button) => button.addEventListener("click", () => setExample(Number(button.dataset.example))));
   $("toggleKey").addEventListener("click", () => {

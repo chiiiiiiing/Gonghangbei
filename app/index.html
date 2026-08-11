@@ -18,8 +18,8 @@
         <span>Alpha<strong>Lens</strong></span>
       </a>
       <nav class="nav-tabs" aria-label="研究视图">
-        <button class="nav-tab active" data-view="macroView" type="button">宏观预测</button>
-        <button class="nav-tab" data-view="liveView" type="button">新文本预测</button>
+        <button class="nav-tab active" data-view="liveView" type="button">新文本预测</button>
+        <button class="nav-tab" data-view="macroView" type="button">模型验证</button>
         <button class="nav-tab" data-view="auditView" type="button">研究审计</button>
       </nav>
       <div class="service-status"><span class="status-dot" id="statusDot"></span><span id="statusText">正在连接本地研究服务</span></div>
@@ -27,11 +27,11 @@
   </header>
 
   <main class="page-shell">
-    <section class="view active" id="macroView">
+    <section class="view" id="macroView">
       <div id="macroContent"><div class="loading-surface">正在读取行业同比预测研究</div></div>
     </section>
 
-    <section class="view" id="liveView">
+    <section class="view active" id="liveView">
       <div class="workspace">
         <section class="surface editor-surface">
           <div class="surface-heading">
