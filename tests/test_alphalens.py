@@ -149,6 +149,9 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertNotIn('data-view="auditView"', index)
         self.assertNotIn('id="auditView"', index)
         self.assertIn('id="validationAuditContent"', combined)
+        self.assertNotIn('实际预测入口位于“新文本预测”首页', combined)
+        self.assertNotIn('id="openLiveAnalysis"', combined)
+        self.assertNotIn('返回新文本预测', combined)
 
     def test_macro_strategy_constraints_and_oracle_label(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:

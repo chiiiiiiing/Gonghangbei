@@ -153,8 +153,7 @@ function renderMacro(data) {
   const insufficient = singleModel.text_increment_status !== "validated_positive";
   const history = (data.forecast.history || []).filter((row) => row.split === "oos");
   const html = `<div class="macro-hero">
-    <div><span class="eyebrow">AlphaLens · RESEARCH VALIDATION</span><h1>研究验证</h1><p>模型表现与完整研究审计合并展示：先核对官方历史目标、训练/验证划分和基线误差，再检查数据覆盖、AI标注、冻结规则与时间边界。实际预测入口位于“新文本预测”首页。</p></div>
-    <button class="primary-button macro-action" id="openLiveAnalysis" type="button"><i data-lucide="sparkles"></i>返回新文本预测</button>
+    <div><span class="eyebrow">AlphaLens · RESEARCH VALIDATION</span><h1>研究验证</h1><p>模型表现与完整研究审计合并展示：先核对官方历史目标、训练/验证划分和基线误差，再检查数据覆盖、AI标注、冻结规则与时间边界。</p></div>
   </div>
   <div class="macro-kpis">
     ${metric(data.status.verified_historical_texts || 0, "可核验历史文本")}
@@ -177,7 +176,6 @@ function renderMacro(data) {
   </div><p class="disclaimer">本报告仅供研究参考，不构成投资建议</p></div></section>
   <div id="validationAuditContent"><div class="loading-surface validation-loading">正在读取完整研究审计</div></div>`;
   $("macroContent").innerHTML = html;
-  $("openLiveAnalysis").addEventListener("click", () => switchView("liveView"));
   if (window.Plotly) {
     const actual = history.filter((row) => row.actual_yoy !== "");
     Plotly.newPlot("macroForecastChart", [
