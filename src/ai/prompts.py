@@ -46,18 +46,18 @@ EVENT_TYPES_BY_SOURCE = {
 }
 
 PREDICATE_DEFINITIONS = {
-    "has_policy_support": "存在明确政策、补贴、规划或专项行动支持",
+    "has_policy_support": "文本含明确政策支持载体（补贴、规划、专项行动、实施意见等）且来源为政策或含政策文件特征",
     "policy_directly_related_to_business": "事件直接作用于公司主营业务或产业链核心环节",
     "event_mentions_core_product": "原文提及公司的核心产品或关键业务",
     "evidence_from_authoritative_source": "证据来自政府、交易所、公司公告或权威财经媒体",
-    "source_government_or_exchange": "来源是政府部门或交易所",
+    "event_policy_binding_strength": "政策是否含强约束表述（强制、必须、不得等）",
     "source_company_announcement": "来源是上市公司正式公告",
     "source_major_media": "来源是主流财经或综合媒体",
-    "social_attention_spikes": "文本体现主题关注度短期上升",
+    "event_scale_industry_level": "事件作用范围是否为产业级/行业级",
     "policy_attention_followup": "政策发布后存在后续部署、试点或跟进信号",
-    "institutional_attention_increases": "文本明确体现机构、研报或调研关注增加",
+    "event_mentions_export": "事件是否涉及出口/海外市场",
     "investor_questions_increase": "文本体现投资者提问或集中追问增加",
-    "management_response_vague": "管理层回答模糊、回避或缺少实质信息",
+    "event_has_quantitative_target": "事件文本是否包含可量化目标或金额",
     "announcement_contains_uncertainty": "公告包含审批、交付、价格或履约不确定性",
     "risk_or_uncertainty_disclosure": "文本明确披露风险或不确定性",
     "demand_side_policy": "政策主要作用于消费、采购或终端需求",

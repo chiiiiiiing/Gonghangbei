@@ -26,14 +26,14 @@ PREDICATE_COLUMNS = [
     "policy_directly_related_to_business",
     "event_mentions_core_product",
     "evidence_from_authoritative_source",
-    "source_government_or_exchange",
+    "event_policy_binding_strength",
     "source_company_announcement",
     "source_major_media",
-    "social_attention_spikes",
+    "event_scale_industry_level",
     "policy_attention_followup",
-    "institutional_attention_increases",
+    "event_mentions_export",
     "investor_questions_increase",
-    "management_response_vague",
+    "event_has_quantitative_target",
     "announcement_contains_uncertainty",
     "risk_or_uncertainty_disclosure",
     "demand_side_policy",
@@ -286,24 +286,24 @@ def target_label_for_predicates(predicate_names: tuple[str, ...]) -> str:
         return "risk_disclosure_signal"
     if predicate_set & {"capacity_policy_support"}:
         return "capacity_policy_signal"
+    if predicate_set & {"event_mentions_export"}:
+        return "export_signal"
     if predicate_set & {
         "has_policy_support",
         "policy_directly_related_to_business",
         "policy_attention_followup",
         "demand_side_policy",
         "supply_side_policy",
+        "event_policy_binding_strength",
+        "event_has_quantitative_target",
     }:
-        if predicate_set & {"social_attention_spikes", "institutional_attention_increases"}:
-            return "policy_attention_signal"
         return "policy_signal"
-    if predicate_set & {"social_attention_spikes", "institutional_attention_increases"}:
-        return "attention_signal"
     if predicate_set & {
         "event_mentions_core_product",
         "evidence_from_authoritative_source",
-        "source_government_or_exchange",
         "source_company_announcement",
         "source_major_media",
+        "event_scale_industry_level",
     }:
         return "authoritative_core_event_signal"
     return "explainable_event_signal"
@@ -313,18 +313,19 @@ def rule_name_for_predicates(predicate_names: tuple[str, ...], target_label: str
     short_names = {
         "event_mentions_core_product": "core",
         "evidence_from_authoritative_source": "auth",
-        "source_government_or_exchange": "gov_exchange",
+        "event_policy_binding_strength": "binding",
         "source_company_announcement": "announcement",
         "source_major_media": "media",
-        "social_attention_spikes": "attention",
+        "event_scale_industry_level": "industry_scale",
         "policy_attention_followup": "policy_followup",
-        "institutional_attention_increases": "institutional",
+        "event_mentions_export": "export",
         "risk_or_uncertainty_disclosure": "risk",
         "demand_side_policy": "demand_policy",
         "supply_side_policy": "supply_policy",
         "capacity_policy_support": "capacity_policy",
         "has_policy_support": "policy",
         "policy_directly_related_to_business": "business_policy",
+        "event_has_quantitative_target": "quant_target",
         "announcement_contains_uncertainty": "uncertainty",
     }
     parts = [short_names.get(name, name) for name in predicate_names]

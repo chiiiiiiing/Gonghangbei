@@ -31,25 +31,120 @@
         },
         "related_stocks": [],
         "predicates": [
-          {"name": "has_policy_support", "value": "true", "confidence": 0.97, "rationale": "原文为专项行动方案"},
-          {"name": "policy_directly_related_to_business", "value": "true", "confidence": 0.91, "rationale": "原文直接涉及新型储能建设"},
-          {"name": "event_mentions_core_product", "value": "true", "confidence": 0.94, "rationale": "原文明确出现新型储能"},
-          {"name": "evidence_from_authoritative_source", "value": "true", "confidence": 0.98, "rationale": "来源为中国政府网"},
-          {"name": "source_government_or_exchange", "value": "true", "confidence": 0.99, "rationale": "来源为政府网站"},
-          {"name": "source_company_announcement", "value": "false", "confidence": 0.99, "rationale": "不是公司公告"},
-          {"name": "source_major_media", "value": "false", "confidence": 0.99, "rationale": "不是财经媒体"},
-          {"name": "social_attention_spikes", "value": "false", "confidence": 0.77, "rationale": "单篇政策不足以证明关注度突增"},
-          {"name": "policy_attention_followup", "value": "true", "confidence": 0.90, "rationale": "行动方案包含后续落实安排"},
-          {"name": "institutional_attention_increases", "value": "false", "confidence": 0.74, "rationale": "未出现机构关注增长证据"},
-          {"name": "investor_questions_increase", "value": "false", "confidence": 0.98, "rationale": "不是互动问答聚合事件"},
-          {"name": "management_response_vague", "value": "false", "confidence": 0.98, "rationale": "不存在管理层回复"},
-          {"name": "announcement_contains_uncertainty", "value": "false", "confidence": 0.98, "rationale": "不是公司公告"},
-          {"name": "risk_or_uncertainty_disclosure", "value": "false", "confidence": 0.88, "rationale": "未披露集中风险事项"},
-          {"name": "demand_side_policy", "value": "false", "confidence": 0.75, "rationale": "未直接作用于终端消费"},
-          {"name": "supply_side_policy", "value": "false", "confidence": 0.72, "rationale": "未出现规则词表中的供给侧表述"},
-          {"name": "capacity_policy_support", "value": "false", "confidence": 0.71, "rationale": "未出现明确产能或具体项目表述"},
-          {"name": "event_evidence_strength", "value": "0.88", "confidence": 0.93, "rationale": "按透明证据评分 v2 重算"},
-          {"name": "event_has_short_term_price_impact", "value": "0.14", "confidence": 0.70, "rationale": "使用 Discovery 同类事件的 Beta 后验概率，不代表收益预测"}
+          {
+            "name": "has_policy_support",
+            "value": "true",
+            "confidence": 0.97,
+            "rationale": "原文为专项行动方案"
+          },
+          {
+            "name": "policy_directly_related_to_business",
+            "value": "true",
+            "confidence": 0.91,
+            "rationale": "原文直接涉及新型储能建设"
+          },
+          {
+            "name": "event_mentions_core_product",
+            "value": "true",
+            "confidence": 0.94,
+            "rationale": "原文明确出现新型储能"
+          },
+          {
+            "name": "evidence_from_authoritative_source",
+            "value": "true",
+            "confidence": 0.98,
+            "rationale": "来源为中国政府网"
+          },
+          {
+            "name": "source_company_announcement",
+            "value": "false",
+            "confidence": 0.99,
+            "rationale": "不是公司公告"
+          },
+          {
+            "name": "source_major_media",
+            "value": "false",
+            "confidence": 0.99,
+            "rationale": "不是财经媒体"
+          },
+          {
+            "name": "policy_attention_followup",
+            "value": "true",
+            "confidence": 0.9,
+            "rationale": "行动方案包含后续落实安排"
+          },
+          {
+            "name": "investor_questions_increase",
+            "value": "false",
+            "confidence": 0.98,
+            "rationale": "不是互动问答聚合事件"
+          },
+          {
+            "name": "announcement_contains_uncertainty",
+            "value": "false",
+            "confidence": 0.98,
+            "rationale": "不是公司公告"
+          },
+          {
+            "name": "risk_or_uncertainty_disclosure",
+            "value": "false",
+            "confidence": 0.88,
+            "rationale": "未披露集中风险事项"
+          },
+          {
+            "name": "demand_side_policy",
+            "value": "false",
+            "confidence": 0.75,
+            "rationale": "未直接作用于终端消费"
+          },
+          {
+            "name": "supply_side_policy",
+            "value": "false",
+            "confidence": 0.72,
+            "rationale": "未出现规则词表中的供给侧表述"
+          },
+          {
+            "name": "capacity_policy_support",
+            "value": "false",
+            "confidence": 0.71,
+            "rationale": "未出现明确产能或具体项目表述"
+          },
+          {
+            "name": "event_evidence_strength",
+            "value": "0.88",
+            "confidence": 0.93,
+            "rationale": "按透明证据评分 v2 重算"
+          },
+          {
+            "name": "event_has_short_term_price_impact",
+            "value": "0.14",
+            "confidence": 0.7,
+            "rationale": "使用 Discovery 同类事件的 Beta 后验概率，不代表收益预测"
+          },
+          {
+            "name": "event_has_quantitative_target",
+            "value": "false",
+            "confidence": 0.7,
+            "rationale": "文本未含明确可量化目标/金额"
+          },
+          {
+            "name": "event_mentions_export",
+            "value": "false",
+            "confidence": 0.9,
+            "rationale": "文本为国内政策，未涉出口/海外市场"
+          },
+          {
+            "name": "event_policy_binding_strength",
+            "value": "false",
+            "confidence": 0.7,
+            "rationale": "未出现强制/必须/不得等强约束表述"
+          },
+          {
+            "name": "event_scale_industry_level",
+            "value": "false",
+            "confidence": 0.7,
+            "rationale": "文本未明确产业级/行业级表述"
+          }
         ],
         "stock_analyses": [
           {
@@ -63,32 +158,131 @@
               "business_relevance": 0.8
             },
             "predicates": [
-              {"name": "has_policy_support", "value": "true", "confidence": 0.97, "rationale": "原文为专项行动方案"},
-              {"name": "policy_directly_related_to_business", "value": "true", "confidence": 0.91, "rationale": "原文直接涉及新型储能建设"},
-              {"name": "event_mentions_core_product", "value": "true", "confidence": 0.94, "rationale": "原文明确出现新型储能"},
-              {"name": "evidence_from_authoritative_source", "value": "true", "confidence": 0.98, "rationale": "来源为中国政府网"},
-              {"name": "source_government_or_exchange", "value": "true", "confidence": 0.99, "rationale": "来源为政府网站"},
-              {"name": "source_company_announcement", "value": "false", "confidence": 0.99, "rationale": "不是公司公告"},
-              {"name": "source_major_media", "value": "false", "confidence": 0.99, "rationale": "不是财经媒体"},
-              {"name": "social_attention_spikes", "value": "false", "confidence": 0.77, "rationale": "单篇政策不足以证明关注度突增"},
-              {"name": "policy_attention_followup", "value": "true", "confidence": 0.90, "rationale": "行动方案包含后续落实安排"},
-              {"name": "institutional_attention_increases", "value": "false", "confidence": 0.74, "rationale": "未出现机构关注增长证据"},
-              {"name": "investor_questions_increase", "value": "false", "confidence": 0.98, "rationale": "不是互动问答聚合事件"},
-              {"name": "management_response_vague", "value": "false", "confidence": 0.98, "rationale": "不存在管理层回复"},
-              {"name": "announcement_contains_uncertainty", "value": "false", "confidence": 0.98, "rationale": "不是公司公告"},
-              {"name": "risk_or_uncertainty_disclosure", "value": "false", "confidence": 0.88, "rationale": "未披露集中风险事项"},
-              {"name": "demand_side_policy", "value": "false", "confidence": 0.75, "rationale": "未直接作用于终端消费"},
-              {"name": "supply_side_policy", "value": "false", "confidence": 0.72, "rationale": "未出现规则词表中的供给侧表述"},
-              {"name": "capacity_policy_support", "value": "false", "confidence": 0.71, "rationale": "未出现明确产能或具体项目表述"},
-              {"name": "event_evidence_strength", "value": "0.88", "confidence": 0.93, "rationale": "按透明证据评分 v2 重算"},
-              {"name": "event_has_short_term_price_impact", "value": "0.14", "confidence": 0.70, "rationale": "使用 Discovery 同类事件的 Beta 后验概率，不代表收益预测"}
+              {
+                "name": "has_policy_support",
+                "value": "true",
+                "confidence": 0.97,
+                "rationale": "原文为专项行动方案"
+              },
+              {
+                "name": "policy_directly_related_to_business",
+                "value": "true",
+                "confidence": 0.91,
+                "rationale": "原文直接涉及新型储能建设"
+              },
+              {
+                "name": "event_mentions_core_product",
+                "value": "true",
+                "confidence": 0.94,
+                "rationale": "原文明确出现新型储能"
+              },
+              {
+                "name": "evidence_from_authoritative_source",
+                "value": "true",
+                "confidence": 0.98,
+                "rationale": "来源为中国政府网"
+              },
+              {
+                "name": "source_company_announcement",
+                "value": "false",
+                "confidence": 0.99,
+                "rationale": "不是公司公告"
+              },
+              {
+                "name": "source_major_media",
+                "value": "false",
+                "confidence": 0.99,
+                "rationale": "不是财经媒体"
+              },
+              {
+                "name": "policy_attention_followup",
+                "value": "true",
+                "confidence": 0.9,
+                "rationale": "行动方案包含后续落实安排"
+              },
+              {
+                "name": "investor_questions_increase",
+                "value": "false",
+                "confidence": 0.98,
+                "rationale": "不是互动问答聚合事件"
+              },
+              {
+                "name": "announcement_contains_uncertainty",
+                "value": "false",
+                "confidence": 0.98,
+                "rationale": "不是公司公告"
+              },
+              {
+                "name": "risk_or_uncertainty_disclosure",
+                "value": "false",
+                "confidence": 0.88,
+                "rationale": "未披露集中风险事项"
+              },
+              {
+                "name": "demand_side_policy",
+                "value": "false",
+                "confidence": 0.75,
+                "rationale": "未直接作用于终端消费"
+              },
+              {
+                "name": "supply_side_policy",
+                "value": "false",
+                "confidence": 0.72,
+                "rationale": "未出现规则词表中的供给侧表述"
+              },
+              {
+                "name": "capacity_policy_support",
+                "value": "false",
+                "confidence": 0.71,
+                "rationale": "未出现明确产能或具体项目表述"
+              },
+              {
+                "name": "event_evidence_strength",
+                "value": "0.88",
+                "confidence": 0.93,
+                "rationale": "按透明证据评分 v2 重算"
+              },
+              {
+                "name": "event_has_short_term_price_impact",
+                "value": "0.14",
+                "confidence": 0.7,
+                "rationale": "使用 Discovery 同类事件的 Beta 后验概率，不代表收益预测"
+              },
+              {
+                "name": "event_has_quantitative_target",
+                "value": "false",
+                "confidence": 0.7,
+                "rationale": "文本未含明确可量化目标/金额"
+              },
+              {
+                "name": "event_mentions_export",
+                "value": "false",
+                "confidence": 0.9,
+                "rationale": "文本为国内政策，未涉出口/海外市场"
+              },
+              {
+                "name": "event_policy_binding_strength",
+                "value": "false",
+                "confidence": 0.7,
+                "rationale": "未出现强制/必须/不得等强约束表述"
+              },
+              {
+                "name": "event_scale_industry_level",
+                "value": "false",
+                "confidence": 0.7,
+                "rationale": "文本未明确产业级/行业级表述"
+              }
             ]
           }
         ],
         "candidate_rules": [
           {
             "name": "储能政策后续落实候选",
-            "conditions": ["has_policy_support", "policy_directly_related_to_business", "policy_attention_followup"],
+            "conditions": [
+              "has_policy_support",
+              "policy_directly_related_to_business",
+              "policy_attention_followup"
+            ],
             "target_label": "policy_signal",
             "rationale": "仅作为待历史统计验证的规则候选"
           }
