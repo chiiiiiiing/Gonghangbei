@@ -50,6 +50,7 @@ let runMode = "live";
 let currentAnalysis = null;
 let historyData = null;
 let auditData = null;
+let auditLoadError = "";
 let macroData = null;
 let historySplit = "oos";
 
@@ -152,7 +153,7 @@ function renderMacro(data) {
   const insufficient = singleModel.text_increment_status !== "validated_positive";
   const history = (data.forecast.history || []).filter((row) => row.split === "oos");
   const html = `<div class="macro-hero">
-    <div><span class="eyebrow">AlphaLens · MODEL VALIDATION</span><h1>历史数据与单文本模型验证</h1><p>这里展示官方历史文本、目标序列、训练/验证划分及基线误差，只用于说明预测依据和适用边界。实际预测入口位于“新文本预测”首页。</p></div>
+    <div><span class="eyebrow">AlphaLens · RESEARCH VALIDATION</span><h1>研究验证</h1><p>模型表现与完整研究审计合并展示：先核对官方历史目标、训练/验证划分和基线误差，再检查数据覆盖、AI标注、冻结规则与时间边界。实际预测入口位于“新文本预测”首页。</p></div>
     <button class="primary-button macro-action" id="openLiveAnalysis" type="button"><i data-lucide="sparkles"></i>返回新文本预测</button>
   </div>
   <div class="macro-kpis">
@@ -173,7 +174,8 @@ function renderMacro(data) {
   </div></div></section>
   <section class="section"><div class="section-header"><div><h2>可审计研究边界</h2></div></div><div class="section-body"><div class="detail-grid">
     <div class="detail-item"><b>训练 / 规则发现</b><span>2015—2021</span></div><div class="detail-item"><b>模型 / 策略验证</b><span>2022—2023</span></div><div class="detail-item"><b>冻结 OOS</b><span>2024—最新</span></div><div class="detail-item"><b>交易代理边界</b><span>399808 仅作上市前研究代理，不冒充 ETF</span></div>
-  </div><p class="disclaimer">本报告仅供研究参考，不构成投资建议</p></div></section>`;
+  </div><p class="disclaimer">本报告仅供研究参考，不构成投资建议</p></div></section>
+  <div id="validationAuditContent"><div class="loading-surface validation-loading">正在读取完整研究审计</div></div>`;
   $("macroContent").innerHTML = html;
   $("openLiveAnalysis").addEventListener("click", () => switchView("liveView"));
   if (window.Plotly) {
@@ -187,6 +189,10 @@ function renderMacro(data) {
       y: [Number(singleModel.validation_mae || 0), Number(singleModel.persistence_validation_mae || 0)],
       type: "bar", marker: { color: ["#116fae", "#9aa8b3"] }, texttemplate: "%{y:.2f} pct", textposition: "outside",
     }], { ...chartLayout("MAE（百分点，越低越好）"), showlegend: false }, { responsive: true, displayModeBar: false });
+  }
+  if (auditData) renderAudit(auditData);
+  if (auditLoadError && $("validationAuditContent")) {
+    $("validationAuditContent").innerHTML = `<div class="error-box"><strong>研究审计读取失败</strong>${esc(auditLoadError)}</div>`;
   }
   refreshIcons();
 }
@@ -207,9 +213,13 @@ async function loadHistory() {
 async function loadAudit() {
   try {
     auditData = await fetchJson("/api/audit");
+    auditLoadError = "";
     renderAudit(auditData);
   } catch (error) {
-    $("auditContent").innerHTML = `<div class="error-box"><strong>研究审计读取失败</strong>${esc(error.message)}</div>`;
+    auditLoadError = error.message;
+    if ($("validationAuditContent")) {
+      $("validationAuditContent").innerHTML = `<div class="error-box"><strong>研究审计读取失败</strong>${esc(error.message)}</div>`;
+    }
   }
 }
 
@@ -435,7 +445,7 @@ function renderAudit(audit) {
     }
   }
   const diagnostics = audit.rule_diagnostics || [];
-  let html = `<div class="page-heading"><div><h1>研究审计</h1><p>数据覆盖、模型、评分、规则支持与时间边界</p></div></div>`;
+  let html = `<div class="page-heading merged-audit-heading"><div><span class="eyebrow">FULL AUDIT TRAIL</span><h2>完整研究审计</h2><p>数据覆盖、模型身份、评分、规则支持与时间边界</p></div>${badge("确定性审计", "info")}</div>`;
   html += `<div class="audit-counts">${Object.entries(countLabels).map(([key, label]) => `<div class="audit-count"><strong>${esc(audit.counts[key])}</strong><span>${esc(label)}</span></div>`).join("")}</div>`;
   html += `<section class="section"><div class="section-header"><div><h2>样本分区覆盖</h2><p>目标为每种来源、每个研究分区至少 25 篇独立文档</p></div></div><div class="table-wrap"><table><thead><tr><th>分区</th><th>来源</th><th>当前</th><th>目标</th><th>待补</th><th>状态</th></tr></thead><tbody>${coverageRows.join("")}</tbody></table></div></section>`;
   html += `<section class="section"><div class="section-header"><div><h2>来源与事件分布</h2></div></div><div class="section-body"><div class="audit-columns"><div>${distribution(audit.source_type_counts, SOURCE_LABELS)}</div><div>${distribution(audit.event_type_counts, EVENT_LABELS)}</div></div></div></section>`;
@@ -455,7 +465,8 @@ function renderAudit(audit) {
   const failureRows = (cache.failure_categories || []).map((row) => `<tr><td>${esc(row.category)}</td><td>${esc(row.count)}</td><td>${badge("严格拒绝", "warn")}</td></tr>`).join("") || '<tr><td colspan="3">当前没有已记录的 AI 标注拒绝项</td></tr>';
   html += `<section class="section"><div class="section-header"><div><h2>历史 AI 标注拒绝审计</h2><p>仅归类已拒绝结果；不会把失败记录伪装成 AI 成功，也不会放宽金融语义、股票池或原文连续证据校验。</p></div>${badge(`${cache.failed_count || 0} 条待复核`, cache.failed_count ? "warn" : "good")}</div><div class="section-body"><div class="notice warn">R4.1 的修复请求提供原文候选片段与来源限定事件类型。完成真实 Key 验收后，可用 <code>批量生成AI标注.py --retry-failed</code> 只重试失败文档。</div><div class="table-wrap"><table><thead><tr><th>拒绝类型</th><th>数量</th><th>处理原则</th></tr></thead><tbody>${failureRows}</tbody></table></div></div></section>`;
   html += `<section class="section"><div class="section-header"><div><h2>规则透明评分</h2><p>行业政策映射多只股票仍只计一篇独立文档</p></div></div><div class="table-wrap"><table><thead><tr><th>规则</th><th>独立文档</th><th>股票覆盖</th><th>后验胜率</th><th>收缩收益</th><th>半年稳定性</th><th>覆盖项</th><th>证据项</th><th>复杂度惩罚</th></tr></thead><tbody>${diagnostics.map((row) => `<tr><td class="mono">${esc(row.rule_id)}</td><td>${esc(row.independent_document_count)}</td><td>${esc(row.stock_count)}</td><td>${pct(row.posterior_win_rate)}</td><td>${pct(row.shrunk_return)}</td><td>${pct(row.half_year_stability)}</td><td>${fixed(row.coverage_component)}</td><td>${fixed(row.evidence_component)}</td><td>${fixed(row.complexity_penalty)}</td></tr>`).join("")}</tbody></table></div></section>`;
-  $("auditContent").innerHTML = html;
+  const target = $("validationAuditContent");
+  if (target) target.innerHTML = html;
 }
 
 function downloadReport(text) {

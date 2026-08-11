@@ -164,8 +164,10 @@ details.disclosure summary { padding: 14px 2px 0; color: var(--blue); cursor: po
 .download-button:hover { color: var(--blue); border-color: #91bdd7; }
 
 .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 20px; }
-.page-heading h1 { margin: 0; font-size: 24px; }
+.page-heading h1, .page-heading h2 { margin: 0; font-size: 24px; }
 .page-heading p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+.merged-audit-heading { margin-top: 36px; padding-top: 30px; border-top: 1px solid var(--line-strong); }
+.validation-loading { margin-top: 24px; }
 .split-control { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: white; }
 .split-button { height: 34px; padding: 0 14px; border: 0; border-radius: 6px; color: var(--muted); background: transparent; font-size: 12px; font-weight: 680; }
 .split-button.active { color: var(--blue); background: var(--blue-soft); }

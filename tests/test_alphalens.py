@@ -145,7 +145,10 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertIn('<section class="view active" id="liveView">', index)
         self.assertNotIn('<section class="view active" id="macroView">', index)
         self.assertIn('data-view="liveView" type="button">新文本预测</button>', index)
-        self.assertIn('data-view="macroView" type="button">模型验证</button>', index)
+        self.assertIn('data-view="macroView" type="button">研究验证</button>', index)
+        self.assertNotIn('data-view="auditView"', index)
+        self.assertNotIn('id="auditView"', index)
+        self.assertIn('id="validationAuditContent"', combined)
 
     def test_macro_strategy_constraints_and_oracle_label(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:
