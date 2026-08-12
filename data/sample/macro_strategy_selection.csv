@@ -1,0 +1,2 @@
+selection_period_start,selection_period_end,cost_bps,acceleration_threshold_pct_point,weak_regime_risk_multiplier,validation_annual_return,validation_pure_momentum_annual_return,validation_annual_return_difference,selection_rule,oos_frozen
+2022-01-01,2023-12-31,10,-1.000000,0.000000,0.045305,0.020222,0.025083,validation_only_then_frozen_before_2024_oos,true

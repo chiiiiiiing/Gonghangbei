@@ -144,6 +144,23 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         model = status["single_text_model"]
         self.assertGreaterEqual(model["training_document_count"], 50)
         self.assertGreaterEqual(model["validation_document_count"], 20)
+        self.assertEqual(model["model_name"], "single_text_ridge_anchor_blend")
+        self.assertLess(model["validation_mae"], model["persistence_validation_mae"])
+
+    def test_single_text_model_selection_is_validation_only_and_frozen(self) -> None:
+        model_path = SAMPLE_DIR / "macro_single_text_model.json"
+        model = json.loads(model_path.read_text(encoding="utf-8"))
+        self.assertEqual(model["feature_set_name"], "audit_predicates_state")
+        self.assertEqual(model["selection_boundary"], "特征集、Ridge 正则和持久性锚权重只使用 2022—2023 验证集选择，2024 年起冻结。")
+        self.assertGreater(float(model["ridge_weight"]), 0.0)
+        self.assertLess(float(model["ridge_weight"]), 1.0)
+        self.assertAlmostEqual(
+            float(model["ridge_weight"]) + float(model["persistence_anchor_weight"]), 1.0, places=6,
+        )
+        self.assertTrue(all(
+            field == "latest_published_yoy" or field in {"stock_count", "avg_event_evidence", "avg_entity_confidence"} or field.startswith("predicate_")
+            for field in model["feature_fields"]
+        ))
 
     def test_single_text_training_has_strict_target_release_boundary(self) -> None:
         with (SAMPLE_DIR / "macro_target_history.csv").open(encoding="utf-8", newline="") as handle:
@@ -192,6 +209,8 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertNotIn('历史样本外参考', combined)
         self.assertNotIn('进入因子', combined)
         self.assertIn('AlphaLens预测确认策略回测', combined)
+        self.assertIn('策略选择防泄漏', combined)
+        self.assertIn('观察到正增量，统计显著性尚未建立', combined)
 
     def test_macro_strategy_constraints_and_oracle_label(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:
@@ -219,6 +238,23 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         for item in market:
             first_trade_date.setdefault(item["trade_date"][:7], item["trade_date"])
         self.assertTrue(all(row["signal_date"] < first_trade_date[row["trade_month"]] for row in rows))
+
+    def test_strategy_selection_uses_validation_only_then_freezes_oos(self) -> None:
+        with (SAMPLE_DIR / "macro_strategy_selection.csv").open(encoding="utf-8", newline="") as handle:
+            selection = next(csv.DictReader(handle))
+        self.assertEqual(selection["selection_period_start"], "2022-01-01")
+        self.assertEqual(selection["selection_period_end"], "2023-12-31")
+        self.assertEqual(selection["cost_bps"], "10")
+        self.assertEqual(selection["selection_rule"], "validation_only_then_frozen_before_2024_oos")
+        self.assertEqual(selection["oos_frozen"], "true")
+        self.assertGreater(float(selection["validation_annual_return_difference"]), 0.0)
+        with (SAMPLE_DIR / "macro_strategy_metrics.csv").open(encoding="utf-8", newline="") as handle:
+            metrics = [row for row in csv.DictReader(handle) if row["cost_bps"] == "10"]
+        by_strategy = {row["strategy"]: row for row in metrics}
+        self.assertGreater(
+            float(by_strategy["alphalens_nowcast"]["annual_return"]),
+            float(by_strategy["pure_momentum"]["annual_return"]),
+        )
 
     def test_macro_bootstrap_reports_unestablished_increment(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_bootstrap.csv").open(encoding="utf-8", newline="") as handle:

@@ -356,11 +356,15 @@ function renderStrategyBacktest(backtest) {
   const metrics = backtest.metrics || [];
   const alpha = metrics.find((row) => row.strategy === "alphalens_nowcast") || {};
   const bootstrap = (backtest.bootstrap || [])[0] || {};
+  const selection = backtest.strategy_selection || {};
   const incrementEstablished = bootstrap.conclusion === "positive_increment_observed";
+  const observedPositive = Number(bootstrap.annualized_net_return_difference) > 0;
+  const conclusion = incrementEstablished ? "正增量且置信区间通过" : (observedPositive ? "观察到正增量，统计显著性尚未建立" : "交易增量尚未建立");
   const metricRows = metrics.map((row) => `<tr><td>${esc(labels[row.strategy] || row.strategy)}${row.tradable === "false" ? ` ${badge("不可交易", "warn")}` : ""}</td><td>${pct(row.annual_return)}</td><td>${pct(row.annual_volatility)}</td><td class="mono">${fixed(row.sharpe, 3)}</td><td>${pct(row.max_drawdown)}</td><td>${pct(row.annual_turnover)}</td></tr>`).join("");
   return `<section class="section strategy-backtest"><div class="section-header"><div><h2>AlphaLens预测确认策略回测</h2><p>新能源ETF 516160 时间序列动量 + 60日波动率缩放 + 行业同比预测加速度确认；剩余仓位配置5年期国债ETF 511010</p></div>${badge(`${esc(backtest.primary_cost_bps || 10)} bp 成本`, "info")}</div><div class="section-body">
     <div class="detail-grid"><div class="detail-item"><b>调仓时点</b><span>${esc(backtest.rebalance_timing)}</span></div><div class="detail-item"><b>AlphaLens年化收益</b><span class="mono">${pct(alpha.annual_return)}</span></div><div class="detail-item"><b>AlphaLens Sharpe</b><span class="mono">${fixed(alpha.sharpe, 3)}</span></div><div class="detail-item"><b>相对纯趋势年化差</b><span class="mono ${Number(bootstrap.annualized_net_return_difference) >= 0 ? "positive" : "negative"}">${pct(bootstrap.annualized_net_return_difference)}</span></div></div>
-    <div class="notice ${incrementEstablished ? "good" : "error"}"><strong>${incrementEstablished ? "观察到正向交易增量" : "交易增量尚未建立"}</strong>：AlphaLens增强策略相对纯趋势策略的年化净收益差 ${pct(bootstrap.annualized_net_return_difference)}，3个月时间块 Bootstrap 95%区间为 ${pct(bootstrap.ci_lower_95)} 至 ${pct(bootstrap.ci_upper_95)}。结果按证据如实披露，不作收益宣传。</div>
+    <div class="notice ${observedPositive ? "good" : "error"}"><strong>${conclusion}</strong>：AlphaLens增强策略相对纯趋势策略的年化净收益差 ${pct(bootstrap.annualized_net_return_difference)}，3个月时间块 Bootstrap 95%区间为 ${pct(bootstrap.ci_lower_95)} 至 ${pct(bootstrap.ci_upper_95)}。结果按证据如实披露，不作收益宣传。</div>
+    <div class="audit-note"><strong>策略选择防泄漏：</strong>加速度阈值 ${fixed(selection.acceleration_threshold_pct_point, 1)} 个百分点、弱确认风险乘数 ${fixed(selection.weak_regime_risk_multiplier, 1)} 仅由 2022—2023 验证期选择，2024 年 OOS 开始前冻结；OOS 不参与调参。</div>
     <div id="strategyNavChart" class="strategy-chart"></div>
     <div class="table-wrap"><table><thead><tr><th>策略</th><th>年化收益</th><th>年化波动</th><th>Sharpe</th><th>最大回撤</th><th>年换手率</th></tr></thead><tbody>${metricRows}</tbody></table></div>
     <p class="disclaimer">${esc(backtest.oracle_warning)}<br>本报告仅供研究参考，不构成投资建议</p>

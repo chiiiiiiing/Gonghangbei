@@ -598,6 +598,13 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
     alpha_strategy = strategy_metrics.get("alphalens_nowcast", {})
     momentum_strategy = strategy_metrics.get("pure_momentum", {})
     strategy_bootstrap = (strategy_backtest.get("bootstrap") or [{}])[0]
+    observed_positive = float(strategy_bootstrap.get("annualized_net_return_difference", 0)) > 0
+    if strategy_bootstrap.get("conclusion") == "positive_increment_observed":
+        strategy_conclusion = "正增量且置信区间通过"
+    elif observed_positive:
+        strategy_conclusion = "观察到正增量，但统计显著性尚未建立"
+    else:
+        strategy_conclusion = "交易增量尚未建立"
     lines.extend(
         [
             "",
@@ -608,7 +615,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
             f"- AlphaLens增强策略：年化收益 {float(alpha_strategy.get('annual_return', 0)):.2%}，Sharpe {float(alpha_strategy.get('sharpe', 0)):.3f}，最大回撤 {float(alpha_strategy.get('max_drawdown', 0)):.2%}。",
             f"- 纯趋势策略：年化收益 {float(momentum_strategy.get('annual_return', 0)):.2%}，Sharpe {float(momentum_strategy.get('sharpe', 0)):.3f}，最大回撤 {float(momentum_strategy.get('max_drawdown', 0)):.2%}。",
             f"- AlphaLens相对纯趋势年化净收益差：{float(strategy_bootstrap.get('annualized_net_return_difference', 0)):.2%}；3个月时间块 Bootstrap 95%区间 [{float(strategy_bootstrap.get('ci_lower_95', 0)):.2%}, {float(strategy_bootstrap.get('ci_upper_95', 0)):.2%}]。",
-            f"- 结论：{'观察到正向交易增量' if strategy_bootstrap.get('conclusion') == 'positive_increment_observed' else '交易增量尚未建立'}。{strategy_backtest.get('oracle_warning', '')}",
+            f"- 结论：{strategy_conclusion}。{strategy_backtest.get('oracle_warning', '')}",
             "",
             "## 七、限制",
             "",

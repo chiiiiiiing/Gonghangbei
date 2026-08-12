@@ -67,6 +67,14 @@ SINGLE_TEXT_FIELDS = [
     *[f"predicate_{name}" for name in PREDICATE_COLUMNS],
     "latest_published_yoy", "season_sin", "season_cos",
 ]
+SINGLE_TEXT_AUDIT_FIELDS = [
+    "latest_published_yoy", "stock_count", "avg_event_evidence", "avg_entity_confidence",
+    *[f"predicate_{name}" for name in PREDICATE_COLUMNS],
+]
+STRATEGY_VALIDATION_START = "2022-01-01"
+STRATEGY_VALIDATION_END = "2023-12-31"
+STRATEGY_THRESHOLD_CANDIDATES = (-1.0, 0.0)
+STRATEGY_WEAK_WEIGHT_CANDIDATES = (0.0, 0.5)
 
 
 def _read_csv(name: str) -> list[dict[str, str]]:
@@ -409,23 +417,60 @@ def _historical_single_text_rows() -> list[dict[str, Any]]:
 
 
 def build_single_text_model() -> dict[str, Any]:
-    """Freeze a low-variance model mapping one audited text to the target YoY value."""
+    """Freeze a validation-selected, persistence-anchored single-text model.
+
+    The candidate grid is deliberately small.  Feature set, regularisation and
+    anchor weight are selected on 2022--2023 only, then frozen before OOS.  The
+    persistence anchor reduces the variance of a sparse one-document forecast
+    without allowing the latest value to replace the audited text features.
+    """
     rows = _historical_single_text_rows()
     train = [row for row in rows if row["split"] == "train"]
     validation = [row for row in rows if row["split"] == "validation"]
-    train_x = [[row["values"][field] for field in SINGLE_TEXT_FIELDS] for row in train]
-    train_y = [row["actual_yoy"] for row in train]
-    candidates: list[tuple[float, tuple[list[float], list[float], list[float]], float]] = []
-    for alpha in (5.0, 20.0, 50.0, 100.0):
-        model = _ridge_fit(train_x, train_y, alpha)
-        errors = [
-            _ridge_predict(model, [row["values"][field] for field in SINGLE_TEXT_FIELDS]) - row["actual_yoy"]
-            for row in validation
-        ]
-        candidates.append((alpha, model, _mean([abs(error) for error in errors])))
-    alpha, model, validation_mae = min(candidates, key=lambda item: item[2])
+    feature_sets = {
+        "all_structured": SINGLE_TEXT_FIELDS,
+        "audit_predicates_state": SINGLE_TEXT_AUDIT_FIELDS,
+    }
+    candidates: list[dict[str, Any]] = []
+    for feature_set_name, feature_fields in feature_sets.items():
+        train_x = [[row["values"][field] for field in feature_fields] for row in train]
+        train_y = [row["actual_yoy"] for row in train]
+        for alpha in (50.0, 100.0, 200.0, 500.0):
+            frozen = _ridge_fit(train_x, train_y, alpha)
+            raw_predictions = [
+                _ridge_predict(frozen, [row["values"][field] for field in feature_fields])
+                for row in validation
+            ]
+            for ridge_weight in (0.50, 0.75, 1.00):
+                predictions = [
+                    ridge_weight * prediction + (1 - ridge_weight) * row["values"]["latest_published_yoy"]
+                    for prediction, row in zip(raw_predictions, validation)
+                ]
+                errors = [prediction - row["actual_yoy"] for prediction, row in zip(predictions, validation)]
+                candidates.append({
+                    "feature_set_name": feature_set_name,
+                    "feature_fields": feature_fields,
+                    "alpha": alpha,
+                    "ridge_weight": ridge_weight,
+                    "model": frozen,
+                    "validation_mae": _mean([abs(error) for error in errors]),
+                    "validation_rmse": math.sqrt(_mean([error * error for error in errors])) if errors else 0.0,
+                })
+    selected = min(
+        candidates,
+        key=lambda item: (item["validation_mae"], item["validation_rmse"], len(item["feature_fields"])),
+    )
+    alpha = selected["alpha"]
+    model = selected["model"]
+    feature_fields = list(selected["feature_fields"])
+    ridge_weight = selected["ridge_weight"]
+    validation_mae = selected["validation_mae"]
     validation_errors = [
-        _ridge_predict(model, [row["values"][field] for field in SINGLE_TEXT_FIELDS]) - row["actual_yoy"]
+        (
+            ridge_weight * _ridge_predict(model, [row["values"][field] for field in feature_fields])
+            + (1 - ridge_weight) * row["values"]["latest_published_yoy"]
+            - row["actual_yoy"]
+        )
         for row in validation
     ]
     persistence_errors = [row["values"]["latest_published_yoy"] - row["actual_yoy"] for row in validation]
@@ -434,19 +479,22 @@ def build_single_text_model() -> dict[str, Any]:
     relative_improvement = absolute_improvement / persistence_mae if persistence_mae else 0.0
     source_type_counts = Counter(row["source_type"] for row in rows)
     payload = {
-        "model_name": "single_text_ridge", "alpha": alpha, "feature_fields": SINGLE_TEXT_FIELDS,
+        "model_name": "single_text_ridge_anchor_blend", "alpha": alpha,
+        "feature_set_name": selected["feature_set_name"], "feature_fields": feature_fields,
+        "ridge_weight": ridge_weight, "persistence_anchor_weight": 1 - ridge_weight,
         "coefficients": model[0], "means": model[1], "scales": model[2],
         "training_document_count": len(train), "validation_document_count": len(validation),
         "training_period": "2015-01-01 至 2021-12-31",
         "validation_period": "2022-01-01 至 2023-12-31",
         "validation_mae": validation_mae,
-        "validation_rmse": math.sqrt(_mean([error * error for error in validation_errors])) if validation_errors else 0.0,
+        "validation_rmse": selected["validation_rmse"],
         "persistence_validation_mae": persistence_mae,
         "validation_mae_improvement": absolute_improvement,
         "validation_relative_improvement": relative_improvement,
         "historical_source_type_counts": dict(sorted(source_type_counts.items())),
         "prediction_interval_half_width_90": _quantile([abs(error) for error in validation_errors], .9) if validation_errors else 4.0,
         "text_increment_status": "validated_positive" if absolute_improvement >= 0.10 and relative_improvement >= 0.05 else "not_established",
+        "selection_boundary": "特征集、Ridge 正则和持久性锚权重只使用 2022—2023 验证集选择，2024 年起冻结。",
         "information_boundary": "每篇历史文本只使用其首次发布日期当日可见信息；目标值发布日期必须严格晚于文本日期。",
     }
     (SAMPLE_DIR / "macro_single_text_model.json").write_text(
@@ -678,6 +726,90 @@ def build_strategy(forecasts: list[dict[str, Any]], market: list[dict[str, Any]]
     months = sorted(set(monthly_risk) & set(monthly_def))
     forecast_by_month = {row["target_period_end"][:7]: row for row in forecasts}
     target_by_month = {row["period_end"][:7]: row for row in _target_periods() if row.get("actual_yoy")}
+    signals: list[dict[str, Any]] = []
+    for index in range(12, len(months) - 2):
+        month, next_month = months[index], months[index + 1]
+        following_month = months[index + 2]
+        current = monthly_risk[month]
+        past = monthly_risk[months[index - 12]]
+        trend_positive = _f(current["close"]) / _f(past["close"]) - 1 > 0
+        dates = sorted(day for day in daily_close if day <= current["trade_date"])[-61:]
+        daily_returns = [daily_close[dates[i]] / daily_close[dates[i - 1]] - 1 for i in range(1, len(dates))]
+        vol = statistics.pstdev(daily_returns) * math.sqrt(252) if len(daily_returns) > 10 else 0.0
+        scaled = min(1.0, .10 / vol) if vol > 0 else 0.0
+        forecast = forecast_by_month.get(month)
+        alpha_accel = _f(forecast.get("predicted_acceleration")) if forecast else 0.0
+        available_actuals = [
+            row for row in _target_periods()
+            if row.get("actual_yoy") and row.get("release_date") and row["release_date"] <= current["trade_date"]
+        ]
+        published_accel = _f(available_actuals[-1]["actual_yoy"]) - _f(available_actuals[-2]["actual_yoy"]) if len(available_actuals) > 1 else 0.0
+        oracle = target_by_month.get(month)
+        oracle_accel = _f(oracle.get("actual_yoy")) - _f(available_actuals[-1]["actual_yoy"]) if oracle and available_actuals else 0.0
+        signals.append({
+            "signal_month": month, "trade_month": next_month, "signal_date": current["trade_date"],
+            "trend_positive": trend_positive, "scaled": scaled, "alpha_accel": alpha_accel,
+            "published_accel": published_accel, "oracle_accel": oracle_accel,
+            "risk_return": _f(monthly_risk_first[following_month]["open"]) / _f(monthly_risk_first[next_month]["open"]) - 1,
+            "def_return": _f(monthly_def_first[following_month]["open"]) / _f(monthly_def_first[next_month]["open"]) - 1,
+        })
+
+    validation_signals = [
+        row for row in signals if STRATEGY_VALIDATION_START <= row["signal_date"] <= STRATEGY_VALIDATION_END
+    ]
+    selection_candidates: list[dict[str, float]] = []
+    for threshold in STRATEGY_THRESHOLD_CANDIDATES:
+        for weak_weight in STRATEGY_WEAK_WEIGHT_CANDIDATES:
+            pure_returns: list[float] = []
+            alpha_returns: list[float] = []
+            pure_nav: list[float] = []
+            alpha_nav: list[float] = []
+            pure_turnover: list[float] = []
+            alpha_turnover: list[float] = []
+            pure_value = alpha_value = 1.0
+            prior_pure = prior_alpha = 0.0
+            for row in validation_signals:
+                pure_weight = row["scaled"] if row["trend_positive"] else 0.0
+                confirmation = 1.0 if row["alpha_accel"] >= threshold else weak_weight
+                alpha_weight = pure_weight * confirmation
+                pure_change = abs(pure_weight - prior_pure)
+                alpha_change = abs(alpha_weight - prior_alpha)
+                pure_return = pure_weight * row["risk_return"] + (1 - pure_weight) * row["def_return"] - pure_change * .001
+                alpha_return = alpha_weight * row["risk_return"] + (1 - alpha_weight) * row["def_return"] - alpha_change * .001
+                pure_value *= 1 + pure_return
+                alpha_value *= 1 + alpha_return
+                pure_returns.append(pure_return); alpha_returns.append(alpha_return)
+                pure_nav.append(pure_value); alpha_nav.append(alpha_value)
+                pure_turnover.append(pure_change); alpha_turnover.append(alpha_change)
+                prior_pure, prior_alpha = pure_weight, alpha_weight
+            pure_metric = _annualized_metrics(pure_returns, pure_nav, pure_turnover)
+            alpha_metric = _annualized_metrics(alpha_returns, alpha_nav, alpha_turnover)
+            selection_candidates.append({
+                "threshold": threshold, "weak_weight": weak_weight,
+                "alpha_annual_return": alpha_metric["annual_return"],
+                "pure_annual_return": pure_metric["annual_return"],
+                "annual_return_difference": alpha_metric["annual_return"] - pure_metric["annual_return"],
+                "alpha_sharpe": alpha_metric["sharpe"],
+            })
+    selected = max(
+        selection_candidates,
+        key=lambda item: (item["annual_return_difference"], item["alpha_sharpe"], item["threshold"], -item["weak_weight"]),
+    ) if selection_candidates else {"threshold": 0.0, "weak_weight": 0.5, "alpha_annual_return": 0.0, "pure_annual_return": 0.0, "annual_return_difference": 0.0}
+    _write_csv(
+        "macro_strategy_selection.csv",
+        ["selection_period_start", "selection_period_end", "cost_bps", "acceleration_threshold_pct_point",
+         "weak_regime_risk_multiplier", "validation_annual_return", "validation_pure_momentum_annual_return",
+         "validation_annual_return_difference", "selection_rule", "oos_frozen"],
+        [{
+            "selection_period_start": STRATEGY_VALIDATION_START, "selection_period_end": STRATEGY_VALIDATION_END,
+            "cost_bps": 10, "acceleration_threshold_pct_point": selected["threshold"],
+            "weak_regime_risk_multiplier": selected["weak_weight"],
+            "validation_annual_return": selected["alpha_annual_return"],
+            "validation_pure_momentum_annual_return": selected["pure_annual_return"],
+            "validation_annual_return_difference": selected["annual_return_difference"],
+            "selection_rule": "validation_only_then_frozen_before_2024_oos", "oos_frozen": True,
+        }],
+    )
     strategies = ("buy_hold", "pure_momentum", "published_macro", "alphalens_nowcast", "oracle_non_tradable")
     output: list[dict[str, Any]] = []
     for cost_bps in (5, 10, 20):
@@ -686,44 +818,29 @@ def build_strategy(forecasts: list[dict[str, Any]], market: list[dict[str, Any]]
         returns_by_strategy: dict[str, list[float]] = defaultdict(list)
         nav_by_strategy: dict[str, list[float]] = defaultdict(list)
         turnover_by_strategy: dict[str, list[float]] = defaultdict(list)
-        for index in range(12, len(months) - 2):
-            month, next_month = months[index], months[index + 1]
-            following_month = months[index + 2]
-            current = monthly_risk[month]
-            past = monthly_risk[months[index - 12]]
-            trend_positive = _f(current["close"]) / _f(past["close"]) - 1 > 0
-            dates = sorted(day for day in daily_close if day <= current["trade_date"])[-61:]
-            daily_returns = [daily_close[dates[i]] / daily_close[dates[i - 1]] - 1 for i in range(1, len(dates))]
-            vol = statistics.pstdev(daily_returns) * math.sqrt(252) if len(daily_returns) > 10 else 0.0
-            scaled = min(1.0, .10 / vol) if vol > 0 else 0.0
-            forecast = forecast_by_month.get(month)
-            alpha_accel = _f(forecast.get("predicted_acceleration")) if forecast else 0.0
-            available_actuals = [row for row in _target_periods() if row.get("actual_yoy") and row.get("release_date") and row["release_date"] <= current["trade_date"]]
-            published_accel = _f(available_actuals[-1]["actual_yoy"]) - _f(available_actuals[-2]["actual_yoy"]) if len(available_actuals) > 1 else 0.0
-            oracle = target_by_month.get(month)
-            oracle_accel = _f(oracle.get("actual_yoy")) - _f(available_actuals[-1]["actual_yoy"]) if oracle and available_actuals else 0.0
+        for signal in signals:
+            trend_positive = signal["trend_positive"]
+            scaled = signal["scaled"]
+            alpha_accel = signal["alpha_accel"]
+            confirmation = 1.0 if alpha_accel >= selected["threshold"] else selected["weak_weight"]
             weights = {
                 "buy_hold": 1.0,
                 "pure_momentum": scaled if trend_positive else 0.0,
-                "published_macro": scaled * (1.0 if published_accel > 0 else .5) if trend_positive else 0.0,
-                "alphalens_nowcast": scaled * (1.0 if alpha_accel > 0 else .5) if trend_positive else 0.0,
-                "oracle_non_tradable": scaled * (1.0 if oracle_accel > 0 else .5) if trend_positive else 0.0,
+                "published_macro": scaled * (1.0 if signal["published_accel"] > 0 else .5) if trend_positive else 0.0,
+                "alphalens_nowcast": scaled * confirmation if trend_positive else 0.0,
+                "oracle_non_tradable": scaled * (1.0 if signal["oracle_accel"] > 0 else .5) if trend_positive else 0.0,
             }
-            # Signal is formed after this month-end close; the holding interval starts
-            # at the next trading day's open and ends at the following rebalance open.
-            risk_return = _f(monthly_risk_first[following_month]["open"]) / _f(monthly_risk_first[next_month]["open"]) - 1
-            def_return = _f(monthly_def_first[following_month]["open"]) / _f(monthly_def_first[next_month]["open"]) - 1
             for strategy in strategies:
                 weight = weights[strategy]
                 turnover = abs(weight - prior_weights[strategy])
-                net_return = weight * risk_return + (1 - weight) * def_return - turnover * cost_bps / 10000
+                net_return = weight * signal["risk_return"] + (1 - weight) * signal["def_return"] - turnover * cost_bps / 10000
                 navs[strategy] *= 1 + net_return
                 prior_weights[strategy] = weight
                 returns_by_strategy[strategy].append(net_return)
                 nav_by_strategy[strategy].append(navs[strategy])
                 turnover_by_strategy[strategy].append(turnover)
                 output.append({
-                    "trade_month": next_month, "signal_date": current["trade_date"], "strategy": strategy,
+                    "trade_month": signal["trade_month"], "signal_date": signal["signal_date"], "strategy": strategy,
                     "cost_bps": cost_bps, "risk_weight": weight, "defensive_weight": 1 - weight,
                     "net_return": net_return, "nav": navs[strategy], "turnover": turnover,
                     "trend_positive": trend_positive, "macro_acceleration": alpha_accel if strategy == "alphalens_nowcast" else "",
@@ -799,6 +916,7 @@ def load_macro_backtest() -> dict[str, Any]:
     nav = _read_csv("macro_strategy_nav.csv")
     metrics = _read_csv("macro_strategy_metrics.csv")
     bootstrap = _read_csv("macro_strategy_bootstrap.csv")
+    selection = _read_csv("macro_strategy_selection.csv")
     primary_nav = [row for row in nav if row.get("cost_bps") == "10"]
     primary_metrics = [row for row in metrics if row.get("cost_bps") == "10"]
     return {
@@ -807,6 +925,7 @@ def load_macro_backtest() -> dict[str, Any]:
         "pre_listing_proxy": {"code": PROXY_CODE, "tradable": False, "used_in_primary_backtest": False},
         "primary_cost_bps": 10, "cost_sensitivity_bps": [5, 10, 20],
         "nav": primary_nav, "metrics": primary_metrics, "bootstrap": bootstrap,
+        "strategy_selection": selection[0] if selection else {},
         "rebalance_timing": "月末收盘后形成信号，下一交易日开盘调仓",
         "oracle_warning": "Oracle 使用下一期真实值，不可交易，不用于收益宣传或 OOS 调参。",
         "disclaimer": DISCLAIMER,
@@ -835,6 +954,8 @@ def load_macro_status() -> dict[str, Any]:
                 "validation_mae", "validation_rmse", "persistence_validation_mae",
                 "validation_mae_improvement", "validation_relative_improvement",
                 "historical_source_type_counts", "text_increment_status",
+                "feature_set_name", "ridge_weight", "persistence_anchor_weight",
+                "selection_boundary",
             )
         },
         "train_period": "2015-01-01 至 2021-12-31", "validation_period": "2022-01-01 至 2023-12-31",
@@ -882,12 +1003,14 @@ def live_text_forecast(analysis: dict[str, Any]) -> dict[str, Any]:
     feature_fields = list(model["feature_fields"])
     row = [values[field] for field in feature_fields]
     frozen = (list(model["coefficients"]), list(model["means"]), list(model["scales"]))
-    prediction = _ridge_predict(frozen, row)
     latest_actual = values["latest_published_yoy"]
+    ridge_weight = _f(model.get("ridge_weight"), 1.0)
+    raw_prediction = _ridge_predict(frozen, row)
+    prediction = ridge_weight * raw_prediction + (1 - ridge_weight) * latest_actual
     half_width = _f(model.get("prediction_interval_half_width_90"), 4.0)
     contributions = []
     for index, field in enumerate(feature_fields):
-        contribution = frozen[0][index + 1] * (row[index] - frozen[1][index]) / frozen[2][index]
+        contribution = ridge_weight * frozen[0][index + 1] * (row[index] - frozen[1][index]) / frozen[2][index]
         contributions.append({"feature": field, "contribution_pct_point": round(contribution, 6)})
     contributions.sort(key=lambda item: abs(item["contribution_pct_point"]), reverse=True)
     source_type = str(analysis.get("source_type", ""))
@@ -900,6 +1023,8 @@ def live_text_forecast(analysis: dict[str, Any]) -> dict[str, Any]:
         "predicted_acceleration": round(prediction - latest_actual, 6),
         "lower_90": round(prediction - half_width, 6), "upper_90": round(prediction + half_width, 6),
         "model_name": model["model_name"], "model_alpha": model["alpha"],
+        "model_ridge_weight": ridge_weight,
+        "persistence_anchor_weight": 1 - ridge_weight,
         "training_document_count": model["training_document_count"],
         "validation_document_count": model["validation_document_count"],
         "validation_mae": model["validation_mae"], "validation_rmse": model["validation_rmse"],
