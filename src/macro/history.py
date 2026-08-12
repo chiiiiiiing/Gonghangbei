@@ -1,4 +1,4 @@
-"""Verified official historical corpus for the single-text prediction layer.
+"""Verified official historical corpus for the monthly Nowcast layer.
 
 The corpus combines NBS release pages referenced by ``macro_target_history.csv``
 with a curated manifest of official energy and industrial policy pages. Each

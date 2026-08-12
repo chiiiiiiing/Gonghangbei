@@ -43,6 +43,7 @@ FEATURE_FIELDS = [
     "wind_exposure", "factor_mean", "factor_p25", "factor_median", "factor_p75",
     "factor_std", "factor_positive_rate", "ai_annotation_coverage",
     "fulltext_completeness_rate", "coverage_status",
+    *[f"predicate_{name}" for name in PREDICATE_COLUMNS],
 ]
 
 MODEL_NAMES = ("persistence", "seasonal", "ar1", "no_text_ridge", "ridge_text", "elastic_net_text")
@@ -73,8 +74,21 @@ SINGLE_TEXT_AUDIT_FIELDS = [
 ]
 STRATEGY_VALIDATION_START = "2022-01-01"
 STRATEGY_VALIDATION_END = "2023-12-31"
-STRATEGY_THRESHOLD_CANDIDATES = (-1.0, 0.0)
-STRATEGY_WEAK_WEIGHT_CANDIDATES = (0.0, 0.5)
+MONTHLY_NOWCAST_FEATURE_SETS = {
+    "audit_predicates_state": [
+        "document_count", "unique_source_count", "event_count", "stock_count",
+        "avg_predicate_confidence", "avg_event_evidence", "avg_entity_confidence",
+        *[f"predicate_{name}" for name in PREDICATE_COLUMNS],
+    ],
+    "audit_counts": [
+        "document_count", "unique_source_count", "event_count", "stock_count",
+        "true_predicate_count", "positive_predicate_rate", "avg_predicate_confidence",
+        "avg_event_evidence", "avg_entity_confidence", "qualified_rule_hits",
+        "rule_supporting_document_count", "policy_count", "announcement_count",
+        "news_count", "ir_qa_count", "battery_exposure", "solar_exposure",
+        "storage_exposure", "grid_exposure", "wind_exposure", "ai_annotation_coverage",
+    ],
+}
 
 
 def _read_csv(name: str) -> list[dict[str, str]]:
@@ -260,6 +274,13 @@ def aggregate_monthly_features() -> list[dict[str, Any]]:
         }
         for field, keywords in topic_patterns.items():
             row[field] = sum(any(keyword in text_by_doc[doc_id] for keyword in keywords) for doc_id in doc_ids)
+        monthly_predicate_values: dict[str, list[float]] = defaultdict(list)
+        for predicate in period_predicates:
+            raw = predicate.get("value", "").lower()
+            if raw in {"true", "false"}:
+                monthly_predicate_values[predicate.get("predicate_name", "")].append(1.0 if raw == "true" else 0.0)
+        for name in PREDICATE_COLUMNS:
+            row[f"predicate_{name}"] = _mean(monthly_predicate_values.get(name, []))
         output.append(row)
     _write_csv("macro_monthly_features.csv", FEATURE_FIELDS, output)
     return output
@@ -301,6 +322,15 @@ def _ridge_fit(x: list[list[float]], y: list[float], alpha: float) -> tuple[list
 def _ridge_predict(model: tuple[list[float], list[float], list[float]], row: list[float]) -> float:
     coefficients, means, scales = model
     return coefficients[0] + sum(coefficients[j + 1] * (row[j] - means[j]) / scales[j] for j in range(len(row)))
+
+
+def _ridge_predict_clipped(
+    model: tuple[list[float], list[float], list[float]], row: list[float], z_limit: float = 3.0,
+) -> float:
+    """Predict after clipping standardized features to control OOS extrapolation."""
+    coefficients, means, scales = model
+    standardized = [max(-z_limit, min(z_limit, (row[j] - means[j]) / scales[j])) for j in range(len(row))]
+    return coefficients[0] + sum(coefficients[j + 1] * standardized[j] for j in range(len(row)))
 
 
 def _elastic_net_fit(
@@ -543,16 +573,126 @@ def _model_predictions(history_rows: list[dict[str, Any]], current_feature: dict
     }
 
 
+def _monthly_model_rows(features: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Create one release-date-safe observation per official target month."""
+    feature_by_end = {row["period_end"]: row for row in features}
+    targets = _target_periods()
+    known = [{**row, **feature_by_end.get(row["period_end"], {})} for row in targets if row.get("actual_yoy")]
+    rows: list[dict[str, Any]] = []
+    for target in targets:
+        if not target.get("actual_yoy"):
+            continue
+        as_of = target["period_end"]
+        feature = feature_by_end.get(as_of, {field: 0 for field in FEATURE_FIELDS})
+        available = [row for row in known if row.get("release_date") and row["release_date"] <= as_of]
+        if len(available) < 12:
+            continue
+        no_text_prediction = _model_predictions(available, feature)["no_text_ridge"]
+        rows.append({
+            "period_end": as_of, "split": _split(as_of), "feature": feature,
+            "actual_yoy": _f(target["actual_yoy"]), "no_text_prediction": no_text_prediction,
+            "target_release_date": target.get("release_date", ""),
+        })
+    return rows
+
+
+def build_monthly_nowcast_model(features: list[dict[str, Any]]) -> dict[str, Any]:
+    """Fit text evidence to the residual of the frozen no-text monthly baseline.
+
+    Each official month contributes at most one row.  A small feature/alpha/weight
+    grid is chosen on 2022--2023 validation MAE and frozen before 2024 OOS.
+    """
+    rows = _monthly_model_rows(features)
+    train = [row for row in rows if row["split"] == "train" and _f(row["feature"].get("document_count")) > 0]
+    validation = [row for row in rows if row["split"] == "validation" and _f(row["feature"].get("document_count")) > 0]
+    candidates: list[dict[str, Any]] = []
+    no_text_errors = [row["no_text_prediction"] - row["actual_yoy"] for row in validation]
+    increment_cap = _mean([abs(error) for error in no_text_errors]) or 3.0
+    for feature_set_name, fields in MONTHLY_NOWCAST_FEATURE_SETS.items():
+        train_x = [[_f(row["feature"].get(field)) for field in fields] for row in train]
+        train_y = [row["actual_yoy"] - row["no_text_prediction"] for row in train]
+        for alpha in (10.0, 20.0, 50.0, 100.0, 200.0):
+            model = _ridge_fit(train_x, train_y, alpha)
+            residual_predictions = [
+                _ridge_predict_clipped(model, [_f(row["feature"].get(field)) for field in fields])
+                for row in validation
+            ]
+            for text_weight in (0.25, 0.50, 0.75, 1.00):
+                errors = [
+                    row["no_text_prediction"]
+                    + max(-increment_cap, min(increment_cap, text_weight * residual))
+                    - row["actual_yoy"]
+                    for row, residual in zip(validation, residual_predictions)
+                ]
+                candidates.append({
+                    "feature_set_name": feature_set_name, "feature_fields": fields,
+                    "alpha": alpha, "text_weight": text_weight, "model": model,
+                    "validation_mae": _mean([abs(error) for error in errors]),
+                    "validation_rmse": math.sqrt(_mean([error * error for error in errors])) if errors else 0.0,
+                })
+    selected = min(
+        candidates,
+        key=lambda item: (item["validation_mae"], item["validation_rmse"], len(item["feature_fields"])),
+    )
+    validation_errors = [
+        row["no_text_prediction"]
+        + max(-increment_cap, min(increment_cap, selected["text_weight"] * _ridge_predict_clipped(
+            selected["model"], [_f(row["feature"].get(field)) for field in selected["feature_fields"]],
+        )))
+        - row["actual_yoy"]
+        for row in validation
+    ]
+    payload = {
+        "model_name": "monthly_text_residual_ridge", "alpha": selected["alpha"],
+        "feature_set_name": selected["feature_set_name"],
+        "feature_fields": list(selected["feature_fields"]), "text_weight": selected["text_weight"],
+        "coefficients": selected["model"][0], "means": selected["model"][1], "scales": selected["model"][2],
+        "training_month_count": len(train), "validation_month_count": len(validation),
+        "training_period": "2015-01-01 至 2021-12-31", "validation_period": "2022-01-01 至 2023-12-31",
+        "validation_mae": selected["validation_mae"], "validation_rmse": selected["validation_rmse"],
+        "no_text_validation_mae": _mean([abs(error) for error in no_text_errors]),
+        "validation_mae_improvement": _mean([abs(error) for error in no_text_errors]) - selected["validation_mae"],
+        "text_increment_cap": increment_cap, "standardized_feature_clip": 3.0,
+        "prediction_interval_half_width_90": _quantile([abs(error) for error in validation_errors], .9),
+        "selection_boundary": "月度特征集、Ridge正则与文本残差权重只使用2022—2023验证期选择，2024年起冻结。",
+        "unit_of_observation": "one_unique_month_after_document_deduplication",
+    }
+    (SAMPLE_DIR / "macro_monthly_nowcast_model.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+    )
+    _write_csv(
+        "macro_monthly_nowcast_metrics.csv",
+        ["model", "training_month_count", "validation_month_count", "validation_mae", "validation_rmse",
+         "no_text_validation_mae", "validation_mae_improvement", "text_weight"],
+        [{"model": payload["model_name"], **payload}],
+    )
+    return payload
+
+
+def _monthly_text_prediction(model: dict[str, Any], feature: dict[str, Any], no_text_prediction: float) -> tuple[float, float]:
+    fields = list(model["feature_fields"])
+    row = [_f(feature.get(field)) for field in fields]
+    frozen = (list(model["coefficients"]), list(model["means"]), list(model["scales"]))
+    increment = _f(model.get("text_weight"), 1.0) * _ridge_predict_clipped(
+        frozen, row, _f(model.get("standardized_feature_clip"), 3.0),
+    )
+    cap = _f(model.get("text_increment_cap"), 3.0)
+    if int(_f(feature.get("document_count"))) <= 0:
+        increment = 0.0
+    else:
+        increment = max(-cap, min(cap, increment))
+    return no_text_prediction + increment, increment
+
+
 def build_forecasts(features: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    model_path = SAMPLE_DIR / "macro_monthly_nowcast_model.json"
+    monthly_model = json.loads(model_path.read_text(encoding="utf-8")) if model_path.exists() else build_monthly_nowcast_model(features)
     targets = _target_periods()
     feature_by_end = {row["period_end"]: row for row in features}
     known = [{**row, **feature_by_end.get(row["period_end"], {})} for row in targets if row.get("actual_yoy")]
     forecast_rows: list[dict[str, Any]] = []
     prediction_records: list[dict[str, Any]] = []
     validation_records: list[dict[str, Any]] = []
-    eligible_models = ("persistence", "seasonal", "ar1", "no_text_ridge")
-    selected_model = "no_text_ridge"
-    frozen_oos_model = ""
     for target in targets:
         as_of = target["period_end"]
         feature = feature_by_end.get(as_of, {field: 0 for field in FEATURE_FIELDS})
@@ -562,26 +702,14 @@ def build_forecasts(features: list[dict[str, Any]]) -> list[dict[str, Any]]:
             continue
         predictions = _model_predictions(available, feature)
         actual = target.get("actual_yoy", "")
-        released_validation = [row for row in validation_records if row["release_date"] <= as_of]
-        validation_errors = {
-            name: [row["errors"][name] for row in released_validation]
-            for name in eligible_models
-        }
         split = _split(as_of)
-        if split == "validation" and released_validation:
-            selected_model = min(eligible_models, key=lambda name: _mean(validation_errors[name]))
-        elif split == "oos":
-            if not frozen_oos_model:
-                frozen_oos_model = min(
-                    eligible_models,
-                    key=lambda name: _mean(validation_errors[name]) if validation_errors[name] else float("inf"),
-                )
-            selected_model = frozen_oos_model
+        no_text_prediction = predictions["no_text_ridge"]
+        text_prediction, text_increment = _monthly_text_prediction(monthly_model, feature, no_text_prediction)
         if as_of >= "2022-01-01":
-            chosen = predictions[selected_model]
+            chosen = text_prediction
             prior_actual = _f(available[-1]["actual_yoy"])
             released_residuals = [
-                row["residuals"][selected_model]
+                row["residuals"]["monthly_text_residual_ridge"]
                 for row in prediction_records
                 if row["release_date"] <= as_of
             ]
@@ -591,8 +719,9 @@ def build_forecasts(features: list[dict[str, Any]]) -> list[dict[str, Any]]:
             text_status = "evaluated" if text_train_count >= TEXT_MIN_TRAIN_MONTHS and text_validation_count >= TEXT_MIN_VALIDATION_MONTHS else "insufficient_history"
             forecast_rows.append({
                 "as_of_date": as_of, "target_period_start": target["period_start"],
-                "target_period_end": as_of, "split": split, "selected_model": selected_model,
+                "target_period_end": as_of, "split": split, "selected_model": "monthly_text_residual_ridge",
                 "predicted_yoy": chosen, "actual_yoy": actual, "latest_published_yoy": prior_actual,
+                "no_text_predicted_yoy": no_text_prediction, "text_prediction_increment": text_increment,
                 "predicted_acceleration": chosen - prior_actual, "lower_90": chosen - width,
                 "upper_90": chosen + width, "text_document_count": int(_f(feature.get("document_count"))),
                 "text_train_period_count": text_train_count, "text_validation_period_count": text_validation_count,
@@ -603,15 +732,18 @@ def build_forecasts(features: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if actual and release_date:
             record = {
                 "release_date": release_date,
-                "errors": {name: abs(value - _f(actual)) for name, value in predictions.items()},
-                "residuals": {name: _f(actual) - value for name, value in predictions.items()},
+                "errors": {**{name: abs(value - _f(actual)) for name, value in predictions.items()},
+                           "monthly_text_residual_ridge": abs(text_prediction - _f(actual))},
+                "residuals": {**{name: _f(actual) - value for name, value in predictions.items()},
+                              "monthly_text_residual_ridge": _f(actual) - text_prediction},
             }
             prediction_records.append(record)
             if split == "validation":
                 validation_records.append(record)
     fields = [
         "as_of_date", "target_period_start", "target_period_end", "split", "selected_model",
-        "predicted_yoy", "actual_yoy", "latest_published_yoy", "predicted_acceleration",
+        "predicted_yoy", "actual_yoy", "latest_published_yoy", "no_text_predicted_yoy",
+        "text_prediction_increment", "predicted_acceleration",
         "lower_90", "upper_90", "text_document_count", "text_train_period_count",
         "text_validation_period_count", "text_increment_status", "evidence_status",
         "target_release_date", "is_oos",
@@ -626,6 +758,7 @@ def _write_forecast_metrics(rows: list[dict[str, Any]]) -> None:
     for split in ("validation", "oos"):
         samples = [row for row in rows if row["split"] == split and str(row.get("actual_yoy", "")) != ""]
         errors = [_f(row["predicted_yoy"]) - _f(row["actual_yoy"]) for row in samples]
+        no_text_errors = [_f(row["no_text_predicted_yoy"]) - _f(row["actual_yoy"]) for row in samples]
         actuals = [_f(row["actual_yoy"]) for row in samples]
         baseline = [_f(row["latest_published_yoy"]) for row in samples]
         denominator = sum((actual - prior) ** 2 for actual, prior in zip(actuals, baseline))
@@ -644,9 +777,19 @@ def _write_forecast_metrics(rows: list[dict[str, Any]]) -> None:
             "oos_r2": 1 - sum(error * error for error in errors) / denominator if denominator else 0.0,
             "acceleration_direction_accuracy": _mean([float(value) for value in direction]),
             "interval_coverage_90": _mean([float(value) for value in coverage]),
+            "no_text_mae": _mean([abs(error) for error in no_text_errors]),
+            "mae_improvement_vs_no_text": (
+                _mean([abs(error) for error in no_text_errors]) - _mean([abs(error) for error in errors])
+            ),
             "text_increment_status": samples[-1]["text_increment_status"] if samples else "insufficient_history",
         })
-    _write_csv("macro_forecast_metrics.csv", ["split", "model", "sample_count", "mae", "rmse", "oos_r2", "acceleration_direction_accuracy", "interval_coverage_90", "text_increment_status"], metrics)
+    _write_csv(
+        "macro_forecast_metrics.csv",
+        ["split", "model", "sample_count", "mae", "rmse", "oos_r2",
+         "acceleration_direction_accuracy", "interval_coverage_90", "no_text_mae",
+         "mae_improvement_vs_no_text", "text_increment_status"],
+        metrics,
+    )
 
 
 def ensure_market_data() -> list[dict[str, Any]]:
@@ -712,7 +855,6 @@ def build_strategy(forecasts: list[dict[str, Any]], market: list[dict[str, Any]]
     defensive = by_code.get(DEFENSIVE_CODE, [])
     if not risk or not defensive:
         return []
-    daily_close = {row["trade_date"]: _f(row["close"]) for row in risk}
     monthly_risk: dict[str, dict[str, Any]] = {}
     monthly_def: dict[str, dict[str, Any]] = {}
     monthly_risk_first: dict[str, dict[str, Any]] = {}
@@ -725,31 +867,22 @@ def build_strategy(forecasts: list[dict[str, Any]], market: list[dict[str, Any]]
         monthly_def[row["trade_date"][:7]] = row
     months = sorted(set(monthly_risk) & set(monthly_def))
     forecast_by_month = {row["target_period_end"][:7]: row for row in forecasts}
-    target_by_month = {row["period_end"][:7]: row for row in _target_periods() if row.get("actual_yoy")}
     signals: list[dict[str, Any]] = []
-    for index in range(12, len(months) - 2):
+    for index in range(len(months) - 2):
         month, next_month = months[index], months[index + 1]
         following_month = months[index + 2]
         current = monthly_risk[month]
-        past = monthly_risk[months[index - 12]]
-        trend_positive = _f(current["close"]) / _f(past["close"]) - 1 > 0
-        dates = sorted(day for day in daily_close if day <= current["trade_date"])[-61:]
-        daily_returns = [daily_close[dates[i]] / daily_close[dates[i - 1]] - 1 for i in range(1, len(dates))]
-        vol = statistics.pstdev(daily_returns) * math.sqrt(252) if len(daily_returns) > 10 else 0.0
-        scaled = min(1.0, .10 / vol) if vol > 0 else 0.0
         forecast = forecast_by_month.get(month)
-        alpha_accel = _f(forecast.get("predicted_acceleration")) if forecast else 0.0
-        available_actuals = [
-            row for row in _target_periods()
-            if row.get("actual_yoy") and row.get("release_date") and row["release_date"] <= current["trade_date"]
-        ]
-        published_accel = _f(available_actuals[-1]["actual_yoy"]) - _f(available_actuals[-2]["actual_yoy"]) if len(available_actuals) > 1 else 0.0
-        oracle = target_by_month.get(month)
-        oracle_accel = _f(oracle.get("actual_yoy")) - _f(available_actuals[-1]["actual_yoy"]) if oracle and available_actuals else 0.0
+        if not forecast:
+            continue
+        no_text_yoy = _f(forecast.get("no_text_predicted_yoy"))
+        text_yoy = _f(forecast.get("predicted_yoy"))
+        latest_yoy = _f(forecast.get("latest_published_yoy"))
+        text_increment = text_yoy - no_text_yoy
         signals.append({
             "signal_month": month, "trade_month": next_month, "signal_date": current["trade_date"],
-            "trend_positive": trend_positive, "scaled": scaled, "alpha_accel": alpha_accel,
-            "published_accel": published_accel, "oracle_accel": oracle_accel,
+            "no_text_yoy": no_text_yoy, "text_yoy": text_yoy, "latest_yoy": latest_yoy,
+            "no_text_acceleration": no_text_yoy - latest_yoy, "text_increment": text_increment,
             "risk_return": _f(monthly_risk_first[following_month]["open"]) / _f(monthly_risk_first[next_month]["open"]) - 1,
             "def_return": _f(monthly_def_first[following_month]["open"]) / _f(monthly_def_first[next_month]["open"]) - 1,
         })
@@ -757,60 +890,20 @@ def build_strategy(forecasts: list[dict[str, Any]], market: list[dict[str, Any]]
     validation_signals = [
         row for row in signals if STRATEGY_VALIDATION_START <= row["signal_date"] <= STRATEGY_VALIDATION_END
     ]
-    selection_candidates: list[dict[str, float]] = []
-    for threshold in STRATEGY_THRESHOLD_CANDIDATES:
-        for weak_weight in STRATEGY_WEAK_WEIGHT_CANDIDATES:
-            pure_returns: list[float] = []
-            alpha_returns: list[float] = []
-            pure_nav: list[float] = []
-            alpha_nav: list[float] = []
-            pure_turnover: list[float] = []
-            alpha_turnover: list[float] = []
-            pure_value = alpha_value = 1.0
-            prior_pure = prior_alpha = 0.0
-            for row in validation_signals:
-                pure_weight = row["scaled"] if row["trend_positive"] else 0.0
-                confirmation = 1.0 if row["alpha_accel"] >= threshold else weak_weight
-                alpha_weight = pure_weight * confirmation
-                pure_change = abs(pure_weight - prior_pure)
-                alpha_change = abs(alpha_weight - prior_alpha)
-                pure_return = pure_weight * row["risk_return"] + (1 - pure_weight) * row["def_return"] - pure_change * .001
-                alpha_return = alpha_weight * row["risk_return"] + (1 - alpha_weight) * row["def_return"] - alpha_change * .001
-                pure_value *= 1 + pure_return
-                alpha_value *= 1 + alpha_return
-                pure_returns.append(pure_return); alpha_returns.append(alpha_return)
-                pure_nav.append(pure_value); alpha_nav.append(alpha_value)
-                pure_turnover.append(pure_change); alpha_turnover.append(alpha_change)
-                prior_pure, prior_alpha = pure_weight, alpha_weight
-            pure_metric = _annualized_metrics(pure_returns, pure_nav, pure_turnover)
-            alpha_metric = _annualized_metrics(alpha_returns, alpha_nav, alpha_turnover)
-            selection_candidates.append({
-                "threshold": threshold, "weak_weight": weak_weight,
-                "alpha_annual_return": alpha_metric["annual_return"],
-                "pure_annual_return": pure_metric["annual_return"],
-                "annual_return_difference": alpha_metric["annual_return"] - pure_metric["annual_return"],
-                "alpha_sharpe": alpha_metric["sharpe"],
-            })
-    selected = max(
-        selection_candidates,
-        key=lambda item: (item["annual_return_difference"], item["alpha_sharpe"], item["threshold"], -item["weak_weight"]),
-    ) if selection_candidates else {"threshold": 0.0, "weak_weight": 0.5, "alpha_annual_return": 0.0, "pure_annual_return": 0.0, "annual_return_difference": 0.0}
+    validation_scale = statistics.pstdev([row["no_text_acceleration"] for row in validation_signals]) or 1.0
+    increment_scale = statistics.pstdev([row["text_increment"] for row in validation_signals]) or 1.0
     _write_csv(
         "macro_strategy_selection.csv",
-        ["selection_period_start", "selection_period_end", "cost_bps", "acceleration_threshold_pct_point",
-         "weak_regime_risk_multiplier", "validation_annual_return", "validation_pure_momentum_annual_return",
-         "validation_annual_return_difference", "selection_rule", "oos_frozen"],
+        ["selection_period_start", "selection_period_end", "cost_bps", "no_text_signal_scale",
+         "text_increment_scale", "base_risk_weight", "signal_amplitude", "selection_rule", "oos_frozen"],
         [{
             "selection_period_start": STRATEGY_VALIDATION_START, "selection_period_end": STRATEGY_VALIDATION_END,
-            "cost_bps": 10, "acceleration_threshold_pct_point": selected["threshold"],
-            "weak_regime_risk_multiplier": selected["weak_weight"],
-            "validation_annual_return": selected["alpha_annual_return"],
-            "validation_pure_momentum_annual_return": selected["pure_annual_return"],
-            "validation_annual_return_difference": selected["annual_return_difference"],
-            "selection_rule": "validation_only_then_frozen_before_2024_oos", "oos_frozen": True,
+            "cost_bps": 10, "no_text_signal_scale": validation_scale,
+            "text_increment_scale": increment_scale, "base_risk_weight": 0.5, "signal_amplitude": 0.5,
+            "selection_rule": "validation_error_scale_only_no_return_optimization", "oos_frozen": True,
         }],
     )
-    strategies = ("buy_hold", "pure_momentum", "published_macro", "alphalens_nowcast", "oracle_non_tradable")
+    strategies = ("no_yoy_balanced", "no_text_yoy", "alphalens_monthly_nowcast")
     output: list[dict[str, Any]] = []
     for cost_bps in (5, 10, 20):
         navs = {name: 1.0 for name in strategies}
@@ -819,16 +912,12 @@ def build_strategy(forecasts: list[dict[str, Any]], market: list[dict[str, Any]]
         nav_by_strategy: dict[str, list[float]] = defaultdict(list)
         turnover_by_strategy: dict[str, list[float]] = defaultdict(list)
         for signal in signals:
-            trend_positive = signal["trend_positive"]
-            scaled = signal["scaled"]
-            alpha_accel = signal["alpha_accel"]
-            confirmation = 1.0 if alpha_accel >= selected["threshold"] else selected["weak_weight"]
+            no_text_score = math.tanh(signal["no_text_acceleration"] / validation_scale)
+            text_increment_score = math.tanh(signal["text_increment"] / increment_scale)
             weights = {
-                "buy_hold": 1.0,
-                "pure_momentum": scaled if trend_positive else 0.0,
-                "published_macro": scaled * (1.0 if signal["published_accel"] > 0 else .5) if trend_positive else 0.0,
-                "alphalens_nowcast": scaled * confirmation if trend_positive else 0.0,
-                "oracle_non_tradable": scaled * (1.0 if signal["oracle_accel"] > 0 else .5) if trend_positive else 0.0,
+                "no_yoy_balanced": 0.5,
+                "no_text_yoy": max(0.0, min(1.0, 0.5 + 0.5 * no_text_score)),
+                "alphalens_monthly_nowcast": max(0.0, min(1.0, 0.5 + 0.5 * no_text_score + 0.5 * text_increment_score)),
             }
             for strategy in strategies:
                 weight = weights[strategy]
@@ -843,17 +932,23 @@ def build_strategy(forecasts: list[dict[str, Any]], market: list[dict[str, Any]]
                     "trade_month": signal["trade_month"], "signal_date": signal["signal_date"], "strategy": strategy,
                     "cost_bps": cost_bps, "risk_weight": weight, "defensive_weight": 1 - weight,
                     "net_return": net_return, "nav": navs[strategy], "turnover": turnover,
-                    "trend_positive": trend_positive, "macro_acceleration": alpha_accel if strategy == "alphalens_nowcast" else "",
-                    "tradable": strategy != "oracle_non_tradable",
+                    "no_text_predicted_yoy": signal["no_text_yoy"],
+                    "text_predicted_yoy": signal["text_yoy"],
+                    "text_prediction_increment": signal["text_increment"],
+                    # Compatibility-only columns retained from the former trend strategy.
+                    # They are not read by the new allocation rule.
+                    "trend_positive": False, "macro_acceleration": "", "tradable": True,
                 })
         metric_rows: list[dict[str, Any]] = []
         for strategy in strategies:
             metric = _annualized_metrics(returns_by_strategy[strategy], nav_by_strategy[strategy], turnover_by_strategy[strategy])
-            metric_rows.append({"strategy": strategy, "cost_bps": cost_bps, **metric, "sample_months": len(returns_by_strategy[strategy]), "tradable": strategy != "oracle_non_tradable"})
+            metric_rows.append({"strategy": strategy, "cost_bps": cost_bps, **metric, "sample_months": len(returns_by_strategy[strategy]), "tradable": True})
         existing = _read_csv("macro_strategy_metrics.csv") if cost_bps != 5 else []
         metric_fields = ["strategy", "cost_bps", "annual_return", "annual_volatility", "sharpe", "calmar", "max_drawdown", "monthly_win_rate", "annual_turnover", "sample_months", "tradable"]
         _write_csv("macro_strategy_metrics.csv", metric_fields, [*existing, *metric_rows])
-    fields = ["trade_month", "signal_date", "strategy", "cost_bps", "risk_weight", "defensive_weight", "net_return", "nav", "turnover", "trend_positive", "macro_acceleration", "tradable"]
+    fields = ["trade_month", "signal_date", "strategy", "cost_bps", "risk_weight", "defensive_weight",
+              "net_return", "nav", "turnover", "trend_positive", "macro_acceleration", "tradable",
+              "no_text_predicted_yoy", "text_predicted_yoy", "text_prediction_increment"]
     _write_csv("macro_strategy_nav.csv", fields, output)
     _write_strategy_bootstrap(output)
     return output
@@ -861,10 +956,10 @@ def build_strategy(forecasts: list[dict[str, Any]], market: list[dict[str, Any]]
 
 def _write_strategy_bootstrap(rows: list[dict[str, Any]]) -> None:
     primary = [row for row in rows if int(row["cost_bps"]) == 10]
-    alpha = {row["trade_month"]: _f(row["net_return"]) for row in primary if row["strategy"] == "alphalens_nowcast"}
-    trend = {row["trade_month"]: _f(row["net_return"]) for row in primary if row["strategy"] == "pure_momentum"}
-    months = sorted(set(alpha) & set(trend))
-    differences = [alpha[month] - trend[month] for month in months]
+    alpha = {row["trade_month"]: _f(row["net_return"]) for row in primary if row["strategy"] == "alphalens_monthly_nowcast"}
+    baseline = {row["trade_month"]: _f(row["net_return"]) for row in primary if row["strategy"] == "no_text_yoy"}
+    months = sorted(set(alpha) & set(baseline))
+    differences = [alpha[month] - baseline[month] for month in months]
     rng = random.Random(20260810)
     boot: list[float] = []
     block = 3
@@ -877,7 +972,7 @@ def _write_strategy_bootstrap(rows: list[dict[str, Any]]) -> None:
             boot.append(_mean(sample[:len(differences)]) * 12)
     observed = _mean(differences) * 12 if differences else 0.0
     rows_out = [{
-        "comparison": "alphalens_nowcast_minus_pure_momentum", "cost_bps": 10,
+        "comparison": "alphalens_monthly_nowcast_minus_no_text_yoy", "cost_bps": 10,
         "sample_months": len(differences), "block_months": block, "bootstrap_iterations": len(boot),
         "annualized_net_return_difference": observed, "ci_lower_95": _quantile(boot, .025),
         "ci_upper_95": _quantile(boot, .975),
@@ -888,14 +983,14 @@ def _write_strategy_bootstrap(rows: list[dict[str, Any]]) -> None:
 
 def build_macro_outputs() -> None:
     features = aggregate_monthly_features()
-    single_text_model = build_single_text_model()
+    monthly_model = build_monthly_nowcast_model(features)
     forecasts = build_forecasts(features)
     market = ensure_market_data()
     strategy = build_strategy(forecasts, market)
     print(
         f"宏观层完成：{len(features)} 期特征，{len(forecasts)} 期预测，"
-        f"单文本模型训练/验证 {single_text_model['training_document_count']}/"
-        f"{single_text_model['validation_document_count']} 篇，{len(strategy)} 条策略净值记录"
+        f"月度模型训练/验证 {monthly_model['training_month_count']}/"
+        f"{monthly_model['validation_month_count']} 期，{len(strategy)} 条策略净值记录"
     )
 
 
@@ -904,10 +999,15 @@ def load_macro_forecast() -> dict[str, Any]:
     metrics = _read_csv("macro_forecast_metrics.csv")
     features = _read_csv("macro_monthly_features.csv")
     latest = forecasts[-1] if forecasts else {}
+    oos_metric = next((row for row in metrics if row.get("split") == "oos"), {})
+    improvement = _f(oos_metric.get("mae_improvement_vs_no_text"))
     return {
         "target_name": TARGET_NAME, "latest": latest, "history": forecasts,
         "metrics": metrics, "latest_features": features[-1] if features else {},
-        "text_increment_conclusion": "文本预测增量不足" if latest.get("text_increment_status") != "evaluated" else "已进入冻结样本外评估",
+        "text_increment_conclusion": (
+            "冻结OOS文本预测增量已观察" if improvement > 0
+            else "冻结OOS文本预测增量不足"
+        ),
         "disclaimer": DISCLAIMER,
     }
 
@@ -927,7 +1027,8 @@ def load_macro_backtest() -> dict[str, Any]:
         "nav": primary_nav, "metrics": primary_metrics, "bootstrap": bootstrap,
         "strategy_selection": selection[0] if selection else {},
         "rebalance_timing": "月末收盘后形成信号，下一交易日开盘调仓",
-        "oracle_warning": "Oracle 使用下一期真实值，不可交易，不用于收益宣传或 OOS 调参。",
+        "strategy_description": "新能源ETF与5年期国债ETF的宏观预测差异配置；不使用价格趋势、不做空、不加杠杆。",
+        "comparison_boundary": "历史收益比较无同比信号、无文本同比模型与月度文本增强Nowcast；单篇新文本只展示预测和仓位边际变化，不伪造尚未发生的收益。",
         "disclaimer": DISCLAIMER,
     }
 
@@ -939,28 +1040,26 @@ def load_macro_status() -> dict[str, Any]:
     covered = sum(int(_f(row.get("document_count"))) > 0 for row in features)
     latest = forecasts[-1] if forecasts else {}
     historical_documents = _read_csv("macro_historical_documents.csv")
-    model_path = SAMPLE_DIR / "macro_single_text_model.json"
-    single_text_model = json.loads(model_path.read_text(encoding="utf-8")) if model_path.exists() else {}
+    model_path = SAMPLE_DIR / "macro_monthly_nowcast_model.json"
+    monthly_model = json.loads(model_path.read_text(encoding="utf-8")) if model_path.exists() else {}
     return {
         "version": (ROOT / "VERSION").read_text(encoding="utf-8").strip(),
         "target_name": TARGET_NAME, "target_observations": len(target),
         "target_period": {"start": target[0]["period_start"] if target else "", "end": target[-1]["period_end"] if target else ""},
         "feature_periods": len(features), "text_covered_periods": covered,
         "verified_historical_texts": len(historical_documents),
-        "single_text_model": {
-            key: single_text_model.get(key)
+        "monthly_nowcast_model": {
+            key: monthly_model.get(key)
             for key in (
-                "model_name", "training_document_count", "validation_document_count",
-                "validation_mae", "validation_rmse", "persistence_validation_mae",
-                "validation_mae_improvement", "validation_relative_improvement",
-                "historical_source_type_counts", "text_increment_status",
-                "feature_set_name", "ridge_weight", "persistence_anchor_weight",
-                "selection_boundary",
+                "model_name", "training_month_count", "validation_month_count",
+                "validation_mae", "validation_rmse", "no_text_validation_mae",
+                "validation_mae_improvement", "feature_set_name", "text_weight",
+                "selection_boundary", "unit_of_observation",
             )
         },
         "train_period": "2015-01-01 至 2021-12-31", "validation_period": "2022-01-01 至 2023-12-31",
         "oos_period": "2024-01-01 至最新", "latest_forecast": latest,
-        "evidence_warning": "单文本模型的验证误差未优于持久性基线，预测值可用于产业研究，但不能宣称文本增量。" if single_text_model.get("text_increment_status") != "validated_positive" else "",
+        "evidence_warning": "月度文本增强模型的独立OOS增量仍需持续积累，不能将验证改善包装成稳定预测能力。",
         "research_scope": "预测行业实体景气，不预测股票价格，不提供投资建议",
         "disclaimer": DISCLAIMER,
     }
@@ -977,75 +1076,136 @@ def _single_text_target_end(event_date: str) -> str:
     return end.isoformat()
 
 
+def _live_duplicate_status(analysis: dict[str, Any]) -> dict[str, Any]:
+    """Match a live item against the accepted corpus without exposing raw text."""
+    live_url = str(analysis.get("source_url", "")).strip().lower().split("#", 1)[0]
+    live_title = re.sub(r"\W+", "", str(analysis.get("document_title", ""))).lower()
+    for row in [*_read_csv("raw_documents.csv"), *_read_csv("macro_historical_documents.csv")]:
+        corpus_url = str(row.get("url", "")).strip().lower().split("#", 1)[0]
+        corpus_title = re.sub(r"\W+", "", str(row.get("title", ""))).lower()
+        if live_url and corpus_url == live_url:
+            return {"is_duplicate": True, "matched_doc_id": row.get("doc_id", ""), "matched_by": "canonical_url"}
+        if live_title and len(live_title) >= 12 and corpus_title == live_title:
+            return {"is_duplicate": True, "matched_doc_id": row.get("doc_id", ""), "matched_by": "normalized_title"}
+    return {"is_duplicate": False, "matched_doc_id": "", "matched_by": ""}
+
+
 def live_text_forecast(analysis: dict[str, Any]) -> dict[str, Any]:
-    """Predict the target YoY value from this new text and frozen history only."""
-    model_path = SAMPLE_DIR / "macro_single_text_model.json"
-    model = json.loads(model_path.read_text(encoding="utf-8")) if model_path.exists() else build_single_text_model()
+    """Show the marginal effect of one audited text on its monthly Nowcast."""
+    model_path = SAMPLE_DIR / "macro_monthly_nowcast_model.json"
+    features = _read_csv("macro_monthly_features.csv")
+    model = json.loads(model_path.read_text(encoding="utf-8")) if model_path.exists() else build_monthly_nowcast_model(features)
     event_date = str(analysis.get("event_time", date.today().isoformat()))
     target_end = _single_text_target_end(event_date)
     stocks = analysis.get("stock_results", [])
-    values = _single_text_base(
-        str(analysis.get("source_type", "news")), str(analysis.get("event_type", "attention_spread")),
-        event_date, target_end,
-    )
-    values["stock_count"] = float(len({stock.get("code") for stock in stocks}))
-    values["avg_event_evidence"] = _mean([
+    feature_by_end = {row["period_end"]: row for row in features}
+    before = {field: 0.0 for field in FEATURE_FIELDS}
+    before.update(feature_by_end.get(target_end, {}))
+    before["period_start"] = before.get("period_start") or target_end[:8] + "01"
+    before["period_end"] = target_end
+    before["split"] = _split(target_end)
+    latest_actual = _latest_actual_at(event_date, exclude_period_end=target_end)
+    known = [
+        {**row, **feature_by_end.get(row["period_end"], {})}
+        for row in _target_periods() if row.get("actual_yoy")
+    ]
+    available = [row for row in known if row.get("release_date") and row["release_date"] <= event_date]
+    if len(available) < 12:
+        no_text_prediction = latest_actual
+    else:
+        no_text_prediction = _model_predictions(available, before)["no_text_ridge"]
+    before_prediction, before_increment = _monthly_text_prediction(model, before, no_text_prediction)
+
+    after = dict(before)
+    before_docs = int(_f(before.get("document_count")))
+    duplicate_status = _live_duplicate_status(analysis)
+    is_duplicate = bool(duplicate_status["is_duplicate"])
+    added_docs = 0 if is_duplicate else 1
+    new_event_count = 0 if is_duplicate else max(1, len(stocks))
+    before_event_count = int(_f(before.get("event_count")))
+    after["document_count"] = before_docs + added_docs
+    after["unique_source_count"] = int(_f(before.get("unique_source_count"))) + added_docs
+    after["event_count"] = before_event_count + new_event_count
+    existing_stock_count = int(_f(before.get("stock_count")))
+    new_stock_count = 0 if is_duplicate else len({stock.get("code") for stock in stocks})
+    after["stock_count"] = new_stock_count + existing_stock_count
+    new_event_evidence = _mean([
         _f(stock.get("event", {}).get("evidence_strength", analysis.get("evidence_strength", 0)))
         for stock in stocks
     ])
-    values["avg_entity_confidence"] = _mean([_f(stock.get("confidence")) for stock in stocks])
+    new_entity_confidence = _mean([_f(stock.get("confidence")) for stock in stocks])
+    if not is_duplicate:
+        after["avg_event_evidence"] = (
+            _f(before.get("avg_event_evidence")) * before_event_count + new_event_evidence * new_event_count
+        ) / max(1, before_event_count + new_event_count)
+        after["avg_entity_confidence"] = (
+            _f(before.get("avg_entity_confidence")) * existing_stock_count + new_entity_confidence * new_stock_count
+        ) / max(1, existing_stock_count + new_stock_count)
     predicate_values: dict[str, list[float]] = defaultdict(list)
     for stock in stocks:
         for name, item in stock.get("predicate_fusion", {}).items():
             predicate_values[name].append(_f(item.get("fused")))
     for name in PREDICATE_COLUMNS:
-        values[f"predicate_{name}"] = _mean(predicate_values.get(name, []))
-    feature_fields = list(model["feature_fields"])
-    row = [values[field] for field in feature_fields]
-    frozen = (list(model["coefficients"]), list(model["means"]), list(model["scales"]))
-    latest_actual = values["latest_published_yoy"]
-    ridge_weight = _f(model.get("ridge_weight"), 1.0)
-    raw_prediction = _ridge_predict(frozen, row)
-    prediction = ridge_weight * raw_prediction + (1 - ridge_weight) * latest_actual
+        field = f"predicate_{name}"
+        new_value = _mean(predicate_values.get(name, []))
+        if not is_duplicate:
+            after[field] = (
+                _f(before.get(field)) * before_event_count + new_value * new_event_count
+            ) / max(1, before_event_count + new_event_count)
+    source_field = {"policy": "policy_count", "announcement": "announcement_count", "news": "news_count", "ir_qa": "ir_qa_count"}.get(str(analysis.get("source_type")))
+    if source_field and not is_duplicate:
+        after[source_field] = int(_f(before.get(source_field))) + 1
+    after_prediction, after_increment = _monthly_text_prediction(model, after, no_text_prediction)
+    marginal_change = after_prediction - before_prediction
     half_width = _f(model.get("prediction_interval_half_width_90"), 4.0)
     contributions = []
+    feature_fields = list(model["feature_fields"])
+    frozen = (list(model["coefficients"]), list(model["means"]), list(model["scales"]))
     for index, field in enumerate(feature_fields):
-        contribution = ridge_weight * frozen[0][index + 1] * (row[index] - frozen[1][index]) / frozen[2][index]
+        contribution = _f(model.get("text_weight"), 1.0) * frozen[0][index + 1] * (
+            _f(after.get(field)) - _f(before.get(field))
+        ) / frozen[2][index]
         contributions.append({"feature": field, "contribution_pct_point": round(contribution, 6)})
     contributions.sort(key=lambda item: abs(item["contribution_pct_point"]), reverse=True)
-    source_type = str(analysis.get("source_type", ""))
-    source_history_count = int(model.get("historical_source_type_counts", {}).get(source_type, 0))
-    source_coverage_status = "covered" if source_history_count >= 5 else "limited"
+    selection = (_read_csv("macro_strategy_selection.csv") or [{}])[0]
+    no_text_scale = _f(selection.get("no_text_signal_scale"), 1.0) or 1.0
+    increment_scale = _f(selection.get("text_increment_scale"), 1.0) or 1.0
+    no_text_acceleration = no_text_prediction - latest_actual
+    weight_before = max(0.0, min(1.0, 0.5 + 0.5 * math.tanh(no_text_acceleration / no_text_scale) + 0.5 * math.tanh(before_increment / increment_scale)))
+    weight_after = max(0.0, min(1.0, 0.5 + 0.5 * math.tanh(no_text_acceleration / no_text_scale) + 0.5 * math.tanh(after_increment / increment_scale)))
     return {
-        "forecast_mode": "single_new_text_only", "target_name": TARGET_NAME,
+        "forecast_mode": "monthly_nowcast_marginal_text", "target_name": TARGET_NAME,
         "information_date": event_date, "target_period_end": target_end,
-        "predicted_yoy": round(prediction, 6), "latest_published_yoy": round(latest_actual, 6),
-        "predicted_acceleration": round(prediction - latest_actual, 6),
-        "lower_90": round(prediction - half_width, 6), "upper_90": round(prediction + half_width, 6),
+        "no_text_predicted_yoy": round(no_text_prediction, 6),
+        "nowcast_before_text": round(before_prediction, 6), "nowcast_after_text": round(after_prediction, 6),
+        "marginal_change": round(marginal_change, 6), "predicted_yoy": round(after_prediction, 6),
+        "latest_published_yoy": round(latest_actual, 6),
+        "predicted_acceleration": round(after_prediction - latest_actual, 6),
+        "lower_90": round(after_prediction - half_width, 6), "upper_90": round(after_prediction + half_width, 6),
         "model_name": model["model_name"], "model_alpha": model["alpha"],
-        "model_ridge_weight": ridge_weight,
-        "persistence_anchor_weight": 1 - ridge_weight,
-        "training_document_count": model["training_document_count"],
-        "validation_document_count": model["validation_document_count"],
+        "model_text_weight": model["text_weight"],
+        "training_month_count": model["training_month_count"],
+        "validation_month_count": model["validation_month_count"],
         "validation_mae": model["validation_mae"], "validation_rmse": model["validation_rmse"],
-        "persistence_validation_mae": model["persistence_validation_mae"],
-        "text_increment_status": model["text_increment_status"],
-        "source_coverage_status": source_coverage_status,
-        "same_source_type_history_count": source_history_count,
+        "no_text_validation_mae": model["no_text_validation_mae"],
+        "text_increment_status": "validated_positive" if model["validation_mae"] < model["no_text_validation_mae"] else "not_established",
+        "monthly_document_count_before": before_docs, "monthly_document_count_after": before_docs + added_docs,
+        "duplicate_status": duplicate_status,
         "top_contributions": contributions[:8],
+        "strategy_impact": {
+            "risk_weight_before": round(weight_before, 6), "risk_weight_after": round(weight_after, 6),
+            "risk_weight_change": round(weight_after - weight_before, 6),
+            "realized_return_status": "not_yet_observable",
+            "explanation": "新文本只改变本月预测与下一次调仓权重；未来持有期尚未发生，不生成虚假单篇策略收益。",
+        },
         "new_text_evidence": {
             "source_type": analysis.get("source_type"), "event_type": analysis.get("event_type"),
-            "stock_count": int(values["stock_count"]),
-            "avg_event_evidence": round(values["avg_event_evidence"], 6),
-            "avg_entity_confidence": round(values["avg_entity_confidence"], 6),
+            "stock_count": len({stock.get("code") for stock in stocks}),
+            "avg_event_evidence": round(new_event_evidence, 6),
+            "avg_entity_confidence": round(new_entity_confidence, 6),
             "triggered_rule_count": sum(len(stock.get("triggered_rules", [])) for stock in stocks),
-            "candidate_factor_mean": round(_mean([_f(stock.get("candidate_factor")) for stock in stocks]), 6),
         },
-        "forecast_basis": "预测只使用本次新输入文本的来源、事件、实体和19谓词特征；逐股票关系、三层门控与冻结规则仅作为可追溯证据，不输出个股预测。历史文本仅用于冻结规则与模型参数。",
-        "analysis_conclusion": (
-            "单文本模型验证优于持久性基线。"
-            if model["text_increment_status"] == "validated_positive"
-            else "单文本模型验证未建立相对持久性基线的增量，数值仅作产业研究参考。"
-        ) + (" 当前来源类型历史覆盖有限。" if source_coverage_status == "limited" else ""),
+        "forecast_basis": "本月已审计文本先去重聚合形成Nowcast；本篇新文本只作为新增证据，页面展示加入前后预测与仓位的边际变化，不把单篇文本当作整个月。",
+        "analysis_conclusion": "月度文本增强模型在验证期仅小幅优于无文本基线，但冻结OOS文本增量不足。单篇文本的未来策略收益尚不可观察。",
         "disclaimer": DISCLAIMER,
     }

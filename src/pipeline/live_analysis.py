@@ -878,6 +878,7 @@ def analyze_new_document(
         }
     )
     return {
+        "document_title": title,
         "event_type": event_type,
         "event_time": event_date,
         "evidence_strength": round(

@@ -1,2 +1,2 @@
 comparison,cost_bps,sample_months,block_months,bootstrap_iterations,annualized_net_return_difference,ci_lower_95,ci_upper_95,conclusion
-alphalens_nowcast_minus_pure_momentum,10,53,3,1000,0.010325,-0.000037,0.031014,trading_increment_not_established
+alphalens_monthly_nowcast_minus_no_text_yoy,10,48,3,1000,-0.112006,-0.239557,0.013182,trading_increment_not_established

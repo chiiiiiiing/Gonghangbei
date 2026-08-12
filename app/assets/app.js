@@ -108,6 +108,14 @@ function setRunMode(mode) {
 function switchView(viewId) {
   document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === viewId));
   document.querySelectorAll(".nav-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.view === viewId));
+  if (viewId === "macroView" && window.Plotly) {
+    requestAnimationFrame(() => {
+      ["macroForecastChart", "singleTextValidationChart"].forEach((id) => {
+        const chart = $(id);
+        if (chart && chart.data) Plotly.Plots.resize(chart);
+      });
+    });
+  }
 }
 
 async function fetchJson(url, options) {
@@ -149,27 +157,29 @@ async function loadMacro() {
 
 function renderMacro(data) {
   const latest = data.forecast.latest || {};
-  const singleModel = data.status.single_text_model || {};
-  const insufficient = singleModel.text_increment_status !== "validated_positive";
+  const monthlyModel = data.status.monthly_nowcast_model || {};
+  const insufficient = Number(monthlyModel.validation_mae) >= Number(monthlyModel.no_text_validation_mae);
+  const oosMetric = (data.forecast.metrics || []).find((row) => row.split === "oos") || {};
+  const oosIncrementEstablished = Number(oosMetric.mae_improvement_vs_no_text) > 0;
   const history = (data.forecast.history || []).filter((row) => row.split === "oos");
   const html = `<div class="macro-hero">
     <div><span class="eyebrow">AlphaLens · RESEARCH VALIDATION</span><h1>研究验证</h1><p>模型表现与完整研究审计合并展示：先核对官方历史目标、训练/验证划分和基线误差，再检查数据覆盖、AI标注、冻结规则与时间边界。</p></div>
   </div>
   <div class="macro-kpis">
     ${metric(data.status.verified_historical_texts || 0, "可核验历史文本")}
-    ${metric(singleModel.training_document_count || 0, "2015—2021 训练文本")}
-    ${metric(singleModel.validation_document_count || 0, "2022—2023 验证文本")}
-    ${metric(`${fixed(singleModel.validation_mae, 2)}pct`, "单文本模型验证 MAE")}
+    ${metric(monthlyModel.training_month_count || 0, "2015—2021 训练月份")}
+    ${metric(monthlyModel.validation_month_count || 0, "2022—2023 验证月份")}
+    ${metric(`${fixed(monthlyModel.validation_mae, 2)}pct`, "月度 Nowcast 验证 MAE")}
   </div>
-  <div class="notice ${insufficient ? "error" : "good"}"><strong>${insufficient ? "文本增量尚未建立" : "文本模型通过验证"}</strong>：${esc(data.status.evidence_warning || "模型已按验证集选择后冻结。新预测只读取用户本次输入的一篇文本。")}</div>
+  <div class="notice ${oosIncrementEstablished ? "good" : "error"}"><strong>${oosIncrementEstablished ? "冻结 OOS 文本增量已观察" : "冻结 OOS 文本增量不足"}</strong>：验证期文本 MAE ${fixed(monthlyModel.validation_mae, 2)}pct、无文本 ${fixed(monthlyModel.no_text_validation_mae, 2)}pct；OOS 文本 MAE ${fixed(oosMetric.mae, 2)}pct、无文本 ${fixed(oosMetric.no_text_mae, 2)}pct。${esc(data.status.evidence_warning || "")}</div>
   <div class="macro-grid">
-    <section class="section macro-panel"><div class="section-header"><div><h2>历史目标与基线研究</h2><p>只用于训练/验证说明 · 发布日防泄漏 · 1—2月保持合并观测</p></div>${badge(singleModel.model_name || "--", "info")}</div><div id="macroForecastChart" class="macro-chart"></div></section>
-    <section class="section macro-panel"><div class="section-header"><div><h2>单文本模型验证</h2><p>2022—2023冻结验证 · 与持久性基线同口径比较</p></div>${badge(insufficient ? "增量未建立" : "验证优于基线", insufficient ? "warn" : "good")}</div><div id="singleTextValidationChart" class="macro-chart"></div></section>
+    <section class="section macro-panel"><div class="section-header"><div><h2>历史目标与月度 Nowcast</h2><p>发布日防泄漏 · 1—2月保持合并观测 · 月度文本去重聚合</p></div>${badge(monthlyModel.model_name || "--", "info")}</div><div id="macroForecastChart" class="macro-chart"></div></section>
+    <section class="section macro-panel"><div class="section-header"><div><h2>月度文本增量验证</h2><p>2022—2023冻结验证 · 与无文本同比模型同口径比较</p></div>${badge(insufficient ? "增量未建立" : "验证优于基线", insufficient ? "warn" : "good")}</div><div id="singleTextValidationChart" class="macro-chart"></div></section>
   </div>
-  <section class="section"><div class="section-header"><div><h2>模型验收与适用边界</h2><p>新输入只读取一篇文本，历史库只训练参数</p></div></div><div class="section-body"><div class="acceptance-grid">
-    <div class="acceptance-card"><span>单文本预测层</span><strong>${fixed(singleModel.validation_mae, 2)}pct</strong><p>验证 MAE；持久性基线 ${fixed(singleModel.persistence_validation_mae, 2)}pct。${insufficient ? "未优于基线，仍只作研究参考。" : "验证优于基线。"}</p></div>
-    <div class="acceptance-card"><span>历史文本来源</span><strong>${esc(data.status.verified_historical_texts || 0)} 篇</strong><p>国家统计局 ${esc(singleModel.historical_source_type_counts?.news || 0)} 篇；国家能源局、国家发展改革委等政策 ${esc(singleModel.historical_source_type_counts?.policy || 0)} 篇。</p></div>
-    <div class="acceptance-card warning-card"><span>输出边界</span><strong>同比增长预测</strong><p>逐股票关系、谓词门控和冻结规则只作为预测证据审计；每次预测只读取本次输入，不输出股票涨跌结论。</p></div>
+  <section class="section"><div class="section-header"><div><h2>模型验收与适用边界</h2><p>一月一个目标样本；新文本只形成月度聚合的边际变化</p></div></div><div class="section-body"><div class="acceptance-grid">
+    <div class="acceptance-card"><span>月度 Nowcast</span><strong>${fixed(monthlyModel.validation_mae, 2)}pct</strong><p>验证 MAE；无文本同比模型 ${fixed(monthlyModel.no_text_validation_mae, 2)}pct。冻结 OOS 文本 MAE ${fixed(oosMetric.mae, 2)}pct、无文本 ${fixed(oosMetric.no_text_mae, 2)}pct。</p></div>
+    <div class="acceptance-card"><span>月度样本</span><strong>${esc(monthlyModel.training_month_count || 0)} / ${esc(monthlyModel.validation_month_count || 0)}</strong><p>2015—2021训练 / 2022—2023验证；2024年起冻结OOS。</p></div>
+    <div class="acceptance-card warning-card"><span>输出边界</span><strong>边际 Nowcast</strong><p>本篇文本只改变本月聚合预测与下一次调仓权重；未来持有期未发生时不生成策略收益。</p></div>
   </div></div></section>
   <section class="section"><div class="section-header"><div><h2>可审计研究边界</h2></div></div><div class="section-body"><div class="detail-grid">
     <div class="detail-item"><b>训练 / 规则发现</b><span>2015—2021</span></div><div class="detail-item"><b>模型 / 策略验证</b><span>2022—2023</span></div><div class="detail-item"><b>冻结 OOS</b><span>2024—最新</span></div><div class="detail-item"><b>交易代理边界</b><span>399808 仅作上市前研究代理，不冒充 ETF</span></div>
@@ -183,8 +193,8 @@ function renderMacro(data) {
       { x: history.map((row) => row.target_period_end), y: history.map((row) => Number(row.predicted_yoy)), name: "冻结预测", mode: "lines", line: { color: "#116fae" } },
     ], chartLayout("同比增速（%）"), { responsive: true, displayModeBar: false });
     Plotly.newPlot("singleTextValidationChart", [{
-      x: ["单文本 Ridge", "持久性基线"],
-      y: [Number(singleModel.validation_mae || 0), Number(singleModel.persistence_validation_mae || 0)],
+      x: ["文本增强 Nowcast", "无文本同比模型"],
+      y: [Number(monthlyModel.validation_mae || 0), Number(monthlyModel.no_text_validation_mae || 0)],
       type: "bar", marker: { color: ["#116fae", "#9aa8b3"] }, texttemplate: "%{y:.2f} pct", textposition: "outside",
     }], { ...chartLayout("MAE（百分点，越低越好）"), showlegend: false }, { responsive: true, displayModeBar: false });
   }
@@ -310,12 +320,12 @@ function renderAnalysis(data) {
     ["谓词对照", `${top?.predicate_consensus?.length || 0} 项逐股票对照`],
     ["一致性门控", data.consensus_gate_passed ? "全部通过" : `${data.disputed_predicates?.length || 0} 项排除`],
     ["冻结规则", `${data.triggered_rules?.length || 0} 条触发`],
-    ["行业同比预测", data.text_forecast ? `${fixed(forecast.predicted_yoy, 2)}%` : "未生成"],
+    ["月度聚合 Nowcast", data.text_forecast ? `${fixed(forecast.nowcast_after_text, 2)}%` : "未生成"],
   ];
   let html = `<section class="result-summary">
     <div class="result-lead">${replayFlag}<h2>${esc(eventName)}</h2><p>${esc(aiSummary)}</p></div>
-    ${metric(data.text_forecast ? `${fixed(forecast.predicted_yoy, 2)}%` : "—", "行业同比预测")}
-    ${metric(data.text_forecast ? `${Number(forecast.predicted_acceleration) >= 0 ? "+" : ""}${fixed(forecast.predicted_acceleration, 2)} pct` : "—", "预测加速度")}
+    ${metric(data.text_forecast ? `${fixed(forecast.nowcast_after_text, 2)}%` : "—", "加入后月度 Nowcast")}
+    ${metric(data.text_forecast ? `${Number(forecast.marginal_change) >= 0 ? "+" : ""}${fixed(forecast.marginal_change, 2)} pct` : "—", "本篇文本边际变化")}
     ${metric(data.text_forecast ? `${fixed(forecast.lower_90, 2)}% — ${fixed(forecast.upper_90, 2)}%` : "—", "90%预测区间")}
   </section>`;
   html += `<section class="section"><div class="section-header"><div><h2>处理链路</h2><p>${esc(data.source_name)} · ${esc(data.event_time)}</p></div>${data.source_url ? `<a class="download-button" href="${esc(data.source_url)}" target="_blank" rel="noopener"><i data-lucide="external-link"></i>查看原文</a>` : ""}</div><div class="pipeline">${steps.map((step, index) => `<div class="pipeline-step"><span class="step-number">${index + 1}</span><b>${esc(step[0])}</b><span>${esc(step[1])}</span></div>`).join("")}</div></section>`;
@@ -323,11 +333,15 @@ function renderAnalysis(data) {
   if (data.text_forecast) {
     const forecast = data.text_forecast;
     const contributionRows = (forecast.top_contributions || []).slice(0, 6).map((item) => `<tr><td class="mono">${esc(item.feature)}</td><td class="mono ${Number(item.contribution_pct_point) >= 0 ? "positive" : "negative"}">${Number(item.contribution_pct_point) >= 0 ? "+" : ""}${fixed(item.contribution_pct_point, 4)} pct</td></tr>`).join("");
-    html += `<section class="section text-forecast"><div class="section-header"><div><h2>本次新文本的行业同比预测</h2><p>当期输入仅为这一篇文本；历史文本只用于冻结模型和规则参数</p></div>${badge(forecast.text_increment_status === "validated_positive" ? "验证优于基线" : "研究参考", forecast.text_increment_status === "validated_positive" ? "good" : "warn")}</div><div class="section-body">
-      <div class="forecast-number"><span>${esc(forecast.target_name)}</span><strong>${fixed(forecast.predicted_yoy, 2)}%</strong><small>目标期 ${esc(forecast.target_period_end)} · 90%区间 ${fixed(forecast.lower_90, 2)}% — ${fixed(forecast.upper_90, 2)}%</small></div>
-      <div class="detail-grid"><div class="detail-item"><b>最新已公布值</b><span class="mono">${fixed(forecast.latest_published_yoy, 2)}%</span></div><div class="detail-item"><b>预测加速度</b><span class="mono">${Number(forecast.predicted_acceleration) >= 0 ? "+" : ""}${fixed(forecast.predicted_acceleration, 2)} pct</span></div><div class="detail-item"><b>历史训练 / 验证</b><span class="mono">${esc(forecast.training_document_count)} / ${esc(forecast.validation_document_count)} 篇</span></div><div class="detail-item"><b>验证 MAE</b><span class="mono">${fixed(forecast.validation_mae, 2)} pct</span></div></div>
+    const impact = forecast.strategy_impact || {};
+    const duplicate = forecast.duplicate_status || {};
+    html += `<section class="section text-forecast"><div class="section-header"><div><h2>本篇文本对本月 Nowcast 的边际影响</h2><p>同月文本先去重聚合；本篇只增加一次证据贡献，不独立代表整个月</p></div>${badge(forecast.text_increment_status === "validated_positive" ? "验证优于无文本基线" : "研究参考", forecast.text_increment_status === "validated_positive" ? "good" : "warn")}</div><div class="section-body">
+      <div class="forecast-number"><span>${esc(forecast.target_name)}</span><strong>${fixed(forecast.nowcast_after_text, 2)}%</strong><small>加入前 ${fixed(forecast.nowcast_before_text, 2)}% · 本篇边际 ${Number(forecast.marginal_change) >= 0 ? "+" : ""}${fixed(forecast.marginal_change, 2)} pct · 90%区间 ${fixed(forecast.lower_90, 2)}% — ${fixed(forecast.upper_90, 2)}%</small></div>
+      <div class="detail-grid"><div class="detail-item"><b>无文本同比预测</b><span class="mono">${fixed(forecast.no_text_predicted_yoy, 2)}%</span></div><div class="detail-item"><b>月度文本数</b><span class="mono">${esc(forecast.monthly_document_count_before)} → ${esc(forecast.monthly_document_count_after)}</span></div><div class="detail-item"><b>新能源仓位</b><span class="mono">${pct(impact.risk_weight_before)} → ${pct(impact.risk_weight_after)}</span></div><div class="detail-item"><b>验证 MAE</b><span class="mono">${fixed(forecast.validation_mae, 2)} pct</span></div></div>
+      ${duplicate.is_duplicate ? `<div class="notice"><strong>重复证据已拦截：</strong>该文本已按${duplicate.matched_by === "canonical_url" ? "规范化链接" : "标准化标题"}匹配历史文档 ${esc(duplicate.matched_doc_id)}，不会再次贡献月度特征。</div>` : ""}
       <div class="notice ${forecast.text_increment_status === "validated_positive" ? "good" : "error"}">${esc(forecast.analysis_conclusion)} ${esc(forecast.forecast_basis)}</div>
-      <details class="disclosure" open><summary>主要结构化特征贡献</summary><div class="table-wrap"><table><thead><tr><th>特征</th><th>预测贡献</th></tr></thead><tbody>${contributionRows}</tbody></table></div></details>
+      <div class="notice"><strong>策略收益边界：</strong>${esc(impact.explanation)}</div>
+      <details class="disclosure" open><summary>本篇文本的边际特征贡献</summary><div class="table-wrap"><table><thead><tr><th>特征</th><th>预测边际贡献</th></tr></thead><tbody>${contributionRows}</tbody></table></div></details>
     </div></section>`;
   }
   if (data.disputed_predicates?.length) {
@@ -347,27 +361,25 @@ function renderAnalysis(data) {
 
 function renderStrategyBacktest(backtest) {
   const labels = {
-    buy_hold: "买入持有",
-    pure_momentum: "纯时间序列动量",
-    published_macro: "动量 + 已公布行业数据",
-    alphalens_nowcast: "动量 + AlphaLens预测",
-    oracle_non_tradable: "Oracle上限（不可交易）",
+    no_yoy_balanced: "无同比信号（固定50/50）",
+    no_text_yoy: "无文本同比模型配置",
+    alphalens_monthly_nowcast: "月度文本增强 Nowcast 配置",
   };
   const metrics = backtest.metrics || [];
-  const alpha = metrics.find((row) => row.strategy === "alphalens_nowcast") || {};
+  const alpha = metrics.find((row) => row.strategy === "alphalens_monthly_nowcast") || {};
   const bootstrap = (backtest.bootstrap || [])[0] || {};
   const selection = backtest.strategy_selection || {};
   const incrementEstablished = bootstrap.conclusion === "positive_increment_observed";
   const observedPositive = Number(bootstrap.annualized_net_return_difference) > 0;
   const conclusion = incrementEstablished ? "正增量且置信区间通过" : (observedPositive ? "观察到正增量，统计显著性尚未建立" : "交易增量尚未建立");
   const metricRows = metrics.map((row) => `<tr><td>${esc(labels[row.strategy] || row.strategy)}${row.tradable === "false" ? ` ${badge("不可交易", "warn")}` : ""}</td><td>${pct(row.annual_return)}</td><td>${pct(row.annual_volatility)}</td><td class="mono">${fixed(row.sharpe, 3)}</td><td>${pct(row.max_drawdown)}</td><td>${pct(row.annual_turnover)}</td></tr>`).join("");
-  return `<section class="section strategy-backtest"><div class="section-header"><div><h2>AlphaLens预测确认策略回测</h2><p>新能源ETF 516160 时间序列动量 + 60日波动率缩放 + 行业同比预测加速度确认；剩余仓位配置5年期国债ETF 511010</p></div>${badge(`${esc(backtest.primary_cost_bps || 10)} bp 成本`, "info")}</div><div class="section-body">
-    <div class="detail-grid"><div class="detail-item"><b>调仓时点</b><span>${esc(backtest.rebalance_timing)}</span></div><div class="detail-item"><b>AlphaLens年化收益</b><span class="mono">${pct(alpha.annual_return)}</span></div><div class="detail-item"><b>AlphaLens Sharpe</b><span class="mono">${fixed(alpha.sharpe, 3)}</span></div><div class="detail-item"><b>相对纯趋势年化差</b><span class="mono ${Number(bootstrap.annualized_net_return_difference) >= 0 ? "positive" : "negative"}">${pct(bootstrap.annualized_net_return_difference)}</span></div></div>
-    <div class="notice ${observedPositive ? "good" : "error"}"><strong>${conclusion}</strong>：AlphaLens增强策略相对纯趋势策略的年化净收益差 ${pct(bootstrap.annualized_net_return_difference)}，3个月时间块 Bootstrap 95%区间为 ${pct(bootstrap.ci_lower_95)} 至 ${pct(bootstrap.ci_upper_95)}。结果按证据如实披露，不作收益宣传。</div>
-    <div class="audit-note"><strong>策略选择防泄漏：</strong>加速度阈值 ${fixed(selection.acceleration_threshold_pct_point, 1)} 个百分点、弱确认风险乘数 ${fixed(selection.weak_regime_risk_multiplier, 1)} 仅由 2022—2023 验证期选择，2024 年 OOS 开始前冻结；OOS 不参与调参。</div>
+  return `<section class="section strategy-backtest"><div class="section-header"><div><h2>宏观预测差异配置回测</h2><p>新能源ETF 516160 与5年期国债ETF 511010 连续配置；不使用价格趋势、不做空、不加杠杆</p></div>${badge(`${esc(backtest.primary_cost_bps || 10)} bp 成本`, "info")}</div><div class="section-body">
+    <div class="detail-grid"><div class="detail-item"><b>调仓时点</b><span>${esc(backtest.rebalance_timing)}</span></div><div class="detail-item"><b>文本增强年化收益</b><span class="mono">${pct(alpha.annual_return)}</span></div><div class="detail-item"><b>文本增强 Sharpe</b><span class="mono">${fixed(alpha.sharpe, 3)}</span></div><div class="detail-item"><b>相对无文本模型年化差</b><span class="mono ${Number(bootstrap.annualized_net_return_difference) >= 0 ? "positive" : "negative"}">${pct(bootstrap.annualized_net_return_difference)}</span></div></div>
+    <div class="notice ${observedPositive ? "good" : "error"}"><strong>${conclusion}</strong>：文本增强配置相对无文本同比模型的年化净收益差 ${pct(bootstrap.annualized_net_return_difference)}，3个月时间块 Bootstrap 95%区间为 ${pct(bootstrap.ci_lower_95)} 至 ${pct(bootstrap.ci_upper_95)}。负结果也如实披露，不作收益宣传。</div>
+    <div class="audit-note"><strong>策略防泄漏：</strong>仓位映射不按收益优化；信号尺度仅由2022—2023验证期预测分布确定，2024年OOS前冻结。${esc(backtest.comparison_boundary || "")}</div>
     <div id="strategyNavChart" class="strategy-chart"></div>
     <div class="table-wrap"><table><thead><tr><th>策略</th><th>年化收益</th><th>年化波动</th><th>Sharpe</th><th>最大回撤</th><th>年换手率</th></tr></thead><tbody>${metricRows}</tbody></table></div>
-    <p class="disclaimer">${esc(backtest.oracle_warning)}<br>本报告仅供研究参考，不构成投资建议</p>
+    <p class="disclaimer">本报告仅供研究参考，不构成投资建议</p>
   </div></section>`;
 }
 
@@ -375,12 +387,13 @@ function renderStrategyBacktestChart(backtest) {
   if (!window.Plotly || !$("strategyNavChart")) return;
   const nav = backtest.nav || [];
   const series = [
-    ["pure_momentum", "纯时间序列动量", "#7a8995"],
-    ["alphalens_nowcast", "动量 + AlphaLens预测", "#116fae"],
+    ["no_yoy_balanced", "无同比信号", "#9aa8b3"],
+    ["no_text_yoy", "无文本同比模型", "#7a8995"],
+    ["alphalens_monthly_nowcast", "月度文本增强 Nowcast", "#116fae"],
   ];
   Plotly.newPlot("strategyNavChart", series.map(([strategy, name, color]) => {
     const rows = nav.filter((row) => row.strategy === strategy);
-    return { x: rows.map((row) => row.trade_month), y: rows.map((row) => Number(row.nav)), name, mode: "lines", line: { color, width: strategy === "alphalens_nowcast" ? 2.4 : 1.6 } };
+    return { x: rows.map((row) => row.trade_month), y: rows.map((row) => Number(row.nav)), name, mode: "lines", line: { color, width: strategy === "alphalens_monthly_nowcast" ? 2.4 : 1.6 } };
   }), { ...chartLayout("成本后净值"), margin: { l: 52, r: 18, t: 34, b: 42 } }, { responsive: true, displayModeBar: false });
 }
 

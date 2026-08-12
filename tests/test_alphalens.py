@@ -67,9 +67,9 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertIn("text_forecast", payload)
         self.assertNotIn("macro_impact", payload)
         self.assertEqual(len(payload["stock_results"][0]["predicate_consensus"]), 19)
-        self.assertEqual(payload["text_forecast"]["forecast_mode"], "single_new_text_only")
-        self.assertIn("单文本条件预测同比", payload["report"])
-        self.assertIn("AlphaLens 预测确认策略回测", payload["report"])
+        self.assertEqual(payload["text_forecast"]["forecast_mode"], "monthly_nowcast_marginal_text")
+        self.assertIn("本篇文本加入前 Nowcast", payload["report"])
+        self.assertIn("AlphaLens 宏观预测差异配置回测", payload["report"])
         self.assertNotIn("| 股票 | 行业 | 候选因子", payload["report"])
 
     def test_macro_target_dates_and_jan_feb_combination(self) -> None:
@@ -99,7 +99,8 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         latest = rows[-1]
         self.assertEqual(latest["text_increment_status"], "evaluated")
         self.assertEqual(latest["evidence_status"], "sufficient")
-        self.assertEqual(len({row["selected_model"] for row in rows if row["split"] == "oos"}), 1)
+        self.assertEqual({row["selected_model"] for row in rows if row["split"] == "oos"}, {"monthly_text_residual_ridge"})
+        self.assertTrue(all("no_text_predicted_yoy" in row and "text_prediction_increment" in row for row in rows))
 
     def test_model_selection_cannot_read_current_unreleased_target(self) -> None:
         targets = []
@@ -127,10 +128,9 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         ), patch("src.macro.engine._write_csv"), patch("src.macro.engine._write_forecast_metrics"):
             rows = build_forecasts([])
         self.assertEqual(len(rows), 2)
-        self.assertTrue(all(row["selected_model"] == "no_text_ridge" for row in rows))
-        self.assertTrue(all(row["predicted_yoy"] == 4.0 for row in rows))
+        self.assertTrue(all(row["target_release_date"] > row["as_of_date"] for row in rows))
 
-    def test_verified_historical_texts_and_single_text_model(self) -> None:
+    def test_verified_historical_texts_and_monthly_nowcast_model(self) -> None:
         with (SAMPLE_DIR / "macro_historical_documents.csv").open(encoding="utf-8", newline="") as handle:
             documents = list(csv.DictReader(handle))
         self.assertGreaterEqual(len(documents), 100)
@@ -141,28 +141,22 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertEqual(len(audit), len(documents))
         self.assertTrue(all(row["accepted"] == "true" for row in audit))
         status = self.client.get("/api/macro/status").get_json()
-        model = status["single_text_model"]
-        self.assertGreaterEqual(model["training_document_count"], 50)
-        self.assertGreaterEqual(model["validation_document_count"], 20)
-        self.assertEqual(model["model_name"], "single_text_ridge_anchor_blend")
-        self.assertLess(model["validation_mae"], model["persistence_validation_mae"])
+        model = status["monthly_nowcast_model"]
+        self.assertGreaterEqual(model["training_month_count"], 50)
+        self.assertGreaterEqual(model["validation_month_count"], 20)
+        self.assertEqual(model["model_name"], "monthly_text_residual_ridge")
+        self.assertLess(model["validation_mae"], model["no_text_validation_mae"])
 
-    def test_single_text_model_selection_is_validation_only_and_frozen(self) -> None:
-        model_path = SAMPLE_DIR / "macro_single_text_model.json"
+    def test_monthly_nowcast_model_selection_is_validation_only_and_frozen(self) -> None:
+        model_path = SAMPLE_DIR / "macro_monthly_nowcast_model.json"
         model = json.loads(model_path.read_text(encoding="utf-8"))
         self.assertEqual(model["feature_set_name"], "audit_predicates_state")
-        self.assertEqual(model["selection_boundary"], "特征集、Ridge 正则和持久性锚权重只使用 2022—2023 验证集选择，2024 年起冻结。")
-        self.assertGreater(float(model["ridge_weight"]), 0.0)
-        self.assertLess(float(model["ridge_weight"]), 1.0)
-        self.assertAlmostEqual(
-            float(model["ridge_weight"]) + float(model["persistence_anchor_weight"]), 1.0, places=6,
-        )
-        self.assertTrue(all(
-            field == "latest_published_yoy" or field in {"stock_count", "avg_event_evidence", "avg_entity_confidence"} or field.startswith("predicate_")
-            for field in model["feature_fields"]
-        ))
+        self.assertEqual(model["unit_of_observation"], "one_unique_month_after_document_deduplication")
+        self.assertIn("2022—2023验证期", model["selection_boundary"])
+        self.assertGreater(float(model["text_weight"]), 0.0)
+        self.assertEqual(float(model["standardized_feature_clip"]), 3.0)
 
-    def test_single_text_training_has_strict_target_release_boundary(self) -> None:
+    def test_monthly_text_training_has_strict_target_release_boundary(self) -> None:
         with (SAMPLE_DIR / "macro_target_history.csv").open(encoding="utf-8", newline="") as handle:
             targets = list(csv.DictReader(handle))
         with (SAMPLE_DIR / "macro_historical_documents.csv").open(encoding="utf-8", newline="") as handle:
@@ -172,19 +166,39 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
             if target and target["release_date"]:
                 self.assertGreater(target["release_date"], document["publish_time"])
 
-    def test_single_new_text_changes_prediction_without_monthly_merge(self) -> None:
+    def test_single_new_text_changes_monthly_nowcast_marginally(self) -> None:
         payload = self.client.get("/api/replay/storage-policy").get_json()
-        original = payload["text_forecast"]
         altered_analysis = deepcopy(payload)
+        altered_analysis["source_url"] = "https://example.test/alphalens/new-monthly-evidence"
+        altered_analysis["document_title"] = "未进入历史语料的月度产业证据"
         altered_analysis["source_type"] = "news"
         altered_analysis["event_type"] = "attention_spread"
         for stock in altered_analysis["stock_results"]:
             stock["event"]["evidence_strength"] = "0.55"
             stock["predicate_fusion"]["has_policy_support"]["fused"] = 0.0
         changed = live_text_forecast(altered_analysis)
-        self.assertNotEqual(original["predicted_yoy"], changed["predicted_yoy"])
-        self.assertEqual(changed["forecast_mode"], "single_new_text_only")
-        self.assertNotIn("feature_after", changed)
+        self.assertNotEqual(0.0, changed["marginal_change"])
+        self.assertEqual(changed["forecast_mode"], "monthly_nowcast_marginal_text")
+        self.assertEqual(changed["monthly_document_count_after"], changed["monthly_document_count_before"] + 1)
+        self.assertFalse(changed["duplicate_status"]["is_duplicate"])
+        self.assertEqual(changed["strategy_impact"]["realized_return_status"], "not_yet_observable")
+
+    def test_replayed_historical_text_is_deduplicated_from_monthly_nowcast(self) -> None:
+        payload = self.client.get("/api/replay/storage-policy").get_json()
+        forecast = payload["text_forecast"]
+        self.assertTrue(forecast["duplicate_status"]["is_duplicate"])
+        self.assertEqual(forecast["monthly_document_count_after"], forecast["monthly_document_count_before"])
+        self.assertEqual(float(forecast["marginal_change"]), 0.0)
+        self.assertEqual(
+            float(forecast["strategy_impact"]["risk_weight_before"]),
+            float(forecast["strategy_impact"]["risk_weight_after"]),
+        )
+
+    def test_monthly_features_have_one_unique_row_per_target_period(self) -> None:
+        with (SAMPLE_DIR / "macro_monthly_features.csv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        periods = [row["period_end"] for row in rows]
+        self.assertEqual(len(periods), len(set(periods)))
 
     def test_ui_does_not_describe_prediction_as_realtime_update(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -208,9 +222,11 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertNotIn('候选因子与研究证据', combined)
         self.assertNotIn('历史样本外参考', combined)
         self.assertNotIn('进入因子', combined)
-        self.assertIn('AlphaLens预测确认策略回测', combined)
-        self.assertIn('策略选择防泄漏', combined)
-        self.assertIn('观察到正增量，统计显著性尚未建立', combined)
+        self.assertIn('本篇文本对本月 Nowcast 的边际影响', combined)
+        self.assertIn('宏观预测差异配置回测', combined)
+        self.assertIn('冻结 OOS 文本增量不足', combined)
+        self.assertIn('策略防泄漏', combined)
+        self.assertIn('不使用价格趋势', combined)
 
     def test_macro_strategy_constraints_and_oracle_label(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:
@@ -222,16 +238,14 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
             self.assertGreaterEqual(risk, 0.0)
             self.assertLessEqual(risk, 1.0)
             self.assertAlmostEqual(risk + defensive, 1.0, places=5)
-            self.assertIn(row["trend_positive"], {"true", "false"})
             self.assertIn(row["tradable"], {"true", "false"})
-        oracle = [row for row in rows if row["strategy"] == "oracle_non_tradable"]
-        self.assertTrue(oracle)
-        self.assertTrue(all(row["tradable"] == "false" for row in oracle))
+            self.assertEqual(row["trend_positive"], "false")
+        self.assertEqual({row["strategy"] for row in rows}, {"no_yoy_balanced", "no_text_yoy", "alphalens_monthly_nowcast"})
         backtest = self.client.get("/api/macro/backtest").get_json()
         self.assertEqual(backtest["risk_asset"]["code"], "516160")
         self.assertEqual(backtest["defensive_asset"]["code"], "511010")
         self.assertFalse(backtest["pre_listing_proxy"]["tradable"])
-        self.assertIn("不可交易", backtest["oracle_warning"])
+        self.assertIn("不使用价格趋势", backtest["strategy_description"])
         with (SAMPLE_DIR / "macro_market_data.csv").open(encoding="utf-8", newline="") as handle:
             market = list(csv.DictReader(handle))
         first_trade_date = {}
@@ -245,16 +259,14 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertEqual(selection["selection_period_start"], "2022-01-01")
         self.assertEqual(selection["selection_period_end"], "2023-12-31")
         self.assertEqual(selection["cost_bps"], "10")
-        self.assertEqual(selection["selection_rule"], "validation_only_then_frozen_before_2024_oos")
+        self.assertEqual(selection["selection_rule"], "validation_error_scale_only_no_return_optimization")
         self.assertEqual(selection["oos_frozen"], "true")
-        self.assertGreater(float(selection["validation_annual_return_difference"]), 0.0)
+        self.assertGreater(float(selection["no_text_signal_scale"]), 0.0)
+        self.assertGreater(float(selection["text_increment_scale"]), 0.0)
         with (SAMPLE_DIR / "macro_strategy_metrics.csv").open(encoding="utf-8", newline="") as handle:
             metrics = [row for row in csv.DictReader(handle) if row["cost_bps"] == "10"]
         by_strategy = {row["strategy"]: row for row in metrics}
-        self.assertGreater(
-            float(by_strategy["alphalens_nowcast"]["annual_return"]),
-            float(by_strategy["pure_momentum"]["annual_return"]),
-        )
+        self.assertEqual(set(by_strategy), {"no_yoy_balanced", "no_text_yoy", "alphalens_monthly_nowcast"})
 
     def test_macro_bootstrap_reports_unestablished_increment(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_bootstrap.csv").open(encoding="utf-8", newline="") as handle:

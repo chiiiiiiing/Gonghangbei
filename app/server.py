@@ -517,10 +517,14 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
             [
                 f"- 目标：{forecast.get('target_name', '')}",
                 f"- 目标期：{forecast.get('target_period_end', '')}",
-                f"- 单文本条件预测同比：{float(forecast.get('predicted_yoy', 0)):.2f}%",
+                f"- 本月无文本模型预测：{float(forecast.get('no_text_predicted_yoy', 0)):.2f}%",
+                f"- 本篇文本加入前 Nowcast：{float(forecast.get('nowcast_before_text', 0)):.2f}%",
+                f"- 本篇文本加入后 Nowcast：{float(forecast.get('nowcast_after_text', 0)):.2f}%",
+                f"- 本篇文本边际变化：{float(forecast.get('marginal_change', 0)):+.2f} 个百分点",
+                f"- 去重状态：{'已匹配历史文档，不重复贡献' if forecast.get('duplicate_status', {}).get('is_duplicate') else '未发现历史重复，可贡献一次'}",
                 f"- 90% 预测区间：[{float(forecast.get('lower_90', 0)):.2f}%, {float(forecast.get('upper_90', 0)):.2f}%]",
                 f"- 相对最新已公布值的预测加速度：{float(forecast.get('predicted_acceleration', 0)):.2f} 个百分点",
-                f"- 冻结模型：{forecast.get('model_name', '')}；训练/验证文本 {forecast.get('training_document_count', 0)}/{forecast.get('validation_document_count', 0)} 篇",
+                f"- 冻结模型：{forecast.get('model_name', '')}；训练/验证月份 {forecast.get('training_month_count', 0)}/{forecast.get('validation_month_count', 0)} 期",
                 f"- 验证结论：{forecast.get('analysis_conclusion', '')}",
                 f"- 口径：{forecast.get('forecast_basis', '')}",
                 "",
@@ -532,7 +536,7 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
             lines.append(f"- `{item.get('feature')}`：{float(item.get('contribution_pct_point', 0)):+.4f} 个百分点")
         lines.extend(["", "## 三、来源与完整性", ""])
     else:
-        lines.extend(["- 未生成单文本同比预测。", "", "## 三、来源与完整性", ""])
+        lines.extend(["- 未生成月度 Nowcast 边际变化。", "", "## 三、来源与完整性", ""])
     source_audit = analysis.get("source_audit")
     if source_audit:
         lines.extend(
@@ -595,8 +599,9 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         lines.append("- 本次事件未形成通过全部门控的冻结规则；系统仍保留通过校验的结构化证据用于同比增长预测。")
     strategy_backtest = load_macro_backtest()
     strategy_metrics = {row["strategy"]: row for row in strategy_backtest.get("metrics", [])}
-    alpha_strategy = strategy_metrics.get("alphalens_nowcast", {})
-    momentum_strategy = strategy_metrics.get("pure_momentum", {})
+    no_yoy_strategy = strategy_metrics.get("no_yoy_balanced", {})
+    no_text_strategy = strategy_metrics.get("no_text_yoy", {})
+    alpha_strategy = strategy_metrics.get("alphalens_monthly_nowcast", {})
     strategy_bootstrap = (strategy_backtest.get("bootstrap") or [{}])[0]
     observed_positive = float(strategy_bootstrap.get("annualized_net_return_difference", 0)) > 0
     if strategy_bootstrap.get("conclusion") == "positive_increment_observed":
@@ -608,19 +613,21 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "## 六、AlphaLens 预测确认策略回测",
+            "## 六、AlphaLens 宏观预测差异配置回测",
             "",
-            "- 策略：新能源 ETF `516160` 12个月时间序列动量 + 60日波动率缩放 + AlphaLens 行业同比预测加速度确认；剩余仓位配置5年期国债 ETF `511010`。",
+            "- 策略：新能源 ETF `516160` 与5年期国债 ETF `511010` 的宏观预测差异配置，不使用价格趋势，不做空、不加杠杆。",
             f"- 调仓：{strategy_backtest.get('rebalance_timing', '')}；不做空、不加杠杆；主成本 {strategy_backtest.get('primary_cost_bps', 10)} bp。",
-            f"- AlphaLens增强策略：年化收益 {float(alpha_strategy.get('annual_return', 0)):.2%}，Sharpe {float(alpha_strategy.get('sharpe', 0)):.3f}，最大回撤 {float(alpha_strategy.get('max_drawdown', 0)):.2%}。",
-            f"- 纯趋势策略：年化收益 {float(momentum_strategy.get('annual_return', 0)):.2%}，Sharpe {float(momentum_strategy.get('sharpe', 0)):.3f}，最大回撤 {float(momentum_strategy.get('max_drawdown', 0)):.2%}。",
-            f"- AlphaLens相对纯趋势年化净收益差：{float(strategy_bootstrap.get('annualized_net_return_difference', 0)):.2%}；3个月时间块 Bootstrap 95%区间 [{float(strategy_bootstrap.get('ci_lower_95', 0)):.2%}, {float(strategy_bootstrap.get('ci_upper_95', 0)):.2%}]。",
-            f"- 结论：{strategy_conclusion}。{strategy_backtest.get('oracle_warning', '')}",
+            f"- 无同比信号（固定50/50）：年化收益 {float(no_yoy_strategy.get('annual_return', 0)):.2%}。",
+            f"- 无文本同比模型：年化收益 {float(no_text_strategy.get('annual_return', 0)):.2%}。",
+            f"- 月度文本增强 Nowcast：年化收益 {float(alpha_strategy.get('annual_return', 0)):.2%}，Sharpe {float(alpha_strategy.get('sharpe', 0)):.3f}。",
+            f"- 文本增强相对无文本同比模型年化净收益差：{float(strategy_bootstrap.get('annualized_net_return_difference', 0)):.2%}；3个月时间块 Bootstrap 95%区间 [{float(strategy_bootstrap.get('ci_lower_95', 0)):.2%}, {float(strategy_bootstrap.get('ci_upper_95', 0)):.2%}]。",
+            f"- 本篇文本加入前风险仓位 {float(forecast.get('strategy_impact', {}).get('risk_weight_before', 0)):.2%}，加入后 {float(forecast.get('strategy_impact', {}).get('risk_weight_after', 0)):.2%}；未来持有期尚未发生，不生成单篇文本的虚假实现收益。",
+            f"- 结论：{strategy_conclusion}。",
             "",
             "## 七、限制",
             "",
             "- 当前行情为前复权候选价，`adj_factor=1` 仅作占位字段，不是真实复权因子序列。",
-            "- 同比预测只使用本次新输入文本的结构化证据；历史文本仅用于冻结模型与规则参数。",
+            "- 月度Nowcast聚合同月去重文本；本篇新文本只展示加入前后的边际预测与仓位变化。",
             "- 当前样本、规则与股票池规模有限，结果用于验证研究链路，不代表未来表现。",
             "",
             "## 八、免责声明",
