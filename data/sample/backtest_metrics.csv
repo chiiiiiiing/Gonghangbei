@@ -1,13 +1,13 @@
 metric,value,description
-event_factor_sample_count,57,事件触发后的因子样本数
-factor_coverage_rate,0.003132,有因子值的股票日占可用行情股票日的比例
-avg_rank_ic_5d,0.003319,行业中性因子与行业超额收益的 Rank IC
-rank_ic_ir,0.027041,稀疏有效截面的 Rank IC 均值除以标准差
-rank_ic_valid_date_count,33,具备因子差异的有效横截面数
-active_factor_date_count,33,出现有效因子事件的交易日数
-top_bottom_group_spread_5d,0.004515,逐日横截面 G5 减 G1 的行业超额收益差
-positive_excess_return_rate_5d,0.438596,事件样本行业超额收益为正的比例
+event_factor_sample_count,113,事件触发后的因子样本数
+factor_coverage_rate,0.005984,有因子值的股票日占可用行情股票日的比例
+avg_rank_ic_5d,0.010036,行业中性因子与行业超额收益的 Rank IC
+rank_ic_ir,0.069999,稀疏有效截面的 Rank IC 均值除以标准差
+rank_ic_valid_date_count,29,具备因子差异的有效横截面数
+active_factor_date_count,37,出现有效因子事件的交易日数
+top_bottom_group_spread_5d,-0.001190,逐日横截面 G5 减 G1 的行业超额收益差
+positive_excess_return_rate_5d,0.486726,事件样本行业超额收益为正的比例
 evidence_status,sufficient,有效日期和事件样本是否达到展示门槛
-positive_forward_return_rate_5d,0.438596,兼容字段；当前值为事件样本行业超额收益为正的比例
-rank_ic_nonzero_date_count,33,Rank IC 非零截面数
+positive_forward_return_rate_5d,0.486726,兼容字段；当前值为事件样本行业超额收益为正的比例
+rank_ic_nonzero_date_count,29,Rank IC 非零截面数
 future_info_audit,pass,收益窗口均使用 event_time 之后的交易日

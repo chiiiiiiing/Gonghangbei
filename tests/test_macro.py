@@ -235,6 +235,9 @@ class MacroResearchTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         payload = response.get_json()
         self.assertEqual(payload["conclusion"], "文本预测增量不足")
+        self.assertEqual(payload["selected_route"], "no_text_ridge")
+        self.assertEqual(payload["provisional_rule_route"], "historical_rules")
+        self.assertGreater(payload["data_sufficiency_checks"]["train_gap"], 0)
         self.assertEqual(before, target_path.read_bytes())
         self.assertEqual(payload["disclaimer"], "本报告仅供研究参考，不构成投资建议")
 

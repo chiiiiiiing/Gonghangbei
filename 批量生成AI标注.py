@@ -50,6 +50,47 @@ def load_cache() -> dict[str, dict[str, Any]]:
     return records
 
 
+def latest_record_for_document(
+    cache: dict[str, dict[str, Any]],
+    document: dict[str, str],
+    exact_key: str,
+) -> dict[str, Any] | None:
+    """Find the newest record for unchanged input, across prompt versions.
+
+    R4.1 improves the retry contract.  Existing successful strict records are
+    retained instead of duplicated solely because a repair prompt version
+    changed; ``--retry-failed`` therefore targets only failed documents.
+    """
+    exact = cache.get(exact_key)
+    if exact is not None:
+        return exact
+    expected_hash = document_hash(document)
+    matching = [
+        record
+        for record in cache.values()
+        if record.get("doc_id") == document["doc_id"]
+        and record.get("document_hash") == expected_hash
+    ]
+    if not matching:
+        return None
+    return max(matching, key=lambda record: str(record.get("generated_at", "")))
+
+
+def latest_records_by_document(
+    records: list[dict[str, Any]],
+) -> dict[tuple[str, str], dict[str, Any]]:
+    """Deduplicate append-only retries for accurate cache coverage reporting."""
+    latest: dict[tuple[str, str], dict[str, Any]] = {}
+    for record in records:
+        key = (str(record.get("doc_id", "")), str(record.get("document_hash", "")))
+        if not key[0]:
+            continue
+        previous = latest.get(key)
+        if previous is None or str(record.get("generated_at", "")) >= str(previous.get("generated_at", "")):
+            latest[key] = record
+    return latest
+
+
 def append_record(record: dict[str, Any]) -> None:
     with CACHE_PATH.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n")
@@ -85,7 +126,7 @@ def main() -> None:
     processed = 0
     for document in read_csv("raw_documents.csv"):
         key = cache_key(document)
-        existing = cache.get(key)
+        existing = latest_record_for_document(cache, document, key)
         if existing and (existing.get("status") == "success" or not args.retry_failed):
             continue
         result = layer.analyze(document, stock_pool, rules)
@@ -110,7 +151,10 @@ def main() -> None:
         print(f"{document['doc_id']}: {record['status']}")
         if args.limit and processed >= args.limit:
             break
-    success_count = sum(record.get("status") == "success" for record in cache.values())
+    success_count = sum(
+        record.get("status") == "success"
+        for record in latest_records_by_document(list(cache.values())).values()
+    )
     print(f"本次处理 {processed} 篇；当前有效缓存 {success_count} 篇。API Key 未写入磁盘。")
 
 

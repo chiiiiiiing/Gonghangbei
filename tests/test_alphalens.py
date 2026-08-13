@@ -17,6 +17,7 @@ from src.ai.prompts import build_analysis_messages
 from src.ai.research_layer import AIResearchLayer, validate_ai_output
 from src.ai.source_quality import assess_source, fetch_full_text
 from src.ingestion.text_import import FIELDS, stage_manifest
+from src.ingestion.discovery_ir_qa import collect_candidates
 from src.pipeline.extract_events_rule_based import _truncate_at_boundary
 from src.pipeline.live_analysis import (
     _apply_confidence_calibration,
@@ -26,9 +27,13 @@ from src.pipeline.live_analysis import (
     build_rule_explainability,
     evaluate_ai_candidate_rules,
     fuse_predicate_values,
+    matched_frozen_rules,
     rule_matches,
 )
 from src.research.scoring import beta_impact_probability, evidence_score_breakdown
+from src.macro.engine import DISCLAIMER as MACRO_DISCLAIMER
+from src.macro.engine import build_forecasts
+from src.macro.engine import live_text_forecast
 
 
 class AlphaLensAcceptanceTests(unittest.TestCase):
@@ -48,6 +53,237 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertTrue(payload["consensus_gate_passed"])
         self.assertEqual(payload["disputed_predicates"], [])
 
+    def test_macro_endpoints_and_default_scope(self) -> None:
+        for path in ("/api/macro/status", "/api/macro/forecast", "/api/macro/backtest"):
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 200, path)
+            self.assertEqual(response.get_json()["disclaimer"], MACRO_DISCLAIMER)
+        status = self.client.get("/api/macro/status").get_json()
+        self.assertEqual(status["target_name"], "电气机械和器材制造业增加值同比增速")
+        self.assertIn("不预测股票价格", status["research_scope"])
+
+    def test_macro_replay_preserves_full_ai_rule_audit(self) -> None:
+        payload = self.client.get("/api/replay/storage-policy").get_json()
+        self.assertIn("text_forecast", payload)
+        self.assertNotIn("macro_impact", payload)
+        self.assertEqual(len(payload["stock_results"][0]["predicate_consensus"]), 19)
+        self.assertEqual(payload["text_forecast"]["forecast_mode"], "monthly_nowcast_marginal_text")
+        self.assertIn("本篇文本加入前 Nowcast", payload["report"])
+        self.assertIn("AlphaLens 趋势策略宏观确认回测", payload["report"])
+        self.assertNotIn("| 股票 | 行业 | 候选因子", payload["report"])
+
+    def test_macro_target_dates_and_jan_feb_combination(self) -> None:
+        with (SAMPLE_DIR / "macro_target_history.csv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        for row in rows:
+            datetime.strptime(row["period_start"], "%Y-%m-%d")
+            datetime.strptime(row["period_end"], "%Y-%m-%d")
+            datetime.strptime(row["release_date"], "%Y-%m-%d")
+            self.assertGreater(row["release_date"], row["period_end"])
+        combined_years = {row["period_start"][:4] for row in rows if row["period_kind"] == "jan_feb_combined"}
+        self.assertTrue(combined_years)
+        for year in combined_years:
+            self.assertFalse(any(row["period_start"] == f"{year}-01-01" and row["period_kind"] == "monthly" for row in rows))
+            self.assertFalse(any(row["period_start"] == f"{year}-02-01" for row in rows))
+
+    def test_macro_forecast_release_boundary_and_frozen_splits(self) -> None:
+        with (SAMPLE_DIR / "macro_forecasts.csv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertTrue(rows)
+        for row in rows:
+            expected = "validation" if row["target_period_end"] < "2024-01-01" else "oos"
+            self.assertEqual(row["split"], expected)
+            if row["target_release_date"]:
+                self.assertGreater(row["target_release_date"], row["as_of_date"])
+            self.assertIn(row["is_oos"], {"true", "false"})
+        latest = rows[-1]
+        self.assertEqual(latest["text_increment_status"], "evaluated")
+        self.assertEqual(latest["evidence_status"], "sufficient")
+        self.assertEqual({row["selected_model"] for row in rows if row["split"] == "oos"}, {"monthly_text_residual_ridge"})
+        self.assertTrue(all("no_text_predicted_yoy" in row and "text_prediction_increment" in row for row in rows))
+
+    def test_model_selection_cannot_read_current_unreleased_target(self) -> None:
+        targets = []
+        for month in range(1, 13):
+            targets.append({
+                "period_start": f"2021-{month:02d}-01",
+                "period_end": f"2021-{month:02d}-28",
+                "actual_yoy": "1.0",
+                "release_date": f"2021-{month:02d}-28",
+            })
+        targets.extend([
+            {"period_start": "2022-01-01", "period_end": "2022-01-31", "actual_yoy": "0.0", "release_date": "2022-03-15"},
+            {"period_start": "2022-02-01", "period_end": "2022-02-28", "actual_yoy": "0.0", "release_date": "2022-03-15"},
+        ])
+        predictions = {
+            "persistence": 0.0,
+            "seasonal": 2.0,
+            "ar1": 3.0,
+            "no_text_ridge": 4.0,
+            "ridge_text": 4.0,
+            "elastic_net_text": 4.0,
+        }
+        with patch("src.macro.engine._target_periods", return_value=targets), patch(
+            "src.macro.engine._model_predictions", return_value=predictions,
+        ), patch("src.macro.engine._write_csv"), patch("src.macro.engine._write_forecast_metrics"):
+            rows = build_forecasts([])
+        self.assertEqual(len(rows), 2)
+        self.assertTrue(all(row["target_release_date"] > row["as_of_date"] for row in rows))
+
+    def test_verified_historical_texts_and_monthly_nowcast_model(self) -> None:
+        with (SAMPLE_DIR / "macro_historical_documents.csv").open(encoding="utf-8", newline="") as handle:
+            documents = list(csv.DictReader(handle))
+        self.assertGreaterEqual(len(documents), 100)
+        self.assertGreaterEqual(sum(row["source_type"] == "policy" for row in documents), 18)
+        self.assertTrue(all(row["url"].startswith("https://") for row in documents))
+        with (SAMPLE_DIR / "macro_historical_fetch_audit.csv").open(encoding="utf-8", newline="") as handle:
+            audit = list(csv.DictReader(handle))
+        self.assertEqual(len(audit), len(documents))
+        self.assertTrue(all(row["accepted"] == "true" for row in audit))
+        status = self.client.get("/api/macro/status").get_json()
+        model = status["monthly_nowcast_model"]
+        self.assertGreaterEqual(model["training_month_count"], 50)
+        self.assertGreaterEqual(model["validation_month_count"], 20)
+        self.assertEqual(model["model_name"], "monthly_text_residual_ridge")
+        self.assertLess(model["validation_mae"], model["no_text_validation_mae"])
+
+    def test_monthly_nowcast_model_selection_is_validation_only_and_frozen(self) -> None:
+        model_path = SAMPLE_DIR / "macro_monthly_nowcast_model.json"
+        model = json.loads(model_path.read_text(encoding="utf-8"))
+        self.assertEqual(model["feature_set_name"], "audit_predicates_state")
+        self.assertEqual(model["unit_of_observation"], "one_unique_month_after_document_deduplication")
+        self.assertIn("2022—2023验证期", model["selection_boundary"])
+        self.assertGreater(float(model["text_weight"]), 0.0)
+        self.assertEqual(float(model["standardized_feature_clip"]), 3.0)
+
+    def test_monthly_text_training_has_strict_target_release_boundary(self) -> None:
+        with (SAMPLE_DIR / "macro_target_history.csv").open(encoding="utf-8", newline="") as handle:
+            targets = list(csv.DictReader(handle))
+        with (SAMPLE_DIR / "macro_historical_documents.csv").open(encoding="utf-8", newline="") as handle:
+            documents = list(csv.DictReader(handle))
+        for document in documents:
+            target = next((row for row in targets if row["period_start"] <= document["publish_time"] <= row["period_end"]), None)
+            if target and target["release_date"]:
+                self.assertGreater(target["release_date"], document["publish_time"])
+
+    def test_single_new_text_changes_monthly_nowcast_marginally(self) -> None:
+        payload = self.client.get("/api/replay/storage-policy").get_json()
+        altered_analysis = deepcopy(payload)
+        altered_analysis["source_url"] = "https://example.test/alphalens/new-monthly-evidence"
+        altered_analysis["document_title"] = "未进入历史语料的月度产业证据"
+        altered_analysis["source_type"] = "news"
+        altered_analysis["event_type"] = "attention_spread"
+        for stock in altered_analysis["stock_results"]:
+            stock["event"]["evidence_strength"] = "0.55"
+            stock["predicate_fusion"]["has_policy_support"]["fused"] = 0.0
+        changed = live_text_forecast(altered_analysis)
+        self.assertNotEqual(0.0, changed["marginal_change"])
+        self.assertEqual(changed["forecast_mode"], "monthly_nowcast_marginal_text")
+        self.assertEqual(changed["monthly_document_count_after"], changed["monthly_document_count_before"] + 1)
+        self.assertFalse(changed["duplicate_status"]["is_duplicate"])
+        self.assertEqual(changed["strategy_impact"]["realized_return_status"], "not_yet_observable")
+
+    def test_replayed_historical_text_is_deduplicated_from_monthly_nowcast(self) -> None:
+        payload = self.client.get("/api/replay/storage-policy").get_json()
+        forecast = payload["text_forecast"]
+        self.assertTrue(forecast["duplicate_status"]["is_duplicate"])
+        self.assertEqual(forecast["monthly_document_count_after"], forecast["monthly_document_count_before"])
+        self.assertEqual(float(forecast["marginal_change"]), 0.0)
+        self.assertEqual(
+            float(forecast["strategy_impact"]["risk_weight_before"]),
+            float(forecast["strategy_impact"]["risk_weight_after"]),
+        )
+
+    def test_monthly_features_have_one_unique_row_per_target_period(self) -> None:
+        with (SAMPLE_DIR / "macro_monthly_features.csv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        periods = [row["period_end"] for row in rows]
+        self.assertEqual(len(periods), len(set(periods)))
+
+    def test_ui_does_not_describe_prediction_as_realtime_update(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        index = (root / "app" / "index.html").read_text(encoding="utf-8")
+        combined = index + (root / "app" / "assets" / "app.js").read_text(encoding="utf-8")
+        self.assertNotIn("实时更新", combined)
+        self.assertNotIn("Nowcast 边际变化", combined)
+        self.assertIn('<section class="view active" id="liveView">', index)
+        self.assertNotIn('<section class="view active" id="macroView">', index)
+        self.assertIn('data-view="liveView" type="button">新文本预测</button>', index)
+        self.assertIn('data-view="macroView" type="button">研究验证</button>', index)
+        self.assertNotIn('data-view="auditView"', index)
+        self.assertNotIn('id="auditView"', index)
+        self.assertNotIn('id="historyView"', index)
+        self.assertIn('id="validationAuditContent"', combined)
+        self.assertNotIn('实际预测入口位于“新文本预测”首页', combined)
+        self.assertNotIn('id="openLiveAnalysis"', combined)
+        self.assertNotIn('返回新文本预测', combined)
+        self.assertNotIn('首位关联股票', combined)
+        self.assertNotIn('候选因子值', combined)
+        self.assertNotIn('候选因子与研究证据', combined)
+        self.assertNotIn('历史样本外参考', combined)
+        self.assertNotIn('进入因子', combined)
+        self.assertIn('本篇文本对本月 Nowcast 的边际影响', combined)
+        self.assertIn('趋势策略 + AlphaLens 宏观确认', combined)
+        self.assertIn('冻结 OOS 文本增量不足', combined)
+        self.assertIn('策略防泄漏', combined)
+        self.assertIn('两条规则生成路线对照', combined)
+
+    def test_macro_strategy_constraints_and_oracle_label(self) -> None:
+        with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertTrue(rows)
+        for row in rows:
+            risk = float(row["risk_weight"])
+            defensive = float(row["defensive_weight"])
+            self.assertGreaterEqual(risk, 0.0)
+            self.assertLessEqual(risk, 1.0)
+            self.assertAlmostEqual(risk + defensive, 1.0, places=5)
+            self.assertIn(row["tradable"], {"true", "false"})
+        self.assertEqual(
+            {row["strategy"] for row in rows},
+            {"buy_hold", "trend", "trend_latest_macro", "trend_alphalens", "trend_oracle"},
+        )
+        backtest = self.client.get("/api/macro/backtest").get_json()
+        self.assertEqual(backtest["risk_asset"]["code"], "516160")
+        self.assertEqual(backtest["defensive_asset"]["code"], "511010")
+        self.assertFalse(backtest["pre_listing_proxy"]["tradable"])
+        self.assertIn("12个月时间序列动量", backtest["strategy_description"])
+        self.assertIn("Oracle：不可交易", backtest["oracle_label"])
+        with (SAMPLE_DIR / "macro_market_data.csv").open(encoding="utf-8", newline="") as handle:
+            market = list(csv.DictReader(handle))
+        first_trade_date = {}
+        for item in market:
+            first_trade_date.setdefault(item["trade_date"][:7], item["trade_date"])
+        self.assertTrue(all(row["signal_date"] < first_trade_date[row["trade_month"]] for row in rows))
+
+    def test_strategy_selection_uses_validation_only_then_freezes_oos(self) -> None:
+        with (SAMPLE_DIR / "macro_strategy_selection.csv").open(encoding="utf-8", newline="") as handle:
+            selection = next(csv.DictReader(handle))
+        self.assertEqual(selection["selection_period_start"], "2022-01-01")
+        self.assertEqual(selection["selection_period_end"], "2023-12-31")
+        self.assertEqual(selection["cost_bps"], "10")
+        self.assertEqual(selection["selection_rule"], "precommitted_trend_volatility_macro_confirmation")
+        self.assertEqual(selection["oos_frozen"], "true")
+        self.assertEqual(selection["momentum_months"], "12")
+        self.assertEqual(selection["volatility_days"], "60")
+        self.assertEqual(selection["target_annual_volatility"], "0.100000")
+        with (SAMPLE_DIR / "macro_strategy_metrics.csv").open(encoding="utf-8", newline="") as handle:
+            metrics = [row for row in csv.DictReader(handle) if row["cost_bps"] == "10"]
+        by_strategy = {row["strategy"]: row for row in metrics}
+        self.assertEqual(
+            set(by_strategy),
+            {"buy_hold", "trend", "trend_latest_macro", "trend_alphalens", "trend_oracle"},
+        )
+
+    def test_macro_bootstrap_reports_unestablished_increment(self) -> None:
+        with (SAMPLE_DIR / "macro_strategy_bootstrap.csv").open(encoding="utf-8", newline="") as handle:
+            row = next(csv.DictReader(handle))
+        self.assertEqual(row["comparison"], "trend_alphalens_minus_trend")
+        self.assertEqual(row["block_months"], "6")
+        self.assertEqual(row["bootstrap_iterations"], "1000")
+        self.assertLessEqual(float(row["ci_lower_95"]), float(row["ci_upper_95"]))
+        self.assertIn(row["conclusion"], {"trading_increment_not_established", "positive_increment_observed"})
+
     def test_ai_check_requires_key_without_retaining_credentials(self) -> None:
         response = self.client.post("/api/ai/check", json={})
         self.assertEqual(response.status_code, 400)
@@ -59,6 +295,25 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         response = self.client.post("/api/analyze", json=request)
         self.assertEqual(response.status_code, 400)
         self.assertIn("hybrid", response.get_json()["error"])
+
+    def test_live_endpoint_does_not_persist_unvalidated_ai_candidate_rules(self) -> None:
+        """Real-time input may display candidates, but must not alter sample research data."""
+        fake_result = {"ai_analysis": {}, "stock_results": [], "qualified_rules": []}
+        request = {
+            "title": "实时政策验收文本",
+            "content": "主管部门发布新型储能支持政策，明确项目建设要求。",
+            "source_type": "policy",
+            "source_name": "测试来源",
+            "event_date": "2025-01-02",
+            "analysis_mode": "hybrid",
+            "api_key": "transient-test-key",
+        }
+        with patch("app.server.request_ai_layer", return_value=object()), patch(
+            "app.server.analyze_new_document", return_value=fake_result
+        ) as analyze_mock, patch("app.server.generate_report", return_value="report"):
+            response = self.client.post("/api/analyze", json=request)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(analyze_mock.call_args.kwargs["persist_ai_candidates"])
 
     def test_manual_review_audit_matches_recorded_state(self) -> None:
         payload = self.client.get("/api/audit").get_json()
@@ -197,6 +452,16 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertTrue(
             rule_matches({"condition": "policy_support_is_clear"}, fused_map, "policy_support")
         )
+
+    def test_frozen_rule_match_reads_gated_predicates_not_fusion(self) -> None:
+        """A conflict may be displayed as 0.5, but cannot trigger a frozen rule."""
+        deterministic = [{"predicate_name": "has_policy_support", "value": "true", "confidence": "0.9", "rationale": "x"}]
+        ai_rows = [{"name": "has_policy_support", "value": False, "confidence": 1.0, "rationale": "x"}]
+        _consensus, gated = build_predicate_consensus(deterministic, ai_rows)
+        fused = fuse_predicate_values({"has_policy_support": "true"}, ai_rows)
+        frozen = [{"rule_id": "R-TEST", "condition": "has_policy_support"}]
+        self.assertEqual(fused["has_policy_support"]["fused"], 0.5)
+        self.assertEqual(matched_frozen_rules(frozen, gated, "policy_support"), [])
 
     def test_fuse_predicate_values_statuses(self) -> None:
         agreed_true = fuse_predicate_values(
@@ -591,6 +856,41 @@ class SourceQualityAndCalibrationTests(unittest.TestCase):
         self.assertIn("fetched_content", payload["document"])
         self.assertIn("source_diagnostics", payload["document"])
         self.assertEqual(payload["document"]["source_diagnostics"]["confidence_cap"], 0.6)
+        self.assertEqual(payload["allowed_event_types_for_source"], ["policy_support"])
+
+    def test_fetched_full_text_is_strict_evidence_source(self) -> None:
+        """全文链接正文可作为严格连续证据，不回退为摘要外的宽松匹配。"""
+        case = deepcopy(self.replay_case)
+        output = case["ai_output"]
+        literal_parts = [output["event"]["evidence_text"]]
+        literal_parts.extend(
+            row["relationship_evidence"] for row in output["stock_analyses"]
+        )
+        document = {
+            "doc_id": "FULL-TEXT-001",
+            "source_type": "policy",
+            "title": "仅用于构造严格全文校验的标题",
+            "content": "这是不能作为模型证据的摘要。",
+            "fetched_content": "\n".join(literal_parts),
+            "publish_time": "2025-08-27",
+            "source_name": "中国政府网",
+            "url": "https://example.gov.cn/full-text",
+        }
+        validated, audit = validate_ai_output(
+            output,
+            document,
+            AlphaLensAcceptanceTests._stock_pool(),
+            require_stock_level=True,
+        )
+        self.assertTrue(validated["event"]["evidence_grounded"])
+        self.assertEqual(audit["grounded_stock_count"], len(validated["stock_analyses"]))
+
+    def test_ai_annotation_audit_exposes_strict_failure_categories(self) -> None:
+        payload = self.client.get("/api/audit").get_json()["ai_annotation_cache"]
+        self.assertEqual(payload["success_count"], 163)
+        self.assertEqual(payload["failed_count"], 33)
+        categories = {row["category"]: row["count"] for row in payload["failure_categories"]}
+        self.assertEqual(categories["事件或关系证据不是原文连续片段"], 23)
 
     def test_analyze_endpoint_url_only_fails_fetch_returns_400(self) -> None:
         request = {
@@ -645,6 +945,79 @@ class SourceQualityAndCalibrationTests(unittest.TestCase):
             self.assertIn("stock_relevance", formula)
             self.assertTrue(0.5 <= formula["stock_relevance"] <= 1.0)
             self.assertIn("relevance_signals", stock)
+
+    def test_discovery_ir_candidates_recheck_listing_and_detail_dates(self) -> None:
+        class FakeIRMClient:
+            def resolve_org_id(self, stock_code):
+                return "ORG-1"
+
+            def list_questions(self, stock_code, org_id, page_num, start, end):
+                if page_num > 1:
+                    return []
+                return [
+                    {"indexId": "CURRENT", "stockCode": stock_code, "pubDate": 1770000000000},
+                    {"indexId": "DISCOVERY", "stockCode": stock_code, "pubDate": 1735689600000},
+                ]
+
+            def question_detail(self, question_id):
+                if question_id == "CURRENT":
+                    raise AssertionError("当前日期记录不应请求详情")
+                return {
+                    "data": {
+                        "stockCode": "300750",
+                        "questionDate": 1735689600000,
+                        "questionContent": "请问公司储能电池业务进展如何？",
+                        "replyContent": "您好，公司相关业务进展请以公开披露信息为准。",
+                    }
+                }
+
+        candidates, report = collect_candidates(
+            [{"stock_code": "300750", "stock_name": "宁德时代"}],
+            FakeIRMClient(),
+            pages_per_stock=2,
+        )
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0]["publish_time"], "2025-01-01")
+        self.assertEqual(candidates[0]["review_status"], "pending_manual_review")
+        self.assertIn("投资者提问原文", candidates[0]["content"])
+        self.assertEqual(report["audit_counts"]["listing_out_of_window"], 1)
+
+    def test_discovery_ir_candidates_fail_closed_on_detail_stock_or_date(self) -> None:
+        class FakeIRMClient:
+            def resolve_org_id(self, stock_code):
+                return "ORG-1"
+
+            def list_questions(self, stock_code, org_id, page_num, start, end):
+                return [{"indexId": "BAD", "stockCode": stock_code, "pubDate": 1735689600000}] if page_num == 1 else []
+
+            def question_detail(self, question_id):
+                return {
+                    "data": {
+                        "stockCode": "000001",
+                        "questionDate": 1735689600000,
+                        "questionContent": "问题",
+                        "replyContent": "回复",
+                    }
+                }
+
+        candidates, report = collect_candidates(
+            [{"stock_code": "300750", "stock_name": "宁德时代"}], FakeIRMClient()
+        )
+        self.assertEqual(candidates, [])
+        self.assertEqual(report["status"], "no_verified_candidates")
+        self.assertEqual(report["audit_counts"]["detail_rejected"], 1)
+
+    def test_discovery_ir_candidates_record_network_failure_without_importing(self) -> None:
+        class FailingIRMClient:
+            def resolve_org_id(self, stock_code):
+                raise OSError("temporary network failure")
+
+        candidates, report = collect_candidates(
+            [{"stock_code": "300750", "stock_name": "宁德时代"}], FailingIRMClient()
+        )
+        self.assertEqual(candidates, [])
+        self.assertEqual(report["failed_stock_codes"], ["300750"])
+        self.assertEqual(report["audit_counts"]["org_lookup_failed"], 1)
 
 
 if __name__ == "__main__":

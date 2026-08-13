@@ -1,4 +1,1276 @@
 doc_id,period_start,period_end,period_kind,predicate_name,value,direction,intensity,confidence,expected_lag_months,evidence_text,source
+HIST-NBS-001,2015-03-01,2015-03-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 16439 亿元，同比名义增长 4.2% 。,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-001,2015-03-01,2015-03-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,policy_expands_effective_demand,true,1,0.7500,0.9325,2,为稳定扩大光伏发电应用市场，2015年下达全国新增光伏电站建设规模1780万千瓦。,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,policy_accelerates_project_implementation,true,1,0.7000,0.9325,2,各级电网企业应配合地方能源主管部门确定年度建设实施方案。对列入实施方案中的光伏发电项目，应本着简化流程和提高效率原则，按照有关规定和时限要求，及时出具项目接网意见和开展配套送出工程建设,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,capacity_under_construction,true,1,0.6000,0.9325,6,各地区2015年计划新开工的集中式光伏电站和分布式光伏电站项目的总规模不得超过下达的新增光伏电站建设规模,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,capacity_enters_production,true,1,0.7000,0.9325,1,未经备案机关同意，实施方案中的项目在投产之前，不得擅自变更投资主体和建设内容。,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,order_demand_improves,true,1,0.3000,0.7000,1,各地区2015年计划新开工的集中式光伏电站和分布式光伏电站项目的总规模不得超过下达的新增光伏电站建设规模,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,grid_investment_accelerates,true,1,0.6500,0.9325,3,各级电网企业应配合地方能源主管部门确定年度建设实施方案。对列入实施方案中的光伏发电项目，应本着简化流程和提高效率原则，按照有关规定和时限要求，及时出具项目接网意见和开展配套送出工程建设,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,financing_constraint_eases,true,1,0.8000,0.9325,3,家能源局申请追加建设规模指标。按照有关文件要求规范市场开发秩序，对明显缺乏相应的资金、技术和管理能力的企业，不应配置与其能力不相适宜的光伏电站项目。弃光限电严重地区，在项目布局方面应避免加剧弃光限电现象。 三、鼓励各地区优先建设以35千伏及以下电压等级（东北地区66千伏及以下）接入电网、单个项目容量不超过2万千瓦且所发,fused
+HIST-POLICY-2015-01,2015-03-01,2015-03-31,month,industry_competition_intensifies,true,-1,0.8000,0.9325,1,合理配置项目。优先安排电网接入和市场消纳条件好、近期具备开工条件的项目。鼓励通过竞争性方式配置项目资源，选择技术和经济实力强的企业参与项目建设，促进光伏发电上网电价下降，对降低电价的地区和项目适度增加建设规模指标。优先满足新能源示范城市、绿色能源示范县和分布式光伏发电示范区等示范区域的建设规模指标需求，示范区域在已下达,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 9694 亿元，同比名义增长 0.9% 。,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-002,2015-04-01,2015-04-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2015 年 4 月份规模以上工业生产主要数据 4 月 1-4 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 5.9 … 6.2 分三大门类 采矿业 … 2.8 … 3.1 制造业 … 6.5 … 7.0 电力、热力、燃气及水生产和供应业 … 2.0 … 2.2 分经济类型,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-003,2015-05-01,2015-05-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2015 年 5 月份规模以上工业生产主要数据 5 月 1-5 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 6.1 … 6.2 分三大门类 采矿业 … 3.9 … 3.3 制造业 … 6.7 … 6.9 电力、热力、燃气及水生产和供应业 … 2.2 … 2.2 分经济类型,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-004,2015-06-01,2015-06-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2015 年 6 月份规模以上工业生产主要数据 6 月 1-6 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 6.8 … 6.3 分三大门类 采矿业 … 2.7 … 3.2 制造业 … 7.7 … 7.1 电力、热力、燃气及水生产和供应业 … 2.1 … 2.2 分经济类型,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-005,2015-07-01,2015-07-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2015 年 7 月份规模以上工业生产主要数据 7 月 1-7 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 6.0 … 6.3 分三大门类 采矿业 … 5.6 … 3.6 制造业 … 6.6 … 7.0 电力、热力、燃气及水生产和供应业 … -0.2 … 1.8 分经济类,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-006,2015-08-01,2015-08-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2015 年 8 月份规模以上工业生产主要数据 8 月 1-8 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 6.1 … 6.3 分三大门类 采矿业 … 4.0 … 3.6 制造业 … 6.8 … 7.0 电力、热力、燃气及水生产和供应业 … 1.9 … 1.8 分经济类型,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-007,2015-09-01,2015-09-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,policy_expands_effective_demand,true,1,0.8000,0.9325,2,政府信息公开目录---国家能源局---国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358号 您当前位置： 首页 > 正文 目录项的基本信息 公开事项名称: 国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358号 索引号: 000019705/2015-00090,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.9325,2,政府信息公开目录---国家能源局---国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358号 您当前位置： 首页 > 正文 目录项的基本信息 公开事项名称: 国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358号 索引号: 000019705/2015-00090,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,capacity_under_construction,true,1,0.8000,0.9325,6,政府信息公开目录---国家能源局---国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358号 您当前位置： 首页 > 正文 目录项的基本信息 公开事项名称: 国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358号 索引号: 000019705/2015-00090,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,capacity_enters_production,true,1,0.8000,0.9325,1,国家能源局关于实行可再生能源发电项目信息化管理的通知。政府信息公开目录---国家能源局---国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358号 您当前位置： 首页 > 正文 目录项的基本信息 公开事项名称: 国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,grid_investment_accelerates,true,1,0.8000,0.9325,3,政府信息公开目录---国家能源局---国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358号 您当前位置： 首页 > 正文 目录项的基本信息 公开事项名称: 国家能源局关于实行可再生能源发电项目信息化管理的通知 国能新能[2015]358号 索引号: 000019705/2015-00090,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2015-02,2015-10-01,2015-10-31,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2015 年 9 月份规模以上工业生产主要数据 9 月 1-9 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 5.7 … 6.2 分三大门类 采矿业 … 1.2 … 3.3 制造业 … 6.7 … 7.0 电力、热力、燃气及水生产和供应业 … 0.7 … 1.7 分经济类型,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-008,2015-10-01,2015-10-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2015 年 10 月份规模以上工业生产主要数据 10 月 1-10 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 5.6 … 6.1 分三大门类 采矿业 … 0.4 … 3.0 制造业 … 6.7 … 7.0 电力、热力、燃气及水生产和供应业 … -0.3 … 1.5 分,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-009,2015-11-01,2015-11-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2015 年 11 月份规模以上工业生产主要数据 11 月 1-11 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 6.2 … 6.1 分三大门类 采矿业 … 0.3 … 2.8 制造业 … 7.2 … 7.0 电力、热力、燃气及水生产和供应业 … 2.2 … 1.6 分经,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-010,2015-12-01,2015-12-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,export_demand_improves,true,1,0.8000,0.8100,1,2015 年 12 月份规模以上工业生产主要数据 12 月 1-12 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 5.9 … 6.1 分三大门类 采矿业 … 1.4 … 2.7 制造业 … 7.0 … 7.0 电力、热力、燃气及水生产和供应业 … -0.8 … 1.4 分,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-011,2016-01-01,2016-02-29,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2016 年 1-2 月份规模以上工业生产主要数据 指 标 1-2 月 绝对量 同比增长（ % ） 规模以上工业增加值 … 5.4 分三大门类 采矿业 … 1.5 制造业 … 6.0 电力、 热力、燃气及水生产和供应业 … 1.5 分经济类型 其中： 国有控股企业 … -2.0 其中：集体企业 … 3.7 股份制企业 ,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-012,2016-03-01,2016-03-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,policy_expands_effective_demand,true,1,0.8000,0.9325,2,风电供暖对提高北方风能资源丰富地区消纳风电能力，促进城镇能源利用清洁化，减少化石能源消费，改善北方地区冬季大气环境质量意义重大。,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,policy_accelerates_project_implementation,true,1,0.6000,0.9325,6,加快推动煤电机组进行灵活性改造提升调峰能力,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,capacity_under_construction,true,1,0.7000,0.9325,6,在电力供应严重过剩且弃风严重的地区，各省级能源主管部门应研究暂停或暂缓包括新能源在内的各类电源核准建设的措施,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,capacity_enters_production,true,1,0.8000,0.9325,1,以外送为主的风电基地项目应与外送通道的建设时序相衔接，实现电源与外送通道同步规划、同步建设、同步投产，并同步落实新能源消纳市场。,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,grid_investment_accelerates,true,1,0.6500,0.9325,6,电网企业要切实承担可再生能源发电全额保障性收购的实施责任，进一步优化电网调度运行方式,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2016-01,2016-03-01,2016-03-31,month,industry_competition_intensifies,true,-1,0.8000,0.9325,1,。鼓励风电通过市场交易扩大消纳范围和消纳空间，发挥风电边际成本低的优势，通过市场竞争方式实现优先发电。市场交易须遵循公平自愿的原则，不得强制要求风电向其他发电项目支付费用的方式上网。2016年，我局将以蒙西电网区域作为落实可再生能源发电全额保障性收购制度的试点地区，内蒙古能源局、华北能源监管局及相关部门和内蒙古电力公司,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2016 年 3 月份规模以上工业生产主要数据 3 月 1-3 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 6.8 … 5.8 分三大门类 采矿业 … 3.1 … 2.1 制造业 … 7.2 … 6.5 电力、热力、燃气及水生产和供应业 … 4.8 … 2.6 分经济类型,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-013,2016-04-01,2016-04-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2016 年 4 月份规模以上工业生产主要数据 4 月 1-4 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 6.0 … 5.8 分三大门类 采矿业 … 0.1 … 1.6 制造业 … 6.9 … 6.6 电力、热力、燃气及水生产和供应业 … 1.9 … 2.5 分经济类型,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-014,2016-05-01,2016-05-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,policy_expands_effective_demand,true,1,0.8000,0.9325,2,为做好可再生能源发电全额保障性收购工作，保障风电、光伏发电的持续健康发展,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,policy_accelerates_project_implementation,true,1,0.7500,0.9325,2,确保最低保障收购年利用小时数以内的电量以最高优先等级优先发电,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,capacity_under_construction,true,1,0.6500,0.9325,6,除资源条件影响外，未达到最低保障收购年利用小时数要求的省（区、市），不得再新开工建设风电、光伏电站项目,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,grid_investment_accelerates,true,1,0.8000,0.9325,3,【关于做好风电、光伏发电全额保障性收购管理工作的通知(发改能源〔2016〕1150号)】-国家发展和改革委员会 首页 > 政务公开 > 政策 > 通知 关于做好风电、光伏发电全额保障性收购管理工作的通知(发改能源〔2016〕1150号) 2016/05/31 办公厅 国家发展改革委 国家能源局关于做好风电、 光伏发电全,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2016-02,2016-05-01,2016-05-31,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 9653 亿元，同比名义增长 0.8% 。,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-015,2016-06-01,2016-06-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10491 亿元，同比名义增长 2.3% 。,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-016,2016-07-01,2016-07-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 9761 亿元，同比名义增长 1.3% 。,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-017,2016-08-01,2016-08-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10015 亿元，同比名义增长 2.9% 。,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-018,2016-09-01,2016-09-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2016 年 9 月份规模以上工业生产主要数据 9 月 1-9 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 6.1 … 6.0 分三大门类 采矿业 … 0.1 … -0.4 制造业 … 6.5 … 6.9 电力、热力、燃气及水生产和供应业 … 7.3 … 4.3 分经济类,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-019,2016-10-01,2016-10-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2016 年 10 月份规模以上工业生产主要数据 10 月 1-10 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 一、规模以上工业增加值 … 6.1 … 6.0 分三大门类 采矿业 … -2.2 … -0.6 制造业 … 6.7 … 6.9 电力、热力、燃气及水生产和供应业 … 7.9 … 4.7 ,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-020,2016-11-01,2016-11-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11037 亿元，同比名义增长 1.7% 。,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-021,2016-12-01,2016-12-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11619 亿元，同比名义增长 3.9% 。,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-022,2017-01-01,2017-02-28,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,policy_expands_effective_demand,true,1,0.6000,0.9325,6,为引导全社会绿色消费，促进清洁能源消纳利用，进一步完善风电、光伏发电的补贴机制，拟在全国范围内试行可再生能源绿色电力证书核发和自愿认购,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,policy_accelerates_project_implementation,true,1,0.8000,0.9325,2,风电、光伏发电企业通过可再生能源发电项目信息管理系统，依据项目核准（备案）文件、电费结算单、电费结算发票和电费结算银行转账证明等证明材料申请绿色电力证书，国家可再生能源信息管理中心按月核定和核发绿色电力证书。,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,capacity_under_construction,true,1,0.8000,0.9325,6,国家可再生能源信息管理中心依托可再生能源发电项目信息管理系统，建设和管理全国绿色电力证书核发和认购平台，做好风电、光伏发电企业的绿色电力证书核发工作，并组织开展全国绿色电力证书认购工作。,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,grid_investment_accelerates,true,1,0.8000,0.9325,3,治区、直辖市发展改革委、财政厅（局）、能源局、物价局，国家能源局各派出机构，国家电网公司、南方电网公司、内蒙古电力公司，华能、大唐、华电、国电、国电投、神华、三峡、华润、中核、中广核、中节能集团公司，水电总院、电规总院、各有关协会、国家可再生能源中心： 为引导全社会绿色消费，促进清洁能源消纳利用，进一步完善风电、光伏发,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,financing_constraint_eases,true,1,0.8000,0.9325,3,可再生能源绿色电力证书交易制度是完善可再生能源支持政策和创新发展机制的重大举措，有利于促进清洁能源高效利用和降低国家财政资金的直接补贴强度，对凝聚社会共识、推动能源转型具有积极意义。,fused
+HIST-POLICY-2017-01,2017-01-01,2017-02-28,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,policy_expands_effective_demand,false,0,0.0000,0.7000,2,,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,policy_accelerates_project_implementation,true,1,0.8000,0.9325,2,二、红色预警的省（区）不得核准建设新的风电项目，并要采取有效措施着力解决弃风问题。,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,capacity_under_construction,true,1,0.8000,0.9325,6,二、红色预警的省（区）不得核准建设新的风电项目，并要采取有效措施着力解决弃风问题。,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,grid_investment_accelerates,true,1,0.8000,0.9325,3,政府信息公开目录---国家能源局---国家能源局关于发布2017年度风电投资监测预警结果的通知 您当前位置： 首页 > 正文 目录项的基本信息 公开事项名称: 国家能源局关于发布2017年度风电投资监测预警结果的通知 索引号: 000019705/2017-00018 主办单位: 国家能源局 制发日期: 2017-02,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2017-02,2017-01-01,2017-02-28,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-NBS-023,2017-03-01,2017-03-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 17019 亿元，同比名义增长 8.8% 。,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,deterministic
+HIST-NBS-023,2017-03-01,2017-03-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,deterministic
+HIST-NBS-024,2017-04-01,2017-04-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10737 亿元，同比名义增长 12.9% 。,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-024,2017-04-01,2017-04-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10192 亿元，同比名义增长 10.8% 。,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-025,2017-05-01,2017-05-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10700 亿元，同比名义增长 10.7% 。,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-026,2017-06-01,2017-06-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11723 亿元，同比名义增长 11.7% 。,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-027,2017-07-01,2017-07-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,export_demand_improves,true,1,0.5000,0.8100,1,工业企业实现出口交货值 10621 亿元，同比名义增长 8.6%,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-028,2017-08-01,2017-08-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10895 亿元，同比名义增长 8.2% 。,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-029,2017-09-01,2017-09-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11906 亿元，同比名义增长 9.8% 。,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-030,2017-10-01,2017-10-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11181 亿元，同比名义增长 7.5% 。,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-031,2017-11-01,2017-11-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11942 亿元，同比名义增长 11.8% 。,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-032,2017-12-01,2017-12-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 12035 亿元，同比名义增长 9.3% 。,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-033,2018-01-01,2018-02-28,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 17040 亿元，同比名义增长 9.5% 。,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-034,2018-03-01,2018-03-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10016 亿元，同比名义增长 4.0% 。,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-035,2018-04-01,2018-04-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 9454 亿元，同比名义增长 4.2% 。,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-036,2018-05-01,2018-05-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,policy_expands_effective_demand,true,1,0.8000,0.9325,2,为促进光伏行业健康可持续发展，提高发展质量，加快补贴退坡，现将2018年光伏发电有关事项通知如下。,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.9325,2,国家发展改革委 财政部 国家能源局关于2018年光伏发电有关事项的通知---国家能源局 您当前位置： 首页 > 正文 国家发展改革委 财政部 国家能源局关于2018年光伏发电有关事项的通知 发布时间：2018-06-01 来源：国家发展改革委网站 大 中 小 国家发展改革委 财政部 国家能源局关于 2018年光伏发电有,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,capacity_under_construction,true,1,0.7000,0.9325,6,今年安排1000万千瓦左右规模用于支持分布式光伏项目建设。,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,grid_investment_accelerates,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2018-01,2018-06-01,2018-06-30,month,industry_competition_intensifies,true,-1,0.7000,0.9325,1,暂不安排2018年普通光伏电站建设规模。,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10142 亿元，同比增长 6.9% 。,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-037,2018-06-01,2018-06-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10547 亿元，同比增长 2.8% 。,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-038,2018-07-01,2018-07-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10317 亿元，同比增长 8.7% 。,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-039,2018-08-01,2018-08-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10995 亿元，同比增长 12.5% 。,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-040,2018-09-01,2018-09-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11839 亿元，同比增长 11.7% 。,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-041,2018-10-01,2018-10-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.7000,2,,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.9325,2,一、关于风电项目 （一）已核准但超过两年未开工建设，且未及时办理延期的，核准文件应按项目管理的规定声明作废。,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,capacity_under_construction,true,1,0.8000,0.9325,6,政府信息公开目录---国家能源局---国家能源局综合司关于梳理“十二五”以来风电、光伏发电项目信息的通知(国能综函新能〔2018〕367号) 您当前位置： 首页 > 正文 目录项的基本信息 公开事项名称: 国家能源局综合司关于梳理“十二五”以来风电、光伏发电项目信息的通知(国能综函新能〔2018〕367号) 索引号: ,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,grid_investment_accelerates,true,1,0.7000,0.9325,3,红色、橙色预警地区项目，开工时间应与电网企业充分协商，确保落实消纳条件。,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2018-02,2018-11-01,2018-11-30,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11489 亿元，同比增长 14.7% 。,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-042,2018-11-01,2018-11-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11833 亿元，同比增长 7.6% 。,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-043,2018-12-01,2018-12-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,policy_expands_effective_demand,true,1,0.6500,0.9325,6,开展平价上网项目和低价上网试点项目建设,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,policy_accelerates_project_implementation,true,1,0.6000,0.9325,6,在符合本省（自治区、直辖市）可再生能源建设规划、国家风电、光伏发电年度监测预警有关管理要求、电网企业落实接网和消纳条件的前提下，由省级政府能源主管部门组织实施本地区平价上网项目和低价上网项目，有关项目不受年度建设规模限制,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,capacity_under_construction,true,1,0.5500,0.9325,6,在资源条件优良和市场消纳条件保障度高的地区，引导建设一批上网电价低于燃煤标杆上网电价的低价上网试点项目,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,order_demand_improves,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,product_price_recovers,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,export_demand_improves,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,grid_investment_accelerates,true,1,0.5500,0.9325,3,有关省级电网企业负责投资项目升压站之外的接网等全部配套电网工程,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,financing_constraint_eases,true,1,0.6500,0.9325,3,国家开发银行、四大国有商业银行等金融机构应根据国家新能源发电发展规划和有关地区新能源发电平价上网实施方案，合理安排信贷资金规模,fused
+HIST-POLICY-2019-01,2019-01-01,2019-02-28,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.9500,1,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11749 亿元，同比增长 4.1% 。,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-044,2019-01-01,2019-02-28,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10292 亿元，同比名义增长 5.7% 。,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-045,2019-04-01,2019-04-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 9899 亿元，同比名义增长 7.6% 。,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-046,2019-05-01,2019-05-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,policy_expands_effective_demand,true,1,0.7500,0.9325,2,积极推进平价上网项目建设,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,policy_accelerates_project_implementation,true,1,0.7000,0.9325,2,做好2019年风电、光伏发电项目建设有关要求通知如下,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,capacity_under_construction,true,1,0.7000,0.9325,6,国家能源局关于2019年风电光伏发电项目建设有关事项的通知。,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,grid_investment_accelerates,true,1,0.6500,0.9325,3,做好新建风电、光伏发电项目与电力送出工程建设的衔接并落实消纳方案,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2019-02,2019-05-01,2019-05-31,month,industry_competition_intensifies,true,-1,0.2000,0.7000,1,严格规范补贴项目竞争配置,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 9975 亿元，同比名义增长 0.7% 。,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-047,2019-06-01,2019-06-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2019 年 8 月份规模以上工业生产主要数据 8 月 1-8 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 4.4 … 5.6 分三大门类 采矿业 … 3.7 … 4.0 制造业 … 4.3 … 5.9 其中 : 高技术制造业 … 6.1 … 8.4 电力、热力、燃气及水生产,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-048,2019-09-01,2019-09-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2019 年 10 月份规模以上工业生产主要数据 10 月 1-10 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 4.7 … 5.6 分三大门类 采矿业 … 3.9 … 4.5 制造业 … 4.6 … 5.8 其中 : 高技术制造业 … 8.3 … 8.7 电力、热力、燃气及,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-049,2019-11-01,2019-11-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,policy_expands_effective_demand,true,1,0.8000,0.9325,2,2019年5月，国家能源局印发了《关于2019年风电、光伏发电项目建设有关事项的通知》（国能发新能〔2019〕49号），重点突出推进平价上网和加大力度实施需国家补贴项目竞争配置的两大方向，同时强化风电、光伏发电项目的电力送出和消纳保障机制，提高市场竞争力，推动产业进入高质量发展的新阶段。,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.9325,2,2019年5月，国家能源局印发了《关于2019年风电、光伏发电项目建设有关事项的通知》（国能发新能〔2019〕49号），重点突出推进平价上网和加大力度实施需国家补贴项目竞争配置的两大方向，同时强化风电、光伏发电项目的电力送出和消纳保障机制，提高市场竞争力，推动产业进入高质量发展的新阶段。,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,capacity_under_construction,true,1,0.7000,0.9325,6,国家能源局关于2020年风电光伏发电项目建设有关事项的通知解读。,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,grid_investment_accelerates,true,1,0.8000,0.9325,3,一是对省级能源主管部门，要求根据国家可再生能源“十三五”相关规划、电网消纳能力、监测预警要求等，合理安排新增核准（备案）项目规模，规范有序组织项目建设，并加强项目信息管理。,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,financing_constraint_eases,true,1,0.8000,0.9325,3,20年国家对光伏发电项目总体上仍然采取2019年分类管理的思路。其中，需国家财政资金补贴的光伏发电项目参照2019年建设方案有关要求执行，即户用光伏不参与补贴竞价，只有2020年新建的需要国家补贴的光伏发电项目（包括集中式光伏电站和工商业分布式光伏项目，下同）参与补贴竞价，由地方通过竞争配置方式组织项目、国家通过全国统,fused
+HIST-POLICY-2020-01,2020-03-01,2020-03-31,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 9790 亿元，同比名义增长 1.1% 。,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-050,2020-05-01,2020-05-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,policy_expands_effective_demand,true,1,0.7000,0.9325,2,合理确定补助资金当年支持新增项目种类和规模,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,policy_accelerates_project_implementation,true,1,0.7000,0.9325,2,通过竞争性方式配置新增项目,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,capacity_under_construction,true,1,0.8000,0.9325,6,根据可再生能源发展规划、补助资金年度增收水平等情况，合理确定补助资金当年支持新增项目种类和规模。,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,order_demand_improves,true,1,0.2500,0.7000,1,持续扩大绿证市场交易规模,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,grid_investment_accelerates,true,1,0.6000,0.9325,3,各省级电网要按照《中华人民共和国可再生能源法》以及其他政策法规规定，通过挖掘燃煤发电机组调峰潜力、增加电网调峰电源、优化调度运行方式等，提高非水可再生能源电力消纳水平,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,financing_constraint_eases,true,1,0.6500,0.9325,3,鼓励金融机构按照市场化原则对列入补贴发电项目清单的企业予以支持,fused
+HIST-POLICY-2020-02,2020-05-01,2020-05-31,month,industry_competition_intensifies,true,-1,0.2000,0.7000,1,通过市场竞争的方式优先选择补贴强度低、退坡幅度大、技术水平高的项目,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10650 亿元，同比名义增长 2.6% 。,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-051,2020-07-01,2020-07-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10399 亿元，同比名义增长 1.6% 。,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-052,2020-08-01,2020-08-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 10452 亿元，同比名义增长 1.2% 。,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-053,2020-09-01,2020-09-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2020 年 9 月份规模以上工业生产主要数据 9 月 1 — 9 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 6.9 … 1.2 分三大门类 采矿业 … 2.2 … -0.6 制造业 … 7.6 … 1.7 其中：高技术制造业 … 7.8 … 5.9 电力、热力、燃气及水生,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-054,2020-10-01,2020-10-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11268 亿元，同比名义增长 4.3% 。,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-055,2020-11-01,2020-11-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 12205 亿元，同比名义增长 9.1% 。,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-056,2020-12-01,2020-12-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,policy_accelerates_project_implementation,true,1,0.8000,0.8100,2,澳办 国务院台办 国家网信办 国务院新闻办 新华社 中国科学院 中国社科院 中国工程院 国务院发展研究中心 中央广电总台 中国气象局 国家粮食和物资储备局 国家能源局 国家国防科工局 国家烟草局 国家移民局 国家林草局 国家铁路局 中国民航局 国家邮政局 国家文物局 国家中医药局 国家疾控局 国家矿山安监局 国家消防救,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 12753 亿元，同比名义增长 9.5% 。,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-057,2021-01-01,2021-02-28,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 19299 亿元，同比名义增长 42.5% 。,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-058,2021-03-01,2021-03-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11947 亿元，同比名义增长 15.9% 。,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-059,2021-04-01,2021-04-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11584 亿元，同比名义增长 18.5% 。,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-060,2021-05-01,2021-05-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11326 亿元，同比名义增长 16.9% 。,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-061,2021-06-01,2021-06-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 12123 亿元，同比名义增长 13.4% 。,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-062,2021-07-01,2021-07-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,policy_expands_effective_demand,true,1,0.8000,0.9325,2,推动新型储能快速发展,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,policy_accelerates_project_implementation,true,1,0.7500,0.9325,2,大力推进电源侧储能项目建设,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,capacity_under_construction,true,1,0.6000,0.9325,6,推动储能高质量发展,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,capacity_enters_production,false,0,0.0000,0.9000,1,,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,inventory_pressure_increases,false,0,0.0000,0.9000,1,,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,product_price_recovers,false,0,0.0000,0.9000,1,,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,raw_material_cost_pressure,false,0,0.0000,0.9000,1,,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,export_demand_improves,false,0,0.0000,0.9000,1,,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,grid_investment_accelerates,true,1,0.6500,0.9325,3,积极推动电网侧储能合理化布局,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,financing_constraint_eases,true,1,0.6500,0.9325,3,加大支持新型储能发展的财政、金融、税收、土地等政策力度,fused
+HIST-POLICY-2021-01,2021-07-01,2021-07-31,month,industry_competition_intensifies,false,0,0.0000,0.9000,1,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11607 亿元，同比名义增长 11.0% 。,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-063,2021-08-01,2021-08-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 12055 亿元，同比名义增长 14.8% 。,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-064,2021-09-01,2021-09-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,policy_expands_effective_demand,true,1,0.2500,0.7000,2,推动新型储能积极稳妥健康有序发展，促进以新能源为主体的新型电力系统建设,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,policy_accelerates_project_implementation,true,1,0.2500,0.7000,2,为规范新型储能项目管理，推动新型储能积极稳妥健康有序发展,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,capacity_under_construction,true,1,0.8000,0.9325,6,国家能源局关于印发《新型储能项目管理规范（暂行）》的通知 国能发科技规〔2021〕47号-国家能源局网站 您当前位置： 首页 > 正文 目录项的基本信息 公开事项名称: 国家能源局关于印发《新型储能项目管理规范（暂行）》的通知 国能发科技规〔2021〕47号 索引号: 000019705/2021-00123 主办单位,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,grid_investment_accelerates,true,1,0.6500,0.9325,3,促进以新能源为主体的新型电力系统建设,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2021-02,2021-09-01,2021-09-30,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 13391 亿元，同比名义增长 16.8% 。,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-065,2021-10-01,2021-10-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 12671 亿元，同比名义增长 11.6% 。,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-066,2021-11-01,2021-11-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 13855 亿元，同比名义增长 12.6% 。,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-067,2021-12-01,2021-12-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 14866 亿元，同比名义增长 15.5% 。,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-068,2022-01-01,2022-02-28,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 22668 亿元，同比名义增长 16.9% 。,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-069,2022-03-01,2022-03-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 13311 亿元，同比名义增长 10.8% 。,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-070,2022-04-01,2022-04-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,export_demand_improves,true,1,0.1000,0.8100,1,工业企业实现出口交货值 11441 亿元，同比名义下降 1.9%,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-071,2022-05-01,2022-05-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,policy_expands_effective_demand,true,1,0.8000,0.9325,2,加大力度规划建设以大型风光电基地为基础、以其周边清洁高效先进节能的煤电为支撑、以稳定安全可靠的特高压输变电线路为载体的新能源供给消纳体系,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,policy_accelerates_project_implementation,true,1,0.7500,0.9325,2,在土地预审、规划选址、环境保护等方面加强协调指导，提高审批效率,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,capacity_under_construction,true,1,0.7000,0.9325,6,加大煤电机组灵活性改造、水电扩机、抽水蓄能和太阳能热发电项目建设力度,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,product_price_recovers,true,1,0.8000,0.9325,1,消费新能源等绿色电力。 开展绿色电力交易试点，推动绿色电力在交易组织、电网调度、价格形成机制等方面体现优先地位，为市场主体提供功能健全、友好易用的绿色电力交易服务。建立完善新能源绿色消费认证、标识体系和公示制度。完善绿色电力证书制度，推广绿色电力证书交易，加强与碳排放权交易市场的有效衔接。加大认证采信力度，引导企业利用,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,grid_investment_accelerates,true,1,0.8500,0.9500,3,充分发挥电网企业在构建新型电力系统中的平台和枢纽作用，支持和指导电网企业积极接入和消纳新能源,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,financing_constraint_eases,true,1,0.7500,0.9325,3,在依法合规、风险可控、商业可持续前提下，金融机构可以自主确定是否对已纳入可再生能源发电补贴清单的项目发放补贴确权贷款，金融机构和企业可自主协商确定贷款金额、期限、利率、还款计划等,fused
+HIST-POLICY-2022-01,2022-05-01,2022-05-31,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 12673 亿元，同比名义增长 11.1% 。,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-072,2022-06-01,2022-06-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,policy_expands_effective_demand,true,1,0.8000,0.9325,2,一是印发《关于加快推动新型储能发展的指导意见》，提出新能源配置新型储能的规模、位置应结合系统实际需求合理确定，并鼓励探索共享储能等新型商业模式。,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,policy_accelerates_project_implementation,true,1,0.8000,0.9325,2,二是印发实施《“十四五”新型储能发展实施方案》（以下简称《实施方案》），提出对配套建设或共享模式落实新型储能的新能源发电项目，动态评估其系统价值和技术水平，可在竞争性配置、项目核准（备案）、并网时序、系统调度运行安排、保障利用小时数、电力辅助服务补偿考核等方面给予适当倾斜，推动新能源项目业主主动配置新型储能。,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,capacity_under_construction,true,1,0.7000,0.9325,6,关于光伏储能制造基地建设建议的答复。,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,grid_investment_accelerates,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2022-02,2022-07-01,2022-07-31,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 14066 亿元，同比名义增长 15.1% 。,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-073,2022-07-01,2022-07-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 12862 亿元，同比名义增长 9.8% 。,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-074,2022-08-01,2022-08-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 12873 亿元，同比名义增长 5.5% 。,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-075,2022-09-01,2022-09-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 14196 亿元，同比名义增长 5.0% 。,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-076,2022-10-01,2022-10-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 13120 亿元，同比名义增长 2.5% 。,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-077,2022-11-01,2022-11-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2022 年 11 月份规模以上工业生产主要数据 11 月 1 — 11 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 2.2 … 3.8 分三大门类 采矿业 … 5.9 … 7.6 制造业 … 2.0 … 3.3 其中：高技术制造业 … 2.0 … 8.0 电力、热力、燃气及,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-078,2022-12-01,2022-12-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,export_demand_improves,true,1,0.8000,0.8100,1,2022 年 12 月份规模以上工业生产主要数据 12 月 1 — 12 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 1.3 … 3.6 分三大门类 采矿业 … 4.9 … 7.3 制造业 … 0.2 … 3.0 其中：高技术制造业 … 2.8 … 7.4 电力、热力、燃气及,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-079,2023-01-01,2023-02-28,jan_feb_combined,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2023 年 1 — 2 月份规模以上工业生产主要数据 1 — 2 月 绝对量 同比增长（ % ） 规模以上工业增加值 … 2.4 分三大门类 采矿业 … 4.7 制造业 … 2.1 其中：高技术制造业 … 0.5 电力、热力、燃气及水生产和供应业 … 2.4 分经济类型 其中：国有控股企业 … 2.7 其中：股份制企,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-080,2023-03-01,2023-03-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2023 年 3 月份规模以上工业生产主要数据 3 月 1-3 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 3.9 … 3.0 分三大门类 采矿业 … 0.9 … 3.2 制造业 … 4.2 … 2.9 其中：高技术制造业 … 1.5 … 0.9 电力、热力、燃气及水生产和供,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-081,2023-04-01,2023-04-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,export_demand_improves,true,1,0.7000,0.8100,1,工业企业实现出口交货值 11413 亿元，同比名义增长 0.7% 。,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-082,2023-05-01,2023-05-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,policy_expands_effective_demand,true,1,0.3000,0.7000,2,推动新型储能多元化、产业化、市场化高质量发展,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,policy_accelerates_project_implementation,true,1,0.7500,0.9325,2,预计在2024年底前投产,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,capacity_under_construction,true,1,0.6500,0.9325,6,申报项目原则上为已完成备案，且预计在2024年底前投产的项目,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,capacity_enters_production,true,1,0.7000,0.9325,1,申报项目原则上为已完成备案，且预计在2024年底前投产的项目。,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,order_demand_improves,true,1,0.3000,0.7000,1,加快推动新型储能多元化、产业化、市场化高质量发展,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,grid_investment_accelerates,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+HIST-POLICY-2023-01,2023-06-01,2023-06-30,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2023 年 5 月份规模以上工业生产主要数据 指标 5 月 1 — 5 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 3.5 … 3.6 分三大门类 采矿业 … -1.2 … 1.7 制造业 … 4.1 … 4.0 其中：高技术制造业 … 1.7 … 1.4 电力、热力、燃气,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-083,2023-06-01,2023-06-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,policy_expands_effective_demand,true,1,0.6800,0.9325,2,做好可再生能源绿色电力证书全覆盖工作促进可再生能源电力消费,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,policy_accelerates_project_implementation,true,1,0.4000,0.9500,2,【关于做好可再生能源绿色电力证书全覆盖工作促进可再生能源电力消费的通知(发改能源〔2023〕1044号)】-国家发展和改革委员会 首页 > 政务公开 > 政策 > 通知 关于做好可再生能源绿色电力证书全覆盖工作促进可再生能源电力消费的通知(发改能源〔2023〕1044号) 发布时间：2023/08/03 来源： 能源局,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,capacity_under_construction,true,1,0.4000,0.9500,6,八、加强组织实施 （十六）绿证核发机构应按照国家可再生能源发电项目建档立卡赋码规则设计绿证统一编号，制定绿证相关信息的加密、防伪、交互共享等相关技术标准及规范，建设国家绿证核发交易系统，全面做好绿证核发、交易、划转等工作，公开绿证核发、交易信息，做好绿证防伪查验工作，加强绿证、可再生能源消费等数据共享。,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,capacity_enters_production,true,1,0.3500,0.9500,1,对2023年1月1日（含）以后新投产的完全市场化常规水电项目，核发可交易绿证。,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,order_demand_improves,true,1,0.4000,0.9500,1,参加绿色电力交易的，相应绿证由核发机构批量推送至电力交易机构，电力交易机构按交易合同或双边协商约定将绿证随绿色电力一同交易，交易合同中应分别明确绿证和物理电量的交易量、交易价格。 （十）核算可再生能源消费。落实可再生能源消费不纳入能源消耗总量和强度控制，国家统计局会同国家能源局核定全国和各地区可再生能源电力消费数据。 ,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,inventory_pressure_increases,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,product_price_recovers,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,raw_material_cost_pressure,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,export_demand_improves,false,0,0.0000,0.9500,1,,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,grid_investment_accelerates,true,1,0.4000,0.9500,3,【关于做好可再生能源绿色电力证书全覆盖工作促进可再生能源电力消费的通知(发改能源〔2023〕1044号)】-国家发展和改革委员会 首页 > 政务公开 > 政策 > 通知 关于做好可再生能源绿色电力证书全覆盖工作促进可再生能源电力消费的通知(发改能源〔2023〕1044号) 发布时间：2023/08/03 来源： 能源局,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,financing_constraint_eases,false,0,0.0000,0.9500,3,,fused
+HIST-POLICY-2023-02,2023-08-01,2023-08-31,month,industry_competition_intensifies,false,0,0.0000,0.9500,1,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2023 年 7 月份规模以上工业生产主要数据 指标 7 月 1 — 7 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 3.7 … 3.8 分三大门类 采矿业 … 1.3 … 1.7 制造业 … 3.9 … 4.2 其中：高技术制造业 … 0.7 … 1.6 电力、热力、燃气及,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-084,2023-08-01,2023-08-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2023 年 8 月份规模以上工业生产主要数据 指标 8 月 1 — 8 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 4.5 … 3.9 分三大门类 采矿业 … 2.3 … 1.7 制造业 … 5.4 … 4.3 其中：高技术制造业 … 2.9 … 1.8 电力、热力、燃气及,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-085,2023-09-01,2023-09-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2023 年 9 月份规模以上工业生产主要数据 指标 9 月 1 — 9 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 4.5 … 4.0 分三大门类 采矿业 … 1.5 … 1.7 制造业 … 5.0 … 4.4 其中：高技术制造业 … 2.3 … 1.9 电力、热力、燃气及,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-086,2023-10-01,2023-10-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,export_demand_improves,true,1,0.8000,0.8100,1,2023 年 10 月份规模以上工业生产主要数据 指标 10 月 1 — 10 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 4.6 … 4.1 分三大门类 采矿业 … 2.9 … 1.8 制造业 … 5.1 … 4.5 其中：高技术制造业 … 1.8 … 1.9 电力、热力、,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-087,2023-11-01,2023-11-30,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,policy_expands_effective_demand,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.6000,2,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,capacity_under_construction,false,0,0.0000,0.6000,6,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,capacity_enters_production,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,order_demand_improves,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,inventory_pressure_increases,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,product_price_recovers,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,raw_material_cost_pressure,false,0,0.0000,0.6000,1,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,export_demand_improves,true,1,0.8000,0.8100,1,2023 年 11 月份规模以上工业生产主要数据 指标 11 月 1 — 11 月 绝对量 同比增长 （ % ） 绝对量 同比增长 （ % ） 规模以上工业增加值 … 6.6 … 4.3 分三大门类 采矿业 … 3.9 … 2.1 制造业 … 6.7 … 4.7 其中：高技术制造业 … 6.2 … 2.3 电力、热力、,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,grid_investment_accelerates,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,financing_constraint_eases,false,0,0.0000,0.6000,3,,fused
+HIST-NBS-088,2023-12-01,2023-12-31,month,industry_competition_intensifies,false,0,0.0000,0.6000,1,,fused
 S011,2024-01-01,2024-02-29,jan_feb_combined,policy_expands_effective_demand,false,0,0.0000,0.7000,2,,fused
 S011,2024-01-01,2024-02-29,jan_feb_combined,policy_accelerates_project_implementation,false,0,0.0000,0.7000,2,,fused
 S011,2024-01-01,2024-02-29,jan_feb_combined,capacity_under_construction,false,0,0.0000,0.7000,6,,fused
@@ -791,18 +2063,18 @@ DANN-004,2025-10-01,2025-10-31,month,export_demand_improves,false,0,0.0000,0.700
 DANN-004,2025-10-01,2025-10-31,month,grid_investment_accelerates,false,0,0.0000,0.7000,3,,fused
 DANN-004,2025-10-01,2025-10-31,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
 DANN-004,2025-10-01,2025-10-31,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
-DANN-014,2025-10-01,2025-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.7000,2,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.7000,2,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,capacity_under_construction,false,0,0.0000,0.7000,6,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,capacity_enters_production,false,0,0.0000,0.7000,1,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,grid_investment_accelerates,false,0,0.0000,0.7000,3,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,deterministic
-DANN-014,2025-10-01,2025-10-31,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,deterministic
+DANN-014,2025-10-01,2025-10-31,month,policy_expands_effective_demand,false,0,0.0000,0.7000,2,,fused
+DANN-014,2025-10-01,2025-10-31,month,policy_accelerates_project_implementation,false,0,0.0000,0.7000,2,,fused
+DANN-014,2025-10-01,2025-10-31,month,capacity_under_construction,false,0,0.0000,0.7000,6,,fused
+DANN-014,2025-10-01,2025-10-31,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+DANN-014,2025-10-01,2025-10-31,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+DANN-014,2025-10-01,2025-10-31,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+DANN-014,2025-10-01,2025-10-31,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+DANN-014,2025-10-01,2025-10-31,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+DANN-014,2025-10-01,2025-10-31,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+DANN-014,2025-10-01,2025-10-31,month,grid_investment_accelerates,false,0,0.0000,0.7000,3,,fused
+DANN-014,2025-10-01,2025-10-31,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+DANN-014,2025-10-01,2025-10-31,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
 DANN-006,2025-11-01,2025-11-30,month,policy_expands_effective_demand,true,1,0.8000,0.9325,2,（一）概况 1、本次投资概况 结合当前较好的市场环境及公司下游客户产能上量的实际需求，基于公司现 有产能及技术情况，为抓住市场机遇，满足下游客户的增量需求，公司拟使用自 有资金向全资子公司四川卓勤新材料 来源为巨潮资讯网，首次公开日期核验为2025-11-15。,fused
 DANN-006,2025-11-01,2025-11-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.9325,2, 交易实施尚需履行的审批及其他相关程序 2025 年 11 月 14 日，上海璞泰来新能源科技集团股份有限公司（以下 简称“公司”“璞泰来”）第四届董事会第十次会议一致审议通过（同意 5 票、反对 0 票、弃权 0 票）了《关于投资建设基膜涂覆一体化项目(二期之 子项目二)暨增资四川卓勤的议案》，本次交易未达到股东会,fused
 DANN-006,2025-11-01,2025-11-30,month,capacity_under_construction,true,1,0.7500,0.9325,6,投资建设基膜涂覆一体化项目(二期之子项目二),fused
@@ -2099,18 +3371,18 @@ OOS-POL-015,2026-06-01,2026-06-30,month,export_demand_improves,false,0,0.0000,0.
 OOS-POL-015,2026-06-01,2026-06-30,month,grid_investment_accelerates,true,1,0.8000,0.9325,3,国家能源局综合司关于组织推进非公共电网可再生能源发电项目绿证核发的通知 国能综通资质〔2026〕60号 各派出机构，各省（自治区、直辖市）能源局、有关省（自治区、直辖市）及新疆生产建设兵团发展改革委、北京市城市管理委，有关电网企业、电力交易机构，可再生能源信息管理中心： 为落实《中华人民共和国能源法》《国家发展改革委 ,fused
 OOS-POL-015,2026-06-01,2026-06-30,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
 OOS-POL-015,2026-06-01,2026-06-30,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
-OOS-POL-019,2026-06-01,2026-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.7000,2,,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,policy_accelerates_project_implementation,true,1,0.8000,0.9325,2,原文摘要：新闻详情 关于印发《新型储能高质量发展实施方案》的通知发表时间： 2026-06-08 11:02 来源： 省能源局山西省能源局 山西省发展和改革委员会山西省工业和信息化厅 国家能源局山西监管办公室关于印发《新型储能高质量发展实施方案》的通知晋能源新能源发〔2026〕70号各市能源局、发展改革委、工信局，国网,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,capacity_under_construction,false,0,0.0000,0.7000,6,,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,capacity_enters_production,false,0,0.0000,0.7000,1,,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,order_demand_improves,false,0,0.0000,0.7000,1,,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,product_price_recovers,false,0,0.0000,0.7000,1,,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,export_demand_improves,false,0,0.0000,0.7000,1,,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,grid_investment_accelerates,true,1,0.8000,0.9325,3,山西省能源局 山西省发展和改革委员会山西省工业和信息化厅 国家能源局山西监管办公室2026年5月13日（此件公开发布）新型储能高质量发展实施方案为深入贯彻落实国家发展改革委、国家能源局印发的《新型储能规模化建设专项行动方案（2025—2027年）》《关于促进电网高质量发展的指导意见》部署要求，紧抓能源革命战略机遇，推动,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,deterministic
-OOS-POL-019,2026-06-01,2026-06-30,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,deterministic
+OOS-POL-019,2026-06-01,2026-06-30,month,policy_expands_effective_demand,true,1,0.2000,0.7000,2,推动我省新型储能高质量发展,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,policy_accelerates_project_implementation,true,1,0.6500,0.9325,2,加快推动我省新型储能高质量发展,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,capacity_under_construction,true,1,0.1200,0.7000,6,统筹推进新型储能规模化与高质量发展,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,capacity_enters_production,false,0,0.0000,0.7000,1,,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,order_demand_improves,false,0,0.0000,0.7000,1,,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,inventory_pressure_increases,false,0,0.0000,0.7000,1,,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,product_price_recovers,false,0,0.0000,0.7000,1,,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,raw_material_cost_pressure,false,0,0.0000,0.7000,1,,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,export_demand_improves,false,0,0.0000,0.7000,1,,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,grid_investment_accelerates,true,1,0.6000,0.9325,3,强化电网对新型储能的支撑接纳能力,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,financing_constraint_eases,false,0,0.0000,0.7000,3,,fused
+OOS-POL-019,2026-06-01,2026-06-30,month,industry_competition_intensifies,false,0,0.0000,0.7000,1,,fused
 S044,2026-06-01,2026-06-30,month,policy_expands_effective_demand,false,0,0.0000,0.7000,2,,fused
 S044,2026-06-01,2026-06-30,month,policy_accelerates_project_implementation,false,0,0.0000,0.7000,2,,fused
 S044,2026-06-01,2026-06-30,month,capacity_under_construction,true,1,0.8000,0.8975,6,原文摘要：投资者在深交所互动易向欣旺达提问，问题摘要为“董秘你好，请问欣旺达母公司出售子公司欣旺达动力股权融资这件事上，在欣旺达动力已经扭亏，产能、营收大幅增加，前景向好的情况下，为什么其估值下降了100多亿？,fused

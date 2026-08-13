@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import csv
-from collections import defaultdict
-from datetime import datetime, timedelta
+import re
 from pathlib import Path
 
 from src.research.scoring import load_impact_priors
@@ -19,14 +18,14 @@ PREDICATES = [
     "policy_directly_related_to_business",
     "event_mentions_core_product",
     "evidence_from_authoritative_source",
-    "source_government_or_exchange",
+    "event_policy_binding_strength",
     "source_company_announcement",
     "source_major_media",
-    "social_attention_spikes",
+    "event_scale_industry_level",
     "policy_attention_followup",
-    "institutional_attention_increases",
+    "event_mentions_export",
     "investor_questions_increase",
-    "management_response_vague",
+    "event_has_quantitative_target",
     "announcement_contains_uncertainty",
     "risk_or_uncertainty_disclosure",
     "demand_side_policy",
@@ -76,6 +75,7 @@ def add_predicate(
 
 def source_is_authoritative(source_type: str, source_name: str) -> bool:
     return source_type in {"policy", "announcement", "ir_qa"} or source_name in {
+        "国家统计局",
         "证券时报",
         "上海证券报",
         "中国证券报",
@@ -86,7 +86,7 @@ def source_is_authoritative(source_type: str, source_name: str) -> bool:
 def source_is_government_or_exchange(source_type: str, source_name: str) -> bool:
     return source_type == "policy" or any(
         keyword in source_name
-        for keyword in ["中国政府网", "国务院", "发改委", "工信部", "财政部", "商务部", "上交所", "深交所"]
+        for keyword in ["中国政府网", "国务院", "国家统计局", "发改委", "工信部", "财政部", "商务部", "上交所", "深交所"]
     )
 
 
@@ -103,7 +103,6 @@ def ground_event_predicates(
     event: dict[str, str],
     doc: dict[str, str],
     sector: str,
-    temporal_flags: dict[str, bool] | None = None,
     impact_prior: float | None = None,
 ) -> list[dict[str, object]]:
     """Ground the locked predicate schema for one event without writing files."""
@@ -112,43 +111,27 @@ def ground_event_predicates(
     full_text = f'{doc["title"]} {source_content}'
     mentions_core_product = any(word in full_text for word in CORE_PRODUCT_KEYWORDS[sector])
     event_type = event["event_type"]
-    has_policy = event_type == "policy_support"
     source_type = doc["source_type"]
+    has_policy = (source_type == "policy" or any(word in full_text for word in ["印发", "通知", "意见", "方案", "支持"])) and any(
+        word in full_text for word in ["补贴", "规划", "专项行动", "实施意见", "指导意见", "工作方案", "扶持"]
+    )
     source_name = doc["source_name"]
     source_authoritative = source_is_authoritative(source_type, source_name)
-    government_or_exchange = source_is_government_or_exchange(source_type, source_name)
     company_announcement = source_type == "announcement"
     major_media = source_is_major_media(source_type, source_name)
-    temporal_flags = temporal_flags or {}
-    attention_spike = temporal_flags.get("social_attention_spikes", False)
-    policy_followup = (has_policy or event_type == "attention_spread") and any(
-        word in full_text
-        for word in [
-            "行动方案",
-            "以旧换新",
-            "购置税",
-            "补贴",
-            "装机量",
-            "装车量",
-            "渗透率",
-            "出口量",
-            "招标规模",
-            "市场关注",
-            "多家",
-        ]
+    followup_verb = any(word in full_text for word in ["后续", "进一步", "部署", "跟进"])
+    followup_strong = any(word in full_text for word in ["行动方案", "试点", "以旧换新", "设备更新", "招标规模", "装机量", "装车量", "渗透率"])
+    policy_followup = (has_policy or event_type == "attention_spread") and (
+        followup_verb or (followup_strong and bool(re.search(r"\d", full_text)))
     )
-    investor_questions = event_type == "investor_question_pressure"
-    vague_response = investor_questions and any(word in full_text for word in ["以公司公告", "需结合", "可能影响"])
-    uncertain_announcement = company_announcement and any(
-        word in full_text for word in ["不确定", "风险", "可能影响", "提示"]
-    )
+    investor_questions = source_type == "ir_qa" or any(word in full_text for word in ["投资者提问", "互动易", "上证e互动", "追问"])
+    uncertain_announcement = any(word in full_text for word in ["不确定", "风险", "可能影响", "提示"])
     risk_disclosure = uncertain_announcement or event_type in {
         "regulatory_penalty",
         "inquiry_letter_pressure",
         "earnings_quality_anomaly",
         "supply_chain_disruption",
     }
-    institutional_attention = temporal_flags.get("institutional_attention_increases", False)
     demand_policy = has_policy and any(
         word in full_text for word in ["消费", "购置税", "补贴", "以旧换新", "销量", "需求", "车辆购置"]
     )
@@ -158,9 +141,15 @@ def ground_event_predicates(
     capacity_policy = (
         has_policy and any(word in full_text for word in ["产能", "扩产", "项目", "设备更新"])
     ) or (event_type == "capacity_expansion" and source_authoritative)
+    quant_target = bool(
+        re.search(r"\d+(\.\d+)?\s*(元|万元|亿元|%|％|GWh|GW|兆瓦|万千瓦|吉瓦|千瓦|辆|台|万吨)", full_text)
+    ) or (any(word in full_text for word in ["目标", "力争", "不低于", "达到"]) and bool(re.search(r"\d", full_text)))
+    export_mention = any(word in full_text for word in ["出口", "海外", "国际市场", "外销", "出海", "出口量", "外贸"])
+    industry_scale = any(word in full_text for word in ["行业", "产业", "产业链", "全国", "多家企业", "全行业", "龙头"])
+    policy_binding = any(word in full_text for word in ["强制", "必须", "不得", "严禁", "限期", "责令"])
 
     values = [
-        ("has_policy_support", has_policy, 0.96, 0.88, "事件类型为 policy_support", "事件不是政策利好类型"),
+        ("has_policy_support", has_policy, 0.96, 0.88, "文本含政策支持载体且来自政策/文件来源", "未发现政策支持载体"),
         (
             "policy_directly_related_to_business",
             has_policy and mentions_core_product,
@@ -171,15 +160,15 @@ def ground_event_predicates(
         ),
         ("event_mentions_core_product", mentions_core_product, 0.88, 0.74, "文本提及核心产品/业务关键词", "文本未显式提及核心产品关键词"),
         ("evidence_from_authoritative_source", source_authoritative, 0.94, 0.72, f"来源为{source_name}", f"来源为{source_name}"),
-        ("source_government_or_exchange", government_or_exchange, 0.95, 0.76, "来源为政府、部委或交易所", "来源不是政府、部委或交易所"),
+        ("event_policy_binding_strength", policy_binding, 0.82, 0.70, "政策含强制/必须/不得等强约束表述", "未发现强约束表述"),
         ("source_company_announcement", company_announcement, 0.94, 0.78, "来源类型为公司公告", "来源不是公司公告"),
         ("source_major_media", major_media, 0.90, 0.76, "来源为主流财经媒体", "来源不是主流财经媒体"),
-        ("social_attention_spikes", attention_spike, 0.82, 0.68, "新闻原文包含可量化或多源关注扩散线索", "单条来源不足以证明关注度显著上升"),
+        ("event_scale_industry_level", industry_scale, 0.84, 0.72, "文本涉及行业/产业/产业链级范围", "未发现产业级表述"),
         ("policy_attention_followup", policy_followup, 0.84, 0.70, "政策或主题文本包含后续关注/扩散线索", "未发现政策后续关注扩散线索"),
-        ("institutional_attention_increases", institutional_attention, 0.76, 0.70, "文本出现机构关注线索", "文本未出现机构调研或研报线索"),
-        ("investor_questions_increase", investor_questions, 0.86, 0.82, "事件已由时间窗聚合证据确认提问增加", "未发现时间窗内提问数量增加的聚合证据"),
-        ("management_response_vague", vague_response, 0.80, 0.76, "回复包含以公告为准、需结合情况或可能影响等表述", "未发现明显模糊回复"),
-        ("announcement_contains_uncertainty", uncertain_announcement, 0.84, 0.78, "公告摘要包含风险或不确定性提示", "未发现公告不确定性提示"),
+        ("event_mentions_export", export_mention, 0.84, 0.72, "文本涉出口/海外市场表述", "未发现出口/海外表述"),
+        ("investor_questions_increase", investor_questions, 0.86, 0.82, "来源为互动问答或正文含投资者提问", "未发现投资者提问线索"),
+        ("event_has_quantitative_target", quant_target, 0.84, 0.72, "文本含可量化目标或金额", "未发现可量化目标"),
+        ("announcement_contains_uncertainty", uncertain_announcement, 0.84, 0.78, "正文包含风险或不确定性提示", "未发现不确定性提示"),
         ("risk_or_uncertainty_disclosure", risk_disclosure, 0.86, 0.78, "事件属于风险披露、问询、业绩异常或供应链扰动", "未发现集中风险披露线索"),
         ("demand_side_policy", demand_policy, 0.86, 0.74, "政策作用于消费、补贴或终端需求", "政策未明确作用于需求侧"),
         ("supply_side_policy", supply_policy, 0.84, 0.74, "政策作用于供给、制造或产业链升级", "政策未明确作用于供给侧"),
@@ -210,66 +199,10 @@ def ground_event_predicates(
 def ground_predicates() -> list[dict[str, object]]:
     documents = {doc["doc_id"]: doc for doc in read_csv(SAMPLE_DIR / "raw_documents.csv")}
     stock_pool = {row["stock_code"]: row for row in read_csv(SAMPLE_DIR / "stock_pool.csv")}
-    links = read_csv(SAMPLE_DIR / "entity_links.csv")
-    sectors_by_doc: dict[str, set[str]] = defaultdict(set)
-    for link in links:
-        sectors_by_doc[link["doc_id"]].add(link["industry"])
-    dated_docs_by_sector: dict[str, list[tuple[datetime, str, bool]]] = defaultdict(list)
-    for doc_id, doc in documents.items():
-        publish_date = datetime.strptime(doc["publish_time"], "%Y-%m-%d")
-        source_text = f'{doc["title"]} {doc["content"].split("项目关联：", 1)[0]}'
-        institutional = any(word in source_text for word in ["机构", "调研", "研报"])
-        for sector in sectors_by_doc.get(doc_id, set()):
-            dated_docs_by_sector[sector].append((publish_date, doc_id, institutional))
-
-    def temporal_flags(event: dict[str, str], sector: str) -> dict[str, bool]:
-        current = datetime.strptime(event["event_time"], "%Y-%m-%d")
-        items = dated_docs_by_sector.get(sector, [])
-        short_docs = {
-            doc_id for date, doc_id, _ in items if current - timedelta(days=2) <= date <= current
-        }
-        baseline_docs = {
-            doc_id
-            for date, doc_id, _ in items
-            if current - timedelta(days=22) <= date < current - timedelta(days=2)
-        }
-        short_institutional = {
-            doc_id
-            for date, doc_id, institutional in items
-            if institutional and current - timedelta(days=2) <= date <= current
-        }
-        baseline_institutional = {
-            doc_id
-            for date, doc_id, institutional in items
-            if institutional and current - timedelta(days=22) <= date < current - timedelta(days=2)
-        }
-        attention_rate = len(short_docs) / 3
-        baseline_rate = len(baseline_docs) / 20
-        institutional_rate = len(short_institutional) / 3
-        institutional_baseline = len(baseline_institutional) / 20
-        return {
-            "social_attention_spikes": (
-                event["event_type"] == "attention_spread"
-                and len(short_docs) >= 2
-                and attention_rate >= max(baseline_rate, 0.05) * 1.5
-            ),
-            "institutional_attention_increases": (
-                len(short_institutional) >= 2
-                and institutional_rate >= max(institutional_baseline, 0.05) * 1.5
-            ),
-        }
-
     rows: list[dict[str, object]] = []
     for event in read_csv(SAMPLE_DIR / "events.csv"):
         sector = stock_pool[event["stock_code"]]["industry_sector"]
-        rows.extend(
-            ground_event_predicates(
-                event,
-                documents[event["doc_id"]],
-                sector,
-                temporal_flags(event, sector),
-            )
-        )
+        rows.extend(ground_event_predicates(event, documents[event["doc_id"]], sector))
     return rows
 
 

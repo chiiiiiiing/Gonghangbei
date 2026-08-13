@@ -197,6 +197,25 @@ def rule_matches(
     return True
 
 
+def matched_frozen_rules(
+    rules: list[dict[str, str]],
+    gated_predicates: dict[str, str],
+    event_type: str,
+) -> list[dict[str, str]]:
+    """Match frozen rules using only predicate results that passed the gate.
+
+    ``fuse_predicate_values`` is intentionally richer: it exposes conflicts
+    for UI review and confidence analysis.  A conflict must never satisfy a
+    historically frozen condition, even when its numerical display value is
+    at or above a generic matching threshold.
+    """
+    return [
+        rule
+        for rule in rules
+        if rule_matches(rule, gated_predicates, event_type)
+    ]
+
+
 def evaluate_ai_candidate_rules(
     ai_result: dict[str, Any] | None,
     fused_map: dict[str, float],
@@ -714,13 +733,14 @@ def analyze_new_document(
         deterministic_map = {str(row["predicate_name"]): str(row["value"]) for row in predicate_rows}
         if isinstance(ai_result, dict):
             ai_predicates = list(ai_stock.get("predicates", [])) if ai_stock else legacy_ai_predicates
-            consensus, _gated = build_predicate_consensus(
+            consensus, gated_predicates = build_predicate_consensus(
                 predicate_rows,
                 ai_predicates,
             )
             fused = fuse_predicate_values(deterministic_map, ai_predicates)
         else:
             consensus = []
+            gated_predicates = deterministic_map
             fused = {
                 name: {
                     "fused": predicate_value_to_float(value),
@@ -734,7 +754,7 @@ def analyze_new_document(
         fused_map = {name: item["fused"] for name, item in fused.items()}
         gate_open = event_consensus["accepted"] and entity_consensus["accepted"]
         triggered = (
-            [rule for rule in qualified_rules if rule_matches(rule, fused_map, event_type)]
+            matched_frozen_rules(qualified_rules, gated_predicates, event_type)
             if gate_open
             else []
         )
@@ -824,6 +844,7 @@ def analyze_new_document(
                     "impact_weight": 0.3,
                     "multiplier": round(factor_multiplier, 6),
                     "stock_relevance": stock_relevance,
+                    "frozen_rule_predicate_gate": "agreed_true_only",
                     "result": round(factor_value, 6),
                     "consensus_mode": "ai_rule_agreement" if isinstance(ai_result, dict) else "rule_only",
                 },
@@ -857,6 +878,7 @@ def analyze_new_document(
         }
     )
     return {
+        "document_title": title,
         "event_type": event_type,
         "event_time": event_date,
         "evidence_strength": round(

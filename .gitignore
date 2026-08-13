@@ -29,6 +29,9 @@ data/raw/
 data/processed/
 data/external/
 
+# Rebuilt by 运行宏观研究.py; do not commit the expanded long-form feature matrix.
+data/sample/macro_route_features.csv
+
 # 项目过程状态仅本地维护
 查看材料/任务进度.md
 查看材料/人工待办.md

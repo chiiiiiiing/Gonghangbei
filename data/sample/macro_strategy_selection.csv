@@ -1,0 +1,2 @@
+selection_period_start,selection_period_end,cost_bps,momentum_months,volatility_days,target_annual_volatility,selection_rule,oos_frozen
+2022-01-01,2023-12-31,10,12,60,0.100000,precommitted_trend_volatility_macro_confirmation,true

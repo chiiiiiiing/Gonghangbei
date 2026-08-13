@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parent
 PROTECTED_INPUTS = [
     ROOT / "data" / "sample" / "raw_documents.csv",
     ROOT / "data" / "sample" / "macro_targets.csv",
+    ROOT / "data" / "sample" / "macro_target_history.csv",
+    ROOT / "data" / "sample" / "macro_historical_documents.csv",
 ]
 
 

@@ -50,7 +50,7 @@ def _target_by_period(targets: list[dict[str, Any]], split: str = "train") -> di
 def _rolling_rule_improvement(
     signal: dict[str, float],
     targets: list[dict[str, Any]],
-    minimum_history: int = 12,
+    minimum_history: int = 8,
 ) -> float:
     """Expanding-window MAE improvement over persistence inside Train only."""
     train_targets = sorted(

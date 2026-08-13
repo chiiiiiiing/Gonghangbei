@@ -400,12 +400,29 @@ def evaluate_routes(
             key=lambda item: (float(item[1]["metrics"]["mae"]), float(item[1]["metrics"]["rmse"])),
         )
         model_name, selected = route_result
+        historical_rule_feature_count = sum(
+            name.startswith("historical_rule.") for name in feature_names
+        )
+        ai_rule_feature_count = sum(
+            name.startswith(("ai_rule.", "hybrid.ai_rule.")) for name in feature_names
+        )
+        route_available = (
+            route == "predicate_baseline"
+            or (route == "historical_rules" and historical_rule_feature_count > 0)
+            or (route == "ai_dynamic_rules" and ai_rule_feature_count > 0)
+            or (
+                route == "hybrid_rules"
+                and historical_rule_feature_count > 0
+                and ai_rule_feature_count > 0
+            )
+        )
         base_metrics = baseline["metrics"]
         text_metrics = selected["metrics"]
         concentration = _block_concentration(baseline["predictions"], selected["predictions"])
         coverage = _coverage(rows, "validation")
         qualifies = (
-            int(text_metrics["sample_count"]) >= MIN_VALIDATION_OBSERVATIONS
+            route_available
+            and int(text_metrics["sample_count"]) >= MIN_VALIDATION_OBSERVATIONS
             and float(text_metrics["mae"]) < float(base_metrics["mae"])
             and float(text_metrics["rmse"]) < float(base_metrics["rmse"])
             and float(text_metrics["acceleration_direction_accuracy"])
@@ -423,6 +440,9 @@ def evaluate_routes(
         results[route] = {
             "selected_model": model_name,
             "feature_count": len(feature_names),
+            "historical_rule_feature_count": historical_rule_feature_count,
+            "ai_rule_feature_count": ai_rule_feature_count,
+            "route_available": route_available,
             "validation_text_coverage": coverage,
             "block_improvement_concentration": concentration,
             "baseline_validation": baseline,
@@ -451,6 +471,24 @@ def evaluate_routes(
         for route, result in results.items()
         if route != "predicate_baseline" and result["qualified"] and data_sufficient
     ]
+    comparable_rule_routes = [
+        (route, results[route])
+        for route in ("historical_rules", "ai_dynamic_rules")
+        if results[route]["route_available"]
+    ]
+    provisional_rule_route = (
+        min(
+            comparable_rule_routes,
+            key=lambda item: (
+                not bool(item[1]["qualified"]),
+                float(item[1]["text_validation"]["metrics"]["mae"]),
+                float(item[1]["text_validation"]["metrics"]["rmse"]),
+                int(item[1]["feature_count"]),
+            ),
+        )[0]
+        if comparable_rule_routes
+        else ""
+    )
     if qualified:
         selected_route, selected_result = min(
             qualified,
@@ -475,8 +513,20 @@ def evaluate_routes(
         "train_text_coverage": train_text_coverage,
         "validation_text_coverage": validation_text_coverage,
         "data_sufficient": data_sufficient,
+        "data_sufficiency_checks": {
+            "train_observations": target_counts["train"],
+            "train_required": MIN_TRAIN_OBSERVATIONS,
+            "train_gap": max(MIN_TRAIN_OBSERVATIONS - target_counts["train"], 0),
+            "validation_observations": target_counts["validation"],
+            "validation_required": MIN_VALIDATION_OBSERVATIONS,
+            "train_text_coverage": train_text_coverage,
+            "validation_text_coverage": validation_text_coverage,
+            "minimum_text_coverage": MIN_TEXT_MONTH_COVERAGE,
+        },
         "status": status,
         "conclusion": conclusion,
+        "provisional_rule_route": provisional_rule_route,
+        "provisional_only": not data_sufficient,
         "selected_route": selected_route,
         "selected_model": selected_result["selected_model"] if selected_result else "ridge",
         "routes": results,

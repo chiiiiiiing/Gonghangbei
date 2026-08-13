@@ -23,8 +23,14 @@ CACHE_PATH = SAMPLE_DIR / "macro_ai_annotations.jsonl"
 
 
 def read_documents() -> list[dict[str, str]]:
-    with (SAMPLE_DIR / "raw_documents.csv").open(encoding="utf-8", newline="") as handle:
-        return list(csv.DictReader(handle))
+    rows: list[dict[str, str]] = []
+    for filename in ("macro_historical_documents.csv", "raw_documents.csv"):
+        path = SAMPLE_DIR / filename
+        if not path.exists():
+            continue
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows.extend(csv.DictReader(handle))
+    return rows
 
 
 def document_hash(document: dict[str, str]) -> str:

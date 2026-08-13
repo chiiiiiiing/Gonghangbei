@@ -28,6 +28,12 @@ from src.ai.research_layer import AIResearchLayer, validate_ai_output  # noqa: E
 from src.ai.source_quality import assess_source, cached_fetch_full_text  # noqa: E402
 from src.pipeline.live_analysis import SOURCE_TYPES, analyze_new_document  # noqa: E402
 from src.research.scoring import SCORING_VERSION  # noqa: E402
+from src.macro.engine import (  # noqa: E402
+    live_text_forecast,
+    load_macro_backtest,
+    load_macro_forecast,
+    load_macro_status,
+)
 
 
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
@@ -189,6 +195,69 @@ def ai_candidate_rule_count() -> int:
         return 0
     with path.open(encoding="utf-8", newline="") as handle:
         return sum(1 for _ in csv.DictReader(handle))
+
+
+def _latest_annotation_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Collapse append-only retry records to the latest result per document."""
+    latest: dict[str, dict[str, Any]] = {}
+    for record in records:
+        doc_id = str(record.get("doc_id", "")).strip()
+        if not doc_id:
+            continue
+        previous = latest.get(doc_id)
+        if previous is None or str(record.get("generated_at", "")) >= str(previous.get("generated_at", "")):
+            latest[doc_id] = record
+    return list(latest.values())
+
+
+def _annotation_failure_category(reason: str) -> str:
+    """Group strict cache rejections without hiding their original reason."""
+    if "证据文本无法回溯" in reason:
+        return "事件或关系证据不是原文连续片段"
+    if "事件类型" in reason and "来源类型" in reason:
+        return "事件类型与来源类型不相容"
+    if "19 个谓词" in reason:
+        return "逐股票 19 个谓词不完整"
+    if "stock_analyses" in reason or "关系证据校验" in reason:
+        return "逐股票关系证据或股票池校验未通过"
+    if "未返回可解析的结构化 JSON" in reason:
+        return "模型未返回可解析的结构化 JSON"
+    return "其他严格结构校验拒绝"
+
+
+def ai_annotation_cache_summary(document_count: int) -> dict[str, Any]:
+    """Expose coverage and rejection categories for replayable AI-cache audit."""
+    path = SAMPLE_DIR / "ai_annotations.jsonl"
+    records: list[dict[str, Any]] = []
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(record, dict):
+                records.append(record)
+    latest_records = _latest_annotation_records(records)
+    success_count = sum(record.get("status") == "success" for record in latest_records)
+    failed_records = [record for record in latest_records if record.get("status") == "failed"]
+    categories = Counter(
+        _annotation_failure_category(str(record.get("reason", "")))
+        for record in failed_records
+    )
+    return {
+        "success_count": success_count,
+        "failed_count": len(failed_records),
+        "document_count": document_count,
+        "missing_count": max(document_count - success_count - len(failed_records), 0),
+        "record_count": len(records),
+        "status": "complete" if document_count and success_count >= document_count else "incomplete",
+        "failure_categories": [
+            {"category": category, "count": count}
+            for category, count in sorted(categories.items(), key=lambda item: (-item[1], item[0]))
+        ],
+    }
 
 
 def data_status() -> dict[str, Any]:
@@ -405,14 +474,6 @@ def research_audit() -> dict[str, Any]:
         }
         for split, counts in split_source_counts.items()
     }
-    annotation_path = SAMPLE_DIR / "ai_annotations.jsonl"
-    annotation_records = []
-    if annotation_path.exists():
-        annotation_records = [
-            json.loads(line)
-            for line in annotation_path.read_text(encoding="utf-8").splitlines()
-            if line.strip()
-        ]
     return {
         "counts": {
             "stocks": len(read_csv("stock_pool.csv")),
@@ -445,14 +506,7 @@ def research_audit() -> dict[str, Any]:
             "scoring_version": SCORING_VERSION,
             "repository_commit": repository_commit(),
         },
-        "ai_annotation_cache": {
-            "success_count": sum(row.get("status") == "success" for row in annotation_records),
-            "failed_count": sum(row.get("status") == "failed" for row in annotation_records),
-            "document_count": len(documents),
-            "status": "complete"
-            if documents and sum(row.get("status") == "success" for row in annotation_records) >= len(documents)
-            else "incomplete",
-        },
+        "ai_annotation_cache": ai_annotation_cache_summary(len(documents)),
         "ai_candidate_rules_count": ai_candidate_rule_count(),
         "future_info_audit": historical_backtest()["metrics"].get("future_info_audit", "pending"),
         "disclaimer": DISCLAIMER,
@@ -460,14 +514,12 @@ def research_audit() -> dict[str, Any]:
 
 
 def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
-    metrics = history["metrics"]
-    oos_metrics = history.get("splits", {}).get("oos", {}).get("metrics", {})
     stocks = analysis["stock_results"]
     rules = analysis["triggered_rules"]
     ai = analysis.get("ai_analysis", {})
     ai_result = ai.get("result") or {}
     lines = [
-        "# AlphaLens 新文本因子研究记录",
+        "# AlphaLens 新文本行业景气预测与证据报告",
         "",
         f"生成日期：{date.today().isoformat()}",
         "",
@@ -479,9 +531,35 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         f"- 事件类型：`{analysis['event_type']}`",
         f"- 事件证据强度：{analysis['evidence_strength']:.2f}",
         "",
-        "### 来源与完整性",
+        "## 二、行业同比增速预测",
         "",
     ]
+    forecast = analysis.get("text_forecast") or {}
+    if forecast:
+        lines.extend(
+            [
+                f"- 目标：{forecast.get('target_name', '')}",
+                f"- 目标期：{forecast.get('target_period_end', '')}",
+                f"- 本月无文本模型预测：{float(forecast.get('no_text_predicted_yoy', 0)):.2f}%",
+                f"- 本篇文本加入前 Nowcast：{float(forecast.get('nowcast_before_text', 0)):.2f}%",
+                f"- 本篇文本加入后 Nowcast：{float(forecast.get('nowcast_after_text', 0)):.2f}%",
+                f"- 本篇文本边际变化：{float(forecast.get('marginal_change', 0)):+.2f} 个百分点",
+                f"- 去重状态：{'已匹配历史文档，不重复贡献' if forecast.get('duplicate_status', {}).get('is_duplicate') else '未发现历史重复，可贡献一次'}",
+                f"- 90% 预测区间：[{float(forecast.get('lower_90', 0)):.2f}%, {float(forecast.get('upper_90', 0)):.2f}%]",
+                f"- 相对最新已公布值的预测加速度：{float(forecast.get('predicted_acceleration', 0)):.2f} 个百分点",
+                f"- 冻结模型：{forecast.get('model_name', '')}；训练/验证月份 {forecast.get('training_month_count', 0)}/{forecast.get('validation_month_count', 0)} 期",
+                f"- 验证结论：{forecast.get('analysis_conclusion', '')}",
+                f"- 口径：{forecast.get('forecast_basis', '')}",
+                "",
+                "### 主要文本特征贡献",
+                "",
+            ]
+        )
+        for item in forecast.get("top_contributions", [])[:6]:
+            lines.append(f"- `{item.get('feature')}`：{float(item.get('contribution_pct_point', 0)):+.4f} 个百分点")
+        lines.extend(["", "## 三、来源与完整性", ""])
+    else:
+        lines.extend(["- 未生成月度 Nowcast 边际变化。", "", "## 三、来源与完整性", ""])
     source_audit = analysis.get("source_audit")
     if source_audit:
         lines.extend(
@@ -499,15 +577,15 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         lines.extend(["", "- 本次为冻结回放或规则复现，未做链接抓取与置信度校准。", ""])
     lines.extend(
         [
-            "## 二、因子形成路径",
+            "## 四、同比增长预测证据路径",
         "",
-        "文本先经过 Embedding 检索（含历史 AI 结论 RAG 参考）和大模型结构化抽取，再按锁定 Schema 生成 19 个谓词。AI 谓词与确定性程序按融合值参与判定：一致采纳、冲突按 AI 置信度加权、AI 缺失回退规则值；AI 提议的候选规则以「未历史统计验证」标注参与实时候选值。",
+        "文本先经过 Embedding 检索（含历史 AI 结论 RAG 参考）和大模型结构化抽取，再按锁定 Schema 生成19个谓词。AI 与确定性程序的结果经过事件、实体和谓词三层门控，形成行业同比增长预测所需的结构化证据。",
         "",
-        f"本次关联 {len(stocks)} 只样例股票，触发 {len(rules)} 条冻结规则，AI 实时候选规则 {sum(len(stock.get('ai_candidate_rules', [])) for stock in stocks)} 条。候选值用于研究排序与追溯，不是收益预测或买卖信号。",
+        f"本次核验 {len(stocks)} 只产业链关联股票，触发 {len(rules)} 条冻结规则，AI 实时候选规则 {sum(len(stock.get('ai_candidate_rules', [])) for stock in stocks)} 条。股票仅用于关系和证据核验，系统不输出个股涨跌预测。",
         "",
         "### AI 研究层",
         "",
-        f"- 运行状态：{'模式一已调用并通过结构校验' if ai.get('used') else '模式二仅规则复现，未调用 AI'}",
+        f"- 运行状态：{'冻结回放（未发起实时模型请求）' if analysis.get('is_replay') else '实时模型已调用并通过结构校验' if ai.get('used') else '实时模型未完成'}",
         f"- 模型：{ai.get('chat_model', '--')}",
         f"- Prompt 版本：{ai.get('prompt_version', '--')}",
         f"- 结构校验：{'模型自动修复后通过' if ai.get('repair_attempted') else '首次返回通过'}",
@@ -515,54 +593,70 @@ def generate_report(analysis: dict[str, Any], history: dict[str, Any]) -> str:
         f"- 待统计验证候选规则：{len(ai_result.get('candidate_rules', []))} 条",
         f"- 一致性门控：{'通过' if analysis.get('consensus_gate_passed') else '存在排除项'}",
         f"- 门控排除谓词：{'、'.join(analysis.get('disputed_predicates', [])) or '无'}",
-        "- AI 只提出事件、谓词和规则候选；门控、冻结规则匹配、因子计算与回测由确定性程序完成。",
+        "- AI 负责全文语义理解、事件/关系/谓词候选；证据校验、三层门控、冻结规则匹配、同比预测计算与策略回测由确定性程序完成。",
         "",
-        "| 股票 | 行业 | 候选因子 | 原始规则分 | 触发规则 |",
-        "|---|---|---:|---:|---|",
+        "| 关联股票 | 行业 | 通过谓词 | 关系证据 | 触发规则 |",
+        "|---|---|---:|---|---|",
     ])
     for stock in stocks[:15]:
         rule_ids = "、".join(rule["id"] for rule in stock["triggered_rules"]) or "无"
+        accepted_predicates = sum(row.get("status") == "agreed_true" for row in stock.get("predicate_consensus", []))
         lines.append(
             f"| {stock['name']}（{stock['code']}） | {stock['sector']} | "
-            f"{stock['candidate_factor']:.4f} | {stock['raw_score']:.4f} | {rule_ids} |"
+            f"{accepted_predicates} | {stock.get('link_evidence', '')} | {rule_ids} |"
         )
     lines.extend(
         [
             "",
-            "## 三、规则追溯",
+            "## 五、规则追溯",
             "",
         ]
     )
     if rules:
         for rule in rules:
             lines.append(
-                f"- `{rule['id']}`：{rule['condition']}；历史支持数 {rule['support']}，"
-                f"历史 5 日平均收益 {rule['avg_return']:.4f}，规则评分 {rule['score']:.4f}。"
+                f"- `{rule['id']}`：{rule['condition']}；独立历史文本支持数 {rule['support']}；"
+                f"仅作为同比增长预测的可追溯结构化证据。"
             )
     else:
-        lines.append("- 本次事件未触发达到最低样本门槛的冻结规则，因此候选因子值为 0。")
+        lines.append("- 本次事件未形成通过全部门控的冻结规则；系统仍保留通过校验的结构化证据用于同比增长预测。")
+    strategy_backtest = load_macro_backtest()
+    strategy_metrics = {row["strategy"]: row for row in strategy_backtest.get("metrics", [])}
+    buy_hold_strategy = strategy_metrics.get("buy_hold", {})
+    trend_strategy = strategy_metrics.get("trend", {})
+    latest_macro_strategy = strategy_metrics.get("trend_latest_macro", {})
+    alpha_strategy = strategy_metrics.get("trend_alphalens", {})
+    oracle_strategy = strategy_metrics.get("trend_oracle", {})
+    strategy_bootstrap = (strategy_backtest.get("bootstrap") or [{}])[0]
+    observed_positive = float(strategy_bootstrap.get("annualized_net_return_difference", 0)) > 0
+    if strategy_bootstrap.get("conclusion") == "positive_increment_observed":
+        strategy_conclusion = "正增量且置信区间通过"
+    elif observed_positive:
+        strategy_conclusion = "观察到正增量，但统计显著性尚未建立"
+    else:
+        strategy_conclusion = "交易增量尚未建立"
     lines.extend(
         [
             "",
-            "## 四、历史回测参考",
+            "## 六、AlphaLens 趋势策略宏观确认回测",
             "",
-            "> 这一部分来自固定历史样本，并非对本次新文本单独回测。",
+            "- 策略：新能源 ETF `516160` 的12个月时间序列动量 + 60日波动率缩放 + AlphaLens宏观确认；剩余仓位配置5年期国债 ETF `511010`。",
+            f"- 调仓：{strategy_backtest.get('rebalance_timing', '')}；不做空、不加杠杆；主成本 {strategy_backtest.get('primary_cost_bps', 10)} bp。",
+            f"- 买入持有：年化收益 {float(buy_hold_strategy.get('annual_return', 0)):.2%}；纯趋势：{float(trend_strategy.get('annual_return', 0)):.2%}。",
+            f"- 趋势 + 最新已公布行业数据：年化收益 {float(latest_macro_strategy.get('annual_return', 0)):.2%}。",
+            f"- 趋势 + AlphaLens：年化收益 {float(alpha_strategy.get('annual_return', 0)):.2%}，Sharpe {float(alpha_strategy.get('sharpe', 0)):.3f}。",
+            f"- Oracle（不可交易）：年化收益 {float(oracle_strategy.get('annual_return', 0)):.2%}。",
+            f"- AlphaLens增强相对纯趋势年化净收益差：{float(strategy_bootstrap.get('annualized_net_return_difference', 0)):.2%}；6个月时间块 Bootstrap 95%区间 [{float(strategy_bootstrap.get('ci_lower_95', 0)):.2%}, {float(strategy_bootstrap.get('ci_upper_95', 0)):.2%}]。",
+            f"- 本篇文本加入前风险仓位 {float(forecast.get('strategy_impact', {}).get('risk_weight_before', 0)):.2%}，加入后 {float(forecast.get('strategy_impact', {}).get('risk_weight_after', 0)):.2%}；未来持有期尚未发生，不生成单篇文本的虚假实现收益。",
+            f"- 结论：{strategy_conclusion}。",
             "",
-            f"- OOS 平均 Rank IC（5 日）：{float(oos_metrics.get('avg_rank_ic_5d', 0)):.6f}",
-            f"- OOS ICIR：{float(oos_metrics.get('rank_ic_ir', 0)):.6f}",
-            f"- OOS 有效 IC 日数：{int(oos_metrics.get('rank_ic_valid_date_count', 0))}",
-            f"- OOS G5-G1 行业超额收益差：{float(oos_metrics.get('top_bottom_group_spread_5d', 0)):.6f}",
-            f"- OOS 证据状态：{oos_metrics.get('evidence_status', 'insufficient')}",
-            f"- 未来函数审计：{metrics.get('future_info_audit', 'pending')}",
-            "",
-            "## 五、限制",
+            "## 七、限制",
             "",
             "- 当前行情为前复权候选价，`adj_factor=1` 仅作占位字段，不是真实复权因子序列。",
-            "- 当前 OOS 有效日期过少，证据不足，不能宣称因子稳定有效。",
-            "- 新文本只生成候选因子；只有积累到后续真实收益并遵守时间边界后，才能纳入下一轮历史检验。",
+            "- 月度Nowcast聚合同月去重文本；本篇新文本只展示加入前后的边际预测与仓位变化。",
             "- 当前样本、规则与股票池规模有限，结果用于验证研究链路，不代表未来表现。",
             "",
-            "## 六、免责声明",
+            "## 八、免责声明",
             "",
             f"**{DISCLAIMER}**。AlphaLens 是量化研究助手，不提供买卖建议。",
         ]
@@ -616,7 +710,24 @@ def assets(filename: str):
 
 @app.get("/api/status")
 def status():
-    return jsonify(data_status())
+    payload = data_status()
+    payload["macro"] = load_macro_status()
+    return jsonify(payload)
+
+
+@app.get("/api/macro/status")
+def macro_status():
+    return jsonify(load_macro_status())
+
+
+@app.get("/api/macro/forecast")
+def macro_forecast():
+    return jsonify(load_macro_forecast())
+
+
+@app.get("/api/macro/backtest")
+def macro_backtest():
+    return jsonify(load_macro_backtest())
 
 
 @app.get("/api/examples")
@@ -700,16 +811,16 @@ def replay(case_id: str):
     result["replay_metadata"] = case["metadata"]
     history = historical_backtest()
     result["historical_backtest"] = history
+    result["text_forecast"] = live_text_forecast(result)
     result["report"] = generate_report(result, history)
     result["disclaimer"] = DISCLAIMER
     return jsonify(result)
 
 
-@app.post("/api/analyze")
-def analyze():
-    payload, error = validate_payload(request.get_json(silent=True) or {})
+def _perform_analysis(raw_payload: dict[str, Any]) -> tuple[dict[str, Any], int]:
+    payload, error = validate_payload(raw_payload)
     if error:
-        return jsonify({"error": error}), 400
+        return {"error": error}, 400
     assert payload is not None
     api_key = payload.pop("api_key", "")
     ai_layer = request_ai_layer(api_key)
@@ -720,7 +831,7 @@ def analyze():
         payload["fetch_diagnostics"] = fetch
         fetched_text = fetch.get("text", "").strip()
         if not payload.get("content") and fetch.get("status") in {"failed", "no_url"}:
-            return jsonify({"error": f"无法从链接抓取正文：{fetch.get('error') or '链接无效'}"}), 400
+            return {"error": f"无法从链接抓取正文：{fetch.get('error') or '链接无效'}"}, 400
         if fetched_text:
             payload["fetched_content"] = fetched_text
             if not payload.get("content"):
@@ -742,18 +853,34 @@ def analyze():
             read_csv("rules.csv"),
             ai_layer=ai_layer,
             use_ai=True,
+            # 实时请求只展示未经历史统计验证的 AI 候选规则，不能污染
+            # 受版本控制的演示样本；入库只能由离线人工核验流程完成。
+            persist_ai_candidates=False,
         )
     except (KeyError, ValueError) as exc:
-        return jsonify({"error": str(exc)}), 400
+        return {"error": str(exc)}, 400
     if "error" in result:
         status_code = 503 if result.get("error_code") in {"ai_required", "embedding_required"} else 422
-        return jsonify(result), status_code
+        return result, status_code
     result["ai_analysis"]["credential_source"] = "request" if api_key else "environment_or_fallback"
     history = historical_backtest()
     result["historical_backtest"] = history
+    result["text_forecast"] = live_text_forecast(result)
     result["report"] = generate_report(result, history)
     result["disclaimer"] = DISCLAIMER
-    return jsonify(result)
+    return result, 200
+
+
+@app.post("/api/analyze")
+def analyze():
+    result, status_code = _perform_analysis(request.get_json(silent=True) or {})
+    return jsonify(result), status_code
+
+
+@app.post("/api/macro/analyze")
+def macro_analyze():
+    result, status_code = _perform_analysis(request.get_json(silent=True) or {})
+    return jsonify(result), status_code
 
 
 if __name__ == "__main__":

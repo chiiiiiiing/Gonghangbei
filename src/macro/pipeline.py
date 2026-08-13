@@ -63,8 +63,13 @@ def load_macro_ai_analyses(
 ) -> list[dict[str, Any]]:
     """Load successful, already validated macro AI cache records."""
     document_by_id = {row["doc_id"]: row for row in documents or []}
-    rows: list[dict[str, Any]] = []
+    latest_by_key: dict[str, dict[str, Any]] = {}
     for record in read_jsonl(path):
+        key = str(record.get("cache_key") or record.get("doc_id", ""))
+        if key:
+            latest_by_key[key] = record
+    rows: list[dict[str, Any]] = []
+    for record in latest_by_key.values():
         if (
             record.get("status") != "success"
             or record.get("prompt_version") != MACRO_PROMPT_VERSION
@@ -106,13 +111,47 @@ def _successful_legacy_ai_doc_ids(path: Path) -> set[str]:
     }
 
 
+def load_targets(sample_dir: Path) -> list[dict[str, str]]:
+    explicit = read_csv(sample_dir / "macro_targets.csv")
+    if explicit:
+        return explicit
+    historical = read_csv(sample_dir / "macro_target_history.csv")
+    return [
+        {
+            "period_start": row["period_start"],
+            "period_end": row["period_end"],
+            "period_kind": "jan_feb_combined"
+            if row["period_kind"] == "jan_feb_combined"
+            else "month",
+            "target_name": "electrical_machinery_industrial_value_added_yoy",
+            "target_value": row["actual_yoy"],
+            "release_date": row["release_date"],
+            "source_url": row["source_url"],
+        }
+        for row in historical
+        if str(row.get("actual_yoy", "")).strip()
+    ]
+
+
 def build_macro_research(sample_dir: Path = SAMPLE_DIR) -> dict[str, Any]:
-    documents = read_csv(sample_dir / "raw_documents.csv")
-    events = read_csv(sample_dir / "events.csv")
-    legacy_predicates = read_csv(sample_dir / "predicates.csv")
-    entity_links = read_csv(sample_dir / "entity_links.csv")
+    documents = [
+        *read_csv(sample_dir / "macro_historical_documents.csv"),
+        *read_csv(sample_dir / "raw_documents.csv"),
+    ]
+    events = [
+        *read_csv(sample_dir / "macro_historical_events.csv"),
+        *read_csv(sample_dir / "events.csv"),
+    ]
+    legacy_predicates = [
+        *read_csv(sample_dir / "macro_historical_predicates.csv"),
+        *read_csv(sample_dir / "predicates.csv"),
+    ]
+    entity_links = [
+        *read_csv(sample_dir / "macro_historical_entity_links.csv"),
+        *read_csv(sample_dir / "entity_links.csv"),
+    ]
     factors = read_csv(sample_dir / "factors.csv")
-    targets = read_csv(sample_dir / "macro_targets.csv")
+    targets = load_targets(sample_dir)
     if targets:
         if list(targets[0]) != TARGET_FIELDS:
             raise ValueError("macro_targets.csv 字段合同不匹配")
@@ -168,7 +207,7 @@ def build_macro_research(sample_dir: Path = SAMPLE_DIR) -> dict[str, Any]:
 
     atomic_write_csv(sample_dir / "macro_predicates.csv", MACRO_PREDICATE_FIELDS, research_predicates)
     atomic_write_csv(sample_dir / "macro_rules.csv", MACRO_RULE_FIELDS, historical_rules)
-    atomic_write_csv(sample_dir / "macro_monthly_features.csv", MONTHLY_FEATURE_FIELDS, all_features)
+    atomic_write_csv(sample_dir / "macro_route_features.csv", MONTHLY_FEATURE_FIELDS, all_features)
     (sample_dir / "macro_route_evaluation.json").write_text(
         json.dumps(evaluation, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
