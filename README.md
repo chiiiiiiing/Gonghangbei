@@ -271,6 +271,7 @@ DEEPSEEK_API_KEY=你的Key .venv/bin/python 批量生成AI标注.py --limit 10
 ├── 采集模板/               # 受控空白导入模板（不含外部或人工核验数据）
 ├── VERSION                 # 版本标签
 ├── 现场演示操作文档.md      # 现场开机、启动、演示、排障与退场步骤
+├── 服务器部署指南.md        # 线上部署（systemd + nginx）操作手册
 └── README.md               # 唯一总说明：产品、技术、提交、商业化与限制
 ```
 
