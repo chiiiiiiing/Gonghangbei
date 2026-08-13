@@ -8,6 +8,7 @@ import tempfile
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch
 
 from app.server import SAMPLE_DIR, app, load_replay_cases
 from src.ai import rag
@@ -619,7 +620,9 @@ class SourceQualityAndCalibrationTests(unittest.TestCase):
             "source_url": url,
             "analysis_mode": "hybrid",
         }
-        response = self.client.post("/api/analyze", json=request)
+        disabled_layer = AIResearchLayer(AISettings.from_environment(environ={}))
+        with patch("app.server.AI_LAYER", disabled_layer):
+            response = self.client.post("/api/analyze", json=request)
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.get_json()["error_code"], "ai_required")
 

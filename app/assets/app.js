@@ -50,6 +50,7 @@ let runMode = "live";
 let currentAnalysis = null;
 let historyData = null;
 let auditData = null;
+let macroData = null;
 let historySplit = "oos";
 
 function refreshIcons() {
@@ -111,6 +112,7 @@ function switchView(viewId) {
   if (viewId === "historyView" && historyData) {
     renderHistory(historyData);
   }
+  if (viewId === "macroView" && macroData) renderMacro(macroData);
 }
 
 async function fetchJson(url, options) {
@@ -148,6 +150,15 @@ async function loadAudit() {
     renderAudit(auditData);
   } catch (error) {
     $("auditContent").innerHTML = `<div class="error-box"><strong>研究审计读取失败</strong>${esc(error.message)}</div>`;
+  }
+}
+
+async function loadMacro() {
+  try {
+    macroData = await fetchJson("/api/macro-nowcast");
+    renderMacro(macroData);
+  } catch (error) {
+    $("macroContent").innerHTML = `<div class="error-box"><strong>宏观研究读取失败</strong>${esc(error.message)}</div>`;
   }
 }
 
@@ -338,6 +349,32 @@ function renderHistory(history) {
   if ($("historyView").classList.contains("active")) renderCharts(split);
 }
 
+function renderMacro(data) {
+  const counts = data.target_counts || { train: 0, validation: 0, oos: 0 };
+  const audit = data.data_audit || {};
+  const insufficient = data.status !== "text_increment_validated";
+  const routeLabels = {
+    predicate_baseline: "原始谓词基线",
+    historical_rules: "历史学习规则",
+    ai_dynamic_rules: "AI 动态规则",
+    hybrid_rules: "历史 + AI 融合",
+  };
+  const routeRows = Object.entries(data.routes || {}).map(([name, route]) => {
+    const baseline = route.baseline_validation?.metrics || {};
+    const enhanced = route.text_validation?.metrics || {};
+    const delta = route.delta_validation || {};
+    return `<tr><td>${esc(routeLabels[name] || name)}</td><td>${esc(route.selected_model || "—")}</td><td>${esc(enhanced.sample_count || 0)}</td><td class="mono">${fixed(baseline.mae, 4)}</td><td class="mono">${fixed(enhanced.mae, 4)}</td><td class="mono">${fixed(delta.mae, 4)}</td><td>${pct(route.validation_text_coverage || 0)}</td><td>${badge(route.qualified ? "合格" : "未通过", route.qualified ? "good" : "warn")}</td></tr>`;
+  }).join("") || '<tr><td colspan="8">尚未构建宏观路线评估</td></tr>';
+  const html = `<div class="page-heading"><div><h1>产业景气 Nowcast</h1><p>电气机械和器材制造业增加值同比增速 · 历史规则与 AI 动态规则统一验证</p></div>${badge(insufficient ? "证据不足" : "验证通过", insufficient ? "warn" : "good")}</div>
+    <div class="metrics">${metric(audit.period_count || 0, "文本统计期")}${metric(counts.train || 0, "Train 官方观测")}${metric(counts.validation || 0, "Validation 官方观测")}${metric(counts.oos || 0, "冻结 OOS 观测")}${metric(audit.historical_macro_rule_count || 0, "历史宏观规则")}${metric(audit.macro_ai_success_count || 0, "宏观 AI 标注")}</div>
+    <div class="notice ${insufficient ? "" : "good"}"><strong>${esc(data.conclusion || "文本预测增量不足")}</strong> · 当前选择 ${esc(data.selected_route || "no_text_ridge")} / ${esc(data.selected_model || "ridge")}。2015—2021 仅用于训练，2022—2023 用于路线选择，2024 年后只做冻结 OOS。</div>
+    <section class="section"><div class="section-header"><div><h2>规则路线比较</h2><p>所有路线共享相同宏观滞后项、时间切分和低自由度模型</p></div></div><div class="table-wrap"><table><thead><tr><th>路线</th><th>模型</th><th>验证观测</th><th>无文本 MAE</th><th>文本 MAE</th><th>ΔMAE</th><th>文本覆盖</th><th>状态</th></tr></thead><tbody>${routeRows}</tbody></table></div></section>
+    <section class="section"><div class="section-header"><div><h2>数据与冻结边界</h2></div></div><div class="section-body"><div class="detail-grid"><div class="detail-item"><b>输入文本</b><span>${esc(audit.input_document_count || 0)} 篇</span></div><div class="detail-item"><b>去重后文本</b><span>${esc(audit.canonical_document_count || 0)} 篇</span></div><div class="detail-item"><b>重复排除</b><span>${esc(audit.dedup_dropped_document_count || 0)} 篇</span></div><div class="detail-item"><b>OOS 政策</b><span>${esc(data.oos_policy || "只报告，不重新选择")}</span></div></div></div></section>
+    <p class="disclaimer">${esc(data.disclaimer || "本报告仅供研究参考，不构成投资建议")}</p>`;
+  $("macroContent").innerHTML = html;
+  refreshIcons();
+}
+
 function renderCharts(split) {
   if (!window.Plotly || !$("groupChart") || !$("icChart")) return;
   const layout = { font: { family: "Inter, sans-serif", size: 11, color: "#40505e" }, margin: { l: 52, r: 16, t: 42, b: 42 }, paper_bgcolor: "#fff", plot_bgcolor: "#f8fafb", showlegend: false };
@@ -407,5 +444,6 @@ document.addEventListener("DOMContentLoaded", () => {
   loadStatus();
   loadExamples();
   loadHistory();
+  loadMacro();
   loadAudit();
 });

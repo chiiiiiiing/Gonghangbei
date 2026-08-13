@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_DIR = ROOT / "data" / "sample"
 APP_DIR = ROOT / "app"
 REPLAY_PATH = SAMPLE_DIR / "replay_cases.json"
+MACRO_EVALUATION_PATH = SAMPLE_DIR / "macro_route_evaluation.json"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -351,6 +352,28 @@ def historical_backtest() -> dict[str, Any]:
     }
 
 
+def macro_nowcast_research() -> dict[str, Any]:
+    """Expose the frozen macro route evaluation without recomputing on reads."""
+    if not MACRO_EVALUATION_PATH.exists():
+        return {
+            "status": "not_built",
+            "conclusion": "文本预测增量不足",
+            "selected_route": "no_text_ridge",
+            "selected_model": "ridge",
+            "target_counts": {"train": 0, "validation": 0, "oos": 0},
+            "data_sufficient": False,
+            "routes": {},
+            "data_audit": {},
+            "disclaimer": DISCLAIMER,
+        }
+    payload = json.loads(MACRO_EVALUATION_PATH.read_text(encoding="utf-8"))
+    payload["scope"] = "macro_nowcast_research"
+    payload["target_label"] = "电气机械和器材制造业增加值同比增速"
+    payload["forecast_timing"] = "每月末使用截至当月末公开文本，预测下一次国家统计局公布的当期值"
+    payload["disclaimer"] = DISCLAIMER
+    return payload
+
+
 def research_audit() -> dict[str, Any]:
     documents = read_csv("raw_documents.csv")
     events = read_csv("events.csv")
@@ -622,6 +645,11 @@ def example_fulltext(index: int):
 @app.get("/api/backtest")
 def backtest():
     return jsonify(historical_backtest())
+
+
+@app.get("/api/macro-nowcast")
+def macro_nowcast():
+    return jsonify(macro_nowcast_research())
 
 
 @app.get("/api/audit")

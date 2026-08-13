@@ -1,0 +1,306 @@
+{
+  "target_name": "electrical_machinery_industrial_value_added_yoy",
+  "selection_split": "validation_2022_2023",
+  "oos_policy": "2024 年后只报告，不重新选择路线或调参",
+  "target_counts": {
+    "train": 0,
+    "validation": 0,
+    "oos": 0
+  },
+  "train_text_coverage": 0.0,
+  "validation_text_coverage": 0.0,
+  "data_sufficient": false,
+  "status": "insufficient_text_increment",
+  "conclusion": "文本预测增量不足",
+  "selected_route": "no_text_ridge",
+  "selected_model": "ridge",
+  "routes": {
+    "predicate_baseline": {
+      "selected_model": "ridge",
+      "feature_count": 91,
+      "validation_text_coverage": 0.0,
+      "block_improvement_concentration": 1.0,
+      "baseline_validation": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      },
+      "text_validation": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      },
+      "delta_validation": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "oos_r2_vs_persistence": 0.0
+      },
+      "qualified": false,
+      "frozen_oos": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      }
+    },
+    "historical_rules": {
+      "selected_model": "ridge",
+      "feature_count": 91,
+      "validation_text_coverage": 0.0,
+      "block_improvement_concentration": 1.0,
+      "baseline_validation": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      },
+      "text_validation": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      },
+      "delta_validation": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "oos_r2_vs_persistence": 0.0
+      },
+      "qualified": false,
+      "frozen_oos": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      }
+    },
+    "ai_dynamic_rules": {
+      "selected_model": "ridge",
+      "feature_count": 104,
+      "validation_text_coverage": 0.0,
+      "block_improvement_concentration": 1.0,
+      "baseline_validation": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      },
+      "text_validation": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      },
+      "delta_validation": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "oos_r2_vs_persistence": 0.0
+      },
+      "qualified": false,
+      "frozen_oos": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      }
+    },
+    "hybrid_rules": {
+      "selected_model": "ridge",
+      "feature_count": 104,
+      "validation_text_coverage": 0.0,
+      "block_improvement_concentration": 1.0,
+      "baseline_validation": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      },
+      "text_validation": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      },
+      "delta_validation": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "oos_r2_vs_persistence": 0.0
+      },
+      "qualified": false,
+      "frozen_oos": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [],
+        "alpha": 0.0
+      }
+    }
+  },
+  "baselines": {
+    "validation": {
+      "persistence": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": []
+      },
+      "seasonal": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": []
+      },
+      "ar1": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": []
+      }
+    },
+    "frozen_oos": {
+      "persistence": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": []
+      },
+      "seasonal": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": []
+      },
+      "ar1": {
+        "metrics": {
+          "sample_count": 0,
+          "mae": 0.0,
+          "rmse": 0.0,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.0,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": []
+      }
+    }
+  },
+  "disclaimer": "本报告仅供研究参考，不构成投资建议",
+  "data_audit": {
+    "input_document_count": 196,
+    "canonical_document_count": 194,
+    "dropped_document_count": 2,
+    "dropped_documents": [
+      {
+        "doc_id": "DANN-009",
+        "duplicate_of": "DANN-008",
+        "reason": "near_duplicate_text"
+      },
+      {
+        "doc_id": "S108",
+        "duplicate_of": "S104",
+        "reason": "near_duplicate_text"
+      }
+    ],
+    "period_count": 27,
+    "dedup_dropped_document_count": 2,
+    "macro_ai_success_count": 189,
+    "macro_target_count": 0,
+    "historical_macro_rule_count": 0
+  }
+}

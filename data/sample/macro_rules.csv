@@ -1,0 +1,1 @@
+rule_id,route,condition,direction,expected_lag_months,independent_document_count,independent_period_count,train_correlation,rolling_mae_improvement,stability,score,status
