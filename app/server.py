@@ -144,6 +144,14 @@ def read_csv(filename: str) -> list[dict[str, str]]:
 
 
 def repository_commit() -> str:
+    configured = os.getenv("ALPHALENS_RELEASE_COMMIT", "").strip()
+    if configured:
+        return configured
+    deployed_commit_path = ROOT / "DEPLOYED_COMMIT"
+    if deployed_commit_path.exists():
+        deployed_commit = deployed_commit_path.read_text(encoding="utf-8").strip()
+        if deployed_commit:
+            return deployed_commit
     try:
         result = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],

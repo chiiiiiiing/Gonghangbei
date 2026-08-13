@@ -66,7 +66,7 @@ function setExample(index) {
   $("eventDate").value = item.date;
   $("sourceUrl").value = item.url;
   // 异步抓取链接全文填入正文（保留摘要前缀，保证冻结回放校验不破坏；失败回退摘要）。
-  fetchJson(`/api/example/${index}/fulltext`)
+  fetchJson(`api/example/${index}/fulltext`)
     .then((data) => {
       if (data.full_text && data.full_text !== item.content) {
         $("content").value = `${item.content}\n\n【正文链接全文】\n${data.full_text}`;
@@ -77,7 +77,7 @@ function setExample(index) {
 
 async function loadExamples() {
   try {
-    const data = await fetchJson("/api/examples");
+    const data = await fetchJson("api/examples");
     if (data.examples?.length) EXAMPLES = data.examples;
   } catch (error) {
     // 离线时使用 app.js 内置兜底示例（仅摘要）。
@@ -127,7 +127,7 @@ async function fetchJson(url, options) {
 
 async function loadStatus() {
   try {
-    const data = await fetchJson("/api/status");
+    const data = await fetchJson("api/status");
     $("statusDot").classList.add("on");
     const ai = data.ai || {};
     const model = ai.chat_model || "未配置模型";
@@ -141,7 +141,7 @@ async function loadStatus() {
 async function loadMacro() {
   try {
     const [status, forecast, backtest, routes] = await Promise.all([
-      fetchJson("/api/macro/status"), fetchJson("/api/macro/forecast"), fetchJson("/api/macro/backtest"), fetchJson("/api/macro-nowcast"),
+      fetchJson("api/macro/status"), fetchJson("api/macro/forecast"), fetchJson("api/macro/backtest"), fetchJson("api/macro-nowcast"),
     ]);
     macroData = { status, forecast, backtest, routes };
     renderMacro(macroData);
@@ -235,7 +235,7 @@ function chartLayout(yTitle) {
 
 async function loadAudit() {
   try {
-    auditData = await fetchJson("/api/audit");
+    auditData = await fetchJson("api/audit");
     auditLoadError = "";
     renderAudit(auditData);
   } catch (error) {
@@ -255,7 +255,7 @@ async function checkApi() {
   $("checkApiButton").disabled = true;
   setConnection("neutral", "正在核对模型权限与实际返回模型");
   try {
-    const data = await fetchJson("/api/ai/check", {
+    const data = await fetchJson("api/ai/check", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ api_key: apiKey }),
     });
     setConnection("ok", `${data.returned_model} 已验证 · ${data.owned_by || "DeepSeek"}`);
@@ -286,8 +286,8 @@ async function runAnalysis() {
   $("result").innerHTML = "";
   try {
     const data = runMode === "replay"
-      ? await fetchJson("/api/replay/storage-policy")
-      : await fetchJson("/api/macro/analyze", {
+      ? await fetchJson("api/replay/storage-policy")
+      : await fetchJson("api/macro/analyze", {
           method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(analysisPayload()),
         });
     currentAnalysis = data;
