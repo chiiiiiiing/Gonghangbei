@@ -480,6 +480,7 @@ def induce_rulebook(
     min_dates: int = MIN_RULE_DATES,
     top_k: int = TOP_K_RULES,
     penalty_lambda: float = RULE_LAMBDA,
+    anchor_predicates: set[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Induce global top-k bullish and bearish short rules from discovery only."""
     discovery = [
@@ -490,6 +491,11 @@ def induce_rulebook(
     predicates = list(PREDICATE_DEFINITIONS)
     candidates = [(name,) for name in predicates]
     candidates.extend(itertools.combinations(predicates, 2))
+    if anchor_predicates is not None:
+        candidates = [
+            conditions for conditions in candidates
+            if any(name in anchor_predicates for name in conditions)
+        ]
     rules: list[dict[str, Any]] = []
     for target in ("bullish", "bearish"):
         positives = [row for row in discovery if row["direction_label"] == target]

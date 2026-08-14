@@ -2,17 +2,17 @@
 
 > **一句话定位**：AlphaLens 将新能源产业文本映射到固定碳酸锂谓词，通过 Discovery 样本归纳 RIFT 短规则，预测碳酸锂主力连续合约未来 5 个交易日价格方向，再检验规则增强趋势相对纯趋势是否产生严格样本外交易增量。
 >
-> 版本 `lithium-rift-v1` · Qwen2.5-0.5B 本地冻结标注 · 17 谓词固定 Schema · Top-5 双向规则簿 · 2026 年起冻结 OOS
+> 版本 `lithium-rift-v3-research` · DeepSeek-V4-Flash 受控标注 · 17 谓词固定 Schema · Discovery 稳定性门禁 · 2026 一次性 OOS 压力检验
 >
 > **本报告仅供研究参考，不构成投资建议**
 
 ## 当前实现状态
 
-代码与真实数据链路均已落盘：8,507 条广期所 LC 合约日行情、652 个仓单交易日、744 个主力连续交易日、253 篇可追溯文本/仓单事件。文本来源审计分为 54 篇全文抓取、6 篇部分抓取、1 篇仅保留仓库快照，以及 192 条由广期所官方 JSON 派生的重大仓单事实；每篇正文的 SHA-256、URL 和来源必须与审计表一致。249 篇历史文本进入本地 LLM 审计，225 条通过 JSON、证据与规则一致性门禁，归纳出 2 条 bullish 仓单减少规则与 2 条 bearish 仓单增加规则。24 条未产出信号：5 条保留精确错误，19 条因旧版中断写盘只保留可校验的历史拒绝状态，不伪造丢失的错误详情，也不降级成关键词信号。冻结日之后的新文本不等未来5日标签，会在公开当日立即生成前瞻信号。
+代码与真实数据链路均已落盘：8,507 条广期所 LC 合约日行情、652 个仓单交易日、744 个主力连续交易日，以及 449 篇可追溯文本。新增语料为 13 家锂矿/锂盐/电池产业链上市公司的 196 篇巨潮资讯公告，选取只使用发行人、标题和文档内容，不读取市场收益。全部 449 篇由 `deepseek-v4-flash` 重新标注，每个谓词都须通过模型与确定性证据双重确认；证据必须回映原文，无法验证的模型 `true` 会降级且写入审计。其中 445 篇具备可计算的未来 5 日标签。
 
-冻结 OOS（2026-01-01 至 2026-08-13）结果未通过门槛：5bp 成本下纯趋势年化收益 -33.03%，RIFT 增强趋势 -29.25%；148 个逐日配对成本后收益差的年化均值为 -3.34%，3 个月时间块 Bootstrap 95% 区间为 `[-7.26%, 37.32%]`。因此页面与 API 必须显示 **“交易增量未建立”**，不能把降低趋势仓位带来的几何年化差包装成文本贡献。
+仅 1 条规则通过事先声明的 Discovery 半年度稳定性门禁：`仓单减少 -> bullish`。计划中的 70/30 混合在 2025 validation 的配对收益差年化均值为 -12.00%，95% 区间 `[-16.66%, 0.81%]`，未通过。早已预注册的“文本仅同向增强趋势”候选在 validation 中为 +10.15%，95% 区间 `[3.60%, 21.31%]`，但在 2026 旧 OOS 压力检验中反转为 -12.01%，95% 区间 `[-22.78%, -2.49%]`。因此当前结论仍是 **“交易增量未建立”**。
 
-仓单方向标注修复后，项目另行冻结 `lithium-prospective-v2`：只在趋势与文本同向时叠加文本仓位，反向时保持纯趋势。该候选在 2025 validation 的年化收益为 85.32%（纯趋势 63.10%），配对收益差年化均值 13.25%，Bootstrap 95% 下界 4.94%。但冻结后对 2026-01-01 至 2026-08-13 旧 OOS 的压力诊断为 -17.20%，95% 区间 `[-28.50%, -2.94%]`，说明候选缺乏跨阶段稳健性；该诊断不参与选参，也不能反向改写已冻结公式。前瞻 OOS 从 2026-08-14 开始，当前 1 条决策、0 个已结算观察。8月14日行情已纳入，但当日收盘信号需从下一交易日开盘执行，状态仍为“前瞻交易增量待检验”。
+`lithium-prospective-v2` 的冻结文件和 append-only 决策账本仍保留为历史审计，但不与 V4 研究样本混用，也不作为新版增量证明。
 
 ### 受控数据
 
@@ -31,14 +31,15 @@
 
 1. `python scripts/fetch_gfex_lithium_data.py --start 2023-07-21 --end 2026-08-14 --workers 1`：获取并审计官方行情与仓单。
 2. `python scripts/build_lithium_text_corpus.py --start 2023-07-21 --end 2026-08-14`：抓取产业全文，并用 discovery 期 75 分位数冻结重大仓单事件阈值。
-3. 安装 `torch transformers sentencepiece`，运行 `python scripts/generate_lithium_local_annotations.py`：用本地 Qwen 生成谓词、规则增强方向、标签、规则簿和回测。
-4. `python 运行研究流水线.py`：重建宏观 legacy 与碳酸锂派生输出；`python 启动演示.py` 启动页面。
+3. `python scripts/fetch_cninfo_lithium_texts.py --start 2023-07-21 --end 2025-12-31 --max-per-company 50`：获取并审计巨潮资讯产业链公告。
+4. `DEEPSEEK_API_KEY=... ALPHALENS_LLM_MODEL=deepseek-v4-flash ALPHALENS_AI_JSON_MODE=object python scripts/build_lithium_v3_research.py`：生成受控谓词、稳定规则簿、信号与审计报告。
+5. `python 运行研究流水线.py`：重建宏观 legacy 与碳酸锂派生输出；`python 启动演示.py` 启动页面。
 
 前瞻冻结后可运行 `python scripts/update_lithium_prospective.py`。该命令从官方接口补齐新交易日、更新仓单事件、增量抓取 `lithium_text_sources.csv` 中的新 URL、复用本地模型缓存标注新增文本，并刷新 `prospective_candidate`；本地模型依赖使用 `pip install -r requirements-local-llm.txt` 安装。北京时间17点后默认尝试当日广期所数据，当日空响应不会写入永久缓存。脚本在更新前后都会校验 `lithium_prospective_freeze.json`，只要冻结日之前的行情、仓单、文本、信号、规则或官方原始哈希发生变化就立即失败；每次结果追加到 `lithium_prospective_runs.csv`。结束日期早于现有历史时也会拒绝执行。
 
 每日更新还会在 `lithium_prospective_decisions.csv` 追加当日收盘后已知的主力合约、纯趋势仓位、文本分数和增强仓位。相同信号日只能验证原记录，任一输入哈希或仓位发生变化都会拒绝覆盖；前瞻收益只结算在下一交易日开盘前已经写入的决策，避免事后回填信号。
 
-实时 `/api/lithium/analyze` 仍使用 OpenAI-compatible/DeepSeek 网关并要求调用方提供 Key；本地 Qwen 只用于可复现的历史冻结标注，不冒充实时云模型。
+实时 `/api/lithium/analyze` 使用 OpenAI-compatible/DeepSeek 网关并要求调用方提供 Key；V4 历史标注仅由显式研究命令生成，不在 Web 请求中静默重跑。旧 Qwen 产物不进入 v3 谓词、规则或回测。
 单文本接口的两阶段合约是固定的：`predicted_variable` 返回 `lc_main_5d_open_to_open_direction_score`，`strategy_mapping` 返回文本公开日对应的 20 日纯趋势仓位、规则确认趋势仓位、边际变化和下一开盘执行日，`increment_evidence` 返回基准、前瞻观察数与 Bootstrap 验收状态。页面不再自行套用仓位公式。
 
 主验收只有一条：冻结后的前瞻 OOS 中，RIFT 规则确认趋势相对纯趋势的成本后年化收益差为正，并且 3 个月时间块 Bootstrap 95% 下界大于 0。否则结论必须保持“前瞻交易增量待检验/未建立”，旧 OOS 的失败结论也不得覆盖。

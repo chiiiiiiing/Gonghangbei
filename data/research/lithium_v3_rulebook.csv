@@ -1,0 +1,2 @@
+rule_id,target_label,conditions,score,coverage_positive,coverage_negative,support_documents,support_dates,status
+LC-BULL-01,bullish,warehouse_receipt_decline,0.0643405889884763,0.11363636363636363,0.04929577464788732,12,12,qualified_stable_discovery

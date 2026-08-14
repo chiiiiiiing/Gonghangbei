@@ -11,6 +11,11 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from scripts.generate_lithium_local_annotations import eligible_for_annotation
+from scripts.build_lithium_v3_research import (
+    recover_exact_evidence,
+    stable_discovery_rulebook,
+)
+from scripts.fetch_cninfo_lithium_texts import title_selected
 from scripts.record_lithium_prospective_decision import FIELDS, append_decision
 from src.lithium.engine import (
     PREDICATE_DEFINITIONS,
@@ -58,6 +63,64 @@ def business_days(start: date, count: int) -> list[date]:
 
 
 class LithiumDataTests(unittest.TestCase):
+    def test_v3_evidence_recovery_preserves_original_pdf_whitespace(self) -> None:
+        source = "设计年产电池级碳酸锂 9,600 吨\n并逐步投产。"
+        recovered = recover_exact_evidence("电池级碳酸锂9,600吨", source)
+        self.assertEqual(recovered, "电池级碳酸锂 9,600 吨")
+
+    def test_v3_stability_gate_uses_both_2024_halves_and_deduplicates_coverage(self) -> None:
+        records = []
+        for half, month in (("H1", 2), ("H2", 8)):
+            for index in range(6):
+                active = index < 3
+                records.append({
+                    "doc_id": f"{half}-{index}",
+                    "publish_time": f"2024-{month:02d}-{index + 1:02d}",
+                    "direction_label": "bullish" if index < 3 else "bearish",
+                    "predicate_status": {
+                        "warehouse_receipt_decline": "agreed_true" if active else "agreed_false",
+                        "authoritative_source": "agreed_true" if active else "agreed_false",
+                    },
+                })
+        candidates = [
+            {
+                "rule_id": "LC-BULL-01", "target_label": "bullish",
+                "conditions": ["warehouse_receipt_decline"], "score": 0.5,
+                "coverage_positive": 0.5, "coverage_negative": 0.0,
+                "support_documents": 6, "support_dates": 6, "status": "qualified",
+            },
+            {
+                "rule_id": "LC-BULL-02", "target_label": "bullish",
+                "conditions": ["warehouse_receipt_decline", "authoritative_source"],
+                "score": 0.5, "coverage_positive": 0.5, "coverage_negative": 0.0,
+                "support_documents": 6, "support_dates": 6, "status": "qualified",
+            },
+        ]
+        stable, diagnostics = stable_discovery_rulebook(records, candidates)
+        self.assertEqual(len(diagnostics), 2)
+        self.assertEqual(len(stable), 1)
+        self.assertEqual(stable[0]["conditions"], ["warehouse_receipt_decline"])
+        self.assertEqual(stable[0]["status"], "qualified_stable_discovery")
+
+    def test_cninfo_selection_excludes_governance_and_keeps_lithium_projects(self) -> None:
+        self.assertFalse(title_selected("002460", "第六届董事会决议公告"))
+        self.assertFalse(title_selected("002460", "锂项目募集资金核查意见"))
+        self.assertTrue(title_selected("002460", "Goulamina锂矿项目投产进展公告"))
+
+    def test_rule_induction_requires_an_economic_anchor_when_configured(self) -> None:
+        records = [
+            {
+                "doc_id": f"D{index}", "publish_time": f"2024-01-{index + 1:02d}",
+                "direction_label": "bullish",
+                "predicate_status": {"authoritative_source": "agreed_true"},
+            }
+            for index in range(5)
+        ]
+        self.assertEqual(
+            induce_rulebook(records, anchor_predicates={"supply_expansion"}),
+            [],
+        )
+
     def test_controlled_data_validation_reports_schema_and_format_errors(self) -> None:
         texts = [{
             "doc_id": "D1", "source_type": "news", "title": "仓单", "content": "仓单增加",
@@ -383,7 +446,10 @@ class LithiumApiTests(unittest.TestCase):
         cls.client = app.test_client()
 
     def test_lithium_endpoints_disclose_boundary_and_real_data_status(self) -> None:
-        for path in ("/api/lithium/status", "/api/lithium/forecast", "/api/lithium/backtest"):
+        for path in (
+            "/api/lithium/status", "/api/lithium/forecast",
+            "/api/lithium/backtest", "/api/lithium/research-v3",
+        ):
             response = self.client.get(path)
             self.assertEqual(response.status_code, 200, path)
             payload = response.get_json()
@@ -398,6 +464,12 @@ class LithiumApiTests(unittest.TestCase):
         self.assertGreaterEqual(status["counts"]["continuous_days"], 743)
         self.assertGreater(status["counts"]["signals"], 0)
         self.assertGreater(status["counts"]["qualified_rules"], 0)
+        v3 = self.client.get("/api/lithium/research-v3").get_json()
+        self.assertEqual(v3["model"], "deepseek-v4-flash")
+        self.assertEqual(v3["counts"]["predicate_annotations"], 449)
+        self.assertEqual(v3["counts"]["rules"], 1)
+        self.assertFalse(v3["increment_established"])
+        self.assertLess(v3["old_oos_confirmed_trend_bootstrap"]["ci_upper_95"], 0)
         backtest = self.client.get("/api/lithium/backtest").get_json()
         self.assertEqual(backtest["engine_version"], "lithium-backtest-v3-decision-ledger-20260814")
         self.assertFalse(backtest["increment_established"])
@@ -475,6 +547,7 @@ class LithiumApiTests(unittest.TestCase):
         self.assertIn("碳酸锂文本规则预测", html)
         self.assertIn("研究验证", html)
         script = (APP_DIR / "assets" / "app.js").read_text(encoding="utf-8")
+        self.assertIn("DeepSeek V4 全量重标", script)
         self.assertIn("前瞻候选 v2", script)
         self.assertIn("不回填已观察的旧 OOS", script)
         self.assertNotIn("保证收益", html)
