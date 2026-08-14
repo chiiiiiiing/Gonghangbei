@@ -29,6 +29,9 @@ LITHIUM_V4_ADDITIVE_REPORT_PATH = LITHIUM_V3_DIR / "lithium_v4_additive_oos_repo
 LITHIUM_V4_LEDGER_PATH = LITHIUM_V3_DIR / "lithium_v4_prospective_decisions.csv"
 LITHIUM_V4_SIGNAL_PATH = LITHIUM_V3_DIR / "lithium_v4_prospective_signals.csv"
 LITHIUM_V4_RUN_PATH = LITHIUM_V3_DIR / "lithium_v4_prospective_runs.csv"
+LITHIUM_V5_REPORT_PATH = LITHIUM_V3_DIR / "lithium_v5_walkforward_report.json"
+LITHIUM_V5_LEDGER_PATH = LITHIUM_V3_DIR / "lithium_v5_prospective_decisions.csv"
+LITHIUM_V5_LIVE_SIGNAL_PATH = LITHIUM_V3_DIR / "lithium_v5_live_signals.csv"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -68,6 +71,17 @@ from scripts.build_lithium_v3_research import (  # noqa: E402
 from scripts.lithium_v4_prospective_integrity import (  # noqa: E402
     verify_manifest as verify_lithium_v4_manifest,
 )
+from scripts.lithium_v5_candidate_integrity import (  # noqa: E402
+    verify_manifest as verify_lithium_v5_manifest,
+)
+from src.lithium.walkforward import (  # noqa: E402
+    ENHANCED_STRATEGY as LITHIUM_V5_ENHANCED_STRATEGY,
+    evaluate_prospective_decisions as evaluate_lithium_v5_decisions,
+    map_live_prediction as map_lithium_v5_prediction,
+    paired_block_bootstrap as lithium_v5_bootstrap,
+    strategy_metrics as lithium_v5_metrics,
+)
+from src.lithium.live_signal_ledger import record_if_eligible as record_lithium_v5_signal  # noqa: E402
 
 
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
@@ -284,6 +298,67 @@ def load_lithium_v4_research() -> dict[str, Any]:
         "conclusion": "交易增量成立" if established else "前瞻交易增量待检验",
         "disclaimer": DISCLAIMER,
         "research_boundary": LITHIUM_RESEARCH_BOUNDARY,
+    }
+
+
+def load_lithium_v5_research() -> dict[str, Any]:
+    report = _read_optional_json(LITHIUM_V5_REPORT_PATH)
+    decisions: list[dict[str, str]] = []
+    if LITHIUM_V5_LEDGER_PATH.exists():
+        with LITHIUM_V5_LEDGER_PATH.open(encoding="utf-8", newline="") as handle:
+            decisions = list(csv.DictReader(handle))
+    contracts = read_lithium_csv("lithium_contract_daily.csv")
+    settled, ledger = evaluate_lithium_v5_decisions(decisions, contracts)
+    ledger["file"] = "data/research/lithium_v5_prospective_decisions.csv"
+    prospective_metrics = lithium_v5_metrics(
+        settled,
+        "v5_prospective_oos",
+    )
+    prospective_bootstrap = lithium_v5_bootstrap(
+        settled,
+        "v5_prospective_oos",
+    )
+    established = (
+        prospective_bootstrap["conclusion"] == "positive_increment_established"
+    )
+    try:
+        integrity = verify_lithium_v5_manifest()
+    except (FileNotFoundError, KeyError, json.JSONDecodeError, ValueError) as exc:
+        integrity = {
+            "verified": False,
+            "mismatches": [f"manifest_missing_or_invalid:{type(exc).__name__}"],
+        }
+    latest = decisions[-1] if decisions else {}
+    return {
+        **report,
+        "version": report.get("version", "lithium-v5-quality-text-walkforward-v1"),
+        "status": (
+            "positive_increment_established"
+            if established else "awaiting_new_oos_data"
+        ),
+        "decision_ledger": ledger,
+        "candidate_integrity": {
+            "verified": integrity["verified"],
+            "mismatches": integrity["mismatches"],
+        },
+        "latest_decision": {
+            key: latest.get(key, "")
+            for key in (
+                "decision_id", "recorded_at", "signal_date", "selected_contract",
+                "baseline_position", "active_text_score", "enhanced_position",
+                "position_delta", "accepted_signal_ids", "execution_trade_date",
+            )
+        } if latest else {},
+        "prospective_metrics": prospective_metrics,
+        "prospective_bootstrap": prospective_bootstrap,
+        "strict_increment_established": established,
+        "strict_conclusion": (
+            "交易增量成立" if established else "严格前瞻交易增量待检验"
+        ),
+        "disclaimer": DISCLAIMER,
+        "research_boundary": report.get(
+            "research_boundary", LITHIUM_RESEARCH_BOUNDARY
+        ) + LITHIUM_RESEARCH_BOUNDARY,
     }
 
 
@@ -901,7 +976,10 @@ def lithium_status():
     v3 = load_lithium_v3_report()
     payload["deepseek_v4_research"] = v3
     payload["deepseek_v4_prospective"] = load_lithium_v4_research()
-    if v3.get("status") == "built":
+    payload["deepseek_v5_walkforward"] = load_lithium_v5_research()
+    if LITHIUM_V5_REPORT_PATH.exists():
+        payload["version"] = "lithium-v5-quality-text-walkforward"
+    elif v3.get("status") == "built":
         payload["version"] = "lithium-v3-rift-v4-direction"
     return jsonify(payload)
 
@@ -916,6 +994,7 @@ def lithium_backtest():
     payload = load_lithium_backtest()
     payload["deepseek_v4_research"] = load_lithium_v3_report()
     payload["deepseek_v4_prospective"] = load_lithium_v4_research()
+    payload["deepseek_v5_walkforward"] = load_lithium_v5_research()
     return jsonify(payload)
 
 
@@ -927,6 +1006,11 @@ def lithium_research_v3():
 @app.get("/api/lithium/research-v4")
 def lithium_research_v4():
     return jsonify(load_lithium_v4_research())
+
+
+@app.get("/api/lithium/research-v5")
+def lithium_research_v5():
+    return jsonify(load_lithium_v5_research())
 
 
 @app.get("/api/examples")
@@ -1108,6 +1192,7 @@ def validate_lithium_payload(payload: dict[str, Any]) -> tuple[dict[str, str] | 
         "source_name": normalized["source_name"],
         "url": source_url,
         "api_key": normalized.get("api_key", ""),
+        "record_for_research": "true" if payload.get("record_for_research") is True else "false",
     }, None
 
 
@@ -1118,6 +1203,7 @@ def lithium_analyze():
         return jsonify({"error": error, "disclaimer": DISCLAIMER, "research_boundary": LITHIUM_RESEARCH_BOUNDARY}), 400
     assert document is not None
     api_key = document.pop("api_key", "")
+    record_for_research = document.pop("record_for_research", "false") == "true"
     layer = request_ai_layer(api_key)
     if not layer.settings.enabled:
         return jsonify({
@@ -1140,11 +1226,31 @@ def lithium_analyze():
             "disclaimer": DISCLAIMER,
             "research_boundary": LITHIUM_RESEARCH_BOUNDARY,
         }), 422
+    try:
+        result["v5_signal_recording"] = record_lithium_v5_signal(
+            LITHIUM_V5_LIVE_SIGNAL_PATH,
+            document,
+            result,
+            record_for_research,
+        )
+    except ValueError as exc:
+        return jsonify({
+            "error": str(exc),
+            "error_code": "v5_signal_recording_failed",
+            "disclaimer": DISCLAIMER,
+            "research_boundary": LITHIUM_RESEARCH_BOUNDARY,
+        }), 409
     status_payload = load_lithium_status()
     contracts = read_lithium_csv("lithium_contract_daily.csv")
     strategy_mapping = map_lithium_prediction_to_strategy(
         document["publish_time"],
         result["direction_score"],
+        build_lithium_main_continuous(contracts),
+        contracts,
+    )
+    v5_strategy_mapping = map_lithium_v5_prediction(
+        document,
+        result,
         build_lithium_main_continuous(contracts),
         contracts,
     )
@@ -1156,6 +1262,7 @@ def lithium_analyze():
     result["rulebook_size"] = len(load_lithium_v3_rulebook())
     v3_research = load_lithium_v3_report()
     v4_research = load_lithium_v4_research()
+    v5_research = load_lithium_v5_research()
     result["predicted_variable"] = {
         "name": "lc_main_5d_open_to_open_direction_score",
         "display_name": "碳酸锂主力合约未来5个交日 open-to-open 方向分数",
@@ -1166,6 +1273,7 @@ def lithium_analyze():
         "label_thresholds": {"bullish": ">= +1%", "bearish": "<= -1%", "neutral": "(-1%, +1%)"},
     }
     result["strategy_mapping"] = strategy_mapping
+    result["v5_strategy_mapping"] = v5_strategy_mapping
     result["increment_evidence"] = {
         "benchmark_strategy": "pure_trend_20d",
         "enhanced_strategy": strategy_mapping.get("enhanced_strategy", "prospective_rule_confirmed_trend"),
@@ -1183,8 +1291,24 @@ def lithium_analyze():
         "v4_prospective_status": v4_research.get("status", "awaiting_new_oos_data"),
         "v4_recorded_decisions": v4_research.get("decision_ledger", {}).get("recorded_decisions", 0),
         "v4_settled_decisions": v4_research.get("decision_ledger", {}).get("settled_decisions", 0),
+        "v5_historical_walkforward": v5_research.get(
+            "historical_walkforward_bootstrap", {}
+        ),
+        "v5_oos_stress": v5_research.get("oos_stress_bootstrap", {}),
+        "v5_retrospective_increment_evidence": v5_research.get(
+            "retrospective_increment_evidence", False
+        ),
+        "v5_strict_status": v5_research.get(
+            "status", "awaiting_new_oos_data"
+        ),
+        "v5_recorded_decisions": v5_research.get(
+            "decision_ledger", {}
+        ).get("recorded_decisions", 0),
+        "v5_settled_decisions": v5_research.get(
+            "decision_ledger", {}
+        ).get("settled_decisions", 0),
     }
-    result["prediction_scope"] = "单篇文本 -> 未来5个交易日主力期货方向分数 -> 规则确认趋势仓位"
+    result["prediction_scope"] = "单篇文本 -> 未来5个交易日方向分数 -> V5质量规则 -> 成熟基准增量仓位"
     return jsonify(result)
 
 
