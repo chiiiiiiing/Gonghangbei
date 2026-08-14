@@ -12,6 +12,9 @@ from unittest.mock import patch
 
 from scripts.generate_lithium_local_annotations import eligible_for_annotation
 from scripts.build_lithium_v3_research import (
+    extract_direction_scores,
+    predicate_schema,
+    purged_discovery_records,
     recover_exact_evidence,
     stable_discovery_rulebook,
 )
@@ -76,6 +79,7 @@ class LithiumDataTests(unittest.TestCase):
                 records.append({
                     "doc_id": f"{half}-{index}",
                     "publish_time": f"2024-{month:02d}-{index + 1:02d}",
+                    "exit_trade_date": f"2024-{month:02d}-{index + 8:02d}",
                     "direction_label": "bullish" if index < 3 else "bearish",
                     "predicate_status": {
                         "warehouse_receipt_decline": "agreed_true" if active else "agreed_false",
@@ -101,6 +105,60 @@ class LithiumDataTests(unittest.TestCase):
         self.assertEqual(len(stable), 1)
         self.assertEqual(stable[0]["conditions"], ["warehouse_receipt_decline"])
         self.assertEqual(stable[0]["status"], "qualified_stable_discovery")
+
+    def test_v3_predicate_schema_requires_every_fixed_predicate(self) -> None:
+        schema = predicate_schema()
+        self.assertEqual(set(schema["required"]), set(PREDICATE_DEFINITIONS))
+        self.assertEqual(set(schema["properties"]), set(PREDICATE_DEFINITIONS))
+
+    def test_v3_discovery_purge_excludes_labels_crossing_freeze_date(self) -> None:
+        records = [
+            {"doc_id": "kept", "publish_time": "2024-12-20", "exit_trade_date": "2024-12-30"},
+            {"doc_id": "purged", "publish_time": "2024-12-30", "exit_trade_date": "2025-01-07"},
+            {"doc_id": "validation", "publish_time": "2025-01-02", "exit_trade_date": "2025-01-09"},
+        ]
+        self.assertEqual(
+            [row["doc_id"] for row in purged_discovery_records(records)],
+            ["kept"],
+        )
+
+    def test_v4_zero_shot_and_rift_direction_calls_are_separate(self) -> None:
+        class FakeGateway:
+            settings = SimpleNamespace(chat_model="deepseek-v4-flash")
+
+            def __init__(self) -> None:
+                self.calls = []
+
+            def chat_json(self, messages, schema, schema_name):
+                self.calls.append((messages, schema_name))
+                score = 0.2 if "zero_shot" in schema_name else 0.6
+                return {
+                    "direction_score": score,
+                    "confidence": 0.7,
+                    "evidence_text": "仓单减少100手",
+                }, {"model": "deepseek-v4-flash", "request_id": schema_name}
+
+        document = {
+            "doc_id": "D1", "publish_time": "2025-01-02", "title": "仓单日报",
+            "content": "碳酸锂仓单减少100手。", "source_name": "广州期货交易所",
+            "predicate_consensus": [{
+                "name": "warehouse_receipt_decline", "status": "agreed_true",
+                "evidence_text": "仓单减少100手",
+            }],
+        }
+        rulebook = [{
+            "rule_id": "LC-BULL-01", "target_label": "bullish",
+            "conditions": ["warehouse_receipt_decline"], "score": 0.06,
+        }]
+        gateway = FakeGateway()
+        output, _ = extract_direction_scores(document, gateway, rulebook, [])
+        self.assertEqual(len(gateway.calls), 2)
+        zero_payload = gateway.calls[0][0][1]["content"]
+        enhanced_payload = gateway.calls[1][0][1]["content"]
+        self.assertNotIn("frozen_rulebook", zero_payload)
+        self.assertIn("frozen_rulebook", enhanced_payload)
+        self.assertEqual(output["zero_shot_score"], 0.2)
+        self.assertEqual(output["rule_enhanced_score"], 0.6)
 
     def test_cninfo_selection_excludes_governance_and_keeps_lithium_projects(self) -> None:
         self.assertFalse(title_selected("002460", "第六届董事会决议公告"))
@@ -333,6 +391,16 @@ class LithiumBacktestTests(unittest.TestCase):
         self.assertEqual(_active_text_score(0, days, signals, "direction_score"), 0.0)
         self.assertEqual(_active_text_score(1, days, signals, "direction_score"), 1.0)
 
+    def test_zero_shot_uses_its_own_confidence(self) -> None:
+        days = ["2026-01-09"]
+        signals = [{
+            "publish_time": "2026-01-09",
+            "zero_shot_score": 1.0,
+            "zero_shot_confidence": 0.0,
+            "confidence": 1.0,
+        }]
+        self.assertEqual(_active_text_score(0, days, signals, "zero_shot_score"), 0.0)
+
     def test_strategy_executes_at_next_open_and_uses_frozen_validation_scale(self) -> None:
         continuous, contracts = self._market()
         signals = [{"publish_time": "2026-01-05", "direction_score": 0.8, "zero_shot_score": 0.5, "confidence": 1.0}]
@@ -466,9 +534,16 @@ class LithiumApiTests(unittest.TestCase):
         self.assertGreater(status["counts"]["qualified_rules"], 0)
         v3 = self.client.get("/api/lithium/research-v3").get_json()
         self.assertEqual(v3["model"], "deepseek-v4-flash")
+        self.assertEqual(v3["version"], "lithium-v3-rift-v4-direction")
         self.assertEqual(v3["counts"]["predicate_annotations"], 449)
+        self.assertEqual(v3["counts"]["direction_annotations"], 259)
         self.assertEqual(v3["counts"]["rules"], 1)
         self.assertFalse(v3["increment_established"])
+        self.assertGreater(
+            v3["old_oos_stress_bootstrap"]["annualized_net_return_difference"],
+            0,
+        )
+        self.assertLess(v3["old_oos_stress_bootstrap"]["ci_lower_95"], 0)
         self.assertLess(v3["old_oos_confirmed_trend_bootstrap"]["ci_upper_95"], 0)
         backtest = self.client.get("/api/lithium/backtest").get_json()
         self.assertEqual(backtest["engine_version"], "lithium-backtest-v3-decision-ledger-20260814")
@@ -547,7 +622,7 @@ class LithiumApiTests(unittest.TestCase):
         self.assertIn("碳酸锂文本规则预测", html)
         self.assertIn("研究验证", html)
         script = (APP_DIR / "assets" / "app.js").read_text(encoding="utf-8")
-        self.assertIn("DeepSeek V4 全量重标", script)
+        self.assertIn("DeepSeek V4 规则增强方向推理", script)
         self.assertIn("前瞻候选 v2", script)
         self.assertIn("不回填已观察的旧 OOS", script)
         self.assertNotIn("保证收益", html)

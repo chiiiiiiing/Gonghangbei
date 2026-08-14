@@ -177,21 +177,23 @@ function renderValidation() {
   const status = lithium.status;
   const backtest = lithium.backtest;
   if (!status || !backtest) return;
-  const bootstrap = backtest.bootstrap || {};
+  const v3 = backtest.deepseek_v4_research || {};
+  const bootstrap = v3.old_oos_stress_bootstrap || backtest.bootstrap || {};
   const dataMessage = status.data_ready ? "受控数据已通过校验" : "等待导入受控 CSV 并生成冻结 AI 标注";
   const dataErrors = (status.data_errors || []).map((error) => `<li>${esc(error)}</li>`).join("");
-  const metrics = backtest.metrics || [];
+  const metrics = v3.old_oos_stress_metrics || backtest.metrics || [];
   const metricRows = metrics.map((row) => `<tr><td>${esc(STRATEGIES[row.strategy] || row.strategy)}</td><td>${esc(row.observations)}</td><td>${pct(row.annual_return)}</td><td>${pct(row.annual_volatility)}</td><td class="mono">${fixed(row.sharpe)}</td><td>${pct(row.max_drawdown)}</td><td>${pct(row.annual_turnover)}</td></tr>`).join("") || '<tr><td colspan="7">受控行情或 OOS 历史不足，尚未形成回测指标。</td></tr>';
-  const costs = (backtest.cost_sensitivity || []).map((row) => `<tr><td>${esc(row.cost_bps)} bp</td><td>${pct(row.trend_annual_return)}</td><td>${pct(row.enhanced_annual_return)}</td><td class="mono">${pct(row.annual_return_difference)}</td></tr>`).join("") || '<tr><td colspan="4">尚未评估</td></tr>';
+  const costs = (v3.cost_sensitivity || backtest.cost_sensitivity || []).map((row) => `<tr><td>${esc(row.cost_bps)} bp</td><td>${pct(row.trend_annual_return)}</td><td>${pct(row.enhanced_annual_return)}</td><td class="mono">${pct(row.annual_return_difference)}</td></tr>`).join("") || '<tr><td colspan="4">尚未评估</td></tr>';
   const prospective = backtest.prospective_candidate || {};
   const prospectiveBootstrap = prospective.prospective_bootstrap || {};
   const validationBootstrap = prospective.validation_bootstrap || {};
   const historicalStress = prospective.historical_oos_stress_bootstrap || {};
   const decisionLedger = prospective.decision_ledger || {};
-  const v3 = backtest.deepseek_v4_research || {};
   const v3Counts = v3.counts || {};
-  const v3Validation = v3.validation_confirmed_trend_bootstrap || {};
-  const v3Stress = v3.old_oos_confirmed_trend_bootstrap || {};
+  const v3Validation = v3.validation_bootstrap || {};
+  const v3Stress = v3.old_oos_stress_bootstrap || {};
+  const v3ConfirmedValidation = v3.validation_confirmed_trend_bootstrap || {};
+  const v3ConfirmedStress = v3.old_oos_confirmed_trend_bootstrap || {};
   const provenance = status.text_provenance || {};
   const sourceQuality = provenance.quality_counts || {};
   const prospectiveRows = (prospective.validation_metrics || []).map((row) => `<tr><td>${row.strategy === "pure_trend" ? "纯趋势" : "同向文本叠加"}</td><td>${esc(row.observations)}</td><td>${pct(row.annual_return)}</td><td class="mono">${fixed(row.sharpe)}</td><td>${pct(row.max_drawdown)}</td></tr>`).join("") || '<tr><td colspan="5">尚未形成验证指标。</td></tr>';
@@ -202,9 +204,9 @@ function renderValidation() {
     </div>
     <div class="notice ${status.data_ready ? "good" : "warn"}"><strong>${esc(dataMessage)}</strong>。Discovery ${esc(status.sample_boundaries.discovery)}；Validation ${esc(status.sample_boundaries.validation)}；OOS ${esc(status.sample_boundaries.oos)}。${dataErrors ? `<ul>${dataErrors}</ul>` : ""}</div>
     <div class="notice ${provenance.verified ? "good" : "warn"}"><strong>文本来源审计：${provenance.verified ? "哈希与来源匹配" : "存在不一致"}。</strong> 全文抓取 ${esc(sourceQuality.fetched_full || 0)} 篇，部分抓取 ${esc(sourceQuality.fetched_partial || 0)} 篇，仅仓库快照 ${esc(sourceQuality.repository_snapshot_only || 0)} 篇，官方仓单派生事实 ${esc(sourceQuality.derived_official_fact || 0)} 条。</div>
-    <section class="section"><div class="section-header"><div><h2>DeepSeek V4 全量重标</h2><p>449 篇真实文本 · Discovery 稳定性门禁 · 旧 OOS 一次性压力检验</p></div>${badge(v3.conclusion || "尚未生成", "bad")}</div><div class="section-body">
-      <div class="detail-grid"><div class="detail-item"><b>V4 标注文本</b><span class="mono">${esc(v3Counts.predicate_annotations || 0)}</span></div><div class="detail-item"><b>稳定规则</b><span class="mono">${esc(v3Counts.rules || 0)}</span></div><div class="detail-item"><b>Validation 收益差</b><span class="mono">${pct(v3Validation.annualized_net_return_difference)}</span></div><div class="detail-item"><b>Validation 95% 下界</b><span class="mono">${pct(v3Validation.ci_lower_95)}</span></div><div class="detail-item"><b>2026 压力检验</b><span class="mono">${pct(v3Stress.annualized_net_return_difference)}</span></div><div class="detail-item"><b>OOS 95% 下界</b><span class="mono">${pct(v3Stress.ci_lower_95)}</span></div></div>
-      <div class="notice error"><strong>Validation 通过不等于交易增量成立。</strong> 2026 压力期增量显著为负，当前不宣称交易增量。</div>
+    <section class="section"><div class="section-header"><div><h2>DeepSeek V4 规则增强方向推理</h2><p>谓词固定 Schema · Discovery 标签净化 · 零样本与 RIFT 独立调用</p></div>${badge(v3.conclusion || "尚未生成", "bad")}</div><div class="section-body">
+      <div class="detail-grid"><div class="detail-item"><b>V4 谓词标注</b><span class="mono">${esc(v3Counts.predicate_annotations || 0)}</span></div><div class="detail-item"><b>V4 方向推理</b><span class="mono">${esc(v3Counts.direction_annotations || 0)}</span></div><div class="detail-item"><b>稳定规则</b><span class="mono">${esc(v3Counts.rules || 0)}</span></div><div class="detail-item"><b>70/30 Validation 差</b><span class="mono">${pct(v3Validation.annualized_net_return_difference)}</span></div><div class="detail-item"><b>70/30 OOS 差</b><span class="mono">${pct(v3Stress.annualized_net_return_difference)}</span></div><div class="detail-item"><b>70/30 OOS 下界</b><span class="mono">${pct(v3Stress.ci_lower_95)}</span></div><div class="detail-item"><b>同向确认 Validation</b><span class="mono">${pct(v3ConfirmedValidation.annualized_net_return_difference)}</span></div><div class="detail-item"><b>同向确认 OOS</b><span class="mono">${pct(v3ConfirmedStress.annualized_net_return_difference)}</span></div></div>
+      <div class="notice error"><strong>Validation 结果不能替代 OOS 验收。</strong> 70/30 RIFT 的 2026 收益差为正但 95% 下界小于 0；同向确认候选在 2026 为负，当前不宣称交易增量。</div>
     </div></section>
     <section class="section"><div class="section-header"><div><h2>交易增量验收</h2><p>5 bp 主成本 · 3 个月时间块 Bootstrap · 95% 置信区间</p></div>${badge(backtest.conclusion, backtest.increment_established ? "good" : "bad")}</div><div class="section-body">
       <div class="detail-grid"><div class="detail-item"><b>年化净收益差</b><span class="mono">${pct(bootstrap.annualized_net_return_difference)}</span></div><div class="detail-item"><b>95% 下界</b><span class="mono">${pct(bootstrap.ci_lower_95)}</span></div><div class="detail-item"><b>95% 上界</b><span class="mono">${pct(bootstrap.ci_upper_95)}</span></div><div class="detail-item"><b>Bootstrap 状态</b><span>${esc(bootstrap.conclusion || "not_evaluated")}</span></div></div>
@@ -227,7 +229,7 @@ function renderValidation() {
 
 function renderValidationCharts() {
   if (!window.Plotly || !$("lithiumNavChart")) return;
-  const rows = lithium.backtest?.nav || [];
+  const rows = lithium.backtest?.deepseek_v4_research?.oos_nav || lithium.backtest?.nav || [];
   const colors = { pure_trend: "#71808e", zero_shot_llm: "#bb624c", rift_enhanced_trend: "#116fae" };
   const traces = Object.keys(STRATEGIES).map((strategy) => {
     const selected = rows.filter((row) => row.strategy === strategy);
