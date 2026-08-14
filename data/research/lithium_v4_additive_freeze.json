@@ -1,0 +1,119 @@
+{
+  "version": "lithium-v4-additive-alpha-freeze-v1",
+  "status": "validation_selected_oos_not_evaluated",
+  "selection_boundary": "仅使用不晚于2025-12-31的行情、信号和收益选权重",
+  "validation_end": "2025-12-31",
+  "oos_start": "2026-01-01",
+  "strategy": "rift_additive_alpha",
+  "formula": "clip(trend_score + weight * active_text_score, -1, 1)",
+  "cost_bps": 5.0,
+  "weight_grid": [
+    0.5,
+    1.0,
+    2.0,
+    4.0
+  ],
+  "selection_metric": "validation_sharpe",
+  "selected_weight": 4.0,
+  "validation_candidates": [
+    {
+      "weight": 0.5,
+      "candidate_metrics": {
+        "strategy": "rift_additive_alpha",
+        "split": "validation",
+        "observations": 242,
+        "annual_return": 0.6139610543147316,
+        "annual_volatility": 0.3352495566805148,
+        "sharpe": 1.8313553055636773,
+        "max_drawdown": -0.17105201581218354,
+        "annual_turnover": 26.180998540089764
+      },
+      "bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 242,
+        "samples": 2000,
+        "annualized_net_return_difference": 0.003954258682679844,
+        "ci_lower_95": -0.0008751038600360042,
+        "ci_upper_95": 0.00928699874001792,
+        "conclusion": "trading_increment_not_established"
+      }
+    },
+    {
+      "weight": 1.0,
+      "candidate_metrics": {
+        "strategy": "rift_additive_alpha",
+        "split": "validation",
+        "observations": 242,
+        "annual_return": 0.6202771790107264,
+        "annual_volatility": 0.33535309118470324,
+        "sharpe": 1.8496241582848414,
+        "max_drawdown": -0.17105201581218354,
+        "annual_turnover": 26.259350666607354
+      },
+      "bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 242,
+        "samples": 2000,
+        "annualized_net_return_difference": 0.007902519079506048,
+        "ci_lower_95": -0.00175020772007203,
+        "ci_upper_95": 0.018561929457032104,
+        "conclusion": "trading_increment_not_established"
+      }
+    },
+    {
+      "weight": 2.0,
+      "candidate_metrics": {
+        "strategy": "rift_additive_alpha",
+        "split": "validation",
+        "observations": 242,
+        "annual_return": 0.6331073974900954,
+        "annual_volatility": 0.33558867422339034,
+        "sharpe": 1.8865577003014606,
+        "max_drawdown": -0.1710520158121831,
+        "annual_turnover": 26.427746615337266
+      },
+      "bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 242,
+        "samples": 2000,
+        "annualized_net_return_difference": 0.01588460727650257,
+        "ci_lower_95": -0.003561588112520446,
+        "ci_upper_95": 0.03715712967411129,
+        "conclusion": "trading_increment_not_established"
+      }
+    },
+    {
+      "weight": 4.0,
+      "candidate_metrics": {
+        "strategy": "rift_additive_alpha",
+        "split": "validation",
+        "observations": 242,
+        "annual_return": 0.6587709156543557,
+        "annual_volatility": 0.33617646836417575,
+        "sharpe": 1.9595985372203908,
+        "max_drawdown": -0.1710520158121831,
+        "annual_turnover": 26.90655581740502
+      },
+      "bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 242,
+        "samples": 2000,
+        "annualized_net_return_difference": 0.03170552353989872,
+        "ci_lower_95": -0.007200703554466723,
+        "ci_upper_95": 0.07399029684014953,
+        "conclusion": "trading_increment_not_established"
+      }
+    }
+  ],
+  "input_sha256": {
+    "lithium_v3_rulebook.csv": "90977c1f8f932d698b5857944859191ff345fe5bca79113f757fef9e34622c77",
+    "lithium_v3_directions.csv": "66ed136162fb732f2674dc1ea9f4e196009083b48d2eefdd45845f35f2e4ef69",
+    "lithium_v3_signals.csv": "99000a3496dc9a8184c3d2f955f3e1295411f16485061004ad24e931d68737b8"
+  },
+  "oos_metrics": null,
+  "oos_bootstrap": null
+}

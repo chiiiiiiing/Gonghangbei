@@ -3,6 +3,7 @@
   "model": "deepseek-v4-flash",
   "direction_prompt_version": "lithium-v3-deepseek-v4-flash-direction-v2-explicit-contract",
   "selection_boundary": "规则与对比上下文仅使用退出日不晚于2024-12-31的Discovery样本；2025 validation与2026 OOS方向推理均不读取未来标签",
+  "attribution_warning": "70/30公式在active_text_score=0时仍将趋势仓位缩放为70%；其相对纯趋势差异不能全部归因为文本alpha",
   "counts": {
     "texts": 449,
     "predicate_annotations": 449,

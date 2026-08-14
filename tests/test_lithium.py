@@ -20,8 +20,13 @@ from scripts.build_lithium_v3_research import (
 )
 from scripts.fetch_cninfo_lithium_texts import title_selected
 from scripts.record_lithium_prospective_decision import FIELDS, append_decision
+from scripts.record_lithium_v4_prospective_decision import (
+    FIELDS as V4_DECISION_FIELDS,
+    append_decision as append_v4_decision,
+)
 from src.lithium.engine import (
     PREDICATE_DEFINITIONS,
+    RIFT_ADDITIVE_STRATEGY,
     _active_text_score,
     _strategy_rows,
     activated_rules,
@@ -426,6 +431,23 @@ class LithiumBacktestTests(unittest.TestCase):
                 expected = max(-1.0, min(1.0, trend + text))
                 self.assertAlmostEqual(float(row["position"]), expected)
 
+    def test_additive_alpha_uses_frozen_weight_even_against_trend(self) -> None:
+        continuous, contracts = self._market()
+        signals = [{
+            "publish_time": "2026-01-05", "direction_score": 0.05,
+            "zero_shot_score": 0.0, "confidence": 1.0,
+        }]
+        rows = [
+            row for row in _strategy_rows(continuous, signals, 5.0, contracts)
+            if row["strategy"] == RIFT_ADDITIVE_STRATEGY
+        ]
+        active = next(row for row in rows if float(row["active_text_score"]) > 0)
+        expected = max(-1.0, min(
+            1.0,
+            float(active["trend_score"]) + 4.0 * float(active["active_text_score"]),
+        ))
+        self.assertAlmostEqual(float(active["position"]), expected)
+
     def test_single_text_prediction_maps_to_same_date_trend_strategy(self) -> None:
         continuous, contracts = self._market()
         publish_time = continuous[-3]["trade_date"]
@@ -475,6 +497,23 @@ class LithiumBacktestTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "已冻结决策发生变化"):
                 append_decision(path, {**replay, "baseline_position": "0.2"})
 
+    def test_v4_decision_ledger_is_append_only(self) -> None:
+        decision = {field: "" for field in V4_DECISION_FIELDS}
+        decision.update({
+            "decision_id": "V4-D1",
+            "recorded_at": "2026-08-14T20:00:00+08:00",
+            "signal_date": "2026-08-14",
+            "direction_score": 0.0,
+            "strategy_version": "lithium-v4-rift-prospective-v1",
+        })
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "v4-decisions.csv"
+            self.assertEqual(append_v4_decision(path, decision), "recorded")
+            replay = {**decision, "recorded_at": "2026-08-14T20:05:00+08:00"}
+            self.assertEqual(append_v4_decision(path, replay), "already_recorded")
+            with self.assertRaisesRegex(ValueError, "已冻结 V4 决策发生变化"):
+                append_v4_decision(path, {**replay, "direction_score": 0.2})
+
     def test_prospective_report_does_not_relabel_pre_freeze_history(self) -> None:
         continuous, contracts = self._market()
         result = run_backtest(continuous, [], contracts)["prospective_candidate"]
@@ -517,6 +556,7 @@ class LithiumApiTests(unittest.TestCase):
         for path in (
             "/api/lithium/status", "/api/lithium/forecast",
             "/api/lithium/backtest", "/api/lithium/research-v3",
+            "/api/lithium/research-v4",
         ):
             response = self.client.get(path)
             self.assertEqual(response.status_code, 200, path)
@@ -545,6 +585,12 @@ class LithiumApiTests(unittest.TestCase):
         )
         self.assertLess(v3["old_oos_stress_bootstrap"]["ci_lower_95"], 0)
         self.assertLess(v3["old_oos_confirmed_trend_bootstrap"]["ci_upper_95"], 0)
+        v4 = self.client.get("/api/lithium/research-v4").get_json()
+        self.assertEqual(v4["latest_decision"]["model"], "deepseek-v4-flash")
+        self.assertEqual(v4["decision_ledger"]["recorded_decisions"], 1)
+        self.assertEqual(v4["decision_ledger"]["settled_decisions"], 0)
+        self.assertEqual(v4["decision_ledger"]["invalid_decisions"], [])
+        self.assertFalse(v4["additive_candidate"]["increment_established"])
         backtest = self.client.get("/api/lithium/backtest").get_json()
         self.assertEqual(backtest["engine_version"], "lithium-backtest-v3-decision-ledger-20260814")
         self.assertFalse(backtest["increment_established"])
@@ -591,11 +637,20 @@ class LithiumApiTests(unittest.TestCase):
             settings = SimpleNamespace(chat_model="fake-model")
 
             def chat_json(self, messages, schema, schema_name):
+                if schema_name == "lithium_v3_predicates":
+                    return {
+                        row["name"]: {
+                            "value": row["value"],
+                            "confidence": row["confidence"],
+                            "evidence_text": row["evidence_text"],
+                        }
+                        for row in predicates
+                    }, {"model": "fake-model", "request_id": "REQ-PREDICATES"}
                 return {
-                    "direction_label": "bullish", "direction_score": 0.7,
-                    "zero_shot_score": 0.4, "confidence": 0.9, "horizon_days": 5,
-                    "evidence_text": "碳酸锂仓单减少1000手", "predicates": predicates,
-                }, {"model": "fake-model", "request_id": "REQ-SINGLE"}
+                    "direction_score": 0.4 if "zero_shot" in schema_name else 0.7,
+                    "confidence": 0.9,
+                    "evidence_text": "碳酸锂仓单减少1000手",
+                }, {"model": "fake-model", "request_id": schema_name}
 
         layer = SimpleNamespace(settings=SimpleNamespace(enabled=True), gateway=FakeGateway())
         with patch.object(server, "request_ai_layer", return_value=layer):
@@ -611,6 +666,9 @@ class LithiumApiTests(unittest.TestCase):
             "lc_main_5d_open_to_open_direction_score",
         )
         self.assertEqual(payload["strategy_mapping"]["baseline_strategy"], "pure_trend_20d")
+        self.assertEqual(payload["research_type"], "lithium_v4_rift_direction")
+        self.assertEqual(payload["model"], "fake-model")
+        self.assertEqual(payload["direction_score"], 0.7)
         self.assertIn(payload["strategy_mapping"]["status"], {"mapped", "awaiting_next_trading_day"})
         self.assertIn("position_delta", payload["strategy_mapping"])
         self.assertEqual(payload["increment_evidence"]["prospective_observations"], 0)
@@ -623,6 +681,7 @@ class LithiumApiTests(unittest.TestCase):
         self.assertIn("研究验证", html)
         script = (APP_DIR / "assets" / "app.js").read_text(encoding="utf-8")
         self.assertIn("DeepSeek V4 规则增强方向推理", script)
+        self.assertIn("V4 前瞻决策账本", script)
         self.assertIn("前瞻候选 v2", script)
         self.assertIn("不回填已观察的旧 OOS", script)
         self.assertNotIn("保证收益", html)

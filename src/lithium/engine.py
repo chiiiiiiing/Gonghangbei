@@ -45,6 +45,8 @@ TOP_K_RULES = 5
 RULE_LAMBDA = 1.0
 PRIMARY_STRATEGIES = ("pure_trend", "zero_shot_llm", "rift_enhanced_trend")
 PROSPECTIVE_STRATEGY = "prospective_rule_confirmed_trend"
+RIFT_ADDITIVE_STRATEGY = "rift_additive_alpha"
+RIFT_ADDITIVE_WEIGHT = 4.0
 PROSPECTIVE_DECISION_FILE = "lithium_prospective_decisions.csv"
 
 TEXT_FIELDS = [
@@ -958,12 +960,17 @@ def _strategy_rows(
     signals: list[dict[str, Any]],
     cost_bps: float,
     contracts: list[dict[str, str]] | None = None,
+    *,
+    additive_weight: float = RIFT_ADDITIVE_WEIGHT,
 ) -> list[dict[str, Any]]:
     if len(continuous) < 22:
         return []
     days, contract_lookup, momentum, validation_std = _momentum_context(continuous, contracts)
     rows: list[dict[str, Any]] = []
-    previous_positions = {name: 0.0 for name in (*PRIMARY_STRATEGIES, PROSPECTIVE_STRATEGY)}
+    previous_positions = {
+        name: 0.0
+        for name in (*PRIMARY_STRATEGIES, PROSPECTIVE_STRATEGY, RIFT_ADDITIVE_STRATEGY)
+    }
     navs = {name: 1.0 for name in previous_positions}
     cost_rate = cost_bps / 10000.0
     for signal_index in range(20, len(continuous) - 2):
@@ -977,6 +984,9 @@ def _strategy_rows(
             "pure_trend": trend_score,
             "zero_shot_llm": max(-1.0, min(1.0, 0.70 * trend_score + 0.30 * zero_text)),
             "rift_enhanced_trend": max(-1.0, min(1.0, 0.70 * trend_score + 0.30 * rift_text)),
+            RIFT_ADDITIVE_STRATEGY: max(
+                -1.0, min(1.0, trend_score + additive_weight * rift_text)
+            ),
             PROSPECTIVE_STRATEGY: (
                 max(-1.0, min(1.0, trend_score + PROSPECTIVE_TEXT_WEIGHT * rift_text))
                 if trend_score * rift_text > 0 else trend_score
@@ -1011,7 +1021,14 @@ def _strategy_rows(
                 "net_return": net_return,
                 "nav": navs[strategy],
                 "trend_score": trend_score,
-                "active_text_score": rift_text if strategy in {"rift_enhanced_trend", PROSPECTIVE_STRATEGY} else zero_text if strategy == "zero_shot_llm" else 0.0,
+                "active_text_score": (
+                    rift_text
+                    if strategy in {
+                        "rift_enhanced_trend", PROSPECTIVE_STRATEGY,
+                        RIFT_ADDITIVE_STRATEGY,
+                    }
+                    else zero_text if strategy == "zero_shot_llm" else 0.0
+                ),
                 "validation_std": validation_std,
             })
             previous_positions[strategy] = position
