@@ -1,0 +1,5 @@
+run_at,requested_end,latest_controlled_day,status,observations,annualized_net_return_difference,ci_lower_95,ci_upper_95,conclusion,freeze_manifest_sha256,current_inputs_sha256
+2026-08-14T17:38:42+08:00,2026-08-13,2026-08-13,awaiting_new_oos_data,0,0.0,0.0,0.0,前瞻交易增量待检验,992848c80ddb9eac628f93aa7489cbaac3513ac351af4f9d497d080c0f95d19a,cf2bc588c698b2ea3f436174b6049f239272be10768c71457f0ee58e98cf339e
+2026-08-14T17:54:14+08:00,2026-08-14,2026-08-14,awaiting_new_oos_data,0,0.0,0.0,0.0,前瞻交易增量待检验,992848c80ddb9eac628f93aa7489cbaac3513ac351af4f9d497d080c0f95d19a,0e299e2cdfd9b110b835126e61fedc2ee155d1ad7c7e8a350b50759a2cf7bb42
+2026-08-14T18:01:03+08:00,2026-08-14,2026-08-14,awaiting_new_oos_data,0,0.0,0.0,0.0,前瞻交易增量待检验,992848c80ddb9eac628f93aa7489cbaac3513ac351af4f9d497d080c0f95d19a,0e299e2cdfd9b110b835126e61fedc2ee155d1ad7c7e8a350b50759a2cf7bb42
+2026-08-14T18:26:17+08:00,2026-08-14,2026-08-14,awaiting_new_oos_data,0,0.0,0.0,0.0,前瞻交易增量待检验,992848c80ddb9eac628f93aa7489cbaac3513ac351af4f9d497d080c0f95d19a,0e299e2cdfd9b110b835126e61fedc2ee155d1ad7c7e8a350b50759a2cf7bb42
