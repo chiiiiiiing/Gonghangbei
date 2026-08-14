@@ -188,16 +188,24 @@ function renderValidation() {
   const validationBootstrap = prospective.validation_bootstrap || {};
   const historicalStress = prospective.historical_oos_stress_bootstrap || {};
   const decisionLedger = prospective.decision_ledger || {};
+  const v3 = backtest.deepseek_v4_research || {};
+  const v3Counts = v3.counts || {};
+  const v3Validation = v3.validation_confirmed_trend_bootstrap || {};
+  const v3Stress = v3.old_oos_confirmed_trend_bootstrap || {};
   const provenance = status.text_provenance || {};
   const sourceQuality = provenance.quality_counts || {};
   const prospectiveRows = (prospective.validation_metrics || []).map((row) => `<tr><td>${row.strategy === "pure_trend" ? "纯趋势" : "同向文本叠加"}</td><td>${esc(row.observations)}</td><td>${pct(row.annual_return)}</td><td class="mono">${fixed(row.sharpe)}</td><td>${pct(row.max_drawdown)}</td></tr>`).join("") || '<tr><td colspan="5">尚未形成验证指标。</td></tr>';
   $("validationAuditContent").innerHTML = `
     <div class="research-banner validation-banner"><div><span class="eyebrow">FROZEN OUT-OF-SAMPLE</span><h1>研究验证</h1><p>规则归纳、验证选参和 2026 年起 OOS 严格分离；主结论只比较成本后 RIFT 增强趋势与纯趋势。</p></div><div>${badge(backtest.conclusion, backtest.increment_established ? "good" : "bad")}</div></div>
     <div class="macro-kpis">
-      ${metric(status.counts.texts, "产业文本")}${metric(status.counts.continuous_days, "主力连续交易日")}${metric(status.counts.qualified_rules, "冻结合格规则")}${metric(bootstrap.observations || 0, "OOS 交易日")}
+      ${metric(v3Counts.texts || status.counts.texts, "产业文本")}${metric(status.counts.continuous_days, "主力连续交易日")}${metric(v3Counts.rules || status.counts.qualified_rules, "稳定合格规则")}${metric(bootstrap.observations || 0, "OOS 交易日")}
     </div>
     <div class="notice ${status.data_ready ? "good" : "warn"}"><strong>${esc(dataMessage)}</strong>。Discovery ${esc(status.sample_boundaries.discovery)}；Validation ${esc(status.sample_boundaries.validation)}；OOS ${esc(status.sample_boundaries.oos)}。${dataErrors ? `<ul>${dataErrors}</ul>` : ""}</div>
     <div class="notice ${provenance.verified ? "good" : "warn"}"><strong>文本来源审计：${provenance.verified ? "哈希与来源匹配" : "存在不一致"}。</strong> 全文抓取 ${esc(sourceQuality.fetched_full || 0)} 篇，部分抓取 ${esc(sourceQuality.fetched_partial || 0)} 篇，仅仓库快照 ${esc(sourceQuality.repository_snapshot_only || 0)} 篇，官方仓单派生事实 ${esc(sourceQuality.derived_official_fact || 0)} 条。</div>
+    <section class="section"><div class="section-header"><div><h2>DeepSeek V4 全量重标</h2><p>449 篇真实文本 · Discovery 稳定性门禁 · 旧 OOS 一次性压力检验</p></div>${badge(v3.conclusion || "尚未生成", "bad")}</div><div class="section-body">
+      <div class="detail-grid"><div class="detail-item"><b>V4 标注文本</b><span class="mono">${esc(v3Counts.predicate_annotations || 0)}</span></div><div class="detail-item"><b>稳定规则</b><span class="mono">${esc(v3Counts.rules || 0)}</span></div><div class="detail-item"><b>Validation 收益差</b><span class="mono">${pct(v3Validation.annualized_net_return_difference)}</span></div><div class="detail-item"><b>Validation 95% 下界</b><span class="mono">${pct(v3Validation.ci_lower_95)}</span></div><div class="detail-item"><b>2026 压力检验</b><span class="mono">${pct(v3Stress.annualized_net_return_difference)}</span></div><div class="detail-item"><b>OOS 95% 下界</b><span class="mono">${pct(v3Stress.ci_lower_95)}</span></div></div>
+      <div class="notice error"><strong>Validation 通过不等于交易增量成立。</strong> 2026 压力期增量显著为负，当前不宣称交易增量。</div>
+    </div></section>
     <section class="section"><div class="section-header"><div><h2>交易增量验收</h2><p>5 bp 主成本 · 3 个月时间块 Bootstrap · 95% 置信区间</p></div>${badge(backtest.conclusion, backtest.increment_established ? "good" : "bad")}</div><div class="section-body">
       <div class="detail-grid"><div class="detail-item"><b>年化净收益差</b><span class="mono">${pct(bootstrap.annualized_net_return_difference)}</span></div><div class="detail-item"><b>95% 下界</b><span class="mono">${pct(bootstrap.ci_lower_95)}</span></div><div class="detail-item"><b>95% 上界</b><span class="mono">${pct(bootstrap.ci_upper_95)}</span></div><div class="detail-item"><b>Bootstrap 状态</b><span>${esc(bootstrap.conclusion || "not_evaluated")}</span></div></div>
       <div class="notice ${backtest.increment_established ? "good" : "error"}">${backtest.increment_established ? "成本后增量为正且 95% 下界大于 0，交易增量成立。" : "尚未同时满足成本后增量为正且 95% 下界大于 0，交易增量未建立。"}</div>

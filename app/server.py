@@ -20,6 +20,9 @@ SAMPLE_DIR = ROOT / "data" / "sample"
 APP_DIR = ROOT / "app"
 REPLAY_PATH = SAMPLE_DIR / "replay_cases.json"
 MACRO_EVALUATION_PATH = SAMPLE_DIR / "macro_route_evaluation.json"
+LITHIUM_V3_DIR = ROOT / "data" / "research"
+LITHIUM_V3_REPORT_PATH = LITHIUM_V3_DIR / "lithium_v3_report.json"
+LITHIUM_V3_RULEBOOK_PATH = LITHIUM_V3_DIR / "lithium_v3_rulebook.csv"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -140,6 +143,42 @@ def load_replay_cases() -> dict[str, dict[str, Any]]:
         return {}
     payload = json.loads(REPLAY_PATH.read_text(encoding="utf-8"))
     return {str(case["case_id"]): case for case in payload.get("cases", [])}
+
+
+def load_lithium_v3_report() -> dict[str, Any]:
+    if not LITHIUM_V3_REPORT_PATH.exists():
+        return {
+            "status": "not_built",
+            "conclusion": "交易增量未建立",
+            "disclaimer": DISCLAIMER,
+            "research_boundary": LITHIUM_RESEARCH_BOUNDARY,
+        }
+    payload = json.loads(LITHIUM_V3_REPORT_PATH.read_text(encoding="utf-8"))
+    payload["status"] = "built"
+    payload["model"] = "deepseek-v4-flash"
+    payload["conclusion"] = "交易增量未建立"
+    payload["increment_established"] = False
+    payload["disclaimer"] = DISCLAIMER
+    payload["research_boundary"] = LITHIUM_RESEARCH_BOUNDARY
+    return payload
+
+
+def load_lithium_v3_rulebook() -> list[dict[str, Any]]:
+    if not LITHIUM_V3_RULEBOOK_PATH.exists():
+        return load_lithium_rulebook()
+    rows: list[dict[str, Any]] = []
+    with LITHIUM_V3_RULEBOOK_PATH.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            rows.append({
+                **row,
+                "conditions": [item.strip() for item in row["conditions"].split(" AND ") if item.strip()],
+                "score": float(row["score"]),
+                "coverage_positive": float(row["coverage_positive"]),
+                "coverage_negative": float(row["coverage_negative"]),
+                "support_documents": int(row["support_documents"]),
+                "support_dates": int(row["support_dates"]),
+            })
+    return rows
 
 
 @app.after_request
@@ -752,7 +791,12 @@ def macro_backtest():
 
 @app.get("/api/lithium/status")
 def lithium_status():
-    return jsonify(load_lithium_status())
+    payload = load_lithium_status()
+    v3 = load_lithium_v3_report()
+    payload["deepseek_v4_research"] = v3
+    if v3.get("status") == "built":
+        payload["version"] = "lithium-rift-v3-research"
+    return jsonify(payload)
 
 
 @app.get("/api/lithium/forecast")
@@ -762,7 +806,14 @@ def lithium_forecast():
 
 @app.get("/api/lithium/backtest")
 def lithium_backtest():
-    return jsonify(load_lithium_backtest())
+    payload = load_lithium_backtest()
+    payload["deepseek_v4_research"] = load_lithium_v3_report()
+    return jsonify(payload)
+
+
+@app.get("/api/lithium/research-v3")
+def lithium_research_v3():
+    return jsonify(load_lithium_v3_report())
 
 
 @app.get("/api/examples")
@@ -966,8 +1017,8 @@ def lithium_analyze():
         result = analyze_lithium_document(
             document,
             layer.gateway,
-            load_lithium_rulebook(),
-            read_lithium_csv("lithium_texts.csv"),
+            load_lithium_v3_rulebook(),
+            [],
         )
     except (AIServiceError, ValueError) as exc:
         return jsonify({
@@ -989,7 +1040,8 @@ def lithium_analyze():
     prospective_bootstrap = prospective.get("prospective_bootstrap", {})
     decision_ledger = prospective.get("decision_ledger", {})
     result["data_readiness"] = status_payload["status"]
-    result["rulebook_size"] = status_payload["counts"]["qualified_rules"]
+    result["rulebook_size"] = len(load_lithium_v3_rulebook())
+    v3_research = load_lithium_v3_report()
     result["predicted_variable"] = {
         "name": "lc_main_5d_open_to_open_direction_score",
         "display_name": "碳酸锂主力合约未来5个交日 open-to-open 方向分数",
@@ -1012,6 +1064,8 @@ def lithium_analyze():
         "settled_decisions": decision_ledger.get("settled_decisions", 0),
         "decision_evidence_mode": decision_ledger.get("evidence_mode", ""),
         "acceptance_gate": "成本后收益差为正且三个月时间块 Bootstrap 95% 下界大于0",
+        "deepseek_v4_oos_stress": v3_research.get("old_oos_confirmed_trend_bootstrap", {}),
+        "deepseek_v4_conclusion": v3_research.get("conclusion", "交易增量未建立"),
     }
     result["prediction_scope"] = "单篇文本 -> 未来5个交易日主力期货方向分数 -> 规则确认趋势仓位"
     return jsonify(result)
