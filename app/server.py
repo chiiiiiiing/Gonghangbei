@@ -9,6 +9,7 @@ import subprocess
 import sys
 from collections import Counter
 from datetime import date, datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,9 @@ MACRO_EVALUATION_PATH = SAMPLE_DIR / "macro_route_evaluation.json"
 LITHIUM_V3_DIR = ROOT / "data" / "research"
 LITHIUM_V3_REPORT_PATH = LITHIUM_V3_DIR / "lithium_v3_report.json"
 LITHIUM_V3_RULEBOOK_PATH = LITHIUM_V3_DIR / "lithium_v3_rulebook.csv"
+LITHIUM_V4_ADDITIVE_FREEZE_PATH = LITHIUM_V3_DIR / "lithium_v4_additive_freeze.json"
+LITHIUM_V4_ADDITIVE_REPORT_PATH = LITHIUM_V3_DIR / "lithium_v4_additive_oos_report.json"
+LITHIUM_V4_LEDGER_PATH = LITHIUM_V3_DIR / "lithium_v4_prospective_decisions.csv"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -38,15 +42,26 @@ from src.macro.engine import (  # noqa: E402
     load_macro_status,
 )
 from src.lithium.engine import (  # noqa: E402
+    PROSPECTIVE_STRATEGY,
     RESEARCH_BOUNDARY as LITHIUM_RESEARCH_BOUNDARY,
+    _metrics as lithium_metrics,
     _load_rulebook as load_lithium_rulebook,
     _read_csv as read_lithium_csv,
-    analyze_document as analyze_lithium_document,
     build_main_continuous as build_lithium_main_continuous,
+    block_bootstrap_increment as lithium_bootstrap_increment,
+    evaluate_prospective_decisions as evaluate_lithium_decisions,
     load_backtest as load_lithium_backtest,
     load_forecast as load_lithium_forecast,
     load_status as load_lithium_status,
     map_prediction_to_strategy as map_lithium_prediction_to_strategy,
+)
+from scripts.build_lithium_v3_research import (  # noqa: E402
+    PREDICATE_FILE as LITHIUM_V3_PREDICATE_PATH,
+    TEXT_FILE as LITHIUM_V3_TEXT_PATH,
+    analyze_live_v4_document as analyze_lithium_document,
+    build_records as build_lithium_v3_records,
+    purged_discovery_records as purged_lithium_discovery_records,
+    read_path as read_research_csv,
 )
 
 
@@ -181,6 +196,65 @@ def load_lithium_v3_rulebook() -> list[dict[str, Any]]:
                 "support_dates": int(row["support_dates"]),
             })
     return rows
+
+
+@lru_cache(maxsize=1)
+def load_lithium_v4_discovery_contexts() -> list[dict[str, Any]]:
+    texts = read_research_csv(LITHIUM_V3_TEXT_PATH)
+    predicates = {
+        row["doc_id"]: row for row in read_research_csv(LITHIUM_V3_PREDICATE_PATH)
+    }
+    contracts = read_lithium_csv("lithium_contract_daily.csv")
+    records = build_lithium_v3_records(
+        texts, predicates, build_lithium_main_continuous(contracts), contracts
+    )
+    return purged_lithium_discovery_records(records)
+
+
+def _read_optional_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+
+def load_lithium_v4_research() -> dict[str, Any]:
+    freeze = _read_optional_json(LITHIUM_V4_ADDITIVE_FREEZE_PATH)
+    additive = _read_optional_json(LITHIUM_V4_ADDITIVE_REPORT_PATH)
+    decisions: list[dict[str, str]] = []
+    if LITHIUM_V4_LEDGER_PATH.exists():
+        with LITHIUM_V4_LEDGER_PATH.open(encoding="utf-8", newline="") as handle:
+            decisions = list(csv.DictReader(handle))
+    contracts = read_lithium_csv("lithium_contract_daily.csv")
+    settled, ledger = evaluate_lithium_decisions(decisions, contracts)
+    ledger["file"] = "data/research/lithium_v4_prospective_decisions.csv"
+    metrics = lithium_metrics(
+        settled, "prospective_oos", strategies=("pure_trend", PROSPECTIVE_STRATEGY)
+    )
+    bootstrap = lithium_bootstrap_increment(
+        settled, split="prospective_oos", enhanced_strategy=PROSPECTIVE_STRATEGY
+    )
+    established = bootstrap["conclusion"] == "positive_increment_established"
+    latest = decisions[-1] if decisions else {}
+    return {
+        "version": "lithium-v4-prospective-ledger-v1",
+        "status": "positive_increment_established" if established else "awaiting_new_oos_data",
+        "additive_candidate": additive,
+        "additive_freeze": freeze,
+        "decision_ledger": ledger,
+        "latest_decision": {
+            key: latest.get(key, "")
+            for key in (
+                "decision_id", "recorded_at", "signal_date", "source_doc_id",
+                "model", "direction_score", "zero_shot_score", "selected_contract",
+                "baseline_position", "enhanced_position", "position_delta",
+                "execution_trade_date",
+            )
+        } if latest else {},
+        "prospective_metrics": metrics,
+        "prospective_bootstrap": bootstrap,
+        "increment_established": established,
+        "conclusion": "交易增量成立" if established else "前瞻交易增量待检验",
+        "disclaimer": DISCLAIMER,
+        "research_boundary": LITHIUM_RESEARCH_BOUNDARY,
+    }
 
 
 @app.after_request
@@ -796,6 +870,7 @@ def lithium_status():
     payload = load_lithium_status()
     v3 = load_lithium_v3_report()
     payload["deepseek_v4_research"] = v3
+    payload["deepseek_v4_prospective"] = load_lithium_v4_research()
     if v3.get("status") == "built":
         payload["version"] = "lithium-v3-rift-v4-direction"
     return jsonify(payload)
@@ -810,12 +885,18 @@ def lithium_forecast():
 def lithium_backtest():
     payload = load_lithium_backtest()
     payload["deepseek_v4_research"] = load_lithium_v3_report()
+    payload["deepseek_v4_prospective"] = load_lithium_v4_research()
     return jsonify(payload)
 
 
 @app.get("/api/lithium/research-v3")
 def lithium_research_v3():
     return jsonify(load_lithium_v3_report())
+
+
+@app.get("/api/lithium/research-v4")
+def lithium_research_v4():
+    return jsonify(load_lithium_v4_research())
 
 
 @app.get("/api/examples")
@@ -1020,7 +1101,7 @@ def lithium_analyze():
             document,
             layer.gateway,
             load_lithium_v3_rulebook(),
-            [],
+            load_lithium_v4_discovery_contexts(),
         )
     except (AIServiceError, ValueError) as exc:
         return jsonify({
@@ -1044,6 +1125,7 @@ def lithium_analyze():
     result["data_readiness"] = status_payload["status"]
     result["rulebook_size"] = len(load_lithium_v3_rulebook())
     v3_research = load_lithium_v3_report()
+    v4_research = load_lithium_v4_research()
     result["predicted_variable"] = {
         "name": "lc_main_5d_open_to_open_direction_score",
         "display_name": "碳酸锂主力合约未来5个交日 open-to-open 方向分数",
@@ -1068,6 +1150,9 @@ def lithium_analyze():
         "acceptance_gate": "成本后收益差为正且三个月时间块 Bootstrap 95% 下界大于0",
         "deepseek_v4_oos_stress": v3_research.get("old_oos_confirmed_trend_bootstrap", {}),
         "deepseek_v4_conclusion": v3_research.get("conclusion", "交易增量未建立"),
+        "v4_prospective_status": v4_research.get("status", "awaiting_new_oos_data"),
+        "v4_recorded_decisions": v4_research.get("decision_ledger", {}).get("recorded_decisions", 0),
+        "v4_settled_decisions": v4_research.get("decision_ledger", {}).get("settled_decisions", 0),
     }
     result["prediction_scope"] = "单篇文本 -> 未来5个交易日主力期货方向分数 -> 规则确认趋势仓位"
     return jsonify(result)

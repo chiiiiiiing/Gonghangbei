@@ -700,6 +700,51 @@ def extract_direction_scores(
     }, metadata
 
 
+def analyze_live_v4_document(
+    document: dict[str, str],
+    gateway: OpenAICompatibleGateway,
+    rulebook: list[dict[str, Any]],
+    discovery_records: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Run the same predicate -> zero-shot -> RIFT protocol used by the study."""
+    consensus, predicate_metadata = extract_predicates_only(document, gateway)
+    inference_document: dict[str, Any] = {
+        **document,
+        "predicate_consensus": consensus,
+        "predicate_status": {row["name"]: row["status"] for row in consensus},
+    }
+    contexts = direction_contexts(inference_document, discovery_records)
+    direction, direction_metadata = extract_direction_scores(
+        inference_document, gateway, rulebook, contexts
+    )
+    active = activated_rules(rulebook, consensus)
+    score = float(direction["rule_enhanced_score"]) if active else 0.0
+    confidence = float(direction["rule_enhanced_confidence"])
+    return {
+        "research_type": "lithium_v4_rift_direction",
+        "doc_id": document.get("doc_id", "live-input"),
+        "publish_time": document["publish_time"],
+        "direction_label": (
+            "bullish" if score > 0.1 else "bearish" if score < -0.1 else "neutral"
+        ),
+        "direction_score": score,
+        "zero_shot_score": float(direction["zero_shot_score"]),
+        "confidence": confidence,
+        "zero_shot_confidence": float(direction["zero_shot_confidence"]),
+        "horizon_days": 5,
+        "activated_rules": active,
+        "predicate_consensus": consensus,
+        "evidence_text": direction["rule_enhanced_evidence_text"] if active else "",
+        "zero_shot_evidence_text": direction["zero_shot_evidence_text"],
+        "inference_mode": "v4_rift_direction" if active else "rulebook_inactive",
+        "contrastive_contexts": contexts,
+        "model": direction_metadata.get("model", gateway.settings.chat_model),
+        "request_id": direction_metadata.get("request_id", ""),
+        "predicate_request_id": predicate_metadata.get("request_id", ""),
+        "rulebook_sha256": rulebook_hash(rulebook),
+    }
+
+
 def annotate_directions(
     records: list[dict[str, Any]],
     rulebook: list[dict[str, Any]],
@@ -889,6 +934,10 @@ def main() -> None:
         "selection_boundary": (
             "规则与对比上下文仅使用退出日不晚于2024-12-31的Discovery样本；"
             "2025 validation与2026 OOS方向推理均不读取未来标签"
+        ),
+        "attribution_warning": (
+            "70/30公式在active_text_score=0时仍将趋势仓位缩放为70%；"
+            "其相对纯趋势差异不能全部归因为文本alpha"
         ),
         "counts": {
             "texts": len(texts),
