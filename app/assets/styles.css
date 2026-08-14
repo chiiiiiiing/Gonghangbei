@@ -59,6 +59,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .grow-field { flex: 1; display: flex; flex-direction: column; }
 .field label { display: block; margin: 0 0 6px; color: var(--ink-soft); font-size: 13px; font-weight: 680; }
 .field-note { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+.check-control { min-height: 36px; display: flex; align-items: center; gap: 9px; color: var(--ink-soft); font-size: 12px; font-weight: 680; cursor: pointer; }
+.check-control input { width: 16px; height: 16px; margin: 0; accent-color: var(--blue); }
+.ledger-note { margin: -2px 0 12px 25px; }
 input, select, textarea { width: 100%; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--ink); background: white; }
 input, select { height: 44px; padding: 0 12px; }
 textarea { min-height: 260px; flex: 1; resize: vertical; padding: 14px; }

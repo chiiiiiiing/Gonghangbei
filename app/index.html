@@ -27,7 +27,7 @@
   <main class="page-shell">
     <section class="view active" id="liveView">
       <div class="research-banner">
-        <div><span class="eyebrow">CARBONATE LITHIUM · RIFT</span><h1>碳酸锂文本规则预测</h1><p>单篇产业文本先转换为主力合约未来 5 个交易日方向分数，再映射为相对 20 日纯趋势策略的仓位增量。</p></div>
+        <div><span class="eyebrow">CARBONATE LITHIUM · RIFT</span><h1>碳酸锂文本规则预测</h1><p>单篇产业文本先转换为主力合约未来 5 个交易日方向分数，再通过质量规则映射为相对成熟市场基准的仓位增量。</p></div>
         <div class="banner-facts"><span>单篇文本输入</span><span>5日方向分数</span><span>趋势仓位增量</span></div>
       </div>
 
@@ -55,14 +55,16 @@
           <div class="surface-heading compact"><div><h2>运行配置</h2></div><span class="model-chip">V4 Flash</span></div>
           <div class="run-spec">
             <div><span>第一阶段</span><b>文本 → 5日方向分数</b></div>
-            <div><span>第二阶段</span><b>方向分数 → 趋势仓位</b></div>
-            <div><span>对照基准</span><b>20日纯趋势</b></div>
+            <div><span>第二阶段</span><b>质量规则 → 增量仓位</b></div>
+            <div><span>对照基准</span><b>多周期波动率控制</b></div>
           </div>
           <div class="field" id="apiKeyField">
             <label for="apiKey">DeepSeek API Key</label>
             <div class="secret-input"><input id="apiKey" type="password" autocomplete="off" spellcheck="false" maxlength="512" placeholder="sk-..."><button id="toggleKey" class="icon-button" title="显示或隐藏 API Key" type="button"><i data-lucide="eye"></i></button></div>
             <span class="field-note">仅随本次请求传输，不保存。</span>
           </div>
+          <label class="check-control" for="recordForResearch"><input id="recordForResearch" type="checkbox" checked><span>写入前瞻信号账本</span></label>
+          <span class="field-note ledger-note">仅记录冻结日后、带来源链接且由 V4 Flash 完成的文本，不保存 API Key。</span>
           <div class="connection-state neutral" id="connectionStatus"><span class="mini-dot"></span><span>等待凭证</span></div>
           <div class="action-row">
             <button class="secondary-button" id="checkApiButton" type="button"><i data-lucide="plug-zap"></i>检查连接</button>

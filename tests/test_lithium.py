@@ -584,7 +584,7 @@ class LithiumApiTests(unittest.TestCase):
         for path in (
             "/api/lithium/status", "/api/lithium/forecast",
             "/api/lithium/backtest", "/api/lithium/research-v3",
-            "/api/lithium/research-v4",
+            "/api/lithium/research-v4", "/api/lithium/research-v5",
         ):
             response = self.client.get(path)
             self.assertEqual(response.status_code, 200, path)
@@ -624,6 +624,14 @@ class LithiumApiTests(unittest.TestCase):
         self.assertEqual(v4["signal_audit"]["partial"], 1)
         self.assertEqual(v4["latest_update_run"]["status"], "no_new_market_data")
         self.assertFalse(v4["additive_candidate"]["increment_established"])
+        v5 = self.client.get("/api/lithium/research-v5").get_json()
+        self.assertTrue(v5["retrospective_increment_evidence"])
+        self.assertGreater(v5["oos_stress_bootstrap"]["ci_lower_95"], 0)
+        self.assertFalse(v5["strict_increment_established"])
+        self.assertTrue(v5["candidate_integrity"]["verified"])
+        self.assertEqual(v5["decision_ledger"]["recorded_decisions"], 1)
+        self.assertEqual(v5["decision_ledger"]["settled_decisions"], 0)
+        self.assertEqual(v5["decision_ledger"]["invalid_decisions"], [])
         backtest = self.client.get("/api/lithium/backtest").get_json()
         self.assertEqual(backtest["engine_version"], "lithium-backtest-v3-decision-ledger-20260814")
         self.assertFalse(backtest["increment_established"])
@@ -704,6 +712,12 @@ class LithiumApiTests(unittest.TestCase):
         self.assertEqual(payload["direction_score"], 0.7)
         self.assertIn(payload["strategy_mapping"]["status"], {"mapped", "awaiting_next_trading_day"})
         self.assertIn("position_delta", payload["strategy_mapping"])
+        self.assertEqual(
+            payload["v5_strategy_mapping"]["baseline_strategy"],
+            "mature_market_baseline",
+        )
+        self.assertFalse(payload["v5_strategy_mapping"]["quality_rule_active"])
+        self.assertEqual(payload["v5_strategy_mapping"]["position_delta"], 0.0)
         self.assertEqual(payload["increment_evidence"]["prospective_observations"], 0)
 
     def test_homepage_is_lithium_first_and_has_no_trading_promise(self) -> None:
@@ -715,6 +729,7 @@ class LithiumApiTests(unittest.TestCase):
         script = (APP_DIR / "assets" / "app.js").read_text(encoding="utf-8")
         self.assertIn("DeepSeek V4 规则增强方向推理", script)
         self.assertIn("V4 前瞻决策账本", script)
+        self.assertIn("V5 质量规则文本 Alpha", script)
         self.assertIn("前瞻候选 v2", script)
         self.assertIn("不回填已观察的旧 OOS", script)
         self.assertNotIn("保证收益", html)
