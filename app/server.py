@@ -155,9 +155,11 @@ def load_lithium_v3_report() -> dict[str, Any]:
         }
     payload = json.loads(LITHIUM_V3_REPORT_PATH.read_text(encoding="utf-8"))
     payload["status"] = "built"
-    payload["model"] = "deepseek-v4-flash"
-    payload["conclusion"] = "交易增量未建立"
-    payload["increment_established"] = False
+    payload.setdefault("model", "deepseek-v4-flash")
+    bootstrap = payload.get("old_oos_stress_bootstrap", {})
+    established = bootstrap.get("conclusion") == "positive_increment_established"
+    payload["increment_established"] = established
+    payload["conclusion"] = "交易增量成立" if established else "交易增量未建立"
     payload["disclaimer"] = DISCLAIMER
     payload["research_boundary"] = LITHIUM_RESEARCH_BOUNDARY
     return payload
@@ -795,7 +797,7 @@ def lithium_status():
     v3 = load_lithium_v3_report()
     payload["deepseek_v4_research"] = v3
     if v3.get("status") == "built":
-        payload["version"] = "lithium-rift-v3-research"
+        payload["version"] = "lithium-v3-rift-v4-direction"
     return jsonify(payload)
 
 

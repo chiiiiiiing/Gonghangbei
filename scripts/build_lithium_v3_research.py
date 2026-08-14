@@ -37,6 +37,7 @@ from src.lithium.engine import (  # noqa: E402
     forward_label,
     induce_rulebook,
     predicate_consensus,
+    retrieve_contexts,
 )
 
 
@@ -47,8 +48,11 @@ PREDICATE_FILE = RESEARCH_DIR / "lithium_v3_predicates.csv"
 AUDIT_FILE = RESEARCH_DIR / "lithium_v3_annotation_audit.csv"
 RULEBOOK_FILE = RESEARCH_DIR / "lithium_v3_rulebook.csv"
 SIGNAL_FILE = RESEARCH_DIR / "lithium_v3_signals.csv"
+DIRECTION_FILE = RESEARCH_DIR / "lithium_v3_directions.csv"
+DIRECTION_AUDIT_FILE = RESEARCH_DIR / "lithium_v3_direction_audit.csv"
 REPORT_FILE = RESEARCH_DIR / "lithium_v3_report.json"
 PROMPT_VERSION = "lithium-v3-deepseek-v4-flash-predicate-v6-conservative"
+DIRECTION_PROMPT_VERSION = "lithium-v3-deepseek-v4-flash-direction-v2-explicit-contract"
 TEXT_FIELDS = [
     "doc_id", "source_type", "title", "content", "publish_time",
     "source_name", "url", "review_status",
@@ -63,8 +67,16 @@ AUDIT_FIELDS = [
 ]
 SIGNAL_FIELDS = [
     "doc_id", "publish_time", "direction_label", "direction_score",
-    "confidence", "horizon_days", "activated_rules", "predicate_consensus",
-    "inference_mode", "rulebook_sha256",
+    "zero_shot_score", "confidence", "zero_shot_confidence", "horizon_days", "activated_rules",
+    "predicate_consensus", "evidence_text", "inference_mode", "model",
+    "request_id", "rulebook_sha256",
+]
+DIRECTION_FIELDS = [
+    "doc_id", "publish_time", "zero_shot_score", "rule_enhanced_score",
+    "zero_shot_confidence", "rule_enhanced_confidence",
+    "zero_shot_evidence_text", "rule_enhanced_evidence_text",
+    "activated_rule_ids", "model", "request_id", "rulebook_sha256",
+    "annotation_input_sha256", "prompt_version",
 ]
 META_PREDICATES = {"authoritative_source", "quantitative_evidence", "uncertainty_high"}
 ECONOMIC_PREDICATES = set(PREDICATE_DEFINITIONS) - META_PREDICATES
@@ -106,13 +118,12 @@ def relevant_excerpt(document: dict[str, str], max_chars: int = 4000) -> str:
     title = document.get("title", "").strip()
     content = document.get("content", "").strip()
     segments = [part.strip() for part in re.split(r"(?<=[。！？；])", content) if part.strip()]
-    selected: list[str] = []
-    for segment in segments[:2]:
-        if segment not in selected:
-            selected.append(segment)
-    for segment in segments:
-        if any(term in segment for term in EXCERPT_TERMS) and segment not in selected:
-            selected.append(segment)
+    selected = [
+        segment for segment in segments
+        if any(term in segment for term in EXCERPT_TERMS)
+    ]
+    if not selected:
+        selected = segments[:2]
     excerpt = f"来源：{document.get('source_name', '')}\n{title}\n" + "\n".join(selected)
     return excerpt[:max_chars]
 
@@ -213,6 +224,12 @@ def predicate_schema() -> dict[str, Any]:
         },
         "required": ["value", "confidence", "evidence_text"],
     }
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {name: predicate_value for name in PREDICATE_DEFINITIONS},
+        "required": list(PREDICATE_DEFINITIONS),
+    }
 
 
 def recover_exact_evidence(evidence: str, source_text: str) -> str:
@@ -235,12 +252,6 @@ def recover_exact_evidence(evidence: str, source_text: str) -> str:
     start = source_indexes[offset]
     end = source_indexes[offset + len(normalized_evidence) - 1] + 1
     return source_text[start:end]
-    return {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {name: predicate_value for name in PREDICATE_DEFINITIONS},
-        "required": list(PREDICATE_DEFINITIONS),
-    }
 
 
 def extract_predicates_only(
@@ -322,9 +333,12 @@ def annotate_missing(
     limit: int,
     workers: int,
 ) -> dict[str, dict[str, Any]]:
+    text_by_id = {row["doc_id"]: row for row in texts}
     predicates = {
         row["doc_id"]: row for row in read_path(PREDICATE_FILE)
         if row.get("prompt_version") == PROMPT_VERSION and row.get("model") == model_name
+        and row.get("doc_id") in text_by_id
+        and row.get("annotation_input_sha256") == annotation_hash(text_by_id[row["doc_id"]], model_name)
     }
     audit = {
         row["doc_id"]: row for row in read_path(AUDIT_FILE)
@@ -336,6 +350,8 @@ def annotate_missing(
     ]
     if limit:
         missing = missing[:limit]
+    if not missing:
+        return predicates
     settings = AISettings.from_environment()
     if not settings.enabled or settings.provider != "deepseek":
         raise SystemExit("未配置 DeepSeek API，请设置 DEEPSEEK_API_KEY")
@@ -398,13 +414,6 @@ def rulebook_hash(rulebook: list[dict[str, Any]]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def rule_score(active: list[dict[str, Any]]) -> float:
-    bullish = max((float(rule["score"]) for rule in active if rule["target_label"] == "bullish"), default=0.0)
-    bearish = max((float(rule["score"]) for rule in active if rule["target_label"] == "bearish"), default=0.0)
-    denominator = bullish + bearish
-    return (bullish - bearish) / denominator if denominator else 0.0
-
-
 def build_records(
     texts: list[dict[str, str]],
     predicates: dict[str, dict[str, Any]],
@@ -425,12 +434,24 @@ def build_records(
         )
         records.append({
             **document,
+            "entry_trade_date": label["entry_trade_date"],
+            "exit_trade_date": label["exit_trade_date"],
             "direction_label": label["direction_label"],
             "forward_open_return": label["forward_open_return"],
             "predicate_status": {row["name"]: row["status"] for row in consensus},
             "predicate_consensus": consensus,
         })
     return records
+
+
+def purged_discovery_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Keep Discovery examples whose full five-day label is known by the freeze date."""
+    cutoff = DISCOVERY_END.isoformat()
+    return [
+        record for record in records
+        if record["publish_time"][:10] <= cutoff
+        and record.get("exit_trade_date", "") <= cutoff
+    ]
 
 
 def temporal_rule_diagnostics(
@@ -476,7 +497,7 @@ def stable_discovery_rulebook(
         and by_id[rule["rule_id"]]["2024H1_support"] >= 3
         and by_id[rule["rule_id"]]["2024H2_support"] >= 3
     ]
-    discovery = [record for record in records if record["publish_time"][:10] <= DISCOVERY_END.isoformat()]
+    discovery = purged_discovery_records(records)
     deduplicated: list[dict[str, Any]] = []
     seen_coverage: set[tuple[str, tuple[str, ...]]] = set()
     for rule in sorted(stable, key=lambda row: (len(row["conditions"]), -float(row["score"]))):
@@ -503,28 +524,315 @@ def stable_discovery_rulebook(
     return output, diagnostics
 
 
+def direction_schema() -> dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "direction_score": {"type": "number", "minimum": -1, "maximum": 1},
+            "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+            "evidence_text": {"type": "string"},
+        },
+        "required": ["direction_score", "confidence", "evidence_text"],
+    }
+
+
+def direction_contexts(
+    document: dict[str, Any],
+    discovery_records: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    by_id = {row["doc_id"]: row for row in discovery_records}
+    retrieved = retrieve_contexts(document, discovery_records, per_label=3)
+    return [
+        {
+            **row,
+            "excerpt": relevant_excerpt(by_id[row["doc_id"]], max_chars=600),
+        }
+        for row in retrieved
+        if row["doc_id"] in by_id
+    ]
+
+
+def direction_annotation_hash(
+    document: dict[str, Any],
+    model_name: str,
+    rulebook: list[dict[str, Any]],
+    active: list[dict[str, Any]],
+    contexts: list[dict[str, Any]],
+) -> str:
+    payload = {
+        "prompt_version": DIRECTION_PROMPT_VERSION,
+        "model": model_name,
+        "document": relevant_excerpt(document),
+        "predicate_consensus": document["predicate_consensus"],
+        "rulebook_sha256": rulebook_hash(rulebook),
+        "activated_rule_ids": [rule["rule_id"] for rule in active],
+        "contexts": contexts,
+    }
+    return hashlib.sha256(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
+def _validated_direction_output(
+    raw: dict[str, Any],
+    source_text: str,
+    *,
+    fallback_evidence: str = "",
+) -> tuple[float, float, str, str]:
+    try:
+        score = float(raw.get("direction_score"))
+        confidence = float(raw.get("confidence"))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("V4 方向分数或置信度不是数值") from exc
+    if not math.isfinite(score) or not -1 <= score <= 1:
+        raise ValueError("V4 方向分数必须在 -1 到 1")
+    if not math.isfinite(confidence) or not 0 <= confidence <= 1:
+        raise ValueError("V4 方向置信度必须在 0 到 1")
+    evidence = str(raw.get("evidence_text", "")).strip()
+    recovered = recover_exact_evidence(evidence, source_text)
+    note = ""
+    if not recovered:
+        if fallback_evidence and fallback_evidence in source_text:
+            recovered = fallback_evidence
+            note = "direction_quote_replaced_by_rule_anchor"
+        else:
+            score = 0.0
+            confidence = min(confidence, 0.5)
+            note = "unverifiable_direction_demoted"
+    return score, confidence, recovered, note
+
+
+def extract_direction_scores(
+    document: dict[str, Any],
+    gateway: OpenAICompatibleGateway,
+    rulebook: list[dict[str, Any]],
+    contexts: list[dict[str, Any]],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    source_text = relevant_excerpt(document)
+    common = {
+        "target": "碳酸锂主力合约未来5个交易日 open-to-open 方向分数",
+        "label_thresholds": {"bullish": ">=+1%", "bearish": "<=-1%", "neutral": "其余"},
+        "document": source_text,
+        "output_contract": {
+            "direction_score": "必填，-1到1之间的数值",
+            "confidence": "必填，0到1之间的数值",
+            "evidence_text": "必填，document中的连续原文字符串",
+        },
+        "constraints": [
+            "只使用 document 首次公开时可见信息，不得使用后来行情。",
+            "direction_score 在 -1 到 1，正数表示偏多，负数表示偏空。",
+            "evidence_text 必须是 document 中的连续原文，不得改写。",
+            "不输出交易建议、目标价或收益保证。",
+        ],
+    }
+    zero_raw, zero_meta = gateway.chat_json(
+        [
+            {
+                "role": "system",
+                "content": (
+                    "你是审慎的碳酸锂文本方向研究员，只输出JSON；"
+                    "必须逐字使用字段direction_score、confidence、evidence_text。"
+                ),
+            },
+            {"role": "user", "content": json.dumps({**common, "mode": "zero_shot_text_only"}, ensure_ascii=False)},
+        ],
+        direction_schema(),
+        "lithium_v3_zero_shot_direction",
+    )
+    active = activated_rules(rulebook, document["predicate_consensus"])
+    fallback_evidence = next(
+        (
+            str(predicate.get("evidence_text", ""))
+            for predicate in document["predicate_consensus"]
+            if predicate.get("status") == "agreed_true"
+            and any(predicate.get("name") in rule["conditions"] for rule in active)
+        ),
+        "",
+    )
+    zero_score, zero_confidence, zero_evidence, zero_note = _validated_direction_output(
+        zero_raw, source_text
+    )
+    enhanced_score = 0.0
+    enhanced_confidence = zero_confidence
+    enhanced_evidence = ""
+    enhanced_note = ""
+    enhanced_meta: dict[str, Any] = {}
+    if active:
+        enhanced_payload = {
+            **common,
+            "mode": "rift_rule_enhanced",
+            "frozen_rulebook": rulebook,
+            "activated_rules": active,
+            "contrastive_discovery_contexts": contexts,
+            "rule_instruction": "规则是已冻结的 Discovery 经验；结合当前文本与对比样本评估方向和强度。",
+        }
+        enhanced_raw, enhanced_meta = gateway.chat_json(
+            [
+                {
+                    "role": "system",
+                    "content": (
+                        "你是审慎的RIFT规则增强碳酸锂方向研究员，只输出JSON；"
+                        "必须逐字使用字段direction_score、confidence、evidence_text。"
+                    ),
+                },
+                {"role": "user", "content": json.dumps(enhanced_payload, ensure_ascii=False)},
+            ],
+            direction_schema(),
+            "lithium_v3_rift_direction",
+        )
+        enhanced_score, enhanced_confidence, enhanced_evidence, enhanced_note = _validated_direction_output(
+            enhanced_raw, source_text, fallback_evidence=fallback_evidence
+        )
+    metadata = {
+        "model": enhanced_meta.get("model") or zero_meta.get("model") or gateway.settings.chat_model,
+        "request_id": "|".join(filter(None, [str(zero_meta.get("request_id", "")), str(enhanced_meta.get("request_id", ""))])),
+        "normalization_notes": [note for note in (zero_note, enhanced_note) if note],
+    }
+    return {
+        "zero_shot_score": zero_score,
+        "rule_enhanced_score": enhanced_score,
+        "zero_shot_confidence": zero_confidence,
+        "rule_enhanced_confidence": enhanced_confidence if active else zero_confidence,
+        "zero_shot_evidence_text": zero_evidence,
+        "rule_enhanced_evidence_text": enhanced_evidence,
+        "activated_rule_ids": [rule["rule_id"] for rule in active],
+    }, metadata
+
+
+def annotate_directions(
+    records: list[dict[str, Any]],
+    rulebook: list[dict[str, Any]],
+    model_name: str,
+    limit: int,
+    workers: int,
+) -> dict[str, dict[str, Any]]:
+    discovery = purged_discovery_records(records)
+    candidates = [row for row in records if row["publish_time"][:10] > DISCOVERY_END.isoformat()]
+    prepared = {
+        row["doc_id"]: {
+            "document": row,
+            "active": activated_rules(rulebook, row["predicate_consensus"]),
+            "contexts": direction_contexts(row, discovery),
+        }
+        for row in candidates
+    }
+    digest = rulebook_hash(rulebook)
+    cached: dict[str, dict[str, Any]] = {}
+    for row in read_path(DIRECTION_FILE):
+        item = prepared.get(row.get("doc_id", ""))
+        if item is None:
+            continue
+        expected_hash = direction_annotation_hash(
+            item["document"], model_name, rulebook, item["active"], item["contexts"]
+        )
+        if (
+            row.get("prompt_version") == DIRECTION_PROMPT_VERSION
+            and row.get("model") == model_name
+            and row.get("rulebook_sha256") == digest
+            and row.get("annotation_input_sha256") == expected_hash
+        ):
+            cached[row["doc_id"]] = row
+    audit = {
+        row["doc_id"]: row for row in read_path(DIRECTION_AUDIT_FILE)
+        if row.get("prompt_version") == DIRECTION_PROMPT_VERSION
+    }
+    missing = [item for doc_id, item in prepared.items() if doc_id not in cached]
+    if limit:
+        missing = missing[:limit]
+    if not missing:
+        return cached
+    settings = AISettings.from_environment()
+    if not settings.enabled or settings.provider != "deepseek":
+        raise SystemExit("未配置 DeepSeek API，请设置 DEEPSEEK_API_KEY")
+    if settings.chat_model != model_name or model_name != "deepseek-v4-flash":
+        raise SystemExit("方向研究批次锁定模型 deepseek-v4-flash")
+    gateway = OpenAICompatibleGateway(settings)
+
+    def infer(item: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+        output, metadata = extract_direction_scores(
+            item["document"], gateway, rulebook, item["contexts"]
+        )
+        return item, output, metadata
+
+    completed = 0
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
+        futures = {executor.submit(infer, item): item for item in missing}
+        for future in as_completed(futures):
+            item = futures[future]
+            document = item["document"]
+            completed += 1
+            fingerprint = direction_annotation_hash(
+                document, model_name, rulebook, item["active"], item["contexts"]
+            )
+            try:
+                _, output, metadata = future.result()
+                cached[document["doc_id"]] = {
+                    "doc_id": document["doc_id"],
+                    "publish_time": document["publish_time"],
+                    **output,
+                    "activated_rule_ids": json.dumps(output["activated_rule_ids"], ensure_ascii=False, separators=(",", ":")),
+                    "model": str(metadata.get("model", model_name)),
+                    "request_id": str(metadata.get("request_id", "")),
+                    "rulebook_sha256": digest,
+                    "annotation_input_sha256": fingerprint,
+                    "prompt_version": DIRECTION_PROMPT_VERSION,
+                }
+                audit[document["doc_id"]] = {
+                    "doc_id": document["doc_id"],
+                    "publish_time": document["publish_time"],
+                    "status": "accepted",
+                    "error": ";".join(metadata.get("normalization_notes", [])),
+                    "annotation_input_sha256": fingerprint,
+                    "prompt_version": DIRECTION_PROMPT_VERSION,
+                    "annotated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+                }
+            except (AIServiceError, RuntimeError, ValueError) as exc:
+                audit[document["doc_id"]] = {
+                    "doc_id": document["doc_id"],
+                    "publish_time": document["publish_time"],
+                    "status": "rejected",
+                    "error": str(exc),
+                    "annotation_input_sha256": fingerprint,
+                    "prompt_version": DIRECTION_PROMPT_VERSION,
+                    "annotated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+                }
+            write_path(DIRECTION_FILE, DIRECTION_FIELDS, sorted(cached.values(), key=lambda row: (row["publish_time"], row["doc_id"])))
+            write_path(DIRECTION_AUDIT_FILE, AUDIT_FIELDS, sorted(audit.values(), key=lambda row: (row["publish_time"], row["doc_id"])))
+            if completed % 10 == 0 or completed == len(missing):
+                print(f"v3 DeepSeek directions {completed}/{len(missing)}", flush=True)
+    return cached
+
+
 def build_signals(
     records: list[dict[str, Any]],
     rulebook: list[dict[str, Any]],
+    directions: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     digest = rulebook_hash(rulebook)
     rows: list[dict[str, Any]] = []
     for record in records:
+        direction = directions.get(record["doc_id"])
+        if direction is None:
+            continue
         active = activated_rules(rulebook, record["predicate_consensus"])
-        score = rule_score(active)
+        score = float(direction["rule_enhanced_score"]) if active else 0.0
+        confidence = float(direction["rule_enhanced_confidence"])
         rows.append({
             "doc_id": record["doc_id"],
             "publish_time": record["publish_time"],
             "direction_label": "bullish" if score > 0.1 else "bearish" if score < -0.1 else "neutral",
             "direction_score": score,
-            "zero_shot_score": 0.0,
-            "confidence": statistics.mean(
-                [float(row.get("confidence", 0) or 0) for row in record["predicate_consensus"] if row["status"] == "agreed_true"]
-            ) if any(row["status"] == "agreed_true" for row in record["predicate_consensus"]) else 0.0,
+            "zero_shot_score": float(direction["zero_shot_score"]),
+            "confidence": confidence,
+            "zero_shot_confidence": float(direction["zero_shot_confidence"]),
             "horizon_days": 5,
             "activated_rules": json.dumps(active, ensure_ascii=False, separators=(",", ":")),
             "predicate_consensus": json.dumps(record["predicate_consensus"], ensure_ascii=False, separators=(",", ":")),
-            "inference_mode": "v3_rulebook_consistent" if active else "rulebook_inactive",
+            "evidence_text": direction["rule_enhanced_evidence_text"] if active else "",
+            "inference_mode": "v3_rift_v4_direction" if active else "rulebook_inactive",
+            "model": direction["model"],
+            "request_id": direction["request_id"],
             "rulebook_sha256": digest,
         })
     write_path(SIGNAL_FILE, SIGNAL_FIELDS, rows)
@@ -535,6 +843,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", default="deepseek-v4-flash")
     parser.add_argument("--limit-new", type=int, default=0)
+    parser.add_argument("--limit-directions", type=int, default=0)
     parser.add_argument("--workers", type=int, default=8)
     args = parser.parse_args()
     texts = combine_texts()
@@ -542,28 +851,58 @@ def main() -> None:
     contracts = _read_csv("lithium_contract_daily.csv")
     continuous = build_main_continuous(contracts)
     records = build_records(texts, predicates, continuous, contracts)
-    induced_rulebook = induce_rulebook(records, anchor_predicates=ECONOMIC_PREDICATES)
-    rulebook, candidate_diagnostics = stable_discovery_rulebook(records, induced_rulebook)
+    discovery_records = purged_discovery_records(records)
+    discovery_unpurged = [
+        record for record in records
+        if record["publish_time"][:10] <= DISCOVERY_END.isoformat()
+    ]
+    induced_rulebook = induce_rulebook(discovery_records, anchor_predicates=ECONOMIC_PREDICATES)
+    rulebook, candidate_diagnostics = stable_discovery_rulebook(discovery_records, induced_rulebook)
     write_path(
         RULEBOOK_FILE,
         RULE_FIELDS,
         [{**rule, "conditions": " AND ".join(rule["conditions"])} for rule in rulebook],
     )
-    signals = build_signals(records, rulebook)
+    directions = annotate_directions(
+        records, rulebook, args.model, args.limit_directions, args.workers
+    )
+    signals = build_signals(records, rulebook, directions)
     rows = _strategy_rows(continuous, signals, 5.0, contracts)
+    cost_sensitivity: list[dict[str, Any]] = []
+    for cost_bps in (2.0, 5.0, 10.0):
+        cost_rows = rows if cost_bps == 5.0 else _strategy_rows(
+            continuous, signals, cost_bps, contracts
+        )
+        metrics = _metrics(cost_rows, "oos")
+        by_strategy = {row["strategy"]: row for row in metrics}
+        increment = block_bootstrap_increment(cost_rows, split="oos")
+        cost_sensitivity.append({
+            "cost_bps": cost_bps,
+            "trend_annual_return": by_strategy["pure_trend"]["annual_return"],
+            "enhanced_annual_return": by_strategy["rift_enhanced_trend"]["annual_return"],
+            "annual_return_difference": increment["annualized_net_return_difference"],
+        })
     report = {
-        "version": "lithium-v3-research-candidate",
-        "selection_boundary": "文本与规则选择仅使用2025-12-31前信息；2026仅作一次性压力检验",
+        "version": "lithium-v3-rift-v4-direction",
+        "model": args.model,
+        "direction_prompt_version": DIRECTION_PROMPT_VERSION,
+        "selection_boundary": (
+            "规则与对比上下文仅使用退出日不晚于2024-12-31的Discovery样本；"
+            "2025 validation与2026 OOS方向推理均不读取未来标签"
+        ),
         "counts": {
             "texts": len(texts),
             "predicate_annotations": len(predicates),
+            "direction_annotations": len(directions),
             "labeled_records": len(records),
+            "purged_discovery_records": len(discovery_records),
+            "discovery_cross_boundary_labels_excluded": len(discovery_unpurged) - len(discovery_records),
             "rules": len(rulebook),
             "candidate_rules_before_stability_gate": len(induced_rulebook),
             "signals": len(signals),
         },
         "rulebook_sha256": rulebook_hash(rulebook),
-        "rule_temporal_diagnostics": temporal_rule_diagnostics(records, rulebook),
+        "rule_temporal_diagnostics": temporal_rule_diagnostics(discovery_records, rulebook),
         "candidate_rule_temporal_diagnostics": candidate_diagnostics,
         "validation_metrics": _metrics(rows, "validation"),
         "validation_bootstrap": block_bootstrap_increment(rows, split="validation"),
@@ -575,6 +914,18 @@ def main() -> None:
         ),
         "old_oos_stress_metrics": _metrics(rows, "oos"),
         "old_oos_stress_bootstrap": block_bootstrap_increment(rows, split="oos"),
+        "cost_sensitivity": cost_sensitivity,
+        "oos_nav": [
+            {
+                "trade_date": row["trade_date"],
+                "strategy": row["strategy"],
+                "nav": row["nav"],
+            }
+            for row in rows
+            if row["split"] == "oos" and row["strategy"] in {
+                "pure_trend", "zero_shot_llm", "rift_enhanced_trend"
+            }
+        ],
         "old_oos_confirmed_trend_metrics": _metrics(
             rows, "oos", strategies=("pure_trend", PROSPECTIVE_STRATEGY)
         ),
@@ -582,6 +933,12 @@ def main() -> None:
             rows, split="oos", enhanced_strategy=PROSPECTIVE_STRATEGY
         ),
     }
+    report["increment_established"] = (
+        report["old_oos_stress_bootstrap"]["conclusion"] == "positive_increment_established"
+    )
+    report["conclusion"] = (
+        "交易增量成立" if report["increment_established"] else "交易增量未建立"
+    )
     REPORT_FILE.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
 

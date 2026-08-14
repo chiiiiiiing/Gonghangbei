@@ -711,7 +711,13 @@ def _active_text_score(day_index: int, days: list[str], signals: list[dict[str, 
             continue
         age = day_index - day_positions[signal_day]
         decay = (5 - age) / 5
-        confidence = max(0.0, min(1.0, float(signal.get("confidence", 0) or 0)))
+        confidence_field = (
+            "zero_shot_confidence" if field == "zero_shot_score" else "confidence"
+        )
+        confidence = max(0.0, min(
+            1.0,
+            float(signal.get(confidence_field, signal.get("confidence", 0)) or 0),
+        ))
         weight = confidence * decay
         numerator += _signal_score(signal, field) * weight
         denominator += weight
