@@ -22,6 +22,7 @@ from scripts.fetch_cninfo_lithium_texts import title_selected
 from scripts.record_lithium_prospective_decision import FIELDS, append_decision
 from src.lithium.engine import (
     PREDICATE_DEFINITIONS,
+    RIFT_ADDITIVE_STRATEGY,
     _active_text_score,
     _strategy_rows,
     activated_rules,
@@ -425,6 +426,23 @@ class LithiumBacktestTests(unittest.TestCase):
             else:
                 expected = max(-1.0, min(1.0, trend + text))
                 self.assertAlmostEqual(float(row["position"]), expected)
+
+    def test_additive_alpha_uses_frozen_weight_even_against_trend(self) -> None:
+        continuous, contracts = self._market()
+        signals = [{
+            "publish_time": "2026-01-05", "direction_score": 0.05,
+            "zero_shot_score": 0.0, "confidence": 1.0,
+        }]
+        rows = [
+            row for row in _strategy_rows(continuous, signals, 5.0, contracts)
+            if row["strategy"] == RIFT_ADDITIVE_STRATEGY
+        ]
+        active = next(row for row in rows if float(row["active_text_score"]) > 0)
+        expected = max(-1.0, min(
+            1.0,
+            float(active["trend_score"]) + 4.0 * float(active["active_text_score"]),
+        ))
+        self.assertAlmostEqual(float(active["position"]), expected)
 
     def test_single_text_prediction_maps_to_same_date_trend_strategy(self) -> None:
         continuous, contracts = self._market()
