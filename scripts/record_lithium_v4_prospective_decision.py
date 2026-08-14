@@ -33,6 +33,7 @@ from src.lithium.engine import (  # noqa: E402
 )
 RESEARCH_DIR = ROOT / "data" / "research"
 LEDGER_FILE = RESEARCH_DIR / "lithium_v4_prospective_decisions.csv"
+SIGNAL_FILE = RESEARCH_DIR / "lithium_v4_prospective_signals.csv"
 FIELDS = [
     "decision_id", "recorded_at", "strategy_version", "signal_date",
     "source_doc_id", "source_url", "source_text_sha256", "model",
@@ -44,6 +45,13 @@ FIELDS = [
     "execution_rule", "cost_bps", "market_input_sha256",
 ]
 IMMUTABLE_FIELDS = [field for field in FIELDS if field != "recorded_at"]
+SIGNAL_FIELDS = [
+    "doc_id", "recorded_at", "audit_status", "source_type", "title", "content",
+    "publish_time", "source_name", "url", "model", "predicate_request_id",
+    "direction_request_id", "direction_score", "zero_shot_score", "confidence",
+    "activated_rules", "predicate_consensus", "evidence_text",
+    "zero_shot_evidence_text", "contrastive_contexts", "rulebook_sha256",
+]
 
 
 def hash_payload(value: Any) -> str:
@@ -85,6 +93,34 @@ def append_decision(path: Path, decision: dict[str, Any]) -> str:
     write_header = not path.exists() or path.stat().st_size == 0
     with path.open("a", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS, lineterminator="\n")
+        if write_header:
+            writer.writeheader()
+        writer.writerow(row)
+    return "recorded"
+
+
+def append_signal(path: Path, signal: dict[str, Any]) -> str:
+    row = {field: serialize(signal.get(field, "")) for field in SIGNAL_FIELDS}
+    existing: list[dict[str, str]] = []
+    if path.exists():
+        with path.open(encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            if reader.fieldnames != SIGNAL_FIELDS:
+                raise ValueError("V4 前瞻信号表字段发生变化，拒绝写入")
+            existing = list(reader)
+    matched = [item for item in existing if item["doc_id"] == row["doc_id"]]
+    if matched:
+        changed = [
+            field for field in SIGNAL_FIELDS if field != "recorded_at"
+            and matched[0].get(field, "") != row[field]
+        ]
+        if changed:
+            raise ValueError("已冻结 V4 文本信号发生变化: " + ", ".join(changed))
+        return "already_recorded"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    write_header = not path.exists() or path.stat().st_size == 0
+    with path.open("a", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=SIGNAL_FIELDS, lineterminator="\n")
         if write_header:
             writer.writeheader()
         writer.writerow(row)
@@ -151,7 +187,7 @@ def load_rulebook() -> list[dict[str, Any]]:
     return rows
 
 
-def build_decision() -> dict[str, Any]:
+def build_decision() -> tuple[dict[str, Any], dict[str, Any], dict[str, str]]:
     settings = AISettings.from_environment()
     if not settings.enabled or settings.provider != "deepseek":
         raise ValueError("需要 DEEPSEEK_API_KEY 才能生成 V4 前瞻决策")
@@ -182,7 +218,7 @@ def build_decision() -> dict[str, Any]:
         "rulebook_sha256": rulebook_hash(rulebook),
         "market_input_sha256": hash_payload(market_rows),
     }
-    return {
+    decision = {
         **identity,
         "decision_id": hash_payload(identity)[:24],
         "recorded_at": datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -206,12 +242,34 @@ def build_decision() -> dict[str, Any]:
         "execution_rule": "signal_close_then_next_available_open",
         "cost_bps": 5.0,
     }
+    return decision, result, document
 
 
 def main() -> None:
-    decision = build_decision()
-    status = append_decision(LEDGER_FILE, decision)
-    print(json.dumps({"status": status, "decision": decision}, ensure_ascii=False, indent=2))
+    decision, result, document = build_decision()
+    signal = {
+        **document,
+        "recorded_at": decision["recorded_at"],
+        "audit_status": "complete_v4_inference",
+        "model": result["model"],
+        "predicate_request_id": result["predicate_request_id"],
+        "direction_request_id": result["request_id"],
+        "direction_score": result["direction_score"],
+        "zero_shot_score": result["zero_shot_score"],
+        "confidence": result["confidence"],
+        "activated_rules": result["activated_rules"],
+        "predicate_consensus": result["predicate_consensus"],
+        "evidence_text": result["evidence_text"],
+        "zero_shot_evidence_text": result["zero_shot_evidence_text"],
+        "contrastive_contexts": result["contrastive_contexts"],
+        "rulebook_sha256": result["rulebook_sha256"],
+    }
+    signal_status = append_signal(SIGNAL_FILE, signal)
+    decision_status = append_decision(LEDGER_FILE, decision)
+    print(json.dumps({
+        "status": decision_status, "signal_status": signal_status,
+        "decision": decision,
+    }, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

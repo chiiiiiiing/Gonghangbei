@@ -197,6 +197,9 @@ function renderValidation() {
   const v4 = backtest.deepseek_v4_prospective || {};
   const v4Ledger = v4.decision_ledger || {};
   const v4Decision = v4.latest_decision || {};
+  const v4Signals = v4.signal_audit || {};
+  const v4Integrity = v4.prefix_integrity || {};
+  const v4Run = v4.latest_update_run || {};
   const additive = v4.additive_candidate || {};
   const additiveBootstrap = additive.main_result?.bootstrap || {};
   const provenance = status.text_provenance || {};
@@ -220,8 +223,8 @@ function renderValidation() {
       <div id="lithiumNavChart" class="strategy-chart"></div>
     </div></section>
     <section class="section"><div class="section-header"><div><h2>V4 前瞻决策账本</h2><p>真实官方文本 · 收盘后冻结 · 下一开盘执行</p></div>${badge(v4.conclusion || "前瞻交易增量待检验", v4.increment_established ? "good" : "warn")}</div><div class="section-body">
-      <div class="detail-grid"><div class="detail-item"><b>已记录决策</b><span class="mono">${esc(v4Ledger.recorded_decisions || 0)}</span></div><div class="detail-item"><b>已结算决策</b><span class="mono">${esc(v4Ledger.settled_decisions || 0)}</span></div><div class="detail-item"><b>待结算</b><span class="mono">${esc(v4Ledger.pending_decisions || 0)}</span></div><div class="detail-item"><b>信号日</b><span class="mono">${esc(v4Decision.signal_date || "-")}</span></div><div class="detail-item"><b>模型</b><span class="mono">${esc(v4Decision.model || "-")}</span></div><div class="detail-item"><b>RIFT 分数</b><span class="mono">${fixed(v4Decision.direction_score)}</span></div><div class="detail-item"><b>零样本分数</b><span class="mono">${fixed(v4Decision.zero_shot_score)}</span></div><div class="detail-item"><b>主力合约</b><span class="mono">${esc(v4Decision.selected_contract || "-")}</span></div><div class="detail-item"><b>仓位边际</b><span class="mono">${fixed(v4Decision.position_delta)}</span></div></div>
-      <div class="notice ${Number(v4Ledger.invalid_decisions?.length || 0) === 0 ? "good" : "error"}"><strong>前瞻完整性：</strong>${esc(v4Ledger.invalid_decisions?.length || 0)} 条无效决策；当前记录必须等待真实后续开盘，不做历史回填。</div>
+      <div class="detail-grid"><div class="detail-item"><b>已记录决策</b><span class="mono">${esc(v4Ledger.recorded_decisions || 0)}</span></div><div class="detail-item"><b>已结算决策</b><span class="mono">${esc(v4Ledger.settled_decisions || 0)}</span></div><div class="detail-item"><b>待结算</b><span class="mono">${esc(v4Ledger.pending_decisions || 0)}</span></div><div class="detail-item"><b>信号日</b><span class="mono">${esc(v4Decision.signal_date || "-")}</span></div><div class="detail-item"><b>模型</b><span class="mono">${esc(v4Decision.model || "-")}</span></div><div class="detail-item"><b>RIFT 分数</b><span class="mono">${fixed(v4Decision.direction_score)}</span></div><div class="detail-item"><b>零样本分数</b><span class="mono">${fixed(v4Decision.zero_shot_score)}</span></div><div class="detail-item"><b>主力合约</b><span class="mono">${esc(v4Decision.selected_contract || "-")}</span></div><div class="detail-item"><b>仓位边际</b><span class="mono">${fixed(v4Decision.position_delta)}</span></div><div class="detail-item"><b>冻结前缀</b><span>${v4Integrity.verified ? "已验证" : "不一致"}</span></div><div class="detail-item"><b>最近更新</b><span class="mono">${esc(v4Run.status || "-")}</span></div></div>
+      <div class="notice ${Number(v4Ledger.invalid_decisions?.length || 0) === 0 && v4Integrity.verified ? "good" : "error"}"><strong>前瞻完整性：</strong>${esc(v4Ledger.invalid_decisions?.length || 0)} 条无效决策；${esc(v4Signals.complete || 0)} 条完整信号、${esc(v4Signals.partial || 0)} 条初始部分元数据；当前记录必须等待真实后续开盘，不做历史回填。</div>
       <div class="notice error"><strong>冻结加法候选已一次性揭盲失败。</strong> 5 bp OOS 年化收益差 ${pct(additiveBootstrap.annualized_net_return_difference)}，95% 区间 [${pct(additiveBootstrap.ci_lower_95)}, ${pct(additiveBootstrap.ci_upper_95)}]。</div>
     </div></section>
     <section class="section"><div class="section-header"><div><h2>前瞻候选 v2</h2><p>Validation-only 冻结 · 不回填已观察的旧 OOS</p></div>${badge(prospective.conclusion || "尚未冻结", prospective.increment_established ? "good" : "warn")}</div><div class="section-body">

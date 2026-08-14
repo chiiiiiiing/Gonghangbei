@@ -14,7 +14,7 @@
 
 70/30 方案在文本分数为 0 时仍把趋势仓位缩放为 70%，所以其相对纯趋势的差异不能全部归因为文本 alpha。为消除该混淆，项目先在提交 `c6d26f4` 冻结了保持原趋势仓位的加法候选，再一次性打开 2026 OOS；结果为年化收益差 -3.62%，95% 区间 `[-17.12%, 13.75%]`，同样失败，不再基于该 OOS 调权重。
 
-独立的 V4 前瞻账本已经启动。第一条决策使用 2026-08-14 广期所仓单日报真实数据，由 `deepseek-v4-flash` 在收盘后生成并写入 `data/research/lithium_v4_prospective_decisions.csv`：规则未激活，RIFT 分数为 0，LC2701 增强仓位与纯趋势仓位均为 0.3461。该记录等待下一真实交易日开盘后结算，不允许回填或改写。
+独立的 V4 前瞻账本已经启动。第一条决策使用 2026-08-14 广期所仓单日报真实数据，由 `deepseek-v4-flash` 在收盘后生成并写入 `data/research/lithium_v4_prospective_decisions.csv`：规则未激活，RIFT 分数为 0，LC2701 增强仓位与纯趋势仓位均为 0.3461。该记录等待下一真实交易日开盘后结算，不允许回填或改写。冻结前缀由 `data/research/lithium_v4_prospective_freeze.json` 校验；首次决策生成时尚未保存完整谓词上下文，因此在信号审计表中明确标为部分元数据，后续决策会保存完整的 DeepSeek 请求标识、谓词共识、证据与对比上下文。
 
 `lithium-prospective-v2` 的冻结文件和 append-only 决策账本仍保留为历史审计，但不与 V4 研究样本混用，也不作为新版增量证明。
 
@@ -37,11 +37,12 @@
 2. `python scripts/build_lithium_text_corpus.py --start 2023-07-21 --end 2026-08-14`：抓取产业全文，并用 discovery 期 75 分位数冻结重大仓单事件阈值。
 3. `python scripts/fetch_cninfo_lithium_texts.py --start 2023-07-21 --end 2025-12-31 --max-per-company 50`：获取并审计巨潮资讯产业链公告。
 4. `DEEPSEEK_API_KEY=... ALPHALENS_LLM_MODEL=deepseek-v4-flash ALPHALENS_AI_JSON_MODE=object python scripts/build_lithium_v3_research.py`：生成受控谓词、净化 Discovery 规则簿、独立零样本/RIFT 方向信号与审计报告。
-5. `python 运行研究流水线.py`：重建宏观 legacy 与碳酸锂派生输出；`python 启动演示.py` 启动页面。
+5. 每个交易日 17:00 后运行 `DEEPSEEK_API_KEY=... ALPHALENS_LLM_MODEL=deepseek-v4-flash ALPHALENS_AI_JSON_MODE=object python scripts/update_lithium_v4_prospective.py`：先验证冻结前缀，再追加官方行情和仓单、结算旧决策，并为最新交易日生成一条不可改写的 V4 决策。最新行情日已有决策时不会访问模型，也不会改动研究数据，只追加运行审计；若上次运行在写入行情后中断，则只允许在时点仍有效时恢复缺失决策。
+6. `python 运行研究流水线.py`：重建宏观 legacy 与碳酸锂派生输出；`python 启动演示.py` 启动页面。
 
 `scripts/update_lithium_prospective.py` 属于保留的 v2 冻结研究，仍依赖旧本地标注缓存，不进入本轮 V4 规则、方向信号或增量结论。本轮新增标注只允许通过显式 DeepSeek V4 命令或实时 `/api/lithium/analyze` 生成，不使用本地 Qwen 产物。
 
-每日更新还会在 `lithium_prospective_decisions.csv` 追加当日收盘后已知的主力合约、纯趋势仓位、文本分数和增强仓位。相同信号日只能验证原记录，任一输入哈希或仓位发生变化都会拒绝覆盖；前瞻收益只结算在下一交易日开盘前已经写入的决策，避免事后回填信号。
+V4 每日更新会在 `lithium_v4_prospective_signals.csv` 和 `lithium_v4_prospective_decisions.csv` 分别追加完整模型信号与收盘后已知的主力合约、纯趋势仓位、文本分数和增强仓位。相同文本或信号日只能验证原记录，任一输入哈希、推理结果或仓位发生变化都会拒绝覆盖；前瞻收益只结算在下一交易日开盘前已经写入的决策，避免事后回填信号。每次更新摘要追加到 `lithium_v4_prospective_runs.csv`。
 
 实时 `/api/lithium/analyze` 使用 OpenAI-compatible/DeepSeek 网关并要求调用方提供 Key；它与离线研究使用同一协议：第一通只抽固定谓词，第二通独立生成零样本方向，仅当冻结规则激活时第三通才注入 rulebook 与 Discovery 对比上下文。V4 历史标注仅由显式研究命令生成，不在 Web 请求中静默重跑。旧 Qwen 产物不进入 v3 谓词、规则或回测。
 单文本接口的两阶段合约是固定的：`predicted_variable` 返回 `lc_main_5d_open_to_open_direction_score`，`strategy_mapping` 返回文本公开日对应的 20 日纯趋势仓位、规则确认趋势仓位、边际变化和下一开盘执行日，`increment_evidence` 返回基准、前瞻观察数与 Bootstrap 验收状态。页面不再自行套用仓位公式。

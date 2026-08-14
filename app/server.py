@@ -27,6 +27,8 @@ LITHIUM_V3_RULEBOOK_PATH = LITHIUM_V3_DIR / "lithium_v3_rulebook.csv"
 LITHIUM_V4_ADDITIVE_FREEZE_PATH = LITHIUM_V3_DIR / "lithium_v4_additive_freeze.json"
 LITHIUM_V4_ADDITIVE_REPORT_PATH = LITHIUM_V3_DIR / "lithium_v4_additive_oos_report.json"
 LITHIUM_V4_LEDGER_PATH = LITHIUM_V3_DIR / "lithium_v4_prospective_decisions.csv"
+LITHIUM_V4_SIGNAL_PATH = LITHIUM_V3_DIR / "lithium_v4_prospective_signals.csv"
+LITHIUM_V4_RUN_PATH = LITHIUM_V3_DIR / "lithium_v4_prospective_runs.csv"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -62,6 +64,9 @@ from scripts.build_lithium_v3_research import (  # noqa: E402
     build_records as build_lithium_v3_records,
     purged_discovery_records as purged_lithium_discovery_records,
     read_path as read_research_csv,
+)
+from scripts.lithium_v4_prospective_integrity import (  # noqa: E402
+    verify_manifest as verify_lithium_v4_manifest,
 )
 
 
@@ -222,6 +227,21 @@ def load_lithium_v4_research() -> dict[str, Any]:
     if LITHIUM_V4_LEDGER_PATH.exists():
         with LITHIUM_V4_LEDGER_PATH.open(encoding="utf-8", newline="") as handle:
             decisions = list(csv.DictReader(handle))
+    signals: list[dict[str, str]] = []
+    if LITHIUM_V4_SIGNAL_PATH.exists():
+        with LITHIUM_V4_SIGNAL_PATH.open(encoding="utf-8", newline="") as handle:
+            signals = list(csv.DictReader(handle))
+    runs: list[dict[str, str]] = []
+    if LITHIUM_V4_RUN_PATH.exists():
+        with LITHIUM_V4_RUN_PATH.open(encoding="utf-8", newline="") as handle:
+            runs = list(csv.DictReader(handle))
+    try:
+        integrity = verify_lithium_v4_manifest()
+    except (FileNotFoundError, KeyError, json.JSONDecodeError, ValueError) as exc:
+        integrity = {
+            "verified": False,
+            "mismatches": [f"manifest_missing_or_invalid:{type(exc).__name__}"],
+        }
     contracts = read_lithium_csv("lithium_contract_daily.csv")
     settled, ledger = evaluate_lithium_decisions(decisions, contracts)
     ledger["file"] = "data/research/lithium_v4_prospective_decisions.csv"
@@ -239,6 +259,16 @@ def load_lithium_v4_research() -> dict[str, Any]:
         "additive_candidate": additive,
         "additive_freeze": freeze,
         "decision_ledger": ledger,
+        "signal_audit": {
+            "signals": len(signals),
+            "complete": sum(row.get("audit_status") == "complete_v4_inference" for row in signals),
+            "partial": sum(row.get("audit_status") != "complete_v4_inference" for row in signals),
+        },
+        "prefix_integrity": {
+            "verified": integrity["verified"],
+            "mismatches": integrity["mismatches"],
+        },
+        "latest_update_run": runs[-1] if runs else {},
         "latest_decision": {
             key: latest.get(key, "")
             for key in (
