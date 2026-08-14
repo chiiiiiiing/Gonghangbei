@@ -34,6 +34,17 @@ from src.macro.engine import (  # noqa: E402
     load_macro_forecast,
     load_macro_status,
 )
+from src.lithium.engine import (  # noqa: E402
+    RESEARCH_BOUNDARY as LITHIUM_RESEARCH_BOUNDARY,
+    _load_rulebook as load_lithium_rulebook,
+    _read_csv as read_lithium_csv,
+    analyze_document as analyze_lithium_document,
+    build_main_continuous as build_lithium_main_continuous,
+    load_backtest as load_lithium_backtest,
+    load_forecast as load_lithium_forecast,
+    load_status as load_lithium_status,
+    map_prediction_to_strategy as map_lithium_prediction_to_strategy,
+)
 
 
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"
@@ -43,22 +54,22 @@ AI_LAYER = AIResearchLayer()
 # 演示示例：正文为可核验摘要，选择示例后系统自动抓取链接全文填充。
 DEMO_EXAMPLES = [
     {
-        "title": "关于印发《新型储能规模化建设专项行动方案（2025—2027年）》的通知",
-        "content": "原文摘要：为推动新型储能高质量发展，国家发展改革委、国家能源局研究制定了《新型储能规模化建设专项行动方案（2025—2027年）》。现予印发，请结合实际认真抓好贯彻落实。",
+        "title": "新型储能规模化建设行动方案支持储能需求",
+        "content": "国家发展改革委、国家能源局印发新型储能规模化建设行动方案，政策支持新型储能规模化发展。",
         "type": "policy", "name": "中国政府网", "date": "2025-08-27",
-        "url": "https://www.gov.cn/zhengce/zhengceku/202509/content_7040296.htm",
+        "url": "",
     },
     {
-        "title": "上海璞泰来新能源科技集团股份有限公司关于投资建设年产72亿平方米锂离子电池隔膜建设项目的公告",
-        "content": "原文摘要：璞泰来披露年产72亿平方米锂离子电池隔膜建设项目，计划总投资56亿元人民币。重要内容提示：交易实施尚需履行审批及其他相关程序。",
-        "type": "announcement", "name": "巨潮资讯网", "date": "2026-05-21",
-        "url": "http://static.cninfo.com.cn/finalpage/2026-05-21/1225319446.PDF",
+        "title": "锂盐企业披露新增碳酸锂产能投产",
+        "content": "公司公告新增碳酸锂产能投产，项目产能释放将增加可交付锂盐供应；实际爬坡进度存在不确定性。",
+        "type": "announcement", "name": "上市公司公告", "date": "2025-06-18",
+        "url": "",
     },
     {
-        "title": "315GW+119GW！2025年光伏、风电年新增装机再创新高",
-        "content": "原文摘要：国家能源局发布2025年全国电力统计数据，光伏、风电年新增装机规模再创新高，行业装机量受到市场关注。",
-        "type": "news", "name": "腾讯新闻", "date": "2026-01-28",
-        "url": "https://news.qq.com/rain/a/20260128A043VK00",
+        "title": "碳酸锂仓单日报显示仓单增加",
+        "content": "广州期货交易所仓单日报显示，碳酸锂仓单增加，临近交割可交割货源上升。",
+        "type": "news", "name": "广州期货交易所", "date": "2026-01-28",
+        "url": "",
     },
 ]
 
@@ -720,6 +731,7 @@ def assets(filename: str):
 def status():
     payload = data_status()
     payload["macro"] = load_macro_status()
+    payload["lithium"] = load_lithium_status()
     return jsonify(payload)
 
 
@@ -736,6 +748,21 @@ def macro_forecast():
 @app.get("/api/macro/backtest")
 def macro_backtest():
     return jsonify(load_macro_backtest())
+
+
+@app.get("/api/lithium/status")
+def lithium_status():
+    return jsonify(load_lithium_status())
+
+
+@app.get("/api/lithium/forecast")
+def lithium_forecast():
+    return jsonify(load_lithium_forecast())
+
+
+@app.get("/api/lithium/backtest")
+def lithium_backtest():
+    return jsonify(load_lithium_backtest())
 
 
 @app.get("/api/examples")
@@ -889,6 +916,105 @@ def analyze():
 def macro_analyze():
     result, status_code = _perform_analysis(request.get_json(silent=True) or {})
     return jsonify(result), status_code
+
+
+def validate_lithium_payload(payload: dict[str, Any]) -> tuple[dict[str, str] | None, str | None]:
+    normalized = {key: str(value or "").strip() for key, value in payload.items()}
+    if not normalized.get("title") or not normalized.get("content"):
+        return None, "请填写标题和正文；碳酸锂方向判断不接受仅链接输入"
+    if not normalized.get("source_name"):
+        return None, "请填写可核验的来源名称"
+    try:
+        publish_day = datetime.strptime(normalized.get("event_date", ""), "%Y-%m-%d").date()
+    except ValueError:
+        return None, "首次公开日期必须使用 YYYY-MM-DD"
+    if publish_day > date.today():
+        return None, "首次公开日期不能晚于今天"
+    source_url = normalized.get("source_url", "")
+    if source_url and not source_url.startswith(("https://", "http://")):
+        return None, "来源链接必须以 http:// 或 https:// 开头"
+    if len(normalized.get("api_key", "")) > 512:
+        return None, "API Key 长度不合法"
+    return {
+        "doc_id": "live-input",
+        "source_type": normalized.get("source_type", "news"),
+        "title": normalized["title"],
+        "content": normalized["content"],
+        "publish_time": publish_day.isoformat(),
+        "source_name": normalized["source_name"],
+        "url": source_url,
+        "api_key": normalized.get("api_key", ""),
+    }, None
+
+
+@app.post("/api/lithium/analyze")
+def lithium_analyze():
+    document, error = validate_lithium_payload(request.get_json(silent=True) or {})
+    if error:
+        return jsonify({"error": error, "disclaimer": DISCLAIMER, "research_boundary": LITHIUM_RESEARCH_BOUNDARY}), 400
+    assert document is not None
+    api_key = document.pop("api_key", "")
+    layer = request_ai_layer(api_key)
+    if not layer.settings.enabled:
+        return jsonify({
+            "error": "实时碳酸锂分析需要可用的 DeepSeek API Key；系统不会用关键词结果冒充 LLM 预测",
+            "error_code": "ai_required",
+            "disclaimer": DISCLAIMER,
+            "research_boundary": LITHIUM_RESEARCH_BOUNDARY,
+        }), 503
+    try:
+        result = analyze_lithium_document(
+            document,
+            layer.gateway,
+            load_lithium_rulebook(),
+            read_lithium_csv("lithium_texts.csv"),
+        )
+    except (AIServiceError, ValueError) as exc:
+        return jsonify({
+            "error": str(exc),
+            "error_code": "lithium_analysis_failed",
+            "disclaimer": DISCLAIMER,
+            "research_boundary": LITHIUM_RESEARCH_BOUNDARY,
+        }), 422
+    status_payload = load_lithium_status()
+    contracts = read_lithium_csv("lithium_contract_daily.csv")
+    strategy_mapping = map_lithium_prediction_to_strategy(
+        document["publish_time"],
+        result["direction_score"],
+        build_lithium_main_continuous(contracts),
+        contracts,
+    )
+    backtest = load_lithium_backtest()
+    prospective = backtest.get("prospective_candidate", {})
+    prospective_bootstrap = prospective.get("prospective_bootstrap", {})
+    decision_ledger = prospective.get("decision_ledger", {})
+    result["data_readiness"] = status_payload["status"]
+    result["rulebook_size"] = status_payload["counts"]["qualified_rules"]
+    result["predicted_variable"] = {
+        "name": "lc_main_5d_open_to_open_direction_score",
+        "display_name": "碳酸锂主力合约未来5个交日 open-to-open 方向分数",
+        "value": result["direction_score"],
+        "label": result["direction_label"],
+        "range": [-1, 1],
+        "horizon_trading_days": 5,
+        "label_thresholds": {"bullish": ">= +1%", "bearish": "<= -1%", "neutral": "(-1%, +1%)"},
+    }
+    result["strategy_mapping"] = strategy_mapping
+    result["increment_evidence"] = {
+        "benchmark_strategy": "pure_trend_20d",
+        "enhanced_strategy": strategy_mapping.get("enhanced_strategy", "prospective_rule_confirmed_trend"),
+        "historical_oos_conclusion": backtest.get("conclusion", "交易增量未建立"),
+        "historical_oos_bootstrap": backtest.get("bootstrap", {}),
+        "prospective_status": prospective.get("status", "awaiting_new_oos_data"),
+        "prospective_conclusion": prospective.get("conclusion", "前瞻交易增量待检验"),
+        "prospective_observations": prospective_bootstrap.get("observations", 0),
+        "recorded_decisions": decision_ledger.get("recorded_decisions", 0),
+        "settled_decisions": decision_ledger.get("settled_decisions", 0),
+        "decision_evidence_mode": decision_ledger.get("evidence_mode", ""),
+        "acceptance_gate": "成本后收益差为正且三个月时间块 Bootstrap 95% 下界大于0",
+    }
+    result["prediction_scope"] = "单篇文本 -> 未来5个交易日主力期货方向分数 -> 规则确认趋势仓位"
+    return jsonify(result)
 
 
 if __name__ == "__main__":

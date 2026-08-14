@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="AlphaLens 月度文本聚合行业同比 Nowcast 与新文本边际分析">
-  <title>AlphaLens · 月度行业景气 Nowcast</title>
+  <meta name="description" content="AlphaLens 碳酸锂 RIFT 规则增强趋势研究平台">
+  <title>AlphaLens · 碳酸锂文本规则预测</title>
   <link rel="stylesheet" href="assets/styles.css">
   <script defer src="vendor/plotly.min.js"></script>
   <script defer src="vendor/lucide.min.js"></script>
@@ -14,8 +14,7 @@
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="#" aria-label="AlphaLens 首页">
-        <span class="brand-mark">A</span>
-        <span>Alpha<strong>Lens</strong></span>
+        <span class="brand-mark">A</span><span>Alpha<strong>Lens</strong></span>
       </a>
       <nav class="nav-tabs" aria-label="研究视图">
         <button class="nav-tab active" data-view="liveView" type="button">新文本预测</button>
@@ -26,66 +25,61 @@
   </header>
 
   <main class="page-shell">
-    <section class="view" id="macroView">
-      <div id="macroContent"><div class="loading-surface">正在读取模型与审计验证</div></div>
-    </section>
-
     <section class="view active" id="liveView">
+      <div class="research-banner">
+        <div><span class="eyebrow">CARBONATE LITHIUM · RIFT</span><h1>碳酸锂文本规则预测</h1><p>单篇产业文本先转换为主力合约未来 5 个交易日方向分数，再映射为相对 20 日纯趋势策略的仓位增量。</p></div>
+        <div class="banner-facts"><span>单篇文本输入</span><span>5日方向分数</span><span>趋势仓位增量</span></div>
+      </div>
+
       <div class="workspace">
         <section class="surface editor-surface">
           <div class="surface-heading">
-            <div><h1>新文本加入月度景气 Nowcast</h1><p class="surface-subtitle">本月文本先去重聚合；实时 AI 处理这篇新文本后，展示加入前后行业增加值同比预测与策略仓位的边际变化</p></div>
+            <div><h2>输入一篇待分析文本</h2><p class="surface-subtitle">只使用首次公开时点可见信息；输出变量为未来 5 日 open-to-open 方向分数，方向标签阈值为 ±1%。</p></div>
             <div class="example-picker" aria-label="示例文本">
               <button class="quiet-button" data-example="0" type="button">储能政策</button>
-              <button class="quiet-button" data-example="1" type="button">锂电公告</button>
-              <button class="quiet-button" data-example="2" type="button">光伏新闻</button>
+              <button class="quiet-button" data-example="1" type="button">供应扩张</button>
+              <button class="quiet-button" data-example="2" type="button">仓单增加</button>
             </div>
           </div>
-          <div class="field">
-            <label for="title">标题</label>
-            <input id="title" type="text" placeholder="输入政策、公告、新闻或互动问答标题">
-          </div>
-          <div class="field grow-field">
-            <label for="content">正文</label>
-            <textarea id="content" placeholder="输入首次公开的原始正文或可核验摘要"></textarea>
-          </div>
+          <div class="field"><label for="title">标题</label><input id="title" type="text" placeholder="输入与锂供需、库存、政策或交割相关的标题"></div>
+          <div class="field grow-field"><label for="content">正文</label><textarea id="content" placeholder="输入可核验正文或摘要"></textarea></div>
           <div class="form-grid">
-            <div class="field"><label for="sourceType">来源类型</label><select id="sourceType"><option value="policy">政策</option><option value="announcement">公告</option><option value="news">新闻</option><option value="ir_qa">互动问答</option><option value="auto">自动识别</option></select></div>
-            <div class="field"><label for="sourceName">来源名称</label><input id="sourceName" type="text" placeholder="例如：国家能源局"></div>
+            <div class="field"><label for="sourceType">来源类型</label><select id="sourceType"><option value="policy">政策</option><option value="announcement">公告</option><option value="news">新闻</option><option value="ir_qa">互动问答</option></select></div>
+            <div class="field"><label for="sourceName">来源名称</label><input id="sourceName" type="text" placeholder="例如：广州期货交易所"></div>
             <div class="field"><label for="eventDate">首次公开日期</label><input id="eventDate" type="date"></div>
-            <div class="field"><label for="sourceUrl">正文链接</label><input id="sourceUrl" type="url" placeholder="https://..."><span class="field-note">填入链接后系统自动抓取全文供 AI 阅读；抓取失败或仅填摘要时，按文本完整度自动降低置信度</span></div>
+            <div class="field"><label for="sourceUrl">来源链接</label><input id="sourceUrl" type="url" placeholder="https://..."><span class="field-note">链接用于审计，模型证据仍必须回溯到本页输入文本。</span></div>
           </div>
         </section>
 
         <aside class="surface run-surface">
           <div class="surface-heading compact"><div><h2>运行配置</h2></div><span class="model-chip">V4 Flash</span></div>
-          <div class="field">
-            <label>运行入口</label>
-            <div class="segmented">
-              <button class="segment active" data-run-mode="live" type="button"><i data-lucide="sparkles"></i>实时 AI</button>
-              <button class="segment" data-run-mode="replay" type="button"><i data-lucide="archive-restore"></i>冻结回放</button>
-            </div>
+          <div class="run-spec">
+            <div><span>第一阶段</span><b>文本 → 5日方向分数</b></div>
+            <div><span>第二阶段</span><b>方向分数 → 趋势仓位</b></div>
+            <div><span>对照基准</span><b>20日纯趋势</b></div>
           </div>
-          <div class="field"><label for="analysisMode">分析模式</label><select id="analysisMode"><option value="hybrid">大模型候选 + 规则校验</option></select></div>
           <div class="field" id="apiKeyField">
             <label for="apiKey">DeepSeek API Key</label>
             <div class="secret-input"><input id="apiKey" type="password" autocomplete="off" spellcheck="false" maxlength="512" placeholder="sk-..."><button id="toggleKey" class="icon-button" title="显示或隐藏 API Key" type="button"><i data-lucide="eye"></i></button></div>
-            <span class="field-note">仅随本次请求传输，不保存</span>
+            <span class="field-note">仅随本次请求传输，不保存。</span>
           </div>
           <div class="connection-state neutral" id="connectionStatus"><span class="mini-dot"></span><span>等待凭证</span></div>
           <div class="action-row">
             <button class="secondary-button" id="checkApiButton" type="button"><i data-lucide="plug-zap"></i>检查连接</button>
             <button class="primary-button" id="runButton" type="button"><i data-lucide="play"></i>开始分析</button>
           </div>
-          <div class="run-progress" id="runState"><span class="spinner"></span><span>正在执行结构化抽取与门控</span></div>
+          <div class="run-progress" id="runState"><span class="spinner"></span><span>正在执行谓词对照与规则推理</span></div>
           <p class="disclaimer">本报告仅供研究参考，不构成投资建议</p>
         </aside>
       </div>
       <div id="result" aria-live="polite"></div>
     </section>
 
+    <section class="view" id="macroView">
+      <div id="validationAuditContent"><div class="loading-surface">正在读取碳酸锂研究验证</div></div>
+    </section>
   </main>
 
-  <footer>AlphaLens 是量化研究助手，不预测股票价格，不提供投资建议。</footer>
+  <footer>AlphaLens 研究价格方向与交易增量，本报告仅供研究参考，不构成投资建议。</footer>
 </body>
 </html>

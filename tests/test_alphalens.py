@@ -226,11 +226,11 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertNotIn('候选因子与研究证据', combined)
         self.assertNotIn('历史样本外参考', combined)
         self.assertNotIn('进入因子', combined)
-        self.assertIn('本篇文本对本月 Nowcast 的边际影响', combined)
-        self.assertIn('趋势策略 + AlphaLens 宏观确认', combined)
-        self.assertIn('冻结 OOS 文本增量不足', combined)
-        self.assertIn('策略防泄漏', combined)
-        self.assertIn('两条规则生成路线对照', combined)
+        self.assertIn('碳酸锂文本规则预测', combined)
+        self.assertIn('RIFT 增强趋势', combined)
+        self.assertIn('交易增量未建立', combined)
+        self.assertIn('规则归纳、验证选参和 2026 年起 OOS 严格分离', combined)
+        self.assertIn('仅 agreed_true 谓词能够触发冻结规则', combined)
 
     def test_macro_strategy_constraints_and_oracle_label(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:
