@@ -22,8 +22,12 @@ from scripts.fetch_cninfo_lithium_texts import title_selected
 from scripts.record_lithium_prospective_decision import FIELDS, append_decision
 from scripts.record_lithium_v4_prospective_decision import (
     FIELDS as V4_DECISION_FIELDS,
+    SIGNAL_FIELDS as V4_SIGNAL_FIELDS,
     append_decision as append_v4_decision,
+    append_signal as append_v4_signal,
 )
+from scripts.lithium_v4_prospective_integrity import verify_manifest as verify_v4_manifest
+from scripts.update_lithium_v4_prospective import latest_decision_day
 from src.lithium.engine import (
     PREDICATE_DEFINITIONS,
     RIFT_ADDITIVE_STRATEGY,
@@ -514,6 +518,23 @@ class LithiumBacktestTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "已冻结 V4 决策发生变化"):
                 append_v4_decision(path, {**replay, "direction_score": 0.2})
 
+    def test_v4_signal_ledger_is_append_only(self) -> None:
+        signal = {field: "" for field in V4_SIGNAL_FIELDS}
+        signal.update({
+            "doc_id": "GFEX-WR-LIVE-20260814",
+            "recorded_at": "2026-08-14T20:00:00+08:00",
+            "publish_time": "2026-08-14",
+            "model": "deepseek-v4-flash",
+            "direction_score": "0",
+        })
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "v4-signals.csv"
+            self.assertEqual(append_v4_signal(path, signal), "recorded")
+            replay = {**signal, "recorded_at": "2026-08-14T20:05:00+08:00"}
+            self.assertEqual(append_v4_signal(path, replay), "already_recorded")
+            with self.assertRaisesRegex(ValueError, "已冻结 V4 文本信号发生变化"):
+                append_v4_signal(path, {**replay, "direction_score": "0.2"})
+
     def test_prospective_report_does_not_relabel_pre_freeze_history(self) -> None:
         continuous, contracts = self._market()
         result = run_backtest(continuous, [], contracts)["prospective_candidate"]
@@ -542,6 +563,13 @@ class LithiumBacktestTests(unittest.TestCase):
         spec.loader.exec_module(module)
         result = module.verify_manifest()
         self.assertTrue(result["verified"], result["mismatches"])
+
+    def test_v4_prospective_prefix_matches_frozen_inputs(self) -> None:
+        result = verify_v4_manifest()
+        self.assertTrue(result["verified"], result["mismatches"])
+
+    def test_v4_latest_market_day_has_a_frozen_decision(self) -> None:
+        self.assertEqual(latest_decision_day(), "2026-08-14")
 
 
 @unittest.skipUnless(importlib.util.find_spec("flask"), "Flask dependency is not installed")
@@ -590,6 +618,11 @@ class LithiumApiTests(unittest.TestCase):
         self.assertEqual(v4["decision_ledger"]["recorded_decisions"], 1)
         self.assertEqual(v4["decision_ledger"]["settled_decisions"], 0)
         self.assertEqual(v4["decision_ledger"]["invalid_decisions"], [])
+        self.assertTrue(v4["prefix_integrity"]["verified"])
+        self.assertEqual(v4["signal_audit"]["signals"], 1)
+        self.assertEqual(v4["signal_audit"]["complete"], 0)
+        self.assertEqual(v4["signal_audit"]["partial"], 1)
+        self.assertEqual(v4["latest_update_run"]["status"], "no_new_market_data")
         self.assertFalse(v4["additive_candidate"]["increment_established"])
         backtest = self.client.get("/api/lithium/backtest").get_json()
         self.assertEqual(backtest["engine_version"], "lithium-backtest-v3-decision-ledger-20260814")
