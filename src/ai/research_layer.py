@@ -12,11 +12,13 @@ from src.ai.gateway import AIServiceError, AISettings, OpenAICompatibleGateway
 from src.ai.rag import retrieve as rag_retrieve
 from src.ai.prompts import (
     ANALYSIS_SCHEMA,
+    EVENT_TYPES_BY_SOURCE,
     EVENT_TYPES,
     PREDICATE_DEFINITIONS,
     PROMPT_VERSION,
     SCORE_COMPONENTS,
     build_analysis_messages,
+    build_evidence_candidates,
     build_repair_messages,
 )
 
@@ -25,29 +27,6 @@ BOOLEAN_PREDICATES = set(PREDICATE_DEFINITIONS) - {
     "event_evidence_strength",
     "event_has_short_term_price_impact",
 }
-EVENT_TYPES_BY_SOURCE = {
-    "policy": {"policy_support"},
-    "announcement": {
-        "regulatory_penalty",
-        "inquiry_letter_pressure",
-        "earnings_quality_anomaly",
-        "product_price_increase",
-        "supply_chain_disruption",
-        "capacity_expansion",
-    },
-    "news": {
-        "regulatory_penalty",
-        "inquiry_letter_pressure",
-        "earnings_quality_anomaly",
-        "product_price_increase",
-        "supply_chain_disruption",
-        "capacity_expansion",
-        "attention_spread",
-    },
-    "ir_qa": {"investor_question_pressure"},
-}
-
-
 class AIResearchLayer:
     def __init__(
         self,
@@ -105,7 +84,17 @@ class AIResearchLayer:
             except AIServiceError as first_error:
                 repair_attempted = True
                 first_request_id = str(metadata.get("request_id", ""))
-                repair_messages = build_repair_messages(messages, raw, str(first_error))
+                repair_messages = build_repair_messages(
+                    messages,
+                    raw,
+                    str(first_error),
+                    evidence_candidates=build_evidence_candidates(document),
+                    allowed_event_types=sorted(
+                        EVENT_TYPES_BY_SOURCE.get(
+                            str(document.get("source_type", "")), set(EVENT_TYPES)
+                        )
+                    ),
+                )
                 raw, metadata = self.gateway.chat_json(
                     repair_messages,
                     ANALYSIS_SCHEMA,
@@ -270,7 +259,10 @@ def validate_ai_output(
             f"AI 事件类型 {event_type} 与来源类型 {source_type or '<empty>'} 不相容"
         )
     evidence = str(event_raw.get("evidence_text", "")).strip()[:80]
-    source_text = f"{document['title']}\n{document['content']}"
+    # 链接全文抓取成功时，AI 与验证器必须面对同一份证据文本。这里仍是
+    # 连续子串校验，并没有接受任何摘要外的推断或改写。
+    evidence_body = str(document.get("fetched_content") or document.get("content") or "")
+    source_text = f"{document['title']}\n{evidence_body}"
     evidence_grounded = bool(evidence and evidence in source_text)
     if not evidence_grounded:
         raise AIServiceError("AI 证据文本无法回溯到输入原文")

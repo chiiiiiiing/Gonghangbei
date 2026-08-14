@@ -1,0 +1,4548 @@
+{
+  "target_name": "electrical_machinery_industrial_value_added_yoy",
+  "selection_split": "validation_2022_2023",
+  "oos_policy": "2024 年后只报告，不重新选择路线或调参",
+  "target_counts": {
+    "train": 68,
+    "validation": 21,
+    "oos": 27
+  },
+  "train_text_coverage": 0.9253731343283582,
+  "validation_text_coverage": 0.9523809523809523,
+  "data_sufficient": false,
+  "data_sufficiency_checks": {
+    "train_observations": 68,
+    "train_required": 72,
+    "train_gap": 4,
+    "validation_observations": 21,
+    "validation_required": 18,
+    "train_text_coverage": 0.9253731343283582,
+    "validation_text_coverage": 0.9523809523809523,
+    "minimum_text_coverage": 0.8
+  },
+  "status": "insufficient_text_increment",
+  "conclusion": "文本预测增量不足",
+  "provisional_rule_route": "historical_rules",
+  "provisional_only": true,
+  "selected_route": "no_text_ridge",
+  "selected_model": "ridge",
+  "routes": {
+    "predicate_baseline": {
+      "selected_model": "elastic_net",
+      "feature_count": 91,
+      "historical_rule_feature_count": 0,
+      "ai_rule_feature_count": 0,
+      "route_available": true,
+      "validation_text_coverage": 0.9523809523809523,
+      "block_improvement_concentration": 0.52781663050957,
+      "baseline_validation": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 3.21193118822301,
+          "rmse": 4.032941828538662,
+          "oos_r2_vs_persistence": -0.17985773477464506,
+          "acceleration_direction_accuracy": 0.6190476190476191,
+          "prediction_interval_90_coverage": 1.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 10.551057850370182,
+            "latest_released": 5.8,
+            "predicted_acceleration": 4.751057850370182,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 0.09521583125277111,
+            "interval_90_upper": 21.00689986948759
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 6.059686656112542,
+            "latest_released": 13.6,
+            "predicted_acceleration": -7.540313343887457,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": -4.396155363004868,
+            "interval_90_upper": 16.51552867522995
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 7.296601081500151,
+            "latest_released": 10.6,
+            "predicted_acceleration": -3.3033989184998482,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": -3.159240937617259,
+            "interval_90_upper": 17.752443100617562
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 4.284414509412962,
+            "latest_released": 1.6,
+            "predicted_acceleration": 2.6844145094129623,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": -6.171427509704448,
+            "interval_90_upper": 14.740256528530374
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 4.823807124347165,
+            "latest_released": 7.3,
+            "predicted_acceleration": -2.476192875652835,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": -5.632034894770245,
+            "interval_90_upper": 15.279649143464574
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 9.517045594339802,
+            "latest_released": 12.9,
+            "predicted_acceleration": -3.3829544056601986,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -0.9387964247776086,
+            "interval_90_upper": 19.97288761345721
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 11.27993902073827,
+            "latest_released": 12.5,
+            "predicted_acceleration": -1.2200609792617296,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": 0.82409700162086,
+            "interval_90_upper": 21.73578103985568
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 12.878162533337454,
+            "latest_released": 14.8,
+            "predicted_acceleration": -1.9218374666625468,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 2.4223205142200435,
+            "interval_90_upper": 23.334004552454864
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 14.189282698389164,
+            "latest_released": 15.8,
+            "predicted_acceleration": -1.610717301610837,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 3.7334406792717534,
+            "interval_90_upper": 24.645124717506576
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 13.745764425129547,
+            "latest_released": 16.3,
+            "predicted_acceleration": -2.5542355748704537,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 3.2899224060121366,
+            "interval_90_upper": 24.201606444246956
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 12.883713116484326,
+            "latest_released": 12.4,
+            "predicted_acceleration": 0.483713116484326,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 2.427871097366916,
+            "interval_90_upper": 23.339555135601735
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 23.16807488690769,
+            "latest_released": 10.8,
+            "predicted_acceleration": 12.368074886907689,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 12.712232867790279,
+            "interval_90_upper": 33.6239169060251
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 9.93870330007,
+            "latest_released": 13.9,
+            "predicted_acceleration": -3.961296699930001,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": -0.517138719047411,
+            "interval_90_upper": 20.394545319187408
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 13.325882777837982,
+            "latest_released": 16.9,
+            "predicted_acceleration": -3.574117222162016,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 2.870040758720572,
+            "interval_90_upper": 23.781724796955395
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 13.360399346953413,
+            "latest_released": 17.3,
+            "predicted_acceleration": -3.939600653046588,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 2.9045573278360024,
+            "interval_90_upper": 23.816241366070823
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 12.624297190135273,
+            "latest_released": 15.4,
+            "predicted_acceleration": -2.775702809864727,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": 2.168455171017863,
+            "interval_90_upper": 23.080139209252685
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 10.482371533804711,
+            "latest_released": 10.6,
+            "predicted_acceleration": -0.11762846619528844,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 0.026529514687300804,
+            "interval_90_upper": 20.93821355292212
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 9.177974891089274,
+            "latest_released": 10.2,
+            "predicted_acceleration": -1.022025108910725,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": -1.2778671280281362,
+            "interval_90_upper": 19.633816910206683
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 9.510909858190702,
+            "latest_released": 11.5,
+            "predicted_acceleration": -1.9890901418092977,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": -0.9449321609267081,
+            "interval_90_upper": 19.966751877308113
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 9.850654680441382,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.05065468044138122,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": -0.6051873386760285,
+            "interval_90_upper": 20.306496699558792
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 9.5023464396482,
+            "latest_released": 10.2,
+            "predicted_acceleration": -0.6976535603517995,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": -0.9534955794692106,
+            "interval_90_upper": 19.958188458765612
+          }
+        ],
+        "alpha": 1.0
+      },
+      "text_validation": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 2.3493743795398094,
+          "rmse": 3.1807546329735037,
+          "oos_r2_vs_persistence": 0.2660844908672818,
+          "acceleration_direction_accuracy": 0.6666666666666666,
+          "prediction_interval_90_coverage": 1.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 13.127100539209037,
+            "latest_released": 5.8,
+            "predicted_acceleration": 7.327100539209037,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 2.278009848720467,
+            "interval_90_upper": 23.976191229697605
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 11.665775410336673,
+            "latest_released": 13.6,
+            "predicted_acceleration": -1.9342245896633266,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 0.8166847198481033,
+            "interval_90_upper": 22.514866100825245
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 11.362531212498654,
+            "latest_released": 10.6,
+            "predicted_acceleration": 0.7625312124986543,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": 0.5134405220100842,
+            "interval_90_upper": 22.211621902987225
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 7.684752218872389,
+            "latest_released": 1.6,
+            "predicted_acceleration": 6.084752218872389,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": -3.1643384716161806,
+            "interval_90_upper": 18.53384290936096
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 11.085132244358036,
+            "latest_released": 7.3,
+            "predicted_acceleration": 3.785132244358036,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": 0.23604155386946601,
+            "interval_90_upper": 21.934222934846606
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 9.430740795050992,
+            "latest_released": 12.9,
+            "predicted_acceleration": -3.469259204949008,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -1.4183498954375775,
+            "interval_90_upper": 20.27983148553956
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 12.50061049891556,
+            "latest_released": 12.5,
+            "predicted_acceleration": 0.000610498915559532,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": 1.6515198084269898,
+            "interval_90_upper": 23.34970118940413
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 13.27880242885465,
+            "latest_released": 14.8,
+            "predicted_acceleration": -1.5211975711453505,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 2.4297117383660805,
+            "interval_90_upper": 24.12789311934322
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 13.726303378311961,
+            "latest_released": 15.8,
+            "predicted_acceleration": -2.0736966216880397,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 2.8772126878233912,
+            "interval_90_upper": 24.57539406880053
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 13.500701509690867,
+            "latest_released": 16.3,
+            "predicted_acceleration": -2.799298490309134,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 2.651610819202297,
+            "interval_90_upper": 24.349792200179436
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 13.357511956312232,
+            "latest_released": 12.4,
+            "predicted_acceleration": 0.9575119563122314,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 2.508421265823662,
+            "interval_90_upper": 24.206602646800803
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 20.468948119284267,
+            "latest_released": 10.8,
+            "predicted_acceleration": 9.668948119284266,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 9.619857428795697,
+            "interval_90_upper": 31.318038809772837
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 13.155687926482925,
+            "latest_released": 13.9,
+            "predicted_acceleration": -0.7443120735170758,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": 2.3065972359943547,
+            "interval_90_upper": 24.004778616971493
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 14.754054288035253,
+            "latest_released": 16.9,
+            "predicted_acceleration": -2.145945711964746,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 3.9049635975466828,
+            "interval_90_upper": 25.603144978523822
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 14.107114884674894,
+            "latest_released": 17.3,
+            "predicted_acceleration": -3.1928851153251063,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 3.2580241941863246,
+            "interval_90_upper": 24.956205575163466
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 10.002294826129745,
+            "latest_released": 15.4,
+            "predicted_acceleration": -5.397705173870255,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": -0.8467958643588247,
+            "interval_90_upper": 20.851385516618315
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 8.59397850212761,
+            "latest_released": 10.6,
+            "predicted_acceleration": -2.006021497872389,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -2.2551121883609593,
+            "interval_90_upper": 19.44306919261618
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 11.161745166198632,
+            "latest_released": 10.2,
+            "predicted_acceleration": 0.9617451661986323,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": 0.3126544757100618,
+            "interval_90_upper": 22.0108358566872
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 11.390165543276472,
+            "latest_released": 11.5,
+            "predicted_acceleration": -0.10983445672352765,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": 0.5410748527879026,
+            "interval_90_upper": 22.23925623376504
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 11.663970478754155,
+            "latest_released": 9.8,
+            "predicted_acceleration": 1.8639704787541547,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": 0.8148797882655856,
+            "interval_90_upper": 22.513061169242725
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 12.066070999659587,
+            "latest_released": 10.2,
+            "predicted_acceleration": 1.8660709996595877,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": 1.2169803091710172,
+            "interval_90_upper": 22.915161690148157
+          }
+        ],
+        "alpha": 1.0
+      },
+      "delta_validation": {
+        "mae": -0.8625568086832005,
+        "rmse": -0.8521871955651581,
+        "oos_r2_vs_persistence": 0.44594222564192687
+      },
+      "qualified": true,
+      "frozen_oos": {
+        "metrics": {
+          "sample_count": 27,
+          "mae": 3.1736648259659415,
+          "rmse": 3.8600350933966516,
+          "oos_r2_vs_persistence": -1.8778633300010719,
+          "acceleration_direction_accuracy": 0.5185185185185185,
+          "prediction_interval_90_coverage": 0.9629629629629629
+        },
+        "predictions": [
+          {
+            "period_end": "2024-02-29",
+            "actual": 4.6,
+            "predicted": 14.83406758735276,
+            "latest_released": 10.1,
+            "predicted_acceleration": 4.73406758735276,
+            "actual_acceleration": -5.5,
+            "interval_90_lower": 4.647276187800108,
+            "interval_90_upper": 25.02085898690541
+          },
+          {
+            "period_end": "2024-03-31",
+            "actual": 4.8,
+            "predicted": 7.216674010105075,
+            "latest_released": 4.6,
+            "predicted_acceleration": 2.6166740101050756,
+            "actual_acceleration": 0.20000000000000018,
+            "interval_90_lower": -2.9701173894475765,
+            "interval_90_upper": 17.403465409657727
+          },
+          {
+            "period_end": "2024-04-30",
+            "actual": 5.8,
+            "predicted": 7.707344121188569,
+            "latest_released": 4.8,
+            "predicted_acceleration": 2.9073441211885696,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": -2.4794472783640824,
+            "interval_90_upper": 17.894135520741223
+          },
+          {
+            "period_end": "2024-05-31",
+            "actual": 3.9,
+            "predicted": 7.7904598122431885,
+            "latest_released": 5.8,
+            "predicted_acceleration": 1.9904598122431887,
+            "actual_acceleration": -1.9,
+            "interval_90_lower": -2.3963315873094633,
+            "interval_90_upper": 17.97725121179584
+          },
+          {
+            "period_end": "2024-06-30",
+            "actual": 4.4,
+            "predicted": 7.379268353700791,
+            "latest_released": 3.9,
+            "predicted_acceleration": 3.479268353700791,
+            "actual_acceleration": 0.5000000000000004,
+            "interval_90_lower": -2.8075230458518607,
+            "interval_90_upper": 17.56605975325344
+          },
+          {
+            "period_end": "2024-07-31",
+            "actual": 2.8,
+            "predicted": 8.108398675965113,
+            "latest_released": 4.4,
+            "predicted_acceleration": 3.708398675965112,
+            "actual_acceleration": -1.6000000000000005,
+            "interval_90_lower": -2.0783927235875392,
+            "interval_90_upper": 18.295190075517766
+          },
+          {
+            "period_end": "2024-08-31",
+            "actual": 2.6,
+            "predicted": 7.341029528023357,
+            "latest_released": 2.8,
+            "predicted_acceleration": 4.5410295280233575,
+            "actual_acceleration": -0.19999999999999973,
+            "interval_90_lower": -2.8457618715292945,
+            "interval_90_upper": 17.52782092757601
+          },
+          {
+            "period_end": "2024-09-30",
+            "actual": 6.1,
+            "predicted": 7.117587594209064,
+            "latest_released": 2.6,
+            "predicted_acceleration": 4.517587594209063,
+            "actual_acceleration": 3.4999999999999996,
+            "interval_90_lower": -3.069203805343588,
+            "interval_90_upper": 17.304378993761716
+          },
+          {
+            "period_end": "2024-10-31",
+            "actual": 5.1,
+            "predicted": 8.148697857900487,
+            "latest_released": 6.1,
+            "predicted_acceleration": 2.0486978579004873,
+            "actual_acceleration": -1.0,
+            "interval_90_lower": -2.038093541652165,
+            "interval_90_upper": 18.33548925745314
+          },
+          {
+            "period_end": "2024-11-30",
+            "actual": 5.2,
+            "predicted": 8.235722906900609,
+            "latest_released": 5.1,
+            "predicted_acceleration": 3.135722906900609,
+            "actual_acceleration": 0.10000000000000053,
+            "interval_90_lower": -1.951068492652043,
+            "interval_90_upper": 18.42251430645326
+          },
+          {
+            "period_end": "2024-12-31",
+            "actual": 9.2,
+            "predicted": 7.8614278524774,
+            "latest_released": 5.2,
+            "predicted_acceleration": 2.6614278524773995,
+            "actual_acceleration": 3.999999999999999,
+            "interval_90_lower": -2.325363547075252,
+            "interval_90_upper": 18.04821925203005
+          },
+          {
+            "period_end": "2025-02-28",
+            "actual": 12.0,
+            "predicted": 14.32613681483113,
+            "latest_released": 9.2,
+            "predicted_acceleration": 5.126136814831131,
+            "actual_acceleration": 2.8000000000000007,
+            "interval_90_lower": 4.139345415278479,
+            "interval_90_upper": 24.512928214383784
+          },
+          {
+            "period_end": "2025-03-31",
+            "actual": 13.0,
+            "predicted": 9.196200253531964,
+            "latest_released": 12.0,
+            "predicted_acceleration": -2.8037997464680355,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": -0.9905911460206873,
+            "interval_90_upper": 19.382991653084616
+          },
+          {
+            "period_end": "2025-04-30",
+            "actual": 13.4,
+            "predicted": 9.470985676554712,
+            "latest_released": 13.0,
+            "predicted_acceleration": -3.5290143234452884,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": -0.7158057229979402,
+            "interval_90_upper": 19.657777076107365
+          },
+          {
+            "period_end": "2025-05-31",
+            "actual": 11.0,
+            "predicted": 12.16271056715448,
+            "latest_released": 13.4,
+            "predicted_acceleration": -1.23728943284552,
+            "actual_acceleration": -2.4000000000000004,
+            "interval_90_lower": 1.9759191676018286,
+            "interval_90_upper": 22.34950196670713
+          },
+          {
+            "period_end": "2025-06-30",
+            "actual": 11.4,
+            "predicted": 11.152538477399853,
+            "latest_released": 11.0,
+            "predicted_acceleration": 0.15253847739985282,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 0.965747077847201,
+            "interval_90_upper": 21.339329876952505
+          },
+          {
+            "period_end": "2025-07-31",
+            "actual": 10.2,
+            "predicted": 10.262946922540333,
+            "latest_released": 11.4,
+            "predicted_acceleration": -1.137053077459667,
+            "actual_acceleration": -1.200000000000001,
+            "interval_90_lower": 0.07615552298768158,
+            "interval_90_upper": 20.449738322092983
+          },
+          {
+            "period_end": "2025-08-31",
+            "actual": 9.8,
+            "predicted": 9.809553800026338,
+            "latest_released": 10.2,
+            "predicted_acceleration": -0.3904461999736615,
+            "actual_acceleration": -0.3999999999999986,
+            "interval_90_lower": -0.37723759952631397,
+            "interval_90_upper": 19.99634519957899
+          },
+          {
+            "period_end": "2025-09-30",
+            "actual": 7.9,
+            "predicted": 9.921051337259904,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.12105133725990314,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": -0.26574006229274794,
+            "interval_90_upper": 20.107842736812557
+          },
+          {
+            "period_end": "2025-10-31",
+            "actual": 4.9,
+            "predicted": 9.728260278573462,
+            "latest_released": 7.9,
+            "predicted_acceleration": 1.8282602785734614,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": -0.45853112097919,
+            "interval_90_upper": 19.91505167812611
+          },
+          {
+            "period_end": "2025-11-30",
+            "actual": 4.4,
+            "predicted": 10.989712009083751,
+            "latest_released": 4.9,
+            "predicted_acceleration": 6.089712009083751,
+            "actual_acceleration": -0.5,
+            "interval_90_lower": 0.8029206095310997,
+            "interval_90_upper": 21.176503408636403
+          },
+          {
+            "period_end": "2025-12-31",
+            "actual": 4.3,
+            "predicted": 8.895491930573632,
+            "latest_released": 4.4,
+            "predicted_acceleration": 4.495491930573632,
+            "actual_acceleration": -0.10000000000000053,
+            "interval_90_lower": -1.2912994689790196,
+            "interval_90_upper": 19.082283330126284
+          },
+          {
+            "period_end": "2026-02-28",
+            "actual": 8.7,
+            "predicted": 12.293468285678046,
+            "latest_released": 4.3,
+            "predicted_acceleration": 7.993468285678046,
+            "actual_acceleration": 4.3999999999999995,
+            "interval_90_lower": 2.1066768861253937,
+            "interval_90_upper": 22.4802596852307
+          },
+          {
+            "period_end": "2026-03-31",
+            "actual": 5.4,
+            "predicted": 9.043203975480619,
+            "latest_released": 8.7,
+            "predicted_acceleration": 0.34320397548061976,
+            "actual_acceleration": -3.299999999999999,
+            "interval_90_lower": -1.1435874240720327,
+            "interval_90_upper": 19.22999537503327
+          },
+          {
+            "period_end": "2026-04-30",
+            "actual": 3.1,
+            "predicted": 8.139626147402776,
+            "latest_released": 5.4,
+            "predicted_acceleration": 2.7396261474027757,
+            "actual_acceleration": -2.3000000000000003,
+            "interval_90_lower": -2.0471652521498758,
+            "interval_90_upper": 18.326417546955426
+          },
+          {
+            "period_end": "2026-05-31",
+            "actual": 4.7,
+            "predicted": 8.09825173281321,
+            "latest_released": 3.1,
+            "predicted_acceleration": 4.998251732813211,
+            "actual_acceleration": 1.6,
+            "interval_90_lower": -2.0885396667394414,
+            "interval_90_upper": 18.285043132365864
+          },
+          {
+            "period_end": "2026-06-30",
+            "actual": 7.0,
+            "predicted": 7.520438312037655,
+            "latest_released": 4.7,
+            "predicted_acceleration": 2.8204383120376546,
+            "actual_acceleration": 2.3,
+            "interval_90_lower": -2.666353087514997,
+            "interval_90_upper": 17.70722971159031
+          }
+        ],
+        "alpha": 1.0
+      }
+    },
+    "historical_rules": {
+      "selected_model": "elastic_net",
+      "feature_count": 92,
+      "historical_rule_feature_count": 1,
+      "ai_rule_feature_count": 0,
+      "route_available": true,
+      "validation_text_coverage": 0.9523809523809523,
+      "block_improvement_concentration": 0.5334970226945753,
+      "baseline_validation": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 3.21193118822301,
+          "rmse": 4.032941828538662,
+          "oos_r2_vs_persistence": -0.17985773477464506,
+          "acceleration_direction_accuracy": 0.6190476190476191,
+          "prediction_interval_90_coverage": 1.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 10.551057850370182,
+            "latest_released": 5.8,
+            "predicted_acceleration": 4.751057850370182,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 0.09521583125277111,
+            "interval_90_upper": 21.00689986948759
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 6.059686656112542,
+            "latest_released": 13.6,
+            "predicted_acceleration": -7.540313343887457,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": -4.396155363004868,
+            "interval_90_upper": 16.51552867522995
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 7.296601081500151,
+            "latest_released": 10.6,
+            "predicted_acceleration": -3.3033989184998482,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": -3.159240937617259,
+            "interval_90_upper": 17.752443100617562
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 4.284414509412962,
+            "latest_released": 1.6,
+            "predicted_acceleration": 2.6844145094129623,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": -6.171427509704448,
+            "interval_90_upper": 14.740256528530374
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 4.823807124347165,
+            "latest_released": 7.3,
+            "predicted_acceleration": -2.476192875652835,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": -5.632034894770245,
+            "interval_90_upper": 15.279649143464574
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 9.517045594339802,
+            "latest_released": 12.9,
+            "predicted_acceleration": -3.3829544056601986,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -0.9387964247776086,
+            "interval_90_upper": 19.97288761345721
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 11.27993902073827,
+            "latest_released": 12.5,
+            "predicted_acceleration": -1.2200609792617296,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": 0.82409700162086,
+            "interval_90_upper": 21.73578103985568
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 12.878162533337454,
+            "latest_released": 14.8,
+            "predicted_acceleration": -1.9218374666625468,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 2.4223205142200435,
+            "interval_90_upper": 23.334004552454864
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 14.189282698389164,
+            "latest_released": 15.8,
+            "predicted_acceleration": -1.610717301610837,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 3.7334406792717534,
+            "interval_90_upper": 24.645124717506576
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 13.745764425129547,
+            "latest_released": 16.3,
+            "predicted_acceleration": -2.5542355748704537,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 3.2899224060121366,
+            "interval_90_upper": 24.201606444246956
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 12.883713116484326,
+            "latest_released": 12.4,
+            "predicted_acceleration": 0.483713116484326,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 2.427871097366916,
+            "interval_90_upper": 23.339555135601735
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 23.16807488690769,
+            "latest_released": 10.8,
+            "predicted_acceleration": 12.368074886907689,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 12.712232867790279,
+            "interval_90_upper": 33.6239169060251
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 9.93870330007,
+            "latest_released": 13.9,
+            "predicted_acceleration": -3.961296699930001,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": -0.517138719047411,
+            "interval_90_upper": 20.394545319187408
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 13.325882777837982,
+            "latest_released": 16.9,
+            "predicted_acceleration": -3.574117222162016,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 2.870040758720572,
+            "interval_90_upper": 23.781724796955395
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 13.360399346953413,
+            "latest_released": 17.3,
+            "predicted_acceleration": -3.939600653046588,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 2.9045573278360024,
+            "interval_90_upper": 23.816241366070823
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 12.624297190135273,
+            "latest_released": 15.4,
+            "predicted_acceleration": -2.775702809864727,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": 2.168455171017863,
+            "interval_90_upper": 23.080139209252685
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 10.482371533804711,
+            "latest_released": 10.6,
+            "predicted_acceleration": -0.11762846619528844,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 0.026529514687300804,
+            "interval_90_upper": 20.93821355292212
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 9.177974891089274,
+            "latest_released": 10.2,
+            "predicted_acceleration": -1.022025108910725,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": -1.2778671280281362,
+            "interval_90_upper": 19.633816910206683
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 9.510909858190702,
+            "latest_released": 11.5,
+            "predicted_acceleration": -1.9890901418092977,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": -0.9449321609267081,
+            "interval_90_upper": 19.966751877308113
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 9.850654680441382,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.05065468044138122,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": -0.6051873386760285,
+            "interval_90_upper": 20.306496699558792
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 9.5023464396482,
+            "latest_released": 10.2,
+            "predicted_acceleration": -0.6976535603517995,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": -0.9534955794692106,
+            "interval_90_upper": 19.958188458765612
+          }
+        ],
+        "alpha": 1.0
+      },
+      "text_validation": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 2.3833174485506086,
+          "rmse": 3.221981799404918,
+          "oos_r2_vs_persistence": 0.24693598732381905,
+          "acceleration_direction_accuracy": 0.6666666666666666,
+          "prediction_interval_90_coverage": 1.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 13.031554643021497,
+            "latest_released": 5.8,
+            "predicted_acceleration": 7.231554643021497,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 2.2015647526808646,
+            "interval_90_upper": 23.861544533362128
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 11.733774968388124,
+            "latest_released": 13.6,
+            "predicted_acceleration": -1.8662250316118758,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 0.9037850780474912,
+            "interval_90_upper": 22.563764858728756
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 11.42733628732999,
+            "latest_released": 10.6,
+            "predicted_acceleration": 0.8273362873299899,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": 0.5973463969893569,
+            "interval_90_upper": 22.25732617767062
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 7.730865316198203,
+            "latest_released": 1.6,
+            "predicted_acceleration": 6.130865316198204,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": -3.0991245741424294,
+            "interval_90_upper": 18.560855206538836
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 11.17537279404474,
+            "latest_released": 7.3,
+            "predicted_acceleration": 3.8753727940447407,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": 0.34538290370410785,
+            "interval_90_upper": 22.005362684385375
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 9.016872439595543,
+            "latest_released": 12.9,
+            "predicted_acceleration": -3.883127560404457,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -1.8131174507450893,
+            "interval_90_upper": 19.846862329936176
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 12.574638869865991,
+            "latest_released": 12.5,
+            "predicted_acceleration": 0.074638869865991,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": 1.7446489795253584,
+            "interval_90_upper": 23.404628760206624
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 12.836400230189522,
+            "latest_released": 14.8,
+            "predicted_acceleration": -1.9635997698104788,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 2.0064103398488893,
+            "interval_90_upper": 23.666390120530153
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 13.806770545759662,
+            "latest_released": 15.8,
+            "predicted_acceleration": -1.993229454240339,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 2.976780655419029,
+            "interval_90_upper": 24.636760436100296
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 13.57369868423421,
+            "latest_released": 16.3,
+            "predicted_acceleration": -2.72630131576579,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 2.7437087938935782,
+            "interval_90_upper": 24.403688574574844
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 13.44836444807571,
+            "latest_released": 12.4,
+            "predicted_acceleration": 1.0483644480757093,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 2.618374557735077,
+            "interval_90_upper": 24.278354338416342
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 20.4993520775029,
+            "latest_released": 10.8,
+            "predicted_acceleration": 9.699352077502898,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 9.669362187162266,
+            "interval_90_upper": 31.329341967843533
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 13.172277713285446,
+            "latest_released": 13.9,
+            "predicted_acceleration": -0.7277222867145543,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": 2.3422878229448134,
+            "interval_90_upper": 24.00226760362608
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 14.78425523532125,
+            "latest_released": 16.9,
+            "predicted_acceleration": -2.115744764678748,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 3.9542653449806178,
+            "interval_90_upper": 25.61424512566188
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 14.115797209641539,
+            "latest_released": 17.3,
+            "predicted_acceleration": -3.184202790358462,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 3.285807319300906,
+            "interval_90_upper": 24.94578709998217
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 9.984885103668535,
+            "latest_released": 15.4,
+            "predicted_acceleration": -5.415114896331465,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": -0.8451047866720973,
+            "interval_90_upper": 20.814874994009166
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 8.488900031552323,
+            "latest_released": 10.6,
+            "predicted_acceleration": -2.111099968447677,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -2.34108985878831,
+            "interval_90_upper": 19.318889921892954
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 11.147837584869448,
+            "latest_released": 10.2,
+            "predicted_acceleration": 0.9478375848694487,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": 0.31784769452881534,
+            "interval_90_upper": 21.97782747521008
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 10.932421970200199,
+            "latest_released": 11.5,
+            "predicted_acceleration": -0.567578029799801,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": 0.10243207985956637,
+            "interval_90_upper": 21.76241186054083
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 11.66324278471015,
+            "latest_released": 9.8,
+            "predicted_acceleration": 1.863242784710149,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": 0.833252894369517,
+            "interval_90_upper": 22.493232675050784
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 12.076172283738794,
+            "latest_released": 10.2,
+            "predicted_acceleration": 1.8761722837387946,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": 1.2461823933981613,
+            "interval_90_upper": 22.906162174079427
+          }
+        ],
+        "alpha": 1.0
+      },
+      "delta_validation": {
+        "mae": -0.8286137396724014,
+        "rmse": -0.810960029133744,
+        "oos_r2_vs_persistence": 0.4267937220984641
+      },
+      "qualified": true,
+      "frozen_oos": {
+        "metrics": {
+          "sample_count": 27,
+          "mae": 3.1736648259659423,
+          "rmse": 3.860035093396652,
+          "oos_r2_vs_persistence": -1.8778633300010728,
+          "acceleration_direction_accuracy": 0.5185185185185185,
+          "prediction_interval_90_coverage": 0.9629629629629629
+        },
+        "predictions": [
+          {
+            "period_end": "2024-02-29",
+            "actual": 4.6,
+            "predicted": 14.83406758735276,
+            "latest_released": 10.1,
+            "predicted_acceleration": 4.73406758735276,
+            "actual_acceleration": -5.5,
+            "interval_90_lower": 4.647276187800108,
+            "interval_90_upper": 25.02085898690541
+          },
+          {
+            "period_end": "2024-03-31",
+            "actual": 4.8,
+            "predicted": 7.216674010105076,
+            "latest_released": 4.6,
+            "predicted_acceleration": 2.6166740101050765,
+            "actual_acceleration": 0.20000000000000018,
+            "interval_90_lower": -2.9701173894475756,
+            "interval_90_upper": 17.403465409657727
+          },
+          {
+            "period_end": "2024-04-30",
+            "actual": 5.8,
+            "predicted": 7.707344121188569,
+            "latest_released": 4.8,
+            "predicted_acceleration": 2.9073441211885696,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": -2.4794472783640824,
+            "interval_90_upper": 17.894135520741223
+          },
+          {
+            "period_end": "2024-05-31",
+            "actual": 3.9,
+            "predicted": 7.7904598122431885,
+            "latest_released": 5.8,
+            "predicted_acceleration": 1.9904598122431887,
+            "actual_acceleration": -1.9,
+            "interval_90_lower": -2.3963315873094633,
+            "interval_90_upper": 17.97725121179584
+          },
+          {
+            "period_end": "2024-06-30",
+            "actual": 4.4,
+            "predicted": 7.379268353700791,
+            "latest_released": 3.9,
+            "predicted_acceleration": 3.479268353700791,
+            "actual_acceleration": 0.5000000000000004,
+            "interval_90_lower": -2.8075230458518607,
+            "interval_90_upper": 17.56605975325344
+          },
+          {
+            "period_end": "2024-07-31",
+            "actual": 2.8,
+            "predicted": 8.108398675965113,
+            "latest_released": 4.4,
+            "predicted_acceleration": 3.708398675965112,
+            "actual_acceleration": -1.6000000000000005,
+            "interval_90_lower": -2.0783927235875392,
+            "interval_90_upper": 18.295190075517766
+          },
+          {
+            "period_end": "2024-08-31",
+            "actual": 2.6,
+            "predicted": 7.341029528023359,
+            "latest_released": 2.8,
+            "predicted_acceleration": 4.541029528023359,
+            "actual_acceleration": -0.19999999999999973,
+            "interval_90_lower": -2.8457618715292927,
+            "interval_90_upper": 17.52782092757601
+          },
+          {
+            "period_end": "2024-09-30",
+            "actual": 6.1,
+            "predicted": 7.117587594209063,
+            "latest_released": 2.6,
+            "predicted_acceleration": 4.517587594209063,
+            "actual_acceleration": 3.4999999999999996,
+            "interval_90_lower": -3.069203805343589,
+            "interval_90_upper": 17.304378993761716
+          },
+          {
+            "period_end": "2024-10-31",
+            "actual": 5.1,
+            "predicted": 8.148697857900487,
+            "latest_released": 6.1,
+            "predicted_acceleration": 2.0486978579004873,
+            "actual_acceleration": -1.0,
+            "interval_90_lower": -2.038093541652165,
+            "interval_90_upper": 18.33548925745314
+          },
+          {
+            "period_end": "2024-11-30",
+            "actual": 5.2,
+            "predicted": 8.235722906900609,
+            "latest_released": 5.1,
+            "predicted_acceleration": 3.135722906900609,
+            "actual_acceleration": 0.10000000000000053,
+            "interval_90_lower": -1.951068492652043,
+            "interval_90_upper": 18.42251430645326
+          },
+          {
+            "period_end": "2024-12-31",
+            "actual": 9.2,
+            "predicted": 7.8614278524774,
+            "latest_released": 5.2,
+            "predicted_acceleration": 2.6614278524773995,
+            "actual_acceleration": 3.999999999999999,
+            "interval_90_lower": -2.325363547075252,
+            "interval_90_upper": 18.04821925203005
+          },
+          {
+            "period_end": "2025-02-28",
+            "actual": 12.0,
+            "predicted": 14.326136814831132,
+            "latest_released": 9.2,
+            "predicted_acceleration": 5.126136814831133,
+            "actual_acceleration": 2.8000000000000007,
+            "interval_90_lower": 4.1393454152784805,
+            "interval_90_upper": 24.512928214383784
+          },
+          {
+            "period_end": "2025-03-31",
+            "actual": 13.0,
+            "predicted": 9.196200253531964,
+            "latest_released": 12.0,
+            "predicted_acceleration": -2.8037997464680355,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": -0.9905911460206873,
+            "interval_90_upper": 19.382991653084616
+          },
+          {
+            "period_end": "2025-04-30",
+            "actual": 13.4,
+            "predicted": 9.470985676554712,
+            "latest_released": 13.0,
+            "predicted_acceleration": -3.5290143234452884,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": -0.7158057229979402,
+            "interval_90_upper": 19.657777076107365
+          },
+          {
+            "period_end": "2025-05-31",
+            "actual": 11.0,
+            "predicted": 12.16271056715448,
+            "latest_released": 13.4,
+            "predicted_acceleration": -1.23728943284552,
+            "actual_acceleration": -2.4000000000000004,
+            "interval_90_lower": 1.9759191676018286,
+            "interval_90_upper": 22.34950196670713
+          },
+          {
+            "period_end": "2025-06-30",
+            "actual": 11.4,
+            "predicted": 11.152538477399853,
+            "latest_released": 11.0,
+            "predicted_acceleration": 0.15253847739985282,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 0.965747077847201,
+            "interval_90_upper": 21.339329876952505
+          },
+          {
+            "period_end": "2025-07-31",
+            "actual": 10.2,
+            "predicted": 10.262946922540333,
+            "latest_released": 11.4,
+            "predicted_acceleration": -1.137053077459667,
+            "actual_acceleration": -1.200000000000001,
+            "interval_90_lower": 0.07615552298768158,
+            "interval_90_upper": 20.449738322092983
+          },
+          {
+            "period_end": "2025-08-31",
+            "actual": 9.8,
+            "predicted": 9.80955380002634,
+            "latest_released": 10.2,
+            "predicted_acceleration": -0.3904461999736597,
+            "actual_acceleration": -0.3999999999999986,
+            "interval_90_lower": -0.3772375995263122,
+            "interval_90_upper": 19.99634519957899
+          },
+          {
+            "period_end": "2025-09-30",
+            "actual": 7.9,
+            "predicted": 9.921051337259906,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.12105133725990491,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": -0.26574006229274616,
+            "interval_90_upper": 20.107842736812557
+          },
+          {
+            "period_end": "2025-10-31",
+            "actual": 4.9,
+            "predicted": 9.728260278573462,
+            "latest_released": 7.9,
+            "predicted_acceleration": 1.8282602785734614,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": -0.45853112097919,
+            "interval_90_upper": 19.91505167812611
+          },
+          {
+            "period_end": "2025-11-30",
+            "actual": 4.4,
+            "predicted": 10.989712009083753,
+            "latest_released": 4.9,
+            "predicted_acceleration": 6.089712009083753,
+            "actual_acceleration": -0.5,
+            "interval_90_lower": 0.8029206095311014,
+            "interval_90_upper": 21.176503408636407
+          },
+          {
+            "period_end": "2025-12-31",
+            "actual": 4.3,
+            "predicted": 8.895491930573634,
+            "latest_released": 4.4,
+            "predicted_acceleration": 4.495491930573634,
+            "actual_acceleration": -0.10000000000000053,
+            "interval_90_lower": -1.2912994689790178,
+            "interval_90_upper": 19.082283330126288
+          },
+          {
+            "period_end": "2026-02-28",
+            "actual": 8.7,
+            "predicted": 12.293468285678047,
+            "latest_released": 4.3,
+            "predicted_acceleration": 7.9934682856780475,
+            "actual_acceleration": 4.3999999999999995,
+            "interval_90_lower": 2.1066768861253955,
+            "interval_90_upper": 22.4802596852307
+          },
+          {
+            "period_end": "2026-03-31",
+            "actual": 5.4,
+            "predicted": 9.043203975480619,
+            "latest_released": 8.7,
+            "predicted_acceleration": 0.34320397548061976,
+            "actual_acceleration": -3.299999999999999,
+            "interval_90_lower": -1.1435874240720327,
+            "interval_90_upper": 19.22999537503327
+          },
+          {
+            "period_end": "2026-04-30",
+            "actual": 3.1,
+            "predicted": 8.139626147402778,
+            "latest_released": 5.4,
+            "predicted_acceleration": 2.7396261474027774,
+            "actual_acceleration": -2.3000000000000003,
+            "interval_90_lower": -2.047165252149874,
+            "interval_90_upper": 18.32641754695543
+          },
+          {
+            "period_end": "2026-05-31",
+            "actual": 4.7,
+            "predicted": 8.098251732813212,
+            "latest_released": 3.1,
+            "predicted_acceleration": 4.9982517328132126,
+            "actual_acceleration": 1.6,
+            "interval_90_lower": -2.0885396667394396,
+            "interval_90_upper": 18.285043132365864
+          },
+          {
+            "period_end": "2026-06-30",
+            "actual": 7.0,
+            "predicted": 7.520438312037656,
+            "latest_released": 4.7,
+            "predicted_acceleration": 2.8204383120376555,
+            "actual_acceleration": 2.3,
+            "interval_90_lower": -2.666353087514996,
+            "interval_90_upper": 17.70722971159031
+          }
+        ],
+        "alpha": 1.0
+      }
+    },
+    "ai_dynamic_rules": {
+      "selected_model": "elastic_net",
+      "feature_count": 108,
+      "historical_rule_feature_count": 0,
+      "ai_rule_feature_count": 17,
+      "route_available": true,
+      "validation_text_coverage": 1.0,
+      "block_improvement_concentration": 0.5401883222152948,
+      "baseline_validation": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 3.21193118822301,
+          "rmse": 4.032941828538662,
+          "oos_r2_vs_persistence": -0.17985773477464506,
+          "acceleration_direction_accuracy": 0.6190476190476191,
+          "prediction_interval_90_coverage": 1.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 10.551057850370182,
+            "latest_released": 5.8,
+            "predicted_acceleration": 4.751057850370182,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 0.09521583125277111,
+            "interval_90_upper": 21.00689986948759
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 6.059686656112542,
+            "latest_released": 13.6,
+            "predicted_acceleration": -7.540313343887457,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": -4.396155363004868,
+            "interval_90_upper": 16.51552867522995
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 7.296601081500151,
+            "latest_released": 10.6,
+            "predicted_acceleration": -3.3033989184998482,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": -3.159240937617259,
+            "interval_90_upper": 17.752443100617562
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 4.284414509412962,
+            "latest_released": 1.6,
+            "predicted_acceleration": 2.6844145094129623,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": -6.171427509704448,
+            "interval_90_upper": 14.740256528530374
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 4.823807124347165,
+            "latest_released": 7.3,
+            "predicted_acceleration": -2.476192875652835,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": -5.632034894770245,
+            "interval_90_upper": 15.279649143464574
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 9.517045594339802,
+            "latest_released": 12.9,
+            "predicted_acceleration": -3.3829544056601986,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -0.9387964247776086,
+            "interval_90_upper": 19.97288761345721
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 11.27993902073827,
+            "latest_released": 12.5,
+            "predicted_acceleration": -1.2200609792617296,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": 0.82409700162086,
+            "interval_90_upper": 21.73578103985568
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 12.878162533337454,
+            "latest_released": 14.8,
+            "predicted_acceleration": -1.9218374666625468,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 2.4223205142200435,
+            "interval_90_upper": 23.334004552454864
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 14.189282698389164,
+            "latest_released": 15.8,
+            "predicted_acceleration": -1.610717301610837,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 3.7334406792717534,
+            "interval_90_upper": 24.645124717506576
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 13.745764425129547,
+            "latest_released": 16.3,
+            "predicted_acceleration": -2.5542355748704537,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 3.2899224060121366,
+            "interval_90_upper": 24.201606444246956
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 12.883713116484326,
+            "latest_released": 12.4,
+            "predicted_acceleration": 0.483713116484326,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 2.427871097366916,
+            "interval_90_upper": 23.339555135601735
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 23.16807488690769,
+            "latest_released": 10.8,
+            "predicted_acceleration": 12.368074886907689,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 12.712232867790279,
+            "interval_90_upper": 33.6239169060251
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 9.93870330007,
+            "latest_released": 13.9,
+            "predicted_acceleration": -3.961296699930001,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": -0.517138719047411,
+            "interval_90_upper": 20.394545319187408
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 13.325882777837982,
+            "latest_released": 16.9,
+            "predicted_acceleration": -3.574117222162016,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 2.870040758720572,
+            "interval_90_upper": 23.781724796955395
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 13.360399346953413,
+            "latest_released": 17.3,
+            "predicted_acceleration": -3.939600653046588,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 2.9045573278360024,
+            "interval_90_upper": 23.816241366070823
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 12.624297190135273,
+            "latest_released": 15.4,
+            "predicted_acceleration": -2.775702809864727,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": 2.168455171017863,
+            "interval_90_upper": 23.080139209252685
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 10.482371533804711,
+            "latest_released": 10.6,
+            "predicted_acceleration": -0.11762846619528844,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 0.026529514687300804,
+            "interval_90_upper": 20.93821355292212
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 9.177974891089274,
+            "latest_released": 10.2,
+            "predicted_acceleration": -1.022025108910725,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": -1.2778671280281362,
+            "interval_90_upper": 19.633816910206683
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 9.510909858190702,
+            "latest_released": 11.5,
+            "predicted_acceleration": -1.9890901418092977,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": -0.9449321609267081,
+            "interval_90_upper": 19.966751877308113
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 9.850654680441382,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.05065468044138122,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": -0.6051873386760285,
+            "interval_90_upper": 20.306496699558792
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 9.5023464396482,
+            "latest_released": 10.2,
+            "predicted_acceleration": -0.6976535603517995,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": -0.9534955794692106,
+            "interval_90_upper": 19.958188458765612
+          }
+        ],
+        "alpha": 1.0
+      },
+      "text_validation": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 2.4759493176236,
+          "rmse": 3.3386696264720097,
+          "oos_r2_vs_persistence": 0.1914020782435948,
+          "acceleration_direction_accuracy": 0.5714285714285714,
+          "prediction_interval_90_coverage": 1.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 14.059839330727256,
+            "latest_released": 5.8,
+            "predicted_acceleration": 8.259839330727257,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 3.2496907501827685,
+            "interval_90_upper": 24.869987911271743
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 11.931229866445285,
+            "latest_released": 13.6,
+            "predicted_acceleration": -1.6687701335547143,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 1.1210812859007984,
+            "interval_90_upper": 22.74137844698977
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 11.617699998114059,
+            "latest_released": 10.6,
+            "predicted_acceleration": 1.0176999981140593,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": 0.8075514175695719,
+            "interval_90_upper": 22.427848578658548
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 7.859309748425182,
+            "latest_released": 1.6,
+            "predicted_acceleration": 6.259309748425181,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": -2.950838832119305,
+            "interval_90_upper": 18.669458328969668
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 11.260706717656024,
+            "latest_released": 7.3,
+            "predicted_acceleration": 3.9607067176560244,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": 0.45055813711153725,
+            "interval_90_upper": 22.070855298200513
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 9.45302063486906,
+            "latest_released": 12.9,
+            "predicted_acceleration": -3.4469793651309395,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -1.3571279456754262,
+            "interval_90_upper": 20.263169215413548
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 10.363500921977778,
+            "latest_released": 12.5,
+            "predicted_acceleration": -2.136499078022222,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": -0.4466476585667092,
+            "interval_90_upper": 21.173649502522267
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 13.334809440576894,
+            "latest_released": 14.8,
+            "predicted_acceleration": -1.4651905594231067,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 2.524660860032407,
+            "interval_90_upper": 24.144958021121383
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 13.75534448964436,
+            "latest_released": 15.8,
+            "predicted_acceleration": -2.044655510355641,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 2.9451959090998727,
+            "interval_90_upper": 24.565493070188847
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 13.578929385389273,
+            "latest_released": 16.3,
+            "predicted_acceleration": -2.7210706146107277,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 2.768780804844786,
+            "interval_90_upper": 24.389077965933758
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 13.38674054423301,
+            "latest_released": 12.4,
+            "predicted_acceleration": 0.9867405442330099,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 2.5765919636885233,
+            "interval_90_upper": 24.1968891247775
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 20.598598209138114,
+            "latest_released": 10.8,
+            "predicted_acceleration": 9.798598209138113,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 9.788449628593627,
+            "interval_90_upper": 31.408746789682603
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 13.249420617008749,
+            "latest_released": 13.9,
+            "predicted_acceleration": -0.6505793829912516,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": 2.4392720364642617,
+            "interval_90_upper": 24.059569197553238
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 14.714110604729722,
+            "latest_released": 16.9,
+            "predicted_acceleration": -2.1858893952702765,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 3.903962024185235,
+            "interval_90_upper": 25.52425918527421
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 14.153348774933253,
+            "latest_released": 17.3,
+            "predicted_acceleration": -3.1466512250667478,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 3.343200194388766,
+            "interval_90_upper": 24.96349735547774
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 10.195273866988234,
+            "latest_released": 15.4,
+            "predicted_acceleration": -5.204726133011766,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": -0.6148747135562527,
+            "interval_90_upper": 21.005422447532723
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 8.704648714121978,
+            "latest_released": 10.6,
+            "predicted_acceleration": -1.8953512858780215,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -2.105499866422509,
+            "interval_90_upper": 19.514797294666465
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 11.378929526686473,
+            "latest_released": 10.2,
+            "predicted_acceleration": 1.178929526686474,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": 0.5687809461419864,
+            "interval_90_upper": 22.189078107230962
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 11.607958533059444,
+            "latest_released": 11.5,
+            "predicted_acceleration": 0.1079585330594437,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": 0.7978099525149567,
+            "interval_90_upper": 22.41810711360393
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 11.824515590652341,
+            "latest_released": 9.8,
+            "predicted_acceleration": 2.0245155906523404,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": 1.0143670101078541,
+            "interval_90_upper": 22.634664171196828
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 12.193228773104162,
+            "latest_released": 10.2,
+            "predicted_acceleration": 1.9932287731041622,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": 1.3830801925596745,
+            "interval_90_upper": 23.00337735364865
+          }
+        ],
+        "alpha": 1.0
+      },
+      "delta_validation": {
+        "mae": -0.7359818705994101,
+        "rmse": -0.6942722020666521,
+        "oos_r2_vs_persistence": 0.37125981301823985
+      },
+      "qualified": false,
+      "frozen_oos": {
+        "metrics": {
+          "sample_count": 27,
+          "mae": 3.173664825838887,
+          "rmse": 3.860035093288682,
+          "oos_r2_vs_persistence": -1.8778633298400775,
+          "acceleration_direction_accuracy": 0.5185185185185185,
+          "prediction_interval_90_coverage": 0.9629629629629629
+        },
+        "predictions": [
+          {
+            "period_end": "2024-02-29",
+            "actual": 4.6,
+            "predicted": 14.834067587223462,
+            "latest_released": 10.1,
+            "predicted_acceleration": 4.734067587223462,
+            "actual_acceleration": -5.5,
+            "interval_90_lower": 4.647276187672846,
+            "interval_90_upper": 25.02085898677408
+          },
+          {
+            "period_end": "2024-03-31",
+            "actual": 4.8,
+            "predicted": 7.216674010049825,
+            "latest_released": 4.6,
+            "predicted_acceleration": 2.6166740100498256,
+            "actual_acceleration": 0.20000000000000018,
+            "interval_90_lower": -2.970117389500791,
+            "interval_90_upper": 17.403465409600443
+          },
+          {
+            "period_end": "2024-04-30",
+            "actual": 5.8,
+            "predicted": 7.707344121053451,
+            "latest_released": 4.8,
+            "predicted_acceleration": 2.907344121053451,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": -2.4794472784971653,
+            "interval_90_upper": 17.894135520604067
+          },
+          {
+            "period_end": "2024-05-31",
+            "actual": 3.9,
+            "predicted": 7.790459812074178,
+            "latest_released": 5.8,
+            "predicted_acceleration": 1.990459812074178,
+            "actual_acceleration": -1.9,
+            "interval_90_lower": -2.396331587476438,
+            "interval_90_upper": 17.977251211624793
+          },
+          {
+            "period_end": "2024-06-30",
+            "actual": 4.4,
+            "predicted": 7.379268353608135,
+            "latest_released": 3.9,
+            "predicted_acceleration": 3.4792683536081355,
+            "actual_acceleration": 0.5000000000000004,
+            "interval_90_lower": -2.8075230459424807,
+            "interval_90_upper": 17.56605975315875
+          },
+          {
+            "period_end": "2024-07-31",
+            "actual": 2.8,
+            "predicted": 8.108398675879958,
+            "latest_released": 4.4,
+            "predicted_acceleration": 3.708398675879957,
+            "actual_acceleration": -1.6000000000000005,
+            "interval_90_lower": -2.0783927236706585,
+            "interval_90_upper": 18.295190075430575
+          },
+          {
+            "period_end": "2024-08-31",
+            "actual": 2.6,
+            "predicted": 7.341029527872638,
+            "latest_released": 2.8,
+            "predicted_acceleration": 4.541029527872638,
+            "actual_acceleration": -0.19999999999999973,
+            "interval_90_lower": -2.8457618716779782,
+            "interval_90_upper": 17.527820927423253
+          },
+          {
+            "period_end": "2024-09-30",
+            "actual": 6.1,
+            "predicted": 7.117587594117303,
+            "latest_released": 2.6,
+            "predicted_acceleration": 4.517587594117304,
+            "actual_acceleration": 3.4999999999999996,
+            "interval_90_lower": -3.069203805433313,
+            "interval_90_upper": 17.304378993667918
+          },
+          {
+            "period_end": "2024-10-31",
+            "actual": 5.1,
+            "predicted": 8.148697857862901,
+            "latest_released": 6.1,
+            "predicted_acceleration": 2.0486978578629014,
+            "actual_acceleration": -1.0,
+            "interval_90_lower": -2.038093541687715,
+            "interval_90_upper": 18.335489257413517
+          },
+          {
+            "period_end": "2024-11-30",
+            "actual": 5.2,
+            "predicted": 8.235722906795452,
+            "latest_released": 5.1,
+            "predicted_acceleration": 3.1357229067954524,
+            "actual_acceleration": 0.10000000000000053,
+            "interval_90_lower": -1.951068492755164,
+            "interval_90_upper": 18.422514306346066
+          },
+          {
+            "period_end": "2024-12-31",
+            "actual": 9.2,
+            "predicted": 7.861427852352349,
+            "latest_released": 5.2,
+            "predicted_acceleration": 2.6614278523523485,
+            "actual_acceleration": 3.999999999999999,
+            "interval_90_lower": -2.3253635471982674,
+            "interval_90_upper": 18.048219251902964
+          },
+          {
+            "period_end": "2025-02-28",
+            "actual": 12.0,
+            "predicted": 14.326136814597092,
+            "latest_released": 9.2,
+            "predicted_acceleration": 5.126136814597093,
+            "actual_acceleration": 2.8000000000000007,
+            "interval_90_lower": 4.139345415046476,
+            "interval_90_upper": 24.512928214147706
+          },
+          {
+            "period_end": "2025-03-31",
+            "actual": 13.0,
+            "predicted": 9.196200253455752,
+            "latest_released": 12.0,
+            "predicted_acceleration": -2.8037997465442484,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": -0.9905911460948644,
+            "interval_90_upper": 19.382991653006368
+          },
+          {
+            "period_end": "2025-04-30",
+            "actual": 13.4,
+            "predicted": 9.470985676440757,
+            "latest_released": 13.0,
+            "predicted_acceleration": -3.5290143235592435,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": -0.7158057231098596,
+            "interval_90_upper": 19.657777075991373
+          },
+          {
+            "period_end": "2025-05-31",
+            "actual": 11.0,
+            "predicted": 12.16271056707912,
+            "latest_released": 13.4,
+            "predicted_acceleration": -1.2372894329208801,
+            "actual_acceleration": -2.4000000000000004,
+            "interval_90_lower": 1.9759191675285042,
+            "interval_90_upper": 22.349501966629738
+          },
+          {
+            "period_end": "2025-06-30",
+            "actual": 11.4,
+            "predicted": 11.152538477356845,
+            "latest_released": 11.0,
+            "predicted_acceleration": 0.15253847735684545,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 0.9657470778062294,
+            "interval_90_upper": 21.339329876907463
+          },
+          {
+            "period_end": "2025-07-31",
+            "actual": 10.2,
+            "predicted": 10.262946922379511,
+            "latest_released": 11.4,
+            "predicted_acceleration": -1.1370530776204895,
+            "actual_acceleration": -1.200000000000001,
+            "interval_90_lower": 0.07615552282889482,
+            "interval_90_upper": 20.449738321930127
+          },
+          {
+            "period_end": "2025-08-31",
+            "actual": 9.8,
+            "predicted": 9.809553799817177,
+            "latest_released": 10.2,
+            "predicted_acceleration": -0.39044620018282217,
+            "actual_acceleration": -0.3999999999999986,
+            "interval_90_lower": -0.37723759973343896,
+            "interval_90_upper": 19.996345199367795
+          },
+          {
+            "period_end": "2025-09-30",
+            "actual": 7.9,
+            "predicted": 9.921051337092806,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.1210513370928048,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": -0.26574006245781057,
+            "interval_90_upper": 20.10784273664342
+          },
+          {
+            "period_end": "2025-10-31",
+            "actual": 4.9,
+            "predicted": 9.72826027835297,
+            "latest_released": 7.9,
+            "predicted_acceleration": 1.8282602783529693,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": -0.4585311211976464,
+            "interval_90_upper": 19.915051677903584
+          },
+          {
+            "period_end": "2025-11-30",
+            "actual": 4.4,
+            "predicted": 10.989712009107446,
+            "latest_released": 4.9,
+            "predicted_acceleration": 6.089712009107446,
+            "actual_acceleration": -0.5,
+            "interval_90_lower": 0.8029206095568302,
+            "interval_90_upper": 21.176503408658064
+          },
+          {
+            "period_end": "2025-12-31",
+            "actual": 4.3,
+            "predicted": 8.895491930288125,
+            "latest_released": 4.4,
+            "predicted_acceleration": 4.495491930288125,
+            "actual_acceleration": -0.10000000000000053,
+            "interval_90_lower": -1.2912994692624906,
+            "interval_90_upper": 19.08228332983874
+          },
+          {
+            "period_end": "2026-02-28",
+            "actual": 8.7,
+            "predicted": 12.293468285369194,
+            "latest_released": 4.3,
+            "predicted_acceleration": 7.993468285369194,
+            "actual_acceleration": 4.3999999999999995,
+            "interval_90_lower": 2.106676885818578,
+            "interval_90_upper": 22.480259684919808
+          },
+          {
+            "period_end": "2026-03-31",
+            "actual": 5.4,
+            "predicted": 9.04320397521567,
+            "latest_released": 8.7,
+            "predicted_acceleration": 0.3432039752156708,
+            "actual_acceleration": -3.299999999999999,
+            "interval_90_lower": -1.143587424334946,
+            "interval_90_upper": 19.229995374766286
+          },
+          {
+            "period_end": "2026-04-30",
+            "actual": 3.1,
+            "predicted": 8.13962614709073,
+            "latest_released": 5.4,
+            "predicted_acceleration": 2.73962614709073,
+            "actual_acceleration": -2.3000000000000003,
+            "interval_90_lower": -2.0471652524598856,
+            "interval_90_upper": 18.326417546641345
+          },
+          {
+            "period_end": "2026-05-31",
+            "actual": 4.7,
+            "predicted": 8.098251732568373,
+            "latest_released": 3.1,
+            "predicted_acceleration": 4.998251732568374,
+            "actual_acceleration": 1.6,
+            "interval_90_lower": -2.0885396669822427,
+            "interval_90_upper": 18.28504313211899
+          },
+          {
+            "period_end": "2026-06-30",
+            "actual": 7.0,
+            "predicted": 7.5204383117601346,
+            "latest_released": 4.7,
+            "predicted_acceleration": 2.8204383117601344,
+            "actual_acceleration": 2.3,
+            "interval_90_lower": -2.6663530877904815,
+            "interval_90_upper": 17.707229711310752
+          }
+        ],
+        "alpha": 1.0
+      }
+    },
+    "hybrid_rules": {
+      "selected_model": "elastic_net",
+      "feature_count": 109,
+      "historical_rule_feature_count": 1,
+      "ai_rule_feature_count": 17,
+      "route_available": true,
+      "validation_text_coverage": 1.0,
+      "block_improvement_concentration": 0.5510526667425613,
+      "baseline_validation": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 3.21193118822301,
+          "rmse": 4.032941828538662,
+          "oos_r2_vs_persistence": -0.17985773477464506,
+          "acceleration_direction_accuracy": 0.6190476190476191,
+          "prediction_interval_90_coverage": 1.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 10.551057850370182,
+            "latest_released": 5.8,
+            "predicted_acceleration": 4.751057850370182,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 0.09521583125277111,
+            "interval_90_upper": 21.00689986948759
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 6.059686656112542,
+            "latest_released": 13.6,
+            "predicted_acceleration": -7.540313343887457,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": -4.396155363004868,
+            "interval_90_upper": 16.51552867522995
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 7.296601081500151,
+            "latest_released": 10.6,
+            "predicted_acceleration": -3.3033989184998482,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": -3.159240937617259,
+            "interval_90_upper": 17.752443100617562
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 4.284414509412962,
+            "latest_released": 1.6,
+            "predicted_acceleration": 2.6844145094129623,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": -6.171427509704448,
+            "interval_90_upper": 14.740256528530374
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 4.823807124347165,
+            "latest_released": 7.3,
+            "predicted_acceleration": -2.476192875652835,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": -5.632034894770245,
+            "interval_90_upper": 15.279649143464574
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 9.517045594339802,
+            "latest_released": 12.9,
+            "predicted_acceleration": -3.3829544056601986,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -0.9387964247776086,
+            "interval_90_upper": 19.97288761345721
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 11.27993902073827,
+            "latest_released": 12.5,
+            "predicted_acceleration": -1.2200609792617296,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": 0.82409700162086,
+            "interval_90_upper": 21.73578103985568
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 12.878162533337454,
+            "latest_released": 14.8,
+            "predicted_acceleration": -1.9218374666625468,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 2.4223205142200435,
+            "interval_90_upper": 23.334004552454864
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 14.189282698389164,
+            "latest_released": 15.8,
+            "predicted_acceleration": -1.610717301610837,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 3.7334406792717534,
+            "interval_90_upper": 24.645124717506576
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 13.745764425129547,
+            "latest_released": 16.3,
+            "predicted_acceleration": -2.5542355748704537,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 3.2899224060121366,
+            "interval_90_upper": 24.201606444246956
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 12.883713116484326,
+            "latest_released": 12.4,
+            "predicted_acceleration": 0.483713116484326,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 2.427871097366916,
+            "interval_90_upper": 23.339555135601735
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 23.16807488690769,
+            "latest_released": 10.8,
+            "predicted_acceleration": 12.368074886907689,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 12.712232867790279,
+            "interval_90_upper": 33.6239169060251
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 9.93870330007,
+            "latest_released": 13.9,
+            "predicted_acceleration": -3.961296699930001,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": -0.517138719047411,
+            "interval_90_upper": 20.394545319187408
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 13.325882777837982,
+            "latest_released": 16.9,
+            "predicted_acceleration": -3.574117222162016,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 2.870040758720572,
+            "interval_90_upper": 23.781724796955395
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 13.360399346953413,
+            "latest_released": 17.3,
+            "predicted_acceleration": -3.939600653046588,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 2.9045573278360024,
+            "interval_90_upper": 23.816241366070823
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 12.624297190135273,
+            "latest_released": 15.4,
+            "predicted_acceleration": -2.775702809864727,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": 2.168455171017863,
+            "interval_90_upper": 23.080139209252685
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 10.482371533804711,
+            "latest_released": 10.6,
+            "predicted_acceleration": -0.11762846619528844,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 0.026529514687300804,
+            "interval_90_upper": 20.93821355292212
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 9.177974891089274,
+            "latest_released": 10.2,
+            "predicted_acceleration": -1.022025108910725,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": -1.2778671280281362,
+            "interval_90_upper": 19.633816910206683
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 9.510909858190702,
+            "latest_released": 11.5,
+            "predicted_acceleration": -1.9890901418092977,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": -0.9449321609267081,
+            "interval_90_upper": 19.966751877308113
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 9.850654680441382,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.05065468044138122,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": -0.6051873386760285,
+            "interval_90_upper": 20.306496699558792
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 9.5023464396482,
+            "latest_released": 10.2,
+            "predicted_acceleration": -0.6976535603517995,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": -0.9534955794692106,
+            "interval_90_upper": 19.958188458765612
+          }
+        ],
+        "alpha": 1.0
+      },
+      "text_validation": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 2.511769785719913,
+          "rmse": 3.3865631573942068,
+          "oos_r2_vs_persistence": 0.16803685654282996,
+          "acceleration_direction_accuracy": 0.6190476190476191,
+          "prediction_interval_90_coverage": 1.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 14.00623278782018,
+            "latest_released": 5.8,
+            "predicted_acceleration": 8.20623278782018,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 3.2198090065195526,
+            "interval_90_upper": 24.79265656912081
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 12.020252489145372,
+            "latest_released": 13.6,
+            "predicted_acceleration": -1.5797475108546273,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 1.2338287078447454,
+            "interval_90_upper": 22.806676270445998
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 11.702807480244253,
+            "latest_released": 10.6,
+            "predicted_acceleration": 1.1028074802442536,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": 0.9163836989436263,
+            "interval_90_upper": 22.48923126154488
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 7.91967512209731,
+            "latest_released": 1.6,
+            "predicted_acceleration": 6.31967512209731,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": -2.866748659203317,
+            "interval_90_upper": 18.706098903397937
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 11.369472172046859,
+            "latest_released": 7.3,
+            "predicted_acceleration": 4.069472172046859,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": 0.5830483907462316,
+            "interval_90_upper": 22.155895953347486
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 9.004315907327976,
+            "latest_released": 12.9,
+            "predicted_acceleration": -3.895684092672024,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -1.7821078739726506,
+            "interval_90_upper": 19.790739688628605
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 10.340388251367209,
+            "latest_released": 12.5,
+            "predicted_acceleration": -2.1596117486327913,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": -0.4460355299334182,
+            "interval_90_upper": 21.126812032667836
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 12.857706126574126,
+            "latest_released": 14.8,
+            "predicted_acceleration": -1.942293873425875,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 2.0712823452734987,
+            "interval_90_upper": 23.644129907874753
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 13.845308063554167,
+            "latest_released": 15.8,
+            "predicted_acceleration": -1.9546919364458333,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 3.0588842822535405,
+            "interval_90_upper": 24.631731844854794
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 13.6633370570726,
+            "latest_released": 16.3,
+            "predicted_acceleration": -2.6366629429274013,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 2.8769132757719724,
+            "interval_90_upper": 24.449760838373226
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 13.488184408272321,
+            "latest_released": 12.4,
+            "predicted_acceleration": 1.0881844082723209,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 2.7017606269716943,
+            "interval_90_upper": 24.274608189572948
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 20.63953257852421,
+            "latest_released": 10.8,
+            "predicted_acceleration": 9.83953257852421,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 9.853108797223584,
+            "interval_90_upper": 31.425956359824838
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 13.273440805496966,
+            "latest_released": 13.9,
+            "predicted_acceleration": -0.6265591945030344,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": 2.487017024196339,
+            "interval_90_upper": 24.059864586797595
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 14.745755127890007,
+            "latest_released": 16.9,
+            "predicted_acceleration": -2.1542448721099916,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 3.95933134658938,
+            "interval_90_upper": 25.532178909190634
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 14.16607573315402,
+            "latest_released": 17.3,
+            "predicted_acceleration": -3.1339242668459804,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 3.3796519518533934,
+            "interval_90_upper": 24.952499514454647
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 10.185800459121142,
+            "latest_released": 15.4,
+            "predicted_acceleration": -5.214199540878859,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": -0.6006233221794854,
+            "interval_90_upper": 20.972224240421767
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 8.59644521582507,
+            "latest_released": 10.6,
+            "predicted_acceleration": -2.003554784174929,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": -2.189978565475556,
+            "interval_90_upper": 19.382868997125698
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 11.376377810761753,
+            "latest_released": 10.2,
+            "predicted_acceleration": 1.1763778107617533,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": 0.5899540294611256,
+            "interval_90_upper": 22.16280159206238
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 11.12278559392838,
+            "latest_released": 11.5,
+            "predicted_acceleration": -0.3772144060716194,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": 0.33636181262775366,
+            "interval_90_upper": 21.909209375229008
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 11.833351593218886,
+            "latest_released": 9.8,
+            "predicted_acceleration": 2.0333515932188853,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": 1.046927811918259,
+            "interval_90_upper": 22.619775374519513
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 12.212092062913953,
+            "latest_released": 10.2,
+            "predicted_acceleration": 2.012092062913954,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": 1.4256682816133264,
+            "interval_90_upper": 22.99851584421458
+          }
+        ],
+        "alpha": 1.0
+      },
+      "delta_validation": {
+        "mae": -0.7001614025030971,
+        "rmse": -0.646378671144455,
+        "oos_r2_vs_persistence": 0.347894591317475
+      },
+      "qualified": true,
+      "frozen_oos": {
+        "metrics": {
+          "sample_count": 27,
+          "mae": 3.1736648258723443,
+          "rmse": 3.86003509331667,
+          "oos_r2_vs_persistence": -1.8778633298818108,
+          "acceleration_direction_accuracy": 0.5185185185185185,
+          "prediction_interval_90_coverage": 0.9629629629629629
+        },
+        "predictions": [
+          {
+            "period_end": "2024-02-29",
+            "actual": 4.6,
+            "predicted": 14.834067587258868,
+            "latest_released": 10.1,
+            "predicted_acceleration": 4.734067587258869,
+            "actual_acceleration": -5.5,
+            "interval_90_lower": 4.6472761877077495,
+            "interval_90_upper": 25.020858986809987
+          },
+          {
+            "period_end": "2024-03-31",
+            "actual": 4.8,
+            "predicted": 7.21667401006386,
+            "latest_released": 4.6,
+            "predicted_acceleration": 2.6166740100638606,
+            "actual_acceleration": 0.20000000000000018,
+            "interval_90_lower": -2.9701173894872586,
+            "interval_90_upper": 17.40346540961498
+          },
+          {
+            "period_end": "2024-04-30",
+            "actual": 5.8,
+            "predicted": 7.707344121095703,
+            "latest_released": 4.8,
+            "predicted_acceleration": 2.9073441210957034,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": -2.4794472784554156,
+            "interval_90_upper": 17.89413552064682
+          },
+          {
+            "period_end": "2024-05-31",
+            "actual": 3.9,
+            "predicted": 7.790459812125167,
+            "latest_released": 5.8,
+            "predicted_acceleration": 1.9904598121251675,
+            "actual_acceleration": -1.9,
+            "interval_90_lower": -2.3963315874259514,
+            "interval_90_upper": 17.977251211676286
+          },
+          {
+            "period_end": "2024-06-30",
+            "actual": 4.4,
+            "predicted": 7.379268353640567,
+            "latest_released": 3.9,
+            "predicted_acceleration": 3.4792683536405673,
+            "actual_acceleration": 0.5000000000000004,
+            "interval_90_lower": -2.8075230459105516,
+            "interval_90_upper": 17.566059753191688
+          },
+          {
+            "period_end": "2024-07-31",
+            "actual": 2.8,
+            "predicted": 8.108398675909363,
+            "latest_released": 4.4,
+            "predicted_acceleration": 3.708398675909363,
+            "actual_acceleration": -1.6000000000000005,
+            "interval_90_lower": -2.0783927236417554,
+            "interval_90_upper": 18.295190075460482
+          },
+          {
+            "period_end": "2024-08-31",
+            "actual": 2.6,
+            "predicted": 7.3410295279158815,
+            "latest_released": 2.8,
+            "predicted_acceleration": 4.541029527915882,
+            "actual_acceleration": -0.19999999999999973,
+            "interval_90_lower": -2.8457618716352373,
+            "interval_90_upper": 17.527820927467
+          },
+          {
+            "period_end": "2024-09-30",
+            "actual": 6.1,
+            "predicted": 7.1175875941495566,
+            "latest_released": 2.6,
+            "predicted_acceleration": 4.517587594149557,
+            "actual_acceleration": 3.4999999999999996,
+            "interval_90_lower": -3.0692038054015622,
+            "interval_90_upper": 17.304378993700674
+          },
+          {
+            "period_end": "2024-10-31",
+            "actual": 5.1,
+            "predicted": 8.148697857873268,
+            "latest_released": 6.1,
+            "predicted_acceleration": 2.048697857873268,
+            "actual_acceleration": -1.0,
+            "interval_90_lower": -2.038093541677851,
+            "interval_90_upper": 18.335489257424385
+          },
+          {
+            "period_end": "2024-11-30",
+            "actual": 5.2,
+            "predicted": 8.235722906825828,
+            "latest_released": 5.1,
+            "predicted_acceleration": 3.135722906825828,
+            "actual_acceleration": 0.10000000000000053,
+            "interval_90_lower": -1.951068492725291,
+            "interval_90_upper": 18.422514306376947
+          },
+          {
+            "period_end": "2024-12-31",
+            "actual": 9.2,
+            "predicted": 7.861427852391197,
+            "latest_released": 5.2,
+            "predicted_acceleration": 2.6614278523911965,
+            "actual_acceleration": 3.999999999999999,
+            "interval_90_lower": -2.325363547159922,
+            "interval_90_upper": 18.048219251942314
+          },
+          {
+            "period_end": "2025-02-28",
+            "actual": 12.0,
+            "predicted": 14.326136814659977,
+            "latest_released": 9.2,
+            "predicted_acceleration": 5.1261368146599775,
+            "actual_acceleration": 2.8000000000000007,
+            "interval_90_lower": 4.139345415108858,
+            "interval_90_upper": 24.512928214211094
+          },
+          {
+            "period_end": "2025-03-31",
+            "actual": 13.0,
+            "predicted": 9.196200253482573,
+            "latest_released": 12.0,
+            "predicted_acceleration": -2.803799746517427,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": -0.9905911460685459,
+            "interval_90_upper": 19.38299165303369
+          },
+          {
+            "period_end": "2025-04-30",
+            "actual": 13.4,
+            "predicted": 9.470985676474585,
+            "latest_released": 13.0,
+            "predicted_acceleration": -3.5290143235254146,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": -0.7158057230765333,
+            "interval_90_upper": 19.657777076025702
+          },
+          {
+            "period_end": "2025-05-31",
+            "actual": 11.0,
+            "predicted": 12.162710567097673,
+            "latest_released": 13.4,
+            "predicted_acceleration": -1.2372894329023278,
+            "actual_acceleration": -2.4000000000000004,
+            "interval_90_lower": 1.9759191675465537,
+            "interval_90_upper": 22.34950196664879
+          },
+          {
+            "period_end": "2025-06-30",
+            "actual": 11.4,
+            "predicted": 11.15253847736385,
+            "latest_released": 11.0,
+            "predicted_acceleration": 0.15253847736384962,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 0.9657470778127308,
+            "interval_90_upper": 21.339329876914967
+          },
+          {
+            "period_end": "2025-07-31",
+            "actual": 10.2,
+            "predicted": 10.262946922423094,
+            "latest_released": 11.4,
+            "predicted_acceleration": -1.1370530775769065,
+            "actual_acceleration": -1.200000000000001,
+            "interval_90_lower": 0.07615552287197502,
+            "interval_90_upper": 20.449738321974213
+          },
+          {
+            "period_end": "2025-08-31",
+            "actual": 9.8,
+            "predicted": 9.809553799872745,
+            "latest_released": 10.2,
+            "predicted_acceleration": -0.3904462001272542,
+            "actual_acceleration": -0.3999999999999986,
+            "interval_90_lower": -0.37723759967837367,
+            "interval_90_upper": 19.996345199423864
+          },
+          {
+            "period_end": "2025-09-30",
+            "actual": 7.9,
+            "predicted": 9.921051337138865,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.12105133713886396,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": -0.2657400624122541,
+            "interval_90_upper": 20.10784273668998
+          },
+          {
+            "period_end": "2025-10-31",
+            "actual": 4.9,
+            "predicted": 9.72826027841121,
+            "latest_released": 7.9,
+            "predicted_acceleration": 1.828260278411209,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": -0.45853112113990946,
+            "interval_90_upper": 19.915051677962328
+          },
+          {
+            "period_end": "2025-11-30",
+            "actual": 4.4,
+            "predicted": 10.9897120090905,
+            "latest_released": 4.9,
+            "predicted_acceleration": 6.0897120090904995,
+            "actual_acceleration": -0.5,
+            "interval_90_lower": 0.802920609539381,
+            "interval_90_upper": 21.17650340864162
+          },
+          {
+            "period_end": "2025-12-31",
+            "actual": 4.3,
+            "predicted": 8.895491930359045,
+            "latest_released": 4.4,
+            "predicted_acceleration": 4.495491930359044,
+            "actual_acceleration": -0.10000000000000053,
+            "interval_90_lower": -1.291299469192074,
+            "interval_90_upper": 19.08228332991016
+          },
+          {
+            "period_end": "2026-02-28",
+            "actual": 8.7,
+            "predicted": 12.29346828544957,
+            "latest_released": 4.3,
+            "predicted_acceleration": 7.993468285449571,
+            "actual_acceleration": 4.3999999999999995,
+            "interval_90_lower": 2.1066768858984517,
+            "interval_90_upper": 22.48025968500069
+          },
+          {
+            "period_end": "2026-03-31",
+            "actual": 5.4,
+            "predicted": 9.04320397528199,
+            "latest_released": 8.7,
+            "predicted_acceleration": 0.3432039752819911,
+            "actual_acceleration": -3.299999999999999,
+            "interval_90_lower": -1.1435874242691284,
+            "interval_90_upper": 19.22999537483311
+          },
+          {
+            "period_end": "2026-04-30",
+            "actual": 3.1,
+            "predicted": 8.139626147167037,
+            "latest_released": 5.4,
+            "predicted_acceleration": 2.739626147167037,
+            "actual_acceleration": -2.3000000000000003,
+            "interval_90_lower": -2.0471652523840813,
+            "interval_90_upper": 18.326417546718154
+          },
+          {
+            "period_end": "2026-05-31",
+            "actual": 4.7,
+            "predicted": 8.098251732629226,
+            "latest_released": 3.1,
+            "predicted_acceleration": 4.998251732629226,
+            "actual_acceleration": 1.6,
+            "interval_90_lower": -2.0885396669218927,
+            "interval_90_upper": 18.285043132180345
+          },
+          {
+            "period_end": "2026-06-30",
+            "actual": 7.0,
+            "predicted": 7.520438311826509,
+            "latest_released": 4.7,
+            "predicted_acceleration": 2.820438311826509,
+            "actual_acceleration": 2.3,
+            "interval_90_lower": -2.6663530877246098,
+            "interval_90_upper": 17.70722971137763
+          }
+        ],
+        "alpha": 1.0
+      }
+    }
+  },
+  "baselines": {
+    "validation": {
+      "persistence": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 2.757142857142857,
+          "rmse": 3.712847706981542,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.5238095238095238,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 5.8,
+            "latest_released": 5.8,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 5.8,
+            "interval_90_upper": 5.8
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 13.6,
+            "latest_released": 13.6,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 13.6,
+            "interval_90_upper": 13.6
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 10.6,
+            "latest_released": 10.6,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": 10.6,
+            "interval_90_upper": 10.6
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 1.6,
+            "latest_released": 1.6,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": 1.6,
+            "interval_90_upper": 1.6
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 7.3,
+            "latest_released": 7.3,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": 7.3,
+            "interval_90_upper": 7.3
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 12.9,
+            "latest_released": 12.9,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 12.9,
+            "interval_90_upper": 12.9
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 12.5,
+            "latest_released": 12.5,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": 12.5,
+            "interval_90_upper": 12.5
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 14.8,
+            "latest_released": 14.8,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 14.8,
+            "interval_90_upper": 14.8
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 15.8,
+            "latest_released": 15.8,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 15.8,
+            "interval_90_upper": 15.8
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 16.3,
+            "latest_released": 16.3,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 16.3,
+            "interval_90_upper": 16.3
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 12.4,
+            "latest_released": 12.4,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 12.4,
+            "interval_90_upper": 12.4
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 10.8,
+            "latest_released": 10.8,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 10.8,
+            "interval_90_upper": 10.8
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 13.9,
+            "latest_released": 13.9,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": 13.9,
+            "interval_90_upper": 13.9
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 16.9,
+            "latest_released": 16.9,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 16.9,
+            "interval_90_upper": 16.9
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 17.3,
+            "latest_released": 17.3,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 17.3,
+            "interval_90_upper": 17.3
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 15.4,
+            "latest_released": 15.4,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": 15.4,
+            "interval_90_upper": 15.4
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 10.6,
+            "latest_released": 10.6,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 10.6,
+            "interval_90_upper": 10.6
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 10.2,
+            "latest_released": 10.2,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": 10.2,
+            "interval_90_upper": 10.2
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 11.5,
+            "latest_released": 11.5,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": 11.5,
+            "interval_90_upper": 11.5
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 9.8,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": 9.8,
+            "interval_90_upper": 9.8
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 10.2,
+            "latest_released": 10.2,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": 10.2,
+            "interval_90_upper": 10.2
+          }
+        ]
+      },
+      "seasonal": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 9.004761904761905,
+          "rmse": 14.760097431605125,
+          "oos_r2_vs_persistence": -14.80389650765139,
+          "acceleration_direction_accuracy": 0.5238095238095238,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 69.4,
+            "latest_released": 5.8,
+            "predicted_acceleration": 63.60000000000001,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 69.4,
+            "interval_90_upper": 69.4
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 24.1,
+            "latest_released": 13.6,
+            "predicted_acceleration": 10.500000000000002,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 24.1,
+            "interval_90_upper": 24.1
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 22.6,
+            "latest_released": 10.6,
+            "predicted_acceleration": 12.000000000000002,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": 22.6,
+            "interval_90_upper": 22.6
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 18.7,
+            "latest_released": 1.6,
+            "predicted_acceleration": 17.099999999999998,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": 18.7,
+            "interval_90_upper": 18.7
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 15.0,
+            "latest_released": 7.3,
+            "predicted_acceleration": 7.7,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": 15.0,
+            "interval_90_upper": 15.0
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 10.3,
+            "latest_released": 12.9,
+            "predicted_acceleration": -2.5999999999999996,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 10.3,
+            "interval_90_upper": 10.3
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 10.3,
+            "latest_released": 12.5,
+            "predicted_acceleration": -2.1999999999999993,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": 10.3,
+            "interval_90_upper": 10.3
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 6.8,
+            "latest_released": 14.8,
+            "predicted_acceleration": -8.0,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 6.8,
+            "interval_90_upper": 6.8
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 5.3,
+            "latest_released": 15.8,
+            "predicted_acceleration": -10.5,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 5.3,
+            "interval_90_upper": 5.3
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 9.4,
+            "latest_released": 16.3,
+            "predicted_acceleration": -6.9,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 9.4,
+            "interval_90_upper": 9.4
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 5.8,
+            "latest_released": 12.4,
+            "predicted_acceleration": -6.6000000000000005,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 5.8,
+            "interval_90_upper": 5.8
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 13.6,
+            "latest_released": 10.8,
+            "predicted_acceleration": 2.799999999999999,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 13.6,
+            "interval_90_upper": 13.6
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 10.6,
+            "latest_released": 13.9,
+            "predicted_acceleration": -3.3000000000000007,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": 10.6,
+            "interval_90_upper": 10.6
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 1.6,
+            "latest_released": 16.9,
+            "predicted_acceleration": -15.299999999999999,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 1.6,
+            "interval_90_upper": 1.6
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 7.3,
+            "latest_released": 17.3,
+            "predicted_acceleration": -10.0,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 7.3,
+            "interval_90_upper": 7.3
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 12.5,
+            "latest_released": 15.4,
+            "predicted_acceleration": -2.9000000000000004,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": 12.5,
+            "interval_90_upper": 12.5
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 14.8,
+            "latest_released": 10.6,
+            "predicted_acceleration": 4.200000000000001,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 14.8,
+            "interval_90_upper": 14.8
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 15.8,
+            "latest_released": 10.2,
+            "predicted_acceleration": 5.600000000000001,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": 15.8,
+            "interval_90_upper": 15.8
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 16.3,
+            "latest_released": 11.5,
+            "predicted_acceleration": 4.800000000000001,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": 16.3,
+            "interval_90_upper": 16.3
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 12.4,
+            "latest_released": 9.8,
+            "predicted_acceleration": 2.5999999999999996,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": 12.4,
+            "interval_90_upper": 12.4
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 10.8,
+            "latest_released": 10.2,
+            "predicted_acceleration": 0.6000000000000014,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": 10.8,
+            "interval_90_upper": 10.8
+          }
+        ]
+      },
+      "ar1": {
+        "metrics": {
+          "sample_count": 21,
+          "mae": 2.420454559276709,
+          "rmse": 3.210632076059527,
+          "oos_r2_vs_persistence": 0.25223211549874447,
+          "acceleration_direction_accuracy": 0.5714285714285714,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [
+          {
+            "period_end": "2022-02-28",
+            "actual": 13.6,
+            "predicted": 8.655462044081974,
+            "latest_released": 5.8,
+            "predicted_acceleration": 2.855462044081974,
+            "actual_acceleration": 7.8,
+            "interval_90_lower": 8.655462044081974,
+            "interval_90_upper": 8.655462044081974
+          },
+          {
+            "period_end": "2022-03-31",
+            "actual": 10.6,
+            "predicted": 11.97310632399505,
+            "latest_released": 13.6,
+            "predicted_acceleration": -1.6268936760049488,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 11.97310632399505,
+            "interval_90_upper": 11.97310632399505
+          },
+          {
+            "period_end": "2022-04-30",
+            "actual": 1.6,
+            "predicted": 10.697089293259253,
+            "latest_released": 10.6,
+            "predicted_acceleration": 0.09708929325925375,
+            "actual_acceleration": -9.0,
+            "interval_90_lower": 10.697089293259253,
+            "interval_90_upper": 10.697089293259253
+          },
+          {
+            "period_end": "2022-05-31",
+            "actual": 7.3,
+            "predicted": 6.869038201051855,
+            "latest_released": 1.6,
+            "predicted_acceleration": 5.269038201051854,
+            "actual_acceleration": 5.699999999999999,
+            "interval_90_lower": 6.869038201051855,
+            "interval_90_upper": 6.869038201051855
+          },
+          {
+            "period_end": "2022-06-30",
+            "actual": 12.9,
+            "predicted": 9.293470559449874,
+            "latest_released": 7.3,
+            "predicted_acceleration": 1.9934705594498743,
+            "actual_acceleration": 5.6000000000000005,
+            "interval_90_lower": 9.293470559449874,
+            "interval_90_upper": 9.293470559449874
+          },
+          {
+            "period_end": "2022-07-31",
+            "actual": 12.5,
+            "predicted": 11.675369016823366,
+            "latest_released": 12.9,
+            "predicted_acceleration": -1.2246309831766347,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 11.675369016823366,
+            "interval_90_upper": 11.675369016823366
+          },
+          {
+            "period_end": "2022-08-31",
+            "actual": 14.8,
+            "predicted": 11.505233412725259,
+            "latest_released": 12.5,
+            "predicted_acceleration": -0.9947665872747411,
+            "actual_acceleration": 2.3000000000000007,
+            "interval_90_lower": 11.505233412725259,
+            "interval_90_upper": 11.505233412725259
+          },
+          {
+            "period_end": "2022-09-30",
+            "actual": 15.8,
+            "predicted": 12.483513136289371,
+            "latest_released": 14.8,
+            "predicted_acceleration": -2.3164868637106295,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 12.483513136289371,
+            "interval_90_upper": 12.483513136289371
+          },
+          {
+            "period_end": "2022-10-31",
+            "actual": 16.3,
+            "predicted": 12.908852146534638,
+            "latest_released": 15.8,
+            "predicted_acceleration": -2.8911478534653625,
+            "actual_acceleration": 0.5,
+            "interval_90_lower": 12.908852146534638,
+            "interval_90_upper": 12.908852146534638
+          },
+          {
+            "period_end": "2022-11-30",
+            "actual": 12.4,
+            "predicted": 13.121521651657272,
+            "latest_released": 16.3,
+            "predicted_acceleration": -3.178478348342729,
+            "actual_acceleration": -3.9000000000000004,
+            "interval_90_lower": 13.121521651657272,
+            "interval_90_upper": 13.121521651657272
+          },
+          {
+            "period_end": "2022-12-31",
+            "actual": 10.8,
+            "predicted": 11.462699511700732,
+            "latest_released": 12.4,
+            "predicted_acceleration": -0.9373004882992682,
+            "actual_acceleration": -1.5999999999999996,
+            "interval_90_lower": 11.462699511700732,
+            "interval_90_upper": 11.462699511700732
+          },
+          {
+            "period_end": "2023-02-28",
+            "actual": 13.9,
+            "predicted": 10.782157095308307,
+            "latest_released": 10.8,
+            "predicted_acceleration": -0.017842904691693917,
+            "actual_acceleration": 3.0999999999999996,
+            "interval_90_lower": 10.782157095308307,
+            "interval_90_upper": 10.782157095308307
+          },
+          {
+            "period_end": "2023-03-31",
+            "actual": 16.9,
+            "predicted": 12.100708027068631,
+            "latest_released": 13.9,
+            "predicted_acceleration": -1.7992919729313694,
+            "actual_acceleration": 2.9999999999999982,
+            "interval_90_lower": 12.100708027068631,
+            "interval_90_upper": 12.100708027068631
+          },
+          {
+            "period_end": "2023-04-30",
+            "actual": 17.3,
+            "predicted": 13.376725057804432,
+            "latest_released": 16.9,
+            "predicted_acceleration": -3.5232749421955667,
+            "actual_acceleration": 0.40000000000000213,
+            "interval_90_lower": 13.376725057804432,
+            "interval_90_upper": 13.376725057804432
+          },
+          {
+            "period_end": "2023-05-31",
+            "actual": 15.4,
+            "predicted": 13.546860661902539,
+            "latest_released": 17.3,
+            "predicted_acceleration": -3.753139338097462,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 13.546860661902539,
+            "interval_90_upper": 13.546860661902539
+          },
+          {
+            "period_end": "2023-07-31",
+            "actual": 10.6,
+            "predicted": 12.738716542436531,
+            "latest_released": 15.4,
+            "predicted_acceleration": -2.661283457563469,
+            "actual_acceleration": -4.800000000000001,
+            "interval_90_lower": 12.738716542436531,
+            "interval_90_upper": 12.738716542436531
+          },
+          {
+            "period_end": "2023-08-31",
+            "actual": 10.2,
+            "predicted": 10.697089293259253,
+            "latest_released": 10.6,
+            "predicted_acceleration": 0.09708929325925375,
+            "actual_acceleration": -0.40000000000000036,
+            "interval_90_lower": 10.697089293259253,
+            "interval_90_upper": 10.697089293259253
+          },
+          {
+            "period_end": "2023-09-30",
+            "actual": 11.5,
+            "predicted": 10.526953689161147,
+            "latest_released": 10.2,
+            "predicted_acceleration": 0.3269536891611473,
+            "actual_acceleration": 1.3000000000000007,
+            "interval_90_lower": 10.526953689161147,
+            "interval_90_upper": 10.526953689161147
+          },
+          {
+            "period_end": "2023-10-31",
+            "actual": 9.8,
+            "predicted": 11.079894402479994,
+            "latest_released": 11.5,
+            "predicted_acceleration": -0.4201055975200063,
+            "actual_acceleration": -1.6999999999999993,
+            "interval_90_lower": 11.079894402479994,
+            "interval_90_upper": 11.079894402479994
+          },
+          {
+            "period_end": "2023-11-30",
+            "actual": 10.2,
+            "predicted": 10.35681808506304,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.5568180850630391,
+            "actual_acceleration": 0.3999999999999986,
+            "interval_90_lower": 10.35681808506304,
+            "interval_90_upper": 10.35681808506304
+          },
+          {
+            "period_end": "2023-12-31",
+            "actual": 10.1,
+            "predicted": 10.526953689161147,
+            "latest_released": 10.2,
+            "predicted_acceleration": 0.3269536891611473,
+            "actual_acceleration": -0.09999999999999964,
+            "interval_90_lower": 10.526953689161147,
+            "interval_90_upper": 10.526953689161147
+          }
+        ]
+      }
+    },
+    "frozen_oos": {
+      "persistence": {
+        "metrics": {
+          "sample_count": 27,
+          "mae": 1.7592592592592593,
+          "rmse": 2.2753917041703846,
+          "oos_r2_vs_persistence": 0.0,
+          "acceleration_direction_accuracy": 0.48148148148148145,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [
+          {
+            "period_end": "2024-02-29",
+            "actual": 4.6,
+            "predicted": 10.1,
+            "latest_released": 10.1,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -5.5,
+            "interval_90_lower": 10.1,
+            "interval_90_upper": 10.1
+          },
+          {
+            "period_end": "2024-03-31",
+            "actual": 4.8,
+            "predicted": 4.6,
+            "latest_released": 4.6,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 0.20000000000000018,
+            "interval_90_lower": 4.6,
+            "interval_90_upper": 4.6
+          },
+          {
+            "period_end": "2024-04-30",
+            "actual": 5.8,
+            "predicted": 4.8,
+            "latest_released": 4.8,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 4.8,
+            "interval_90_upper": 4.8
+          },
+          {
+            "period_end": "2024-05-31",
+            "actual": 3.9,
+            "predicted": 5.8,
+            "latest_released": 5.8,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -1.9,
+            "interval_90_lower": 5.8,
+            "interval_90_upper": 5.8
+          },
+          {
+            "period_end": "2024-06-30",
+            "actual": 4.4,
+            "predicted": 3.9,
+            "latest_released": 3.9,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 0.5000000000000004,
+            "interval_90_lower": 3.9,
+            "interval_90_upper": 3.9
+          },
+          {
+            "period_end": "2024-07-31",
+            "actual": 2.8,
+            "predicted": 4.4,
+            "latest_released": 4.4,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -1.6000000000000005,
+            "interval_90_lower": 4.4,
+            "interval_90_upper": 4.4
+          },
+          {
+            "period_end": "2024-08-31",
+            "actual": 2.6,
+            "predicted": 2.8,
+            "latest_released": 2.8,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -0.19999999999999973,
+            "interval_90_lower": 2.8,
+            "interval_90_upper": 2.8
+          },
+          {
+            "period_end": "2024-09-30",
+            "actual": 6.1,
+            "predicted": 2.6,
+            "latest_released": 2.6,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 3.4999999999999996,
+            "interval_90_lower": 2.6,
+            "interval_90_upper": 2.6
+          },
+          {
+            "period_end": "2024-10-31",
+            "actual": 5.1,
+            "predicted": 6.1,
+            "latest_released": 6.1,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -1.0,
+            "interval_90_lower": 6.1,
+            "interval_90_upper": 6.1
+          },
+          {
+            "period_end": "2024-11-30",
+            "actual": 5.2,
+            "predicted": 5.1,
+            "latest_released": 5.1,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 0.10000000000000053,
+            "interval_90_lower": 5.1,
+            "interval_90_upper": 5.1
+          },
+          {
+            "period_end": "2024-12-31",
+            "actual": 9.2,
+            "predicted": 5.2,
+            "latest_released": 5.2,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 3.999999999999999,
+            "interval_90_lower": 5.2,
+            "interval_90_upper": 5.2
+          },
+          {
+            "period_end": "2025-02-28",
+            "actual": 12.0,
+            "predicted": 9.2,
+            "latest_released": 9.2,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 2.8000000000000007,
+            "interval_90_lower": 9.2,
+            "interval_90_upper": 9.2
+          },
+          {
+            "period_end": "2025-03-31",
+            "actual": 13.0,
+            "predicted": 12.0,
+            "latest_released": 12.0,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 12.0,
+            "interval_90_upper": 12.0
+          },
+          {
+            "period_end": "2025-04-30",
+            "actual": 13.4,
+            "predicted": 13.0,
+            "latest_released": 13.0,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 13.0,
+            "interval_90_upper": 13.0
+          },
+          {
+            "period_end": "2025-05-31",
+            "actual": 11.0,
+            "predicted": 13.4,
+            "latest_released": 13.4,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -2.4000000000000004,
+            "interval_90_lower": 13.4,
+            "interval_90_upper": 13.4
+          },
+          {
+            "period_end": "2025-06-30",
+            "actual": 11.4,
+            "predicted": 11.0,
+            "latest_released": 11.0,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 11.0,
+            "interval_90_upper": 11.0
+          },
+          {
+            "period_end": "2025-07-31",
+            "actual": 10.2,
+            "predicted": 11.4,
+            "latest_released": 11.4,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -1.200000000000001,
+            "interval_90_lower": 11.4,
+            "interval_90_upper": 11.4
+          },
+          {
+            "period_end": "2025-08-31",
+            "actual": 9.8,
+            "predicted": 10.2,
+            "latest_released": 10.2,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -0.3999999999999986,
+            "interval_90_lower": 10.2,
+            "interval_90_upper": 10.2
+          },
+          {
+            "period_end": "2025-09-30",
+            "actual": 7.9,
+            "predicted": 9.8,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 9.8,
+            "interval_90_upper": 9.8
+          },
+          {
+            "period_end": "2025-10-31",
+            "actual": 4.9,
+            "predicted": 7.9,
+            "latest_released": 7.9,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 7.9,
+            "interval_90_upper": 7.9
+          },
+          {
+            "period_end": "2025-11-30",
+            "actual": 4.4,
+            "predicted": 4.9,
+            "latest_released": 4.9,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -0.5,
+            "interval_90_lower": 4.9,
+            "interval_90_upper": 4.9
+          },
+          {
+            "period_end": "2025-12-31",
+            "actual": 4.3,
+            "predicted": 4.4,
+            "latest_released": 4.4,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -0.10000000000000053,
+            "interval_90_lower": 4.4,
+            "interval_90_upper": 4.4
+          },
+          {
+            "period_end": "2026-02-28",
+            "actual": 8.7,
+            "predicted": 4.3,
+            "latest_released": 4.3,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 4.3999999999999995,
+            "interval_90_lower": 4.3,
+            "interval_90_upper": 4.3
+          },
+          {
+            "period_end": "2026-03-31",
+            "actual": 5.4,
+            "predicted": 8.7,
+            "latest_released": 8.7,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -3.299999999999999,
+            "interval_90_lower": 8.7,
+            "interval_90_upper": 8.7
+          },
+          {
+            "period_end": "2026-04-30",
+            "actual": 3.1,
+            "predicted": 5.4,
+            "latest_released": 5.4,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": -2.3000000000000003,
+            "interval_90_lower": 5.4,
+            "interval_90_upper": 5.4
+          },
+          {
+            "period_end": "2026-05-31",
+            "actual": 4.7,
+            "predicted": 3.1,
+            "latest_released": 3.1,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 1.6,
+            "interval_90_lower": 3.1,
+            "interval_90_upper": 3.1
+          },
+          {
+            "period_end": "2026-06-30",
+            "actual": 7.0,
+            "predicted": 4.7,
+            "latest_released": 4.7,
+            "predicted_acceleration": 0.0,
+            "actual_acceleration": 2.3,
+            "interval_90_lower": 4.7,
+            "interval_90_upper": 4.7
+          }
+        ]
+      },
+      "seasonal": {
+        "metrics": {
+          "sample_count": 27,
+          "mae": 6.511111111111111,
+          "rmse": 7.233666146977335,
+          "oos_r2_vs_persistence": -9.106588454109737,
+          "acceleration_direction_accuracy": 0.5185185185185185,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [
+          {
+            "period_end": "2024-02-29",
+            "actual": 4.6,
+            "predicted": 13.9,
+            "latest_released": 10.1,
+            "predicted_acceleration": 3.8000000000000007,
+            "actual_acceleration": -5.5,
+            "interval_90_lower": 13.9,
+            "interval_90_upper": 13.9
+          },
+          {
+            "period_end": "2024-03-31",
+            "actual": 4.8,
+            "predicted": 16.9,
+            "latest_released": 4.6,
+            "predicted_acceleration": 12.299999999999999,
+            "actual_acceleration": 0.20000000000000018,
+            "interval_90_lower": 16.9,
+            "interval_90_upper": 16.9
+          },
+          {
+            "period_end": "2024-04-30",
+            "actual": 5.8,
+            "predicted": 17.3,
+            "latest_released": 4.8,
+            "predicted_acceleration": 12.5,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 17.3,
+            "interval_90_upper": 17.3
+          },
+          {
+            "period_end": "2024-05-31",
+            "actual": 3.9,
+            "predicted": 15.4,
+            "latest_released": 5.8,
+            "predicted_acceleration": 9.600000000000001,
+            "actual_acceleration": -1.9,
+            "interval_90_lower": 15.4,
+            "interval_90_upper": 15.4
+          },
+          {
+            "period_end": "2024-06-30",
+            "actual": 4.4,
+            "predicted": 12.9,
+            "latest_released": 3.9,
+            "predicted_acceleration": 9.0,
+            "actual_acceleration": 0.5000000000000004,
+            "interval_90_lower": 12.9,
+            "interval_90_upper": 12.9
+          },
+          {
+            "period_end": "2024-07-31",
+            "actual": 2.8,
+            "predicted": 10.6,
+            "latest_released": 4.4,
+            "predicted_acceleration": 6.199999999999999,
+            "actual_acceleration": -1.6000000000000005,
+            "interval_90_lower": 10.6,
+            "interval_90_upper": 10.6
+          },
+          {
+            "period_end": "2024-08-31",
+            "actual": 2.6,
+            "predicted": 10.2,
+            "latest_released": 2.8,
+            "predicted_acceleration": 7.3999999999999995,
+            "actual_acceleration": -0.19999999999999973,
+            "interval_90_lower": 10.2,
+            "interval_90_upper": 10.2
+          },
+          {
+            "period_end": "2024-09-30",
+            "actual": 6.1,
+            "predicted": 11.5,
+            "latest_released": 2.6,
+            "predicted_acceleration": 8.9,
+            "actual_acceleration": 3.4999999999999996,
+            "interval_90_lower": 11.5,
+            "interval_90_upper": 11.5
+          },
+          {
+            "period_end": "2024-10-31",
+            "actual": 5.1,
+            "predicted": 9.8,
+            "latest_released": 6.1,
+            "predicted_acceleration": 3.700000000000001,
+            "actual_acceleration": -1.0,
+            "interval_90_lower": 9.8,
+            "interval_90_upper": 9.8
+          },
+          {
+            "period_end": "2024-11-30",
+            "actual": 5.2,
+            "predicted": 10.2,
+            "latest_released": 5.1,
+            "predicted_acceleration": 5.1,
+            "actual_acceleration": 0.10000000000000053,
+            "interval_90_lower": 10.2,
+            "interval_90_upper": 10.2
+          },
+          {
+            "period_end": "2024-12-31",
+            "actual": 9.2,
+            "predicted": 10.1,
+            "latest_released": 5.2,
+            "predicted_acceleration": 4.8999999999999995,
+            "actual_acceleration": 3.999999999999999,
+            "interval_90_lower": 10.1,
+            "interval_90_upper": 10.1
+          },
+          {
+            "period_end": "2025-02-28",
+            "actual": 12.0,
+            "predicted": 4.6,
+            "latest_released": 9.2,
+            "predicted_acceleration": -4.6,
+            "actual_acceleration": 2.8000000000000007,
+            "interval_90_lower": 4.6,
+            "interval_90_upper": 4.6
+          },
+          {
+            "period_end": "2025-03-31",
+            "actual": 13.0,
+            "predicted": 4.8,
+            "latest_released": 12.0,
+            "predicted_acceleration": -7.2,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 4.8,
+            "interval_90_upper": 4.8
+          },
+          {
+            "period_end": "2025-04-30",
+            "actual": 13.4,
+            "predicted": 5.8,
+            "latest_released": 13.0,
+            "predicted_acceleration": -7.2,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 5.8,
+            "interval_90_upper": 5.8
+          },
+          {
+            "period_end": "2025-05-31",
+            "actual": 11.0,
+            "predicted": 3.9,
+            "latest_released": 13.4,
+            "predicted_acceleration": -9.5,
+            "actual_acceleration": -2.4000000000000004,
+            "interval_90_lower": 3.9,
+            "interval_90_upper": 3.9
+          },
+          {
+            "period_end": "2025-06-30",
+            "actual": 11.4,
+            "predicted": 4.4,
+            "latest_released": 11.0,
+            "predicted_acceleration": -6.6,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 4.4,
+            "interval_90_upper": 4.4
+          },
+          {
+            "period_end": "2025-07-31",
+            "actual": 10.2,
+            "predicted": 2.8,
+            "latest_released": 11.4,
+            "predicted_acceleration": -8.600000000000001,
+            "actual_acceleration": -1.200000000000001,
+            "interval_90_lower": 2.8,
+            "interval_90_upper": 2.8
+          },
+          {
+            "period_end": "2025-08-31",
+            "actual": 9.8,
+            "predicted": 2.6,
+            "latest_released": 10.2,
+            "predicted_acceleration": -7.6,
+            "actual_acceleration": -0.3999999999999986,
+            "interval_90_lower": 2.6,
+            "interval_90_upper": 2.6
+          },
+          {
+            "period_end": "2025-09-30",
+            "actual": 7.9,
+            "predicted": 6.1,
+            "latest_released": 9.8,
+            "predicted_acceleration": -3.700000000000001,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 6.1,
+            "interval_90_upper": 6.1
+          },
+          {
+            "period_end": "2025-10-31",
+            "actual": 4.9,
+            "predicted": 5.1,
+            "latest_released": 7.9,
+            "predicted_acceleration": -2.8000000000000007,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 5.1,
+            "interval_90_upper": 5.1
+          },
+          {
+            "period_end": "2025-11-30",
+            "actual": 4.4,
+            "predicted": 5.2,
+            "latest_released": 4.9,
+            "predicted_acceleration": 0.2999999999999998,
+            "actual_acceleration": -0.5,
+            "interval_90_lower": 5.2,
+            "interval_90_upper": 5.2
+          },
+          {
+            "period_end": "2025-12-31",
+            "actual": 4.3,
+            "predicted": 9.2,
+            "latest_released": 4.4,
+            "predicted_acceleration": 4.799999999999999,
+            "actual_acceleration": -0.10000000000000053,
+            "interval_90_lower": 9.2,
+            "interval_90_upper": 9.2
+          },
+          {
+            "period_end": "2026-02-28",
+            "actual": 8.7,
+            "predicted": 12.0,
+            "latest_released": 4.3,
+            "predicted_acceleration": 7.7,
+            "actual_acceleration": 4.3999999999999995,
+            "interval_90_lower": 12.0,
+            "interval_90_upper": 12.0
+          },
+          {
+            "period_end": "2026-03-31",
+            "actual": 5.4,
+            "predicted": 13.0,
+            "latest_released": 8.7,
+            "predicted_acceleration": 4.300000000000001,
+            "actual_acceleration": -3.299999999999999,
+            "interval_90_lower": 13.0,
+            "interval_90_upper": 13.0
+          },
+          {
+            "period_end": "2026-04-30",
+            "actual": 3.1,
+            "predicted": 13.4,
+            "latest_released": 5.4,
+            "predicted_acceleration": 8.0,
+            "actual_acceleration": -2.3000000000000003,
+            "interval_90_lower": 13.4,
+            "interval_90_upper": 13.4
+          },
+          {
+            "period_end": "2026-05-31",
+            "actual": 4.7,
+            "predicted": 11.0,
+            "latest_released": 3.1,
+            "predicted_acceleration": 7.9,
+            "actual_acceleration": 1.6,
+            "interval_90_lower": 11.0,
+            "interval_90_upper": 11.0
+          },
+          {
+            "period_end": "2026-06-30",
+            "actual": 7.0,
+            "predicted": 11.4,
+            "latest_released": 4.7,
+            "predicted_acceleration": 6.7,
+            "actual_acceleration": 2.3,
+            "interval_90_lower": 11.4,
+            "interval_90_upper": 11.4
+          }
+        ]
+      },
+      "ar1": {
+        "metrics": {
+          "sample_count": 27,
+          "mae": 2.9244075148312585,
+          "rmse": 3.402758516860488,
+          "oos_r2_vs_persistence": -1.2364022401444874,
+          "acceleration_direction_accuracy": 0.48148148148148145,
+          "prediction_interval_90_coverage": 0.0
+        },
+        "predictions": [
+          {
+            "period_end": "2024-02-29",
+            "actual": 4.6,
+            "predicted": 10.685494693042399,
+            "latest_released": 10.1,
+            "predicted_acceleration": 0.5854946930423992,
+            "actual_acceleration": -5.5,
+            "interval_90_lower": 10.685494693042399,
+            "interval_90_upper": 10.685494693042399
+          },
+          {
+            "period_end": "2024-03-31",
+            "actual": 4.8,
+            "predicted": 8.318937186474354,
+            "latest_released": 4.6,
+            "predicted_acceleration": 3.7189371864743546,
+            "actual_acceleration": 0.20000000000000018,
+            "interval_90_lower": 8.318937186474354,
+            "interval_90_upper": 8.318937186474354
+          },
+          {
+            "period_end": "2024-04-30",
+            "actual": 5.8,
+            "predicted": 8.404993823076829,
+            "latest_released": 4.8,
+            "predicted_acceleration": 3.6049938230768293,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 8.404993823076829,
+            "interval_90_upper": 8.404993823076829
+          },
+          {
+            "period_end": "2024-05-31",
+            "actual": 3.9,
+            "predicted": 8.8352770060892,
+            "latest_released": 5.8,
+            "predicted_acceleration": 3.0352770060892,
+            "actual_acceleration": -1.9,
+            "interval_90_lower": 8.8352770060892,
+            "interval_90_upper": 8.8352770060892
+          },
+          {
+            "period_end": "2024-06-30",
+            "actual": 4.4,
+            "predicted": 8.017738958365694,
+            "latest_released": 3.9,
+            "predicted_acceleration": 4.117738958365694,
+            "actual_acceleration": 0.5000000000000004,
+            "interval_90_lower": 8.017738958365694,
+            "interval_90_upper": 8.017738958365694
+          },
+          {
+            "period_end": "2024-07-31",
+            "actual": 2.8,
+            "predicted": 8.23288054987188,
+            "latest_released": 4.4,
+            "predicted_acceleration": 3.832880549871879,
+            "actual_acceleration": -1.6000000000000005,
+            "interval_90_lower": 8.23288054987188,
+            "interval_90_upper": 8.23288054987188
+          },
+          {
+            "period_end": "2024-08-31",
+            "actual": 2.6,
+            "predicted": 7.544427457052086,
+            "latest_released": 2.8,
+            "predicted_acceleration": 4.744427457052086,
+            "actual_acceleration": -0.19999999999999973,
+            "interval_90_lower": 7.544427457052086,
+            "interval_90_upper": 7.544427457052086
+          },
+          {
+            "period_end": "2024-09-30",
+            "actual": 6.1,
+            "predicted": 7.458370820449611,
+            "latest_released": 2.6,
+            "predicted_acceleration": 4.858370820449611,
+            "actual_acceleration": 3.4999999999999996,
+            "interval_90_lower": 7.458370820449611,
+            "interval_90_upper": 7.458370820449611
+          },
+          {
+            "period_end": "2024-10-31",
+            "actual": 5.1,
+            "predicted": 8.964361960992912,
+            "latest_released": 6.1,
+            "predicted_acceleration": 2.8643619609929125,
+            "actual_acceleration": -1.0,
+            "interval_90_lower": 8.964361960992912,
+            "interval_90_upper": 8.964361960992912
+          },
+          {
+            "period_end": "2024-11-30",
+            "actual": 5.2,
+            "predicted": 8.53407877798054,
+            "latest_released": 5.1,
+            "predicted_acceleration": 3.43407877798054,
+            "actual_acceleration": 0.10000000000000053,
+            "interval_90_lower": 8.53407877798054,
+            "interval_90_upper": 8.53407877798054
+          },
+          {
+            "period_end": "2024-12-31",
+            "actual": 9.2,
+            "predicted": 8.577107096281777,
+            "latest_released": 5.2,
+            "predicted_acceleration": 3.377107096281777,
+            "actual_acceleration": 3.999999999999999,
+            "interval_90_lower": 8.577107096281777,
+            "interval_90_upper": 8.577107096281777
+          },
+          {
+            "period_end": "2025-02-28",
+            "actual": 12.0,
+            "predicted": 10.298239828331264,
+            "latest_released": 9.2,
+            "predicted_acceleration": 1.0982398283312644,
+            "actual_acceleration": 2.8000000000000007,
+            "interval_90_lower": 10.298239828331264,
+            "interval_90_upper": 10.298239828331264
+          },
+          {
+            "period_end": "2025-03-31",
+            "actual": 13.0,
+            "predicted": 11.503032740765905,
+            "latest_released": 12.0,
+            "predicted_acceleration": -0.49696725923409524,
+            "actual_acceleration": 1.0,
+            "interval_90_lower": 11.503032740765905,
+            "interval_90_upper": 11.503032740765905
+          },
+          {
+            "period_end": "2025-04-30",
+            "actual": 13.4,
+            "predicted": 11.933315923778277,
+            "latest_released": 13.0,
+            "predicted_acceleration": -1.0666840762217227,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 11.933315923778277,
+            "interval_90_upper": 11.933315923778277
+          },
+          {
+            "period_end": "2025-05-31",
+            "actual": 11.0,
+            "predicted": 12.105429196983225,
+            "latest_released": 13.4,
+            "predicted_acceleration": -1.294570803016775,
+            "actual_acceleration": -2.4000000000000004,
+            "interval_90_lower": 12.105429196983225,
+            "interval_90_upper": 12.105429196983225
+          },
+          {
+            "period_end": "2025-06-30",
+            "actual": 11.4,
+            "predicted": 11.072749557753532,
+            "latest_released": 11.0,
+            "predicted_acceleration": 0.0727495577535322,
+            "actual_acceleration": 0.40000000000000036,
+            "interval_90_lower": 11.072749557753532,
+            "interval_90_upper": 11.072749557753532
+          },
+          {
+            "period_end": "2025-07-31",
+            "actual": 10.2,
+            "predicted": 11.244862830958482,
+            "latest_released": 11.4,
+            "predicted_acceleration": -0.15513716904151842,
+            "actual_acceleration": -1.200000000000001,
+            "interval_90_lower": 11.244862830958482,
+            "interval_90_upper": 11.244862830958482
+          },
+          {
+            "period_end": "2025-08-31",
+            "actual": 9.8,
+            "predicted": 10.728523011343636,
+            "latest_released": 10.2,
+            "predicted_acceleration": 0.528523011343637,
+            "actual_acceleration": -0.3999999999999986,
+            "interval_90_lower": 10.728523011343636,
+            "interval_90_upper": 10.728523011343636
+          },
+          {
+            "period_end": "2025-09-30",
+            "actual": 7.9,
+            "predicted": 10.556409738138687,
+            "latest_released": 9.8,
+            "predicted_acceleration": 0.7564097381386858,
+            "actual_acceleration": -1.9000000000000004,
+            "interval_90_lower": 10.556409738138687,
+            "interval_90_upper": 10.556409738138687
+          },
+          {
+            "period_end": "2025-10-31",
+            "actual": 4.9,
+            "predicted": 9.73887169041518,
+            "latest_released": 7.9,
+            "predicted_acceleration": 1.8388716904151803,
+            "actual_acceleration": -3.0,
+            "interval_90_lower": 9.73887169041518,
+            "interval_90_upper": 9.73887169041518
+          },
+          {
+            "period_end": "2025-11-30",
+            "actual": 4.4,
+            "predicted": 8.448022141378067,
+            "latest_released": 4.9,
+            "predicted_acceleration": 3.548022141378066,
+            "actual_acceleration": -0.5,
+            "interval_90_lower": 8.448022141378067,
+            "interval_90_upper": 8.448022141378067
+          },
+          {
+            "period_end": "2025-12-31",
+            "actual": 4.3,
+            "predicted": 8.23288054987188,
+            "latest_released": 4.4,
+            "predicted_acceleration": 3.832880549871879,
+            "actual_acceleration": -0.10000000000000053,
+            "interval_90_lower": 8.23288054987188,
+            "interval_90_upper": 8.23288054987188
+          },
+          {
+            "period_end": "2026-02-28",
+            "actual": 8.7,
+            "predicted": 8.189852231570644,
+            "latest_released": 4.3,
+            "predicted_acceleration": 3.889852231570644,
+            "actual_acceleration": 4.3999999999999995,
+            "interval_90_lower": 8.189852231570644,
+            "interval_90_upper": 8.189852231570644
+          },
+          {
+            "period_end": "2026-03-31",
+            "actual": 5.4,
+            "predicted": 10.083098236825078,
+            "latest_released": 8.7,
+            "predicted_acceleration": 1.383098236825079,
+            "actual_acceleration": -3.299999999999999,
+            "interval_90_lower": 10.083098236825078,
+            "interval_90_upper": 10.083098236825078
+          },
+          {
+            "period_end": "2026-04-30",
+            "actual": 3.1,
+            "predicted": 8.663163732884252,
+            "latest_released": 5.4,
+            "predicted_acceleration": 3.2631637328842515,
+            "actual_acceleration": -2.3000000000000003,
+            "interval_90_lower": 8.663163732884252,
+            "interval_90_upper": 8.663163732884252
+          },
+          {
+            "period_end": "2026-05-31",
+            "actual": 4.7,
+            "predicted": 7.673512411955797,
+            "latest_released": 3.1,
+            "predicted_acceleration": 4.573512411955797,
+            "actual_acceleration": 1.6,
+            "interval_90_lower": 7.673512411955797,
+            "interval_90_upper": 7.673512411955797
+          },
+          {
+            "period_end": "2026-06-30",
+            "actual": 7.0,
+            "predicted": 8.361965504775592,
+            "latest_released": 4.7,
+            "predicted_acceleration": 3.6619655047755915,
+            "actual_acceleration": 2.3,
+            "interval_90_lower": 8.361965504775592,
+            "interval_90_upper": 8.361965504775592
+          }
+        ]
+      }
+    }
+  },
+  "disclaimer": "本报告仅供研究参考，不构成投资建议",
+  "data_audit": {
+    "input_document_count": 302,
+    "canonical_document_count": 300,
+    "dropped_document_count": 2,
+    "dropped_documents": [
+      {
+        "doc_id": "DANN-009",
+        "duplicate_of": "DANN-008",
+        "reason": "near_duplicate_text"
+      },
+      {
+        "doc_id": "S108",
+        "duplicate_of": "S104",
+        "reason": "near_duplicate_text"
+      }
+    ],
+    "period_count": 116,
+    "dedup_dropped_document_count": 2,
+    "macro_ai_success_count": 296,
+    "macro_target_count": 116,
+    "historical_macro_rule_count": 1
+  }
+}
