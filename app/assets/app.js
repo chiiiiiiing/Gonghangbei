@@ -138,12 +138,16 @@ function renderAnalysis(data) {
   const disputed = predicates.filter((row) => row.status === "disputed");
   const predicted = data.predicted_variable || {};
   const mapping = data.v5_strategy_mapping || data.strategy_mapping || {};
+  const v6Mapping = data.v6_strategy_mapping || {};
   const increment = data.increment_evidence || {};
   const recording = data.v5_signal_recording || {};
   const trendPosition = Number(mapping.baseline_position || 0);
   const enhancedPosition = Number(mapping.enhanced_position || trendPosition);
   const positionDelta = Number(mapping.position_delta || 0);
   const mappingReady = mapping.status === "mapped" || mapping.status === "awaiting_next_trading_day";
+  const v6MappingReady = v6Mapping.status === "mapped" || v6Mapping.status === "awaiting_next_trading_day";
+  const v6Position = Number(v6Mapping.enhanced_position || trendPosition);
+  const v6PositionDelta = Number(v6Mapping.position_delta || 0);
   const strategyLabel = mapping.quality_rule_active ? "bullish" : "neutral";
   const labelKind = strategyLabel === "bullish" ? "good" : "warn";
   const ruleRows = rules.map((rule) => `<tr><td class="mono">${esc(rule.rule_id)}</td><td>${esc((rule.conditions || []).map((name) => PREDICATE_LABELS[name] || name).join(" + "))}</td><td>${esc(LABELS[rule.target_label] || rule.target_label)}</td><td class="mono">${fixed(rule.score)}</td><td>${esc(rule.support_documents)}</td></tr>`).join("") || '<tr><td colspan="5">当前没有冻结规则被 agreed_true 谓词激活，RIFT 分数按 0 处理。</td></tr>';
@@ -165,12 +169,16 @@ function renderAnalysis(data) {
         <div class="detail-item"><b>成熟市场基准仓位</b><span class="mono">${fixed(trendPosition, 3)}</span></div>
         <div class="detail-item"><b>V5 文本增强仓位</b><span class="mono">${fixed(enhancedPosition, 3)}</span></div>
         <div class="detail-item"><b>仓位边际变化</b><span class="mono">${positionDelta >= 0 ? "+" : ""}${fixed(positionDelta, 3)}</span></div>
+        <div class="detail-item"><b>V6 文本增强仓位</b><span class="mono">${fixed(v6Position, 3)}</span></div>
+        <div class="detail-item"><b>V6 仓位边际变化</b><span class="mono">${v6PositionDelta >= 0 ? "+" : ""}${fixed(v6PositionDelta, 3)}</span></div>
         <div class="detail-item"><b>质量规则</b><span>${mapping.quality_rule_active ? "已激活" : "未激活"}</span></div>
+        <div class="detail-item"><b>V6 质量规则</b><span>${v6Mapping.quality_rule_active ? "已激活" : "未激活"}</span></div>
         <div class="detail-item"><b>文本是否确认基准</b><span>${mapping.text_confirmed ? "是" : "否"}</span></div>
       </div>
       <div class="notice ${mappingReady ? "good" : "warn"}"><strong>策略映射：</strong>${mappingReady ? esc(mapping.formula) : `尚不可映射（${esc(mapping.status || "unknown")}）。`}</div>
+      <div class="notice ${v6MappingReady ? "good" : "warn"}"><strong>V6 优化策略映射：</strong>${v6MappingReady ? esc(v6Mapping.formula) : `尚不可映射（${esc(v6Mapping.status || "unknown")}）。`}</div>
       <div class="notice ${recording.status === "recorded" || recording.status === "already_recorded" ? "good" : "warn"}"><strong>前瞻信号账本：</strong>${esc(recording.status || "not_requested")}。</div>
-      <div class="notice ${increment.v5_retrospective_increment_evidence ? "good" : "warn"}"><strong>增量证据：${increment.v5_retrospective_increment_evidence ? "历史滚动增量成立" : "历史增量未建立"}，严格前瞻仍待检验。</strong> V5 已结算 ${esc(increment.v5_settled_decisions || 0)} 个；${esc(increment.acceptance_gate || "待统计检验")}。</div></div>
+      <div class="notice ${increment.v6_retrospective_increment_evidence ? "good" : "warn"}"><strong>V6 增量证据：${increment.v6_retrospective_increment_evidence ? "历史滚动增量成立" : "历史增量未建立"}，严格前瞻仍待检验。</strong> V6 已结算 ${esc(increment.v6_settled_decisions || 0)} 个；${esc(increment.acceptance_gate || "待统计检验")}。</div></div>
     </section>
     <section class="section"><div class="section-header"><div><h2>激活规则</h2><p>仅 agreed_true 谓词能够触发冻结规则</p></div>${badge(`${rules.length} / ${data.rulebook_size} 条`, rules.length ? "good" : "warn")}</div><div class="table-wrap"><table><thead><tr><th>规则</th><th>条件</th><th>方向</th><th>评分</th><th>独立文档</th></tr></thead><tbody>${ruleRows}</tbody></table></div></section>
     <section class="section"><div class="section-header"><div><h2>固定谓词共识</h2><p>${activeTrue.length} 项一致为真 · ${disputed.length} 项冲突不进入规则</p></div>${badge(`${predicates.length} 项 Schema`, "info")}</div><div class="table-wrap"><table><thead><tr><th>谓词</th><th>确定性程序</th><th>LLM</th><th>共识</th><th>原文证据</th></tr></thead><tbody>${predicateRows}</tbody></table></div></section>
@@ -214,6 +222,14 @@ function renderValidation() {
   const v5Decision = v5.latest_decision || {};
   const v5Audit = v5.signal_audit || {};
   const v5Integrity = v5.candidate_integrity || {};
+  const v6 = backtest.deepseek_v6_walkforward || {};
+  const v6Historical = v6.historical_walkforward_bootstrap || {};
+  const v6Stress = v6.oos_stress_bootstrap || {};
+  const v6Ledger = v6.decision_ledger || {};
+  const v6Decision = v6.latest_decision || {};
+  const v6Audit = v6.signal_audit || {};
+  const v6Integrity = v6.candidate_integrity || {};
+  const v6Monitor = v6.monitor || {};
   const provenance = status.text_provenance || {};
   const sourceQuality = provenance.quality_counts || {};
   const prospectiveRows = (prospective.validation_metrics || []).map((row) => `<tr><td>${row.strategy === "pure_trend" ? "纯趋势" : "同向文本叠加"}</td><td>${esc(row.observations)}</td><td>${pct(row.annual_return)}</td><td class="mono">${fixed(row.sharpe)}</td><td>${pct(row.max_drawdown)}</td></tr>`).join("") || '<tr><td colspan="5">尚未形成验证指标。</td></tr>';
@@ -228,6 +244,11 @@ function renderValidation() {
       <div class="detail-grid"><div class="detail-item"><b>2025+ 年化收益差</b><span class="mono">${pct(v5Historical.annualized_net_return_difference)}</span></div><div class="detail-item"><b>2025+ 95% 下界</b><span class="mono">${pct(v5Historical.ci_lower_95)}</span></div><div class="detail-item"><b>2026 压力段差</b><span class="mono">${pct(v5Stress.annualized_net_return_difference)}</span></div><div class="detail-item"><b>2026 95% 下界</b><span class="mono">${pct(v5Stress.ci_lower_95)}</span></div><div class="detail-item"><b>通过质量规则</b><span class="mono">${esc(v5Audit.accepted_signals || 0)}</span></div><div class="detail-item"><b>规则</b><span>权威非交易所来源且 V4 明确偏多</span></div><div class="detail-item"><b>候选冻结</b><span>${v5Integrity.verified ? "已验证" : "不一致"}</span></div><div class="detail-item"><b>前瞻决策</b><span class="mono">${esc(v5Ledger.recorded_decisions || 0)}</span></div><div class="detail-item"><b>已结算</b><span class="mono">${esc(v5Ledger.settled_decisions || 0)}</span></div><div class="detail-item"><b>首个信号日</b><span class="mono">${esc(v5Decision.signal_date || "-")}</span></div><div class="detail-item"><b>首个仓位边际</b><span class="mono">${fixed(v5Decision.position_delta)}</span></div></div>
       <div class="notice good"><strong>回顾性证据：</strong>5 bp 下完整历史滚动区间和 2026 压力段均满足收益差为正且 Bootstrap 95% 下界大于 0；2/10 bp 敏感性也通过。</div>
       <div class="notice warn"><strong>严格边界：</strong>${esc(v5.research_boundary || "候选在历史结果可见后形成，严格结论等待冻结后的追加式决策。")}</div>
+    </div></section>
+    <section class="section"><div class="section-header"><div><h2>V6 优化候选：更强质量门禁</h2><p>score ≥ 0.2 · 排除不确定性 · 0.35 文本权重</p></div>${badge(v6.retrospective_increment_evidence ? "历史滚动增量成立" : "历史增量未建立", v6.retrospective_increment_evidence ? "good" : "bad")}</div><div class="section-body">
+      <div class="detail-grid"><div class="detail-item"><b>2025+ 年化收益差</b><span class="mono">${pct(v6Historical.annualized_net_return_difference)}</span></div><div class="detail-item"><b>2025+ 95% 下界</b><span class="mono">${pct(v6Historical.ci_lower_95)}</span></div><div class="detail-item"><b>2026 压力段差</b><span class="mono">${pct(v6Stress.annualized_net_return_difference)}</span></div><div class="detail-item"><b>2026 95% 下界</b><span class="mono">${pct(v6Stress.ci_lower_95)}</span></div><div class="detail-item"><b>通过质量规则</b><span class="mono">${esc(v6Audit.accepted_signals || 0)}</span></div><div class="detail-item"><b>规则</b><span>权威非交易所来源且零样本 ≥ 0.2，排除高不确定性</span></div><div class="detail-item"><b>候选冻结</b><span>${v6Integrity.verified ? "已验证" : "不一致"}</span></div><div class="detail-item"><b>前瞻决策</b><span class="mono">${esc(v6Ledger.recorded_decisions || 0)}</span></div><div class="detail-item"><b>已结算</b><span class="mono">${esc(v6Ledger.settled_decisions || 0)}</span></div><div class="detail-item"><b>距严格验收</b><span class="mono">${esc(v6Monitor.settled_days_remaining ?? 63)} 个交易日</span></div><div class="detail-item"><b>首个信号日</b><span class="mono">${esc(v6Decision.signal_date || "-")}</span></div><div class="detail-item"><b>首个仓位边际</b><span class="mono">${fixed(v6Decision.position_delta)}</span></div></div>
+      <div class="notice good"><strong>回顾性证据：</strong>V6 在 2/5/10 bp 成本下均满足收益差为正且 Bootstrap 95% 下界大于 0；相较 V5 提高文本门槛并增加边际权重。</div>
+      <div class="notice warn"><strong>严格边界：</strong>${esc(v6.research_boundary || "候选在历史结果可见后形成，严格结论等待冻结后的追加式决策。")}</div>
     </div></section>
     <section class="section"><div class="section-header"><div><h2>DeepSeek V4 规则增强方向推理</h2><p>谓词固定 Schema · Discovery 标签净化 · 零样本与 RIFT 独立调用</p></div>${badge(v3.conclusion || "尚未生成", "bad")}</div><div class="section-body">
       <div class="detail-grid"><div class="detail-item"><b>V4 谓词标注</b><span class="mono">${esc(v3Counts.predicate_annotations || 0)}</span></div><div class="detail-item"><b>V4 方向推理</b><span class="mono">${esc(v3Counts.direction_annotations || 0)}</span></div><div class="detail-item"><b>稳定规则</b><span class="mono">${esc(v3Counts.rules || 0)}</span></div><div class="detail-item"><b>70/30 Validation 差</b><span class="mono">${pct(v3Validation.annualized_net_return_difference)}</span></div><div class="detail-item"><b>70/30 OOS 差</b><span class="mono">${pct(v3Stress.annualized_net_return_difference)}</span></div><div class="detail-item"><b>70/30 OOS 下界</b><span class="mono">${pct(v3Stress.ci_lower_95)}</span></div><div class="detail-item"><b>同向确认 Validation</b><span class="mono">${pct(v3ConfirmedValidation.annualized_net_return_difference)}</span></div><div class="detail-item"><b>同向确认 OOS</b><span class="mono">${pct(v3ConfirmedStress.annualized_net_return_difference)}</span></div></div>

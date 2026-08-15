@@ -1,0 +1,206 @@
+{
+  "version": "lithium-v6-quality-text-walkforward-v1",
+  "status": "retrospective_walkforward_evaluated",
+  "baseline": {
+    "strategy": "mature_market_baseline",
+    "momentum_horizons": [
+      20,
+      60,
+      120
+    ],
+    "feature_lookback": 126,
+    "target_annual_volatility": 0.25,
+    "position_range": [
+      -1.0,
+      1.0
+    ]
+  },
+  "text_alpha": {
+    "strategy": "v6_quality_text_alpha",
+    "rule": "authoritative_source AND non_GFEX AND zero_shot_score >= 0.2 AND NOT uncertainty_high",
+    "window_days": 5,
+    "weight": 0.35,
+    "formula": "baseline + 0.35 * text_score only when baseline > 0",
+    "attribution": "when the quality rule is inactive, enhanced position equals baseline exactly"
+  },
+  "signal_audit": {
+    "input_signals": 259,
+    "accepted_signals": 40,
+    "rejected_below_threshold": 196,
+    "rejected_exchange_derived": 2,
+    "rejected_quality_gate": 6,
+    "rejected_uncertainty": 15,
+    "rejected_zero_confidence": 0
+  },
+  "validation_metrics": [
+    {
+      "strategy": "mature_market_baseline",
+      "split": "validation",
+      "observations": 243,
+      "annual_return": 0.31696782358127096,
+      "annual_volatility": 0.17892918930498822,
+      "sharpe": 1.7714707410929653,
+      "max_drawdown": -0.1398054778641521,
+      "annual_turnover": 13.683539745658681
+    },
+    {
+      "strategy": "v6_quality_text_alpha",
+      "split": "validation",
+      "observations": 243,
+      "annual_return": 0.3999383266255474,
+      "annual_volatility": 0.19485811624100804,
+      "sharpe": 2.0524591653697826,
+      "max_drawdown": -0.12926967234646147,
+      "annual_turnover": 14.702157638103728
+    }
+  ],
+  "validation_bootstrap": {
+    "method": "moving_block_bootstrap_3_months",
+    "block_size_trading_days": 63,
+    "observations": 243,
+    "annualized_net_return_difference": 0.06411769577106573,
+    "samples": 5000,
+    "ci_lower_95": 0.0,
+    "ci_upper_95": 0.08643596677994655,
+    "conclusion": "trading_increment_not_established"
+  },
+  "oos_stress_metrics": [
+    {
+      "strategy": "mature_market_baseline",
+      "split": "oos_stress",
+      "observations": 148,
+      "annual_return": 0.05007593471629357,
+      "annual_volatility": 0.18560349685170732,
+      "sharpe": 0.2698005994806392,
+      "max_drawdown": -0.1330518258347707,
+      "annual_turnover": 7.473710595536067
+    },
+    {
+      "strategy": "v6_quality_text_alpha",
+      "split": "oos_stress",
+      "observations": 148,
+      "annual_return": 0.14754353359502592,
+      "annual_volatility": 0.20720372823021713,
+      "sharpe": 0.712069878545309,
+      "max_drawdown": -0.11212714445210192,
+      "annual_turnover": 8.681740977383866
+    }
+  ],
+  "oos_stress_bootstrap": {
+    "method": "moving_block_bootstrap_3_months",
+    "block_size_trading_days": 63,
+    "observations": 148,
+    "annualized_net_return_difference": 0.09296459403756613,
+    "samples": 5000,
+    "ci_lower_95": 0.026823814383805485,
+    "ci_upper_95": 0.11466900948217099,
+    "conclusion": "positive_increment_established"
+  },
+  "historical_walkforward_metrics": [
+    {
+      "strategy": "mature_market_baseline",
+      "split": "historical_walkforward",
+      "observations": 391,
+      "annual_return": 0.2087774975649359,
+      "annual_volatility": 0.1816149743729658,
+      "sharpe": 1.1495610330907458,
+      "max_drawdown": -0.1398054778641521,
+      "annual_turnover": 11.333016179883376
+    },
+    {
+      "strategy": "v6_quality_text_alpha",
+      "split": "historical_walkforward",
+      "observations": 391,
+      "annual_return": 0.29845791815406253,
+      "annual_volatility": 0.19971124026595358,
+      "sharpe": 1.4944472717540032,
+      "max_drawdown": -0.12926967234646147,
+      "annual_turnover": 12.423329848368345
+    }
+  ],
+  "historical_walkforward_bootstrap": {
+    "method": "moving_block_bootstrap_3_months",
+    "block_size_trading_days": 63,
+    "observations": 391,
+    "annualized_net_return_difference": 0.07503672631695334,
+    "samples": 5000,
+    "ci_lower_95": 0.02543542631636285,
+    "ci_upper_95": 0.16930916386266484,
+    "conclusion": "positive_increment_established"
+  },
+  "cost_sensitivity": [
+    {
+      "cost_bps": 2.0,
+      "oos_stress_bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 148,
+        "annualized_net_return_difference": 0.09332700315212049,
+        "samples": 5000,
+        "ci_lower_95": 0.027092144313289625,
+        "ci_upper_95": 0.11521153951114257,
+        "conclusion": "positive_increment_established"
+      },
+      "historical_walkforward_bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 391,
+        "annualized_net_return_difference": 0.07536382041749884,
+        "samples": 5000,
+        "ci_lower_95": 0.025580800171285247,
+        "ci_upper_95": 0.16995682555260466,
+        "conclusion": "positive_increment_established"
+      }
+    },
+    {
+      "cost_bps": 5.0,
+      "oos_stress_bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 148,
+        "annualized_net_return_difference": 0.09296459403756613,
+        "samples": 5000,
+        "ci_lower_95": 0.026823814383805485,
+        "ci_upper_95": 0.11466900948217099,
+        "conclusion": "positive_increment_established"
+      },
+      "historical_walkforward_bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 391,
+        "annualized_net_return_difference": 0.07503672631695334,
+        "samples": 5000,
+        "ci_lower_95": 0.02543542631636285,
+        "ci_upper_95": 0.16930916386266484,
+        "conclusion": "positive_increment_established"
+      }
+    },
+    {
+      "cost_bps": 10.0,
+      "oos_stress_bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 148,
+        "annualized_net_return_difference": 0.09236057884664227,
+        "samples": 5000,
+        "ci_lower_95": 0.026376597834665314,
+        "ci_upper_95": 0.11380314558621371,
+        "conclusion": "positive_increment_established"
+      },
+      "historical_walkforward_bootstrap": {
+        "method": "moving_block_bootstrap_3_months",
+        "block_size_trading_days": 63,
+        "observations": 391,
+        "annualized_net_return_difference": 0.07449156948271088,
+        "samples": 5000,
+        "ci_lower_95": 0.025119820865559268,
+        "ci_upper_95": 0.16824211181917004,
+        "conclusion": "positive_increment_established"
+      }
+    }
+  ],
+  "retrospective_increment_evidence": true,
+  "strict_increment_established": false,
+  "conclusion": "历史滚动增量成立，严格前瞻增量待检验",
+  "research_boundary": "V6 候选是在历史结果已可见后形成，只能作为回顾性 walk-forward 证据；2026 单段仅作压力检验，不冒充新的未见 OOS。严格结论继续读取 V6 追加式前瞻账本。"
+}

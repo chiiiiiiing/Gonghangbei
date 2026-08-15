@@ -1,0 +1,3 @@
+run_at,requested_end,previous_market_day,latest_market_day,status,recorded_decisions,settled_decisions,pending_decisions,bootstrap_observations,annualized_net_return_difference,ci_lower_95,conclusion,prefix_manifest_sha256
+2026-08-15T01:49:00+08:00,2026-08-14,2026-08-14,2026-08-14,already_recorded,1,0,1,0,0.0,0.0,历史滚动增量成立，严格前瞻增量待检验,7f3fda259184f132882dbf7acd9a254bbfd177cb541f6dc9e7363e90b4a51290
+2026-08-15T02:04:27+08:00,2026-08-14,2026-08-14,2026-08-14,already_recorded,1,0,1,0,0.0,0.0,历史滚动增量成立，严格前瞻增量待检验,7f3fda259184f132882dbf7acd9a254bbfd177cb541f6dc9e7363e90b4a51290

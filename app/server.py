@@ -32,6 +32,9 @@ LITHIUM_V4_RUN_PATH = LITHIUM_V3_DIR / "lithium_v4_prospective_runs.csv"
 LITHIUM_V5_REPORT_PATH = LITHIUM_V3_DIR / "lithium_v5_walkforward_report.json"
 LITHIUM_V5_LEDGER_PATH = LITHIUM_V3_DIR / "lithium_v5_prospective_decisions.csv"
 LITHIUM_V5_LIVE_SIGNAL_PATH = LITHIUM_V3_DIR / "lithium_v5_live_signals.csv"
+LITHIUM_V6_REPORT_PATH = LITHIUM_V3_DIR / "lithium_v6_walkforward_report.json"
+LITHIUM_V6_LEDGER_PATH = LITHIUM_V3_DIR / "lithium_v6_prospective_decisions.csv"
+LITHIUM_V6_RUN_PATH = LITHIUM_V3_DIR / "lithium_v6_prospective_runs.csv"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -74,12 +77,23 @@ from scripts.lithium_v4_prospective_integrity import (  # noqa: E402
 from scripts.lithium_v5_candidate_integrity import (  # noqa: E402
     verify_manifest as verify_lithium_v5_manifest,
 )
+from scripts.lithium_v6_candidate_integrity import (  # noqa: E402
+    verify_manifest as verify_lithium_v6_manifest,
+)
 from src.lithium.walkforward import (  # noqa: E402
+    BASELINE_STRATEGY as LITHIUM_BASELINE_STRATEGY,
     ENHANCED_STRATEGY as LITHIUM_V5_ENHANCED_STRATEGY,
     evaluate_prospective_decisions as evaluate_lithium_v5_decisions,
     map_live_prediction as map_lithium_v5_prediction,
     paired_block_bootstrap as lithium_v5_bootstrap,
     strategy_metrics as lithium_v5_metrics,
+)
+from src.lithium.walkforward_v6 import (  # noqa: E402
+    V6_ENHANCED_STRATEGY as LITHIUM_V6_ENHANCED_STRATEGY,
+    evaluate_prospective_decisions_v6 as evaluate_lithium_v6_decisions,
+    map_live_prediction_v6 as map_lithium_v6_prediction,
+    paired_block_bootstrap_v6 as lithium_v6_bootstrap,
+    strategy_metrics as lithium_v6_metrics,
 )
 from src.lithium.live_signal_ledger import record_if_eligible as record_lithium_v5_signal  # noqa: E402
 
@@ -267,6 +281,15 @@ def load_lithium_v4_research() -> dict[str, Any]:
     )
     established = bootstrap["conclusion"] == "positive_increment_established"
     latest = decisions[-1] if decisions else {}
+    settled_decisions = int(ledger.get("settled_decisions", 0))
+    monitor = {
+        "required_settled_days": 63,
+        "settled_days_remaining": max(63 - settled_decisions, 0),
+        "acceptance_gate": (
+            "成本后收益差为正且3个月时间块Bootstrap 95%下界大于0"
+        ),
+        "ready_for_final_acceptance": settled_decisions >= 63,
+    }
     return {
         "version": "lithium-v4-prospective-ledger-v1",
         "status": "positive_increment_established" if established else "awaiting_new_oos_data",
@@ -341,6 +364,81 @@ def load_lithium_v5_research() -> dict[str, Any]:
             "verified": integrity["verified"],
             "mismatches": integrity["mismatches"],
         },
+        "latest_decision": {
+            key: latest.get(key, "")
+            for key in (
+                "decision_id", "recorded_at", "signal_date", "selected_contract",
+                "baseline_position", "active_text_score", "enhanced_position",
+                "position_delta", "accepted_signal_ids", "execution_trade_date",
+            )
+        } if latest else {},
+        "prospective_metrics": prospective_metrics,
+        "prospective_bootstrap": prospective_bootstrap,
+        "strict_increment_established": established,
+        "strict_conclusion": (
+            "交易增量成立" if established else "严格前瞻交易增量待检验"
+        ),
+        "disclaimer": DISCLAIMER,
+        "research_boundary": report.get(
+            "research_boundary", LITHIUM_RESEARCH_BOUNDARY
+        ) + LITHIUM_RESEARCH_BOUNDARY,
+    }
+
+
+def load_lithium_v6_research() -> dict[str, Any]:
+    report = _read_optional_json(LITHIUM_V6_REPORT_PATH)
+    decisions: list[dict[str, str]] = []
+    if LITHIUM_V6_LEDGER_PATH.exists():
+        with LITHIUM_V6_LEDGER_PATH.open(encoding="utf-8", newline="") as handle:
+            decisions = list(csv.DictReader(handle))
+    runs: list[dict[str, str]] = []
+    if LITHIUM_V6_RUN_PATH.exists():
+        with LITHIUM_V6_RUN_PATH.open(encoding="utf-8", newline="") as handle:
+            runs = list(csv.DictReader(handle))
+    contracts = read_lithium_csv("lithium_contract_daily.csv")
+    settled, ledger = evaluate_lithium_v6_decisions(decisions, contracts)
+    ledger["file"] = "data/research/lithium_v6_prospective_decisions.csv"
+    strategies = (LITHIUM_BASELINE_STRATEGY, LITHIUM_V6_ENHANCED_STRATEGY)
+    prospective_metrics = lithium_v6_metrics(
+        settled, "v6_prospective_oos", strategies=strategies
+    )
+    prospective_bootstrap = lithium_v6_bootstrap(
+        settled, "v6_prospective_oos"
+    )
+    established = (
+        prospective_bootstrap["conclusion"] == "positive_increment_established"
+    )
+    try:
+        integrity = verify_lithium_v6_manifest()
+    except (FileNotFoundError, KeyError, json.JSONDecodeError, ValueError) as exc:
+        integrity = {
+            "verified": False,
+            "mismatches": [f"manifest_missing_or_invalid:{type(exc).__name__}"],
+        }
+    latest = decisions[-1] if decisions else {}
+    settled_decisions = int(ledger.get("settled_decisions", 0))
+    monitor = {
+        "required_settled_days": 63,
+        "settled_days_remaining": max(63 - settled_decisions, 0),
+        "acceptance_gate": (
+            "成本后收益差为正且3个月时间块Bootstrap 95%下界大于0"
+        ),
+        "ready_for_final_acceptance": settled_decisions >= 63,
+    }
+    return {
+        **report,
+        "version": report.get("version", "lithium-v6-quality-text-walkforward-v1"),
+        "status": (
+            "positive_increment_established"
+            if established else "awaiting_new_oos_data"
+        ),
+        "decision_ledger": ledger,
+        "monitor": monitor,
+        "candidate_integrity": {
+            "verified": integrity["verified"],
+            "mismatches": integrity["mismatches"],
+        },
+        "latest_update_run": runs[-1] if runs else {},
         "latest_decision": {
             key: latest.get(key, "")
             for key in (
@@ -977,7 +1075,10 @@ def lithium_status():
     payload["deepseek_v4_research"] = v3
     payload["deepseek_v4_prospective"] = load_lithium_v4_research()
     payload["deepseek_v5_walkforward"] = load_lithium_v5_research()
-    if LITHIUM_V5_REPORT_PATH.exists():
+    payload["deepseek_v6_walkforward"] = load_lithium_v6_research()
+    if LITHIUM_V6_REPORT_PATH.exists():
+        payload["version"] = "lithium-v6-quality-text-walkforward"
+    elif LITHIUM_V5_REPORT_PATH.exists():
         payload["version"] = "lithium-v5-quality-text-walkforward"
     elif v3.get("status") == "built":
         payload["version"] = "lithium-v3-rift-v4-direction"
@@ -995,6 +1096,7 @@ def lithium_backtest():
     payload["deepseek_v4_research"] = load_lithium_v3_report()
     payload["deepseek_v4_prospective"] = load_lithium_v4_research()
     payload["deepseek_v5_walkforward"] = load_lithium_v5_research()
+    payload["deepseek_v6_walkforward"] = load_lithium_v6_research()
     return jsonify(payload)
 
 
@@ -1011,6 +1113,36 @@ def lithium_research_v4():
 @app.get("/api/lithium/research-v5")
 def lithium_research_v5():
     return jsonify(load_lithium_v5_research())
+
+
+@app.get("/api/lithium/research-v6")
+def lithium_research_v6():
+    return jsonify(load_lithium_v6_research())
+
+
+@app.get("/api/lithium/monitor-v6")
+def lithium_monitor_v6():
+    research = load_lithium_v6_research()
+    ledger = research.get("decision_ledger", {})
+    bootstrap = research.get("prospective_bootstrap", {})
+    return jsonify({
+        **research.get("monitor", {}),
+        "version": research.get("version", "lithium-v6-quality-text-walkforward-v1"),
+        "strict_increment_established": research.get(
+            "strict_increment_established", False
+        ),
+        "strict_conclusion": research.get(
+            "strict_conclusion", "严格前瞻交易增量待检验"
+        ),
+        "recorded_decisions": ledger.get("recorded_decisions", 0),
+        "settled_decisions": ledger.get("settled_decisions", 0),
+        "pending_decisions": ledger.get("pending_decisions", 0),
+        "prospective_observations": bootstrap.get("observations", 0),
+        "annualized_net_return_difference": bootstrap.get(
+            "annualized_net_return_difference", 0
+        ),
+        "bootstrap_ci_lower_95": bootstrap.get("ci_lower_95", 0),
+    })
 
 
 @app.get("/api/examples")
@@ -1254,6 +1386,12 @@ def lithium_analyze():
         build_lithium_main_continuous(contracts),
         contracts,
     )
+    v6_strategy_mapping = map_lithium_v6_prediction(
+        document,
+        result,
+        build_lithium_main_continuous(contracts),
+        contracts,
+    )
     backtest = load_lithium_backtest()
     prospective = backtest.get("prospective_candidate", {})
     prospective_bootstrap = prospective.get("prospective_bootstrap", {})
@@ -1263,6 +1401,7 @@ def lithium_analyze():
     v3_research = load_lithium_v3_report()
     v4_research = load_lithium_v4_research()
     v5_research = load_lithium_v5_research()
+    v6_research = load_lithium_v6_research()
     result["predicted_variable"] = {
         "name": "lc_main_5d_open_to_open_direction_score",
         "display_name": "碳酸锂主力合约未来5个交日 open-to-open 方向分数",
@@ -1274,6 +1413,7 @@ def lithium_analyze():
     }
     result["strategy_mapping"] = strategy_mapping
     result["v5_strategy_mapping"] = v5_strategy_mapping
+    result["v6_strategy_mapping"] = v6_strategy_mapping
     result["increment_evidence"] = {
         "benchmark_strategy": "pure_trend_20d",
         "enhanced_strategy": strategy_mapping.get("enhanced_strategy", "prospective_rule_confirmed_trend"),
@@ -1307,8 +1447,24 @@ def lithium_analyze():
         "v5_settled_decisions": v5_research.get(
             "decision_ledger", {}
         ).get("settled_decisions", 0),
+        "v6_historical_walkforward": v6_research.get(
+            "historical_walkforward_bootstrap", {}
+        ),
+        "v6_oos_stress": v6_research.get("oos_stress_bootstrap", {}),
+        "v6_retrospective_increment_evidence": v6_research.get(
+            "retrospective_increment_evidence", False
+        ),
+        "v6_strict_status": v6_research.get(
+            "status", "awaiting_new_oos_data"
+        ),
+        "v6_recorded_decisions": v6_research.get(
+            "decision_ledger", {}
+        ).get("recorded_decisions", 0),
+        "v6_settled_decisions": v6_research.get(
+            "decision_ledger", {}
+        ).get("settled_decisions", 0),
     }
-    result["prediction_scope"] = "单篇文本 -> 未来5个交易日方向分数 -> V5质量规则 -> 成熟基准增量仓位"
+    result["prediction_scope"] = "单篇文本 -> 未来5个交易日方向分数 -> V5/V6质量规则 -> 成熟基准增量仓位"
     return jsonify(result)
 
 

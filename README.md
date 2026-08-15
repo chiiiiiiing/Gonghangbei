@@ -2,7 +2,7 @@
 
 > **一句话定位**：AlphaLens 将新能源产业文本映射到固定碳酸锂谓词，通过 Discovery 样本归纳 RIFT 短规则，预测碳酸锂主力连续合约未来 5 个交易日价格方向，再检验规则增强趋势相对纯趋势是否产生严格样本外交易增量。
 >
-> 版本 `lithium-v5-quality-text-walkforward` · DeepSeek-V4-Flash 谓词与方向推理 · 17 谓词固定 Schema · 成熟市场基准 · 质量规则文本 Alpha · 追加式前瞻检验
+> 版本 `lithium-v6-quality-text-walkforward` · DeepSeek-V4-Flash 谓词与方向推理 · 17 谓词固定 Schema · 成熟市场基准 · 更强质量规则文本 Alpha · 追加式前瞻检验
 >
 > **本报告仅供研究参考，不构成投资建议**
 
@@ -19,6 +19,8 @@
 V5 将规则质量分数与市场方向分数拆开，并用 20/60/120 日同合约动量、因果滚动标准化和 25% 年化波动率目标构成成熟市场基准。文本 Alpha 只接受 `authoritative_source AND non_GFEX AND zero_shot_score > 0` 的 DeepSeek 信号，并且只有在基准偏多时增加 `0.25 * text_score`；无合格文本时增强仓位与基准完全相同。5 bp 下，2025+ 回顾性滚动区间年化配对收益差为 +5.48%，Bootstrap 95% 区间 `[+1.46%, +13.39%]`；2026 历史压力段为 +5.59%，区间 `[+0.14%, +7.17%]`，2/10 bp 成本下界也保持为正。
 
 上述 V5 数字证明了**历史模拟中的可归因交易增量**，但候选形成时历史结果已经可见，因此不冒充新的未见 OOS。候选源码、输入前缀、报告和首条决策已于 2026-08-15 冻结在 `lithium_v5_candidate_freeze.json`；首条 LC2701 决策在下一交易日开盘前写入 V5 账本，严格前瞻结论仍等待新增真实交易日。
+
+在保留 V5 审计账本和成熟市场基准不变的前提下，系统新增 **V6 优化候选**：文本质量门禁收紧为 `authoritative_source AND non_GFEX AND zero_shot_score >= 0.2 AND NOT uncertainty_high`，并将文本 Alpha 权重从 0.25 提升到 0.35。V6 历史 walk-forward（2025+）年化配对收益差约 **+7.50%**，Bootstrap 95% 下界约 **+2.54%**；2026 压力段年化差约 **+9.30%**，95% 下界约 **+2.68%**。2/5/10 bp 成本敏感性均通过。候选源码、输入前缀、报告和首条决策冻结在 `lithium_v6_candidate_freeze.json`，严格结论仍只读取 2026-08-15 之后的 append-only 前瞻账本。
 
 `lithium-prospective-v2` 的冻结文件和 append-only 决策账本仍保留为历史审计，但不与 V4 研究样本混用，也不作为新版增量证明。
 
@@ -43,7 +45,9 @@ V5 将规则质量分数与市场方向分数拆开，并用 20/60/120 日同合
 4. `DEEPSEEK_API_KEY=... ALPHALENS_LLM_MODEL=deepseek-v4-flash ALPHALENS_AI_JSON_MODE=object python scripts/build_lithium_v3_research.py`：生成受控谓词、净化 Discovery 规则簿、独立零样本/RIFT 方向信号与审计报告。
 5. `python scripts/build_lithium_v5_walkforward.py`：重建成熟市场基准、质量规则文本 Alpha、成本敏感性与回顾性 walk-forward 报告；冻结后仅用于复核，不再调参。
 6. 每个交易日 17:00 后运行 `DEEPSEEK_API_KEY=... ALPHALENS_LLM_MODEL=deepseek-v4-flash ALPHALENS_AI_JSON_MODE=object python scripts/update_lithium_v5_prospective.py`：先验证 V5 冻结候选，再调用 V4 更新器追加官方行情、仓单和当日 DeepSeek 推理，随后为同一最新交易日追加不可改写的 V5 基准/增强仓位。最新行情日已有决策时不会重复调用模型；中断恢复只允许发生在交易时点仍有效时。
-7. `python 运行研究流水线.py`：重建宏观 legacy 与碳酸锂派生输出；`python 启动演示.py` 启动页面。
+7. `python scripts/build_lithium_v6_walkforward.py`：重建 V6 更强质量门禁、0.35 文本权重、成本敏感性与回顾性 walk-forward 报告；冻结后仅用于复核，不再调参。
+8. 每个交易日 17:00 后运行 `DEEPSEEK_API_KEY=... ALPHALENS_LLM_MODEL=deepseek-v4-flash ALPHALENS_AI_JSON_MODE=object python scripts/run_daily_lithium_v6.py --end <最新日期> --days 7`：先抓取最近巨潮资讯锂产业链公告并写入非交易所前瞻信号，再验证 V6 冻结候选、推进官方行情并追加不可改写的 V6 基准/增强仓位与运行日志，最后输出严格验收监控。若只运行基准决策、跳过实时采集，可加 `--skip-live-collector`。
+9. `python scripts/verify_lithium_v6_system.py`：复核 V5/V6 冻结完整性并输出 V6 当前状态；然后 `python 运行研究流水线.py` 重建宏观 legacy 与碳酸锂派生输出，`python 启动演示.py` 启动页面。
 
 `scripts/update_lithium_prospective.py` 属于保留的 v2 冻结研究，仍依赖旧本地标注缓存，不进入本轮 V4 规则、方向信号或增量结论。本轮新增标注只允许通过显式 DeepSeek V4 命令或实时 `/api/lithium/analyze` 生成，不使用本地 Qwen 产物。
 
@@ -52,9 +56,9 @@ V4 每日更新会在 `lithium_v4_prospective_signals.csv` 和 `lithium_v4_prosp
 单文本页面勾选“写入前瞻信号账本”后，只有冻结日之后、带来源链接且实际返回模型为 `deepseek-v4-flash` 的结果会追加到 `lithium_v5_live_signals.csv`；历史示例、缺少 URL 或模型不符的请求不会进入前瞻样本。V5 每日决策同时锁定市场输入和文本信号输入哈希，API Key 从不写入账本。
 
 实时 `/api/lithium/analyze` 使用 OpenAI-compatible/DeepSeek 网关并要求调用方提供 Key；它与离线研究使用同一协议：第一通只抽固定谓词，第二通独立生成零样本方向，仅当冻结规则激活时第三通才注入 rulebook 与 Discovery 对比上下文。V4 历史标注仅由显式研究命令生成，不在 Web 请求中静默重跑。旧 Qwen 产物不进入 v3 谓词、规则或回测。
-单文本接口的两阶段合约是固定的：`predicted_variable` 返回 `lc_main_5d_open_to_open_direction_score`，`v5_strategy_mapping` 返回文本公开日对应的成熟市场基准、质量规则状态、文本 Alpha、边际仓位和下一开盘执行日，`increment_evidence` 同时返回历史滚动证据与严格前瞻账本状态。页面不再自行套用仓位公式。
+单文本接口的两阶段合约是固定的：`predicted_variable` 返回 `lc_main_5d_open_to_open_direction_score`，`v5_strategy_mapping` 与 `v6_strategy_mapping` 分别返回文本公开日对应的成熟市场基准、质量规则状态、文本 Alpha、边际仓位和下一开盘执行日，`increment_evidence` 同时返回历史滚动证据与严格前瞻账本状态。页面不再自行套用仓位公式。
 
-V5 历史证据的验收仍是成本后年化收益差为正且 3 个月时间块 Bootstrap 95% 下界大于 0；该门槛在回顾性 2025+ 与 2026 压力段均已通过。严格主结论只读取 2026-08-15 冻结后的 V5 append-only 决策账本，在积累至少 63 个已结算交易日并通过同一门槛前，必须保持“严格前瞻交易增量待检验”。
+V5 与 V6 历史证据的验收均是成本后年化收益差为正且 3 个月时间块 Bootstrap 95% 下界大于 0；该门槛在回顾性 2025+ 与 2026 压力段均已通过。严格主结论只读取 2026-08-15 冻结后的 append-only 决策账本，在积累至少 63 个已结算交易日并通过同一门槛前，必须保持“严格前瞻交易增量待检验”。
 
 ## 新主链路
 
