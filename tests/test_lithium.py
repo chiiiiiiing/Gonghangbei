@@ -720,12 +720,13 @@ class LithiumApiTests(unittest.TestCase):
         self.assertEqual(payload["v5_strategy_mapping"]["position_delta"], 0.0)
         self.assertEqual(payload["increment_evidence"]["prospective_observations"], 0)
 
-    def test_homepage_is_lithium_first_and_has_no_trading_promise(self) -> None:
-        from app.server import APP_DIR
+    def test_homepage_is_rates_first_while_lithium_api_remains_compatible(self) -> None:
+        from app.server import APP_DIR, app
 
         html = (APP_DIR / "index.html").read_text(encoding="utf-8")
-        self.assertIn("碳酸锂文本规则预测", html)
-        self.assertIn("研究验证", html)
+        self.assertIn("银行利率债文本因子研究", html)
+        self.assertIn("10Y国债收益率", html)
+        self.assertNotIn("碳酸锂文本规则预测", html)
         script = (APP_DIR / "assets" / "app.js").read_text(encoding="utf-8")
         self.assertIn("DeepSeek V4 规则增强方向推理", script)
         self.assertIn("V4 前瞻决策账本", script)
@@ -734,6 +735,7 @@ class LithiumApiTests(unittest.TestCase):
         self.assertIn("不回填已观察的旧 OOS", script)
         self.assertNotIn("保证收益", html)
         self.assertNotIn("目标价", html)
+        self.assertEqual(app.test_client().get("/api/lithium/status").status_code, 200)
 
 
 if __name__ == "__main__":

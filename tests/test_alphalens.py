@@ -200,37 +200,29 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         periods = [row["period_end"] for row in rows]
         self.assertEqual(len(periods), len(set(periods)))
 
-    def test_ui_does_not_describe_prediction_as_realtime_update(self) -> None:
+    def test_rates_ui_is_default_and_does_not_describe_prediction_as_realtime_update(self) -> None:
         root = Path(__file__).resolve().parents[1]
         index = (root / "app" / "index.html").read_text(encoding="utf-8")
-        combined = index + (root / "app" / "assets" / "app.js").read_text(encoding="utf-8")
+        combined = index + (root / "app" / "assets" / "rates.js").read_text(encoding="utf-8")
         self.assertNotIn("实时更新", combined)
         self.assertNotIn("Nowcast 边际变化", combined)
-        self.assertIn('<section class="view active" id="liveView">', index)
-        self.assertNotIn('<section class="view active" id="macroView">', index)
-        self.assertIn('data-view="liveView" type="button">新文本预测</button>', index)
-        self.assertIn('data-view="macroView" type="button">研究验证</button>', index)
-        self.assertNotIn('data-view="auditView"', index)
-        self.assertNotIn('id="auditView"', index)
-        self.assertNotIn('id="historyView"', index)
-        self.assertIn('id="validationAuditContent"', combined)
-        self.assertNotIn('href="/assets/', index)
-        self.assertNotIn('src="/vendor/', index)
-        self.assertNotIn('fetchJson("/api/', combined)
-        self.assertNotIn('fetchJson(`/api/', combined)
-        self.assertNotIn('实际预测入口位于“新文本预测”首页', combined)
-        self.assertNotIn('id="openLiveAnalysis"', combined)
-        self.assertNotIn('返回新文本预测', combined)
-        self.assertNotIn('首位关联股票', combined)
-        self.assertNotIn('候选因子值', combined)
+        self.assertIn('<section class="page active" id="page-overview">', index)
+        for page in ("overview", "analysis", "forecast", "audit", "backtest"):
+            self.assertIn(f'data-page="{page}"', index)
+        self.assertIn("10Y国债收益率", index)
+        self.assertIn("DR007历史代理", index)
+        self.assertIn("单篇文本只改变现有预测的边际概率", index)
+        self.assertNotIn("碳酸锂", index)
+        self.assertNotIn("自动下单", index)
+        self.assertNotIn("保证收益", index)
         self.assertNotIn('候选因子与研究证据', combined)
         self.assertNotIn('历史样本外参考', combined)
         self.assertNotIn('进入因子', combined)
-        self.assertIn('碳酸锂文本规则预测', combined)
-        self.assertIn('RIFT 增强趋势', combined)
-        self.assertIn('交易增量未建立', combined)
-        self.assertIn('规则归纳、验证选参和 2026 年起 OOS 严格分离', combined)
-        self.assertIn('仅 agreed_true 谓词能够触发冻结规则', combined)
+        self.assertIn('政策文本增量分析', combined)
+        self.assertIn('市场+文本融合', combined)
+        self.assertIn('研究证据不足', combined)
+        self.assertIn('时间扩展窗口', combined)
+        self.assertIn('证据审计', combined)
 
     def test_macro_strategy_constraints_and_oracle_label(self) -> None:
         with (SAMPLE_DIR / "macro_strategy_nav.csv").open(encoding="utf-8", newline="") as handle:
