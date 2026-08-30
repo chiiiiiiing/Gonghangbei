@@ -49,6 +49,13 @@ from src.macro.engine import (  # noqa: E402
     load_macro_forecast,
     load_macro_status,
 )
+from src.rates.engine import (  # noqa: E402
+    analyze_document as analyze_rates_document,
+    append_review as append_rates_review,
+    load_backtest as load_rates_backtest,
+    load_forecast as load_rates_forecast,
+    load_status as load_rates_status,
+)
 from src.lithium.engine import (  # noqa: E402
     PROSPECTIVE_STRATEGY,
     RESEARCH_BOUNDARY as LITHIUM_RESEARCH_BOUNDARY,
@@ -1066,6 +1073,44 @@ def macro_forecast():
 @app.get("/api/macro/backtest")
 def macro_backtest():
     return jsonify(load_macro_backtest())
+
+
+@app.get("/api/rates/status")
+def rates_status():
+    return jsonify(load_rates_status())
+
+
+@app.get("/api/rates/forecast")
+def rates_forecast():
+    as_of = str(request.args.get("as_of", "")).strip() or None
+    try:
+        horizon = int(request.args.get("horizon", "5"))
+        return jsonify(load_rates_forecast(as_of=as_of, horizon=horizon))
+    except ValueError as exc:
+        return jsonify({"error": str(exc), "disclaimer": DISCLAIMER}), 400
+
+
+@app.get("/api/rates/backtest")
+def rates_backtest():
+    return jsonify(load_rates_backtest())
+
+
+@app.post("/api/rates/analyze")
+def rates_analyze():
+    try:
+        result = analyze_rates_document(request.get_json(silent=True) or {})
+    except ValueError as exc:
+        return jsonify({"error": str(exc), "disclaimer": DISCLAIMER}), 400
+    return jsonify(result)
+
+
+@app.post("/api/rates/review")
+def rates_review():
+    try:
+        result = append_rates_review(request.get_json(silent=True) or {})
+    except ValueError as exc:
+        return jsonify({"error": str(exc), "disclaimer": DISCLAIMER}), 400
+    return jsonify({"review": result, "saved": True, "disclaimer": DISCLAIMER}), 201
 
 
 @app.get("/api/lithium/status")

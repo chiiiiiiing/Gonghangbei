@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-08-30T19:09:06+08:00",
+  "china_bond": {
+    "url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2026&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+    "sha256": "ca625c2970ddcad8eb8777f13e139356276698a4c2f5d24b8bf4b89807e59ade",
+    "rows_10y": 163
+  },
+  "china_money_fdr007": {
+    "url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2026-01-01&endDate=2026-12-31",
+    "sha256": "85dcdf0fb1266171bca250ddf6ff40e1ff2f642e104d68bcc775dfb3655a707a",
+    "rows": 163,
+    "role": "DR007 historical proxy"
+  },
+  "china_money_current_dr007": {
+    "url": "https://www.chinamoney.com.cn/r/cms/www/chinamoney/data/currency/prr-md.json",
+    "sha256": "12a1a3c06a4eebf0f245c4040628587cedcd779fc0c58da1bfa2940e7870f150",
+    "record": {
+      "date": "26-08-28",
+      "productCode": "DR007",
+      "latestRate": "1.3800",
+      "bp": "---",
+      "bpPositive": true,
+      "weightedRate": "1.3859",
+      "avgPrd": "5.76"
+    }
+  },
+  "merged_rows": 163,
+  "warning": "FDR007定盘利率不是原始DR007；本MVP仅将其作为公开历史代理。"
+}
