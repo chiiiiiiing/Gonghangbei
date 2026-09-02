@@ -646,12 +646,14 @@ class LithiumApiTests(unittest.TestCase):
         self.assertEqual(ledger["invalid_decisions"], [])
 
     def test_lithium_analyze_rejects_missing_key_without_keyword_fallback(self) -> None:
-        response = self.client.post("/api/lithium/analyze", json={
-            "title": "碳酸锂仓单增加",
-            "content": "广州期货交易所仓单日报显示，碳酸锂仓单增加。",
-            "source_type": "news", "source_name": "广州期货交易所",
-            "event_date": "2026-01-28", "source_url": "",
-        })
+        disabled = SimpleNamespace(settings=SimpleNamespace(enabled=False))
+        with patch("app.server.request_ai_layer", return_value=disabled):
+            response = self.client.post("/api/lithium/analyze", json={
+                "title": "碳酸锂仓单增加",
+                "content": "广州期货交易所仓单日报显示，碳酸锂仓单增加。",
+                "source_type": "news", "source_name": "广州期货交易所",
+                "event_date": "2026-01-28", "source_url": "",
+            })
         self.assertEqual(response.status_code, 503)
         payload = response.get_json()
         self.assertEqual(payload["error_code"], "ai_required")

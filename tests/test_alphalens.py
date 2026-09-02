@@ -210,8 +210,8 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         for page in ("overview", "analysis", "forecast", "audit", "backtest"):
             self.assertIn(f'data-page="{page}"', index)
         self.assertIn("10Y国债收益率", index)
-        self.assertIn("DR007历史代理", index)
-        self.assertIn("单篇文本只改变现有预测的边际概率", index)
+        self.assertIn("FDR007", index)
+        self.assertIn("新增文本的事件、因子和规则", index)
         self.assertNotIn("碳酸锂", index)
         self.assertNotIn("自动下单", index)
         self.assertNotIn("保证收益", index)
@@ -221,7 +221,7 @@ class AlphaLensAcceptanceTests(unittest.TestCase):
         self.assertIn('政策文本增量分析', combined)
         self.assertIn('市场+文本融合', combined)
         self.assertIn('研究证据不足', combined)
-        self.assertIn('时间扩展窗口', combined)
+        self.assertIn('清洗滚动窗口', combined)
         self.assertIn('证据审计', combined)
 
     def test_macro_strategy_constraints_and_oracle_label(self) -> None:

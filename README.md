@@ -43,6 +43,19 @@ export ALPHALENS_AI_MODE="api"
 - `data/sample/rates_source_audit.json`
 
 第二条命令下载央行政策文本样例并记录页面SHA-256，生成 `data/sample/rates_policy_texts.csv`。
+其中会尝试抓取财政部国债发行公告；该来源受站点限流影响时按可选来源记录，不会把空正文当作有效证据。
+
+若需要使用真实LLM为历史文本生成可恢复缓存（正文哈希匹配，证据门控后才进入量化层）：
+
+```bash
+.venv/bin/python scripts/annotate_rates_policy_texts.py --workers 3
+```
+
+每日刷新（可跳过网络抓取，适合服务器定时任务）：
+
+```bash
+.venv/bin/python scripts/run_daily_rates_research.py --annotate-llm
+```
 
 ## API
 
@@ -50,7 +63,11 @@ export ALPHALENS_AI_MODE="api"
 - `GET /api/rates/forecast?as_of=YYYY-MM-DD&horizon=5`
 - `GET /api/rates/backtest`
 - `POST /api/rates/analyze`
+- `POST /api/rates/extract-file`（TXT / Markdown / 可检索PDF）
 - `POST /api/rates/review`
+- `GET /api/rates/evidence`
+- `GET /api/rates/demo-cases`
+- `GET /api/rates/report`
 
 `POST /api/rates/analyze` 示例：
 
@@ -71,7 +88,7 @@ export ALPHALENS_AI_MODE="api"
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-利率版测试覆盖交易日映射、收盘后信息归属、标签阈值、证据原文、规则触发、滚动训练无未来泄漏、全部新增API和人工复核追加写入。
+利率版测试覆盖交易日映射、收盘后信息归属、标签阈值、证据原文、规则触发、LLM JSON规范化、滚动训练无未来泄漏、文件上传、全部新增API和人工复核追加写入。
 
 ## 人员2方案材料
 
@@ -94,4 +111,4 @@ export ALPHALENS_AI_MODE="api"
 - 中国货币网质押式回购行情：https://www.chinamoney.com.cn/chinese/mkdatapm/?tab=2
 - 中国人民银行公开市场业务：https://www.pbc.gov.cn/zhengcehuobisi/125207/125213/125431/index.html
 
-本报告仅供研究参考，不构成投资建议或自动交易指令。
+本报告仅供研究参考，不构成投资建议

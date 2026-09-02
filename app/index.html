@@ -4,77 +4,91 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AlphaLens · 银行利率债文本因子研究</title>
-  <link rel="stylesheet" href="/assets/rates.css">
+  <link rel="stylesheet" href="assets/rates.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">A</span><div><strong>AlphaLens</strong><small>银行利率债文本因子研究</small></div></div>
+    <a class="brand" href="#" aria-label="AlphaLens首页"><span class="brand-mark">A</span><span><strong>AlphaLens</strong><small>银行金融市场投研</small></span></a>
     <nav aria-label="主导航">
-      <button class="nav-item active" data-page="overview">每日总览</button>
-      <button class="nav-item" data-page="analysis">政策文本分析</button>
-      <button class="nav-item" data-page="forecast">预测详情</button>
-      <button class="nav-item" data-page="audit">证据审计</button>
-      <button class="nav-item" data-page="backtest">历史回测</button>
+      <button class="nav-item active" data-page="overview"><i data-lucide="layout-dashboard"></i><span>每日总览</span></button>
+      <button class="nav-item" data-page="analysis"><i data-lucide="file-search"></i><span>政策文本</span></button>
+      <button class="nav-item" data-page="forecast"><i data-lucide="sliders-horizontal"></i><span>因子预测</span></button>
+      <button class="nav-item" data-page="audit"><i data-lucide="shield-check"></i><span>证据审计</span></button>
+      <button class="nav-item" data-page="backtest"><i data-lucide="chart-no-axes-combined"></i><span>模型评估</span></button>
     </nav>
     <div class="service-pill"><span></span><b id="serviceStatus">正在读取</b></div>
   </header>
 
   <main>
     <section class="page active" id="page-overview">
-      <div class="hero">
-        <div><span class="kicker">BANKING MARKET RESEARCH · 5D HORIZON</span><h1>把政策文本变成可审计的<br>利率债研究信号</h1><p>融合央行政策文本、中债10年期国债收益率和银行间流动性指标，输出未来5个交易日收益率方向概率。</p></div>
-        <div class="hero-meta"><span>主目标<b>10Y国债收益率</b></span><span>辅助指标<b>DR007流动性</b></span><span>输出方式<b>研究支持，不自动交易</b></span></div>
+      <div class="page-heading heading-actions">
+        <div><span class="kicker">DAILY RATES BRIEF</span><h1>每日利率债投研总览</h1><p>10Y国债收益率五日方向、银行间流动性与政策文本证据。</p></div>
+        <a class="secondary-button icon-command" href="api/rates/report" download><i data-lucide="download"></i><span>导出报告</span></a>
       </div>
       <div id="overviewNotice" class="notice loading">正在加载官方数据状态……</div>
       <div class="kpi-grid">
-        <article class="kpi primary"><span>五日方向判断</span><strong id="directionLabel">—</strong><small id="directionSub">等待模型结果</small></article>
-        <article class="kpi"><span>10Y国债收益率</span><strong id="yieldValue">—</strong><small>中债收益率曲线</small></article>
-        <article class="kpi"><span>DR007历史代理</span><strong id="drValue">—</strong><small id="drState">FDR007 · 等待数据</small></article>
+        <article class="kpi primary"><span>未来5日收益率</span><strong id="directionLabel">—</strong><small id="directionSub">等待模型结果</small></article>
+        <article class="kpi"><span>10年期国债收益率</span><strong id="yieldValue">—</strong><small>中债到期收益率曲线</small></article>
+        <article class="kpi"><span>银行间流动性代理</span><strong id="drValue">—</strong><small id="drState">FDR007 · 等待数据</small></article>
         <article class="kpi"><span>数据截至</span><strong id="asOfValue">—</strong><small id="rowCount">—</small></article>
       </div>
       <div class="two-col">
-        <article class="panel"><div class="panel-head"><div><span class="section-no">01</span><h2>方向概率</h2></div><span class="tag">未来5个交易日</span></div><div id="probabilityBars" class="probability-bars"></div></article>
-        <article class="panel"><div class="panel-head"><div><span class="section-no">02</span><h2>今日驱动因素</h2></div><span class="tag">收益率压力口径</span></div><div id="overviewFactors" class="factor-list"></div></article>
+        <section class="panel"><div class="panel-head"><div><span class="section-no">01</span><h2>方向概率</h2></div><span class="tag">未来5个交易日</span></div><div id="probabilityBars" class="probability-bars"></div></section>
+        <section class="panel"><div class="panel-head"><div><span class="section-no">02</span><h2>当期六类因子</h2></div><span class="tag">正值=收益率上行压力</span></div><div id="overviewFactors" class="factor-list"></div></section>
       </div>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">03</span><h2>主要驱动与规则</h2></div><span class="tag" id="modelWindow">滚动训练</span></div><div class="driver-layout"><div id="contributionList" class="contribution-list"></div><div id="overviewRules" class="rule-list"></div></div></section>
     </section>
 
     <section class="page" id="page-analysis">
-      <div class="page-heading"><div><span class="kicker">MARGINAL TEXT IMPACT</span><h1>政策文本增量分析</h1><p>单篇文本只改变现有预测的边际概率，不被当作独立市场预测。</p></div></div>
+      <div class="page-heading"><span class="kicker">MARGINAL TEXT IMPACT</span><h1>政策文本增量分析</h1><p>新增文本的事件、因子和规则，以及加入前后的概率变化。</p></div>
       <div class="analysis-grid">
         <form class="panel form-panel" id="analysisForm">
+          <div class="form-title"><h2>待分析材料</h2><select id="demoCase" aria-label="固定演示案例"><option value="">固定演示案例</option></select></div>
           <label>标题<input id="textTitle" required value="公开市场逆回购操作"></label>
           <label>正文<textarea id="textContent" required rows="9">中国人民银行开展逆回购操作，向市场投放流动性，保持银行体系流动性合理充裕。</textarea></label>
-          <label class="file-label">导入文本文件<input id="textFile" type="file" accept=".txt,.md"><span>选择 .txt / .md 文件</span></label>
-          <div class="form-row"><label>来源名称<input id="sourceName" required value="中国人民银行"></label><label>公开时间<input id="publishTime" required type="datetime-local"></label></div>
+          <label class="file-label">文件<input id="textFile" type="file" accept=".txt,.md,.pdf"><span><i data-lucide="upload"></i>导入 TXT / MD / PDF</span></label>
+          <div class="form-row"><label>来源名称<input id="sourceName" required value="中国人民银行"></label><label>首次公开时间<input id="publishTime" required type="datetime-local"></label></div>
           <label>来源链接<input id="sourceUrl" required type="url" value="https://www.pbc.gov.cn/"></label>
-          <label>DeepSeek API Key（可选，不保存）<input id="apiKey" type="password" autocomplete="off" placeholder="留空则明确使用确定性降级"></label>
-          <button class="primary-button" type="submit">分析边际影响</button>
+          <label>DeepSeek API Key（可选，不保存）<input id="apiKey" type="password" autocomplete="off" placeholder="留空使用透明确定性降级"></label>
+          <button class="primary-button" type="submit"><i data-lucide="scan-text"></i><span>分析边际影响</span></button>
         </form>
-        <div id="analysisResult" class="panel result-panel empty-state"><div><b>等待分析</b><p>这里将展示结构化事件、固定谓词、触发规则和加入文本前后的概率变化。</p></div></div>
+        <section id="analysisResult" class="panel result-panel empty-state"><div><i data-lucide="file-search"></i><b>等待文本</b><p>分析结果将显示完整证据链。</p></div></section>
       </div>
     </section>
 
     <section class="page" id="page-forecast">
-      <div class="page-heading"><div><span class="kicker">MODEL INTERPRETATION</span><h1>预测详情</h1><p>市场基线、六类文本因子与经济规则共同形成概率输出。</p></div></div>
-      <div class="panel"><div class="panel-head"><div><span class="section-no">03</span><h2>六类宏观因素</h2></div><span class="tag">正值=收益率上行压力</span></div><div id="factorGrid" class="factor-grid"></div></div>
-      <div class="panel method-panel"><div class="panel-head"><div><span class="section-no">04</span><h2>本次预测契约</h2></div></div><div class="contract-grid"><div><span>目标</span><b>10Y国债收益率5日方向</b></div><div><span>震荡阈值</span><b>±2bp</b></div><div><span>切分方式</span><b>时间扩展窗口</b></div><div><span>模型路线</span><b>市场 + 文本 + 规则</b></div><div><span>流动性序列</span><b id="proxyName">FDR007_FIXING</b></div><div><span>价格解释</span><b id="priceDirection">—</b></div></div></div>
+      <div class="page-heading"><span class="kicker">FACTOR ATTRIBUTION</span><h1>因子与预测详情</h1><p>市场基线、六类文本因子与冻结金融规则的联合解释。</p></div>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">04</span><h2>六类宏观政策因子</h2></div><span class="tag">[-1, 1]收益率压力</span></div><div id="factorGrid" class="factor-grid"></div></section>
+      <div class="two-col">
+        <section class="panel"><div class="panel-head"><div><span class="section-no">05</span><h2>模型贡献</h2></div></div><div id="forecastContributions" class="contribution-list padded"></div></section>
+        <section class="panel"><div class="panel-head"><div><span class="section-no">06</span><h2>冻结规则命中</h2></div><span class="tag" id="ruleVersion">—</span></div><div id="forecastRules" class="rule-list padded"></div></section>
+      </div>
+      <section class="panel method-panel"><div class="panel-head"><div><span class="section-no">07</span><h2>预测契约</h2></div></div><div class="contract-grid"><div><span>目标</span><b>10年期国债收益率5日方向</b></div><div><span>震荡阈值</span><b>±2bp</b></div><div><span>切分方式</span><b>756日清洗滚动窗口</b></div><div><span>对比路线</span><b>市场 / 文本 / 融合 / 规则</b></div><div><span>流动性序列</span><b id="proxyName">FDR007_FIXING</b></div><div><span>价格解释</span><b id="priceDirection">—</b></div></div></section>
     </section>
 
     <section class="page" id="page-audit">
-      <div class="page-heading"><div><span class="kicker">EVIDENCE & HUMAN REVIEW</span><h1>证据审计</h1><p>每个文本因子均可追溯到来源、发布日期、原文片段和处理结果。</p></div></div>
+      <div class="page-heading"><span class="kicker">EVIDENCE & HUMAN REVIEW</span><h1>证据审计与人工审核</h1><p>原文、事件、谓词、因子、规则和预测目标逐层关联。</p></div>
+      <section class="panel audit-summary"><div><span>文本去重</span><b id="dedupState">—</b></div><div><span>规则版本</span><b id="auditRuleVersion">—</b></div><div><span>LLM证据门控覆盖</span><b id="llmCoverage">—</b></div><div><span>来源校验</span><b id="sourceState">—</b></div></section>
       <div id="auditList" class="audit-list"></div>
-      <div class="panel review-panel"><div><h2>人工复核</h2><p>对最近一次单文本分析保存独立复核记录。</p></div><div class="review-actions"><select id="reviewDecision"><option value="approved">通过</option><option value="needs_revision">需修改</option><option value="rejected">驳回</option></select><input id="reviewComment" placeholder="复核意见"><button id="saveReview" class="secondary-button" type="button">保存复核</button></div><p id="reviewState" class="muted"></p></div>
+      <section class="panel review-panel"><div><h2>人工复核</h2><p>复核记录追加写入，不覆盖原判断。</p></div><div class="review-actions"><input id="reviewer" placeholder="审核人" value="人工审核员"><select id="reviewDecision"><option value="approved">通过</option><option value="needs_revision">需修改</option><option value="rejected">驳回</option></select><input id="reviewComment" placeholder="复核意见"><button id="saveReview" class="secondary-button icon-command" type="button"><i data-lucide="save"></i><span>保存</span></button></div><p id="reviewState" class="muted"></p></section>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">08</span><h2>审核历史</h2></div><span class="tag">append-only</span></div><div id="reviewHistory" class="review-history"></div></section>
     </section>
 
     <section class="page" id="page-backtest">
-      <div class="page-heading"><div><span class="kicker">EXPANDING-WINDOW EVALUATION</span><h1>历史回测</h1><p>四条路线使用相同的时间滚动切分；MVP结果不替代跨周期正式检验。</p></div></div>
-      <div id="backtestNotice" class="notice loading">正在计算滚动评估……</div>
-      <div class="panel table-panel"><table><thead><tr><th>模型路线</th><th>样本数</th><th>准确率</th><th>Macro-F1</th><th>Brier</th><th>研究结论</th></tr></thead><tbody id="backtestRows"></tbody></table></div>
-      <div class="panel"><div class="panel-head"><div><span class="section-no">05</span><h2>最近滚动预测</h2></div></div><div id="timeline" class="timeline"></div></div>
+      <div class="page-heading"><span class="kicker">PURGED ROLLING EVALUATION</span><h1>历史回测与模型评估</h1><p>时间顺序切分、5日标签清洗窗口，不随机打乱。</p></div>
+      <div id="backtestNotice" class="notice loading">正在读取冻结评估……</div>
+      <section class="panel table-panel"><table><thead><tr><th>模型路线</th><th>样本</th><th>准确率</th><th>Precision</th><th>Recall</th><th>Macro-F1</th><th>AUC</th><th>Brier</th></tr></thead><tbody id="backtestRows"></tbody></table></section>
+      <div class="two-col">
+        <section class="panel"><div class="panel-head"><div><span class="section-no">09</span><h2>分时期稳定性</h2></div></div><div id="periodMetrics" class="compact-table"></div></section>
+        <section class="panel"><div class="panel-head"><div><span class="section-no">10</span><h2>概率校准</h2></div></div><div id="calibration" class="calibration-list"></div></section>
+      </div>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">11</span><h2>最近滚动预测</h2></div></div><div id="timeline" class="timeline"></div></section>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">12</span><h2>典型正确与错误案例</h2></div></div><div id="caseComparison" class="case-comparison"></div></section>
     </section>
   </main>
 
-  <footer><p id="disclaimer">本报告仅供研究参考，不构成投资建议或自动交易指令。</p><p>AlphaLens rates-text-factor MVP · 官方来源、时间对齐、证据链与人工复核</p></footer>
-  <script src="/assets/rates.js"></script>
+  <footer><p id="disclaimer">本报告仅供研究参考，不构成投资建议</p><p>AlphaLens · 官方来源、时间对齐、证据链与人工复核</p></footer>
+  <script src="vendor/lucide.min.js"></script>
+  <script src="assets/rates.js"></script>
 </body>
 </html>

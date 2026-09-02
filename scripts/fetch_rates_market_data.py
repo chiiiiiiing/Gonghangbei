@@ -1,20 +1,16 @@
-"""Fetch official ChinaBond and ChinaMoney public data into an auditable CSV.
-
-ChinaBond supplies the 10-year government-bond curve. ChinaMoney's public
-historical endpoint supplies FDR007, which is explicitly stored as a historical
-proxy for DR007. The current raw DR007 value remains available from the public
-homepage JSON and is recorded in the audit file.
-"""
+"""Fetch multi-year official ChinaBond and ChinaMoney rates data."""
 
 from __future__ import annotations
 
+import argparse
 import csv
 import hashlib
 import io
 import json
 import sys
+import time
 import zipfile
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -28,21 +24,38 @@ if str(ROOT) not in sys.path:
 from src.rates.schema import MARKET_FIELDS  # noqa: E402
 
 
-YEAR = 2026
-CGB_URL = (
-    "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?"
-    + urlencode({"year": YEAR, "wrjxCBFlag": 0, "zblx": "txy", "ycDefId": "2c9081e50a2f9606010a3068cae70001", "locale": "en_US"})
-)
-FDR_URL = "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2026-01-01&endDate=2026-12-31"
+START_YEAR = 2018
+CGB_BASE_URL = "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx"
+FDR_BASE_URL = "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis"
 DR_CURRENT_URL = "https://www.chinamoney.com.cn/r/cms/www/chinamoney/data/currency/prr-md.json"
 OUT = ROOT / "data" / "sample" / "rates_market.csv"
 AUDIT_OUT = ROOT / "data" / "sample" / "rates_source_audit.json"
 
 
 def fetch(url: str, method: str = "GET") -> bytes:
-    request = Request(url, headers={"User-Agent": "Mozilla/5.0 AlphaLensResearch/1.0"}, method=method)
-    with urlopen(request, timeout=60) as response:
-        return response.read()
+    last_error: Exception | None = None
+    for attempt in range(4):
+        try:
+            request = Request(url, headers={"User-Agent": "Mozilla/5.0 AlphaLensResearch/2.0"}, method=method)
+            with urlopen(request, timeout=120) as response:
+                return response.read()
+        except Exception as exc:  # network boundary: retry then fail closed
+            last_error = exc
+            time.sleep(2 * (attempt + 1))
+    raise RuntimeError(f"下载失败：{url}：{last_error}")
+
+
+def cgb_url(year: int) -> str:
+    return CGB_BASE_URL + "?" + urlencode({
+        "year": year, "wrjxCBFlag": 0, "zblx": "txy",
+        "ycDefId": "2c9081e50a2f9606010a3068cae70001", "locale": "en_US",
+    })
+
+
+def fdr_url(year: int) -> str:
+    return FDR_BASE_URL + "?" + urlencode({
+        "lang": "CN", "startDate": f"{year}-01-01", "endDate": f"{year}-12-31",
+    })
 
 
 def extract_10y(workbook: bytes) -> dict[str, float]:
@@ -60,50 +73,78 @@ def extract_10y(workbook: bytes) -> dict[str, float]:
         if values.get("B") == "10y" and values.get("A") and values.get("D"):
             result[values["A"].replace("/", "-")] = float(values["D"])
     if not result:
-        raise ValueError("中债官方文件中未找到10y标准期限")
+        raise ValueError("中债官方文件中未找到10年标准期限")
     return result
 
 
-def main() -> None:
-    downloaded_at = datetime.now().astimezone().isoformat(timespec="seconds")
-    cgb_bytes = fetch(CGB_URL)
-    fdr_bytes = fetch(FDR_URL, method="POST")
-    dr_current_bytes = fetch(DR_CURRENT_URL)
-    cgb_hash = hashlib.sha256(cgb_bytes).hexdigest()
-    fdr_hash = hashlib.sha256(fdr_bytes).hexdigest()
-    cgb = extract_10y(cgb_bytes)
-    fdr_payload = json.loads(fdr_bytes)
-    fdr = {
+def extract_fdr007(payload: bytes) -> dict[str, float]:
+    parsed = json.loads(payload)
+    return {
         row["lfiProducDate"]: float(row["frValueMap"]["FDR007"])
-        for row in fdr_payload.get("records", [])
+        for row in parsed.get("records", [])
         if row.get("frValueMap", {}).get("FDR007") not in {None, ""}
     }
-    dates = sorted(set(cgb) & set(fdr))
-    if len(dates) < 25:
-        raise ValueError(f"官方数据交集仅 {len(dates)} 天，不足以构建MVP")
+
+
+def collect(start_year: int, end_year: int) -> tuple[list[dict[str, str]], dict[str, object]]:
+    downloaded_at = datetime.now().astimezone().isoformat(timespec="seconds")
+    rows: list[dict[str, str]] = []
+    annual_audit: list[dict[str, object]] = []
+    for year in range(start_year, end_year + 1):
+        bond_url = cgb_url(year)
+        liquidity_url = fdr_url(year)
+        cgb_bytes = fetch(bond_url)
+        fdr_bytes = fetch(liquidity_url, method="POST")
+        cgb = extract_10y(cgb_bytes)
+        fdr = extract_fdr007(fdr_bytes)
+        cgb_hash = hashlib.sha256(cgb_bytes).hexdigest()
+        fdr_hash = hashlib.sha256(fdr_bytes).hexdigest()
+        dates = sorted(set(cgb) & set(fdr))
+        if len(dates) < (100 if year == end_year else 200):
+            raise ValueError(f"{year}年官方数据交集仅{len(dates)}天，拒绝静默生成残缺年度")
+        for trade_date in dates:
+            rows.append({
+                "trade_date": trade_date, "cgb_10y_yield": f"{cgb[trade_date]:.4f}",
+                "dr007_proxy": f"{fdr[trade_date]:.4f}", "dr007_proxy_name": "FDR007_FIXING",
+                "cgb_source_url": bond_url, "liquidity_source_url": liquidity_url,
+                "cgb_source_sha256": cgb_hash, "liquidity_source_sha256": fdr_hash,
+                "ingested_at": downloaded_at,
+            })
+        annual_audit.append({
+            "year": year, "china_bond_url": bond_url, "china_bond_sha256": cgb_hash,
+            "china_bond_10y_rows": len(cgb), "china_money_url": liquidity_url,
+            "china_money_sha256": fdr_hash, "fdr007_rows": len(fdr), "merged_rows": len(dates),
+        })
+    current_bytes = fetch(DR_CURRENT_URL)
+    current = json.loads(current_bytes)
+    dr007 = next((row for row in current.get("records", []) if row.get("productCode") == "DR007"), {})
+    audit: dict[str, object] = {
+        "generated_at": downloaded_at, "period": {"start": rows[0]["trade_date"], "end": rows[-1]["trade_date"]},
+        "annual_sources": annual_audit,
+        "china_money_current_dr007": {
+            "url": DR_CURRENT_URL, "sha256": hashlib.sha256(current_bytes).hexdigest(), "record": dr007,
+        },
+        "merged_rows": len(rows),
+        "warning": "FDR007定盘利率不是原始DR007；公开历史MVP仅将其作为银行间流动性代理。",
+    }
+    return rows, audit
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--start-year", type=int, default=START_YEAR)
+    parser.add_argument("--end-year", type=int, default=date.today().year)
+    args = parser.parse_args()
+    if args.start_year < 2006 or args.end_year < args.start_year:
+        raise ValueError("年份范围不合法")
+    rows, audit = collect(args.start_year, args.end_year)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     with OUT.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=MARKET_FIELDS, lineterminator="\n")
         writer.writeheader()
-        for trade_date in dates:
-            writer.writerow({
-                "trade_date": trade_date, "cgb_10y_yield": f"{cgb[trade_date]:.4f}",
-                "dr007_proxy": f"{fdr[trade_date]:.4f}", "dr007_proxy_name": "FDR007_FIXING",
-                "cgb_source_url": CGB_URL, "liquidity_source_url": FDR_URL,
-                "cgb_source_sha256": cgb_hash, "liquidity_source_sha256": fdr_hash,
-                "ingested_at": downloaded_at,
-            })
-    current = json.loads(dr_current_bytes)
-    dr007 = next((row for row in current.get("records", []) if row.get("productCode") == "DR007"), {})
-    AUDIT_OUT.write_text(json.dumps({
-        "generated_at": downloaded_at,
-        "china_bond": {"url": CGB_URL, "sha256": cgb_hash, "rows_10y": len(cgb)},
-        "china_money_fdr007": {"url": FDR_URL, "sha256": fdr_hash, "rows": len(fdr), "role": "DR007 historical proxy"},
-        "china_money_current_dr007": {"url": DR_CURRENT_URL, "sha256": hashlib.sha256(dr_current_bytes).hexdigest(), "record": dr007},
-        "merged_rows": len(dates),
-        "warning": "FDR007定盘利率不是原始DR007；本MVP仅将其作为公开历史代理。",
-    }, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"wrote {len(dates)} official rows to {OUT}")
+        writer.writerows(rows)
+    AUDIT_OUT.write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"wrote {len(rows)} official rows ({rows[0]['trade_date']}..{rows[-1]['trade_date']}) to {OUT}")
 
 
 if __name__ == "__main__":

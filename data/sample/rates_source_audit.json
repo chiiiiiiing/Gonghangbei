@@ -1,29 +1,114 @@
 {
-  "generated_at": "2026-08-30T19:09:06+08:00",
-  "china_bond": {
-    "url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2026&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
-    "sha256": "ca625c2970ddcad8eb8777f13e139356276698a4c2f5d24b8bf4b89807e59ade",
-    "rows_10y": 163
+  "generated_at": "2026-09-02T15:19:00+08:00",
+  "period": {
+    "start": "2018-01-02",
+    "end": "2026-09-01"
   },
-  "china_money_fdr007": {
-    "url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2026-01-01&endDate=2026-12-31",
-    "sha256": "85dcdf0fb1266171bca250ddf6ff40e1ff2f642e104d68bcc775dfb3655a707a",
-    "rows": 163,
-    "role": "DR007 historical proxy"
-  },
+  "annual_sources": [
+    {
+      "year": 2018,
+      "china_bond_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2018&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+      "china_bond_sha256": "6a96977f114546d400ec99a705f00832be33a470f2edf14019749fe5e7e5c008",
+      "china_bond_10y_rows": 252,
+      "china_money_url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2018-01-01&endDate=2018-12-31",
+      "china_money_sha256": "da1d24b9294261d65f1acce5bbbda4ad4c59fcd74d5fec57bdfe8b960b6df365",
+      "fdr007_rows": 250,
+      "merged_rows": 250
+    },
+    {
+      "year": 2019,
+      "china_bond_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2019&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+      "china_bond_sha256": "ac2799fb58e70ccfe5cb84af59de6e49b1f05cda8cb6d0cfb611e6c422b22682",
+      "china_bond_10y_rows": 250,
+      "china_money_url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2019-01-01&endDate=2019-12-31",
+      "china_money_sha256": "35d4ed8e64b08f5c7743fdf2f00e072d184f456975c64690d44ca884f3397eaf",
+      "fdr007_rows": 250,
+      "merged_rows": 250
+    },
+    {
+      "year": 2020,
+      "china_bond_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2020&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+      "china_bond_sha256": "3a018f37df48d43677a39c4aa10ebb80be392ac9a79855fd097448ffd01f3831",
+      "china_bond_10y_rows": 249,
+      "china_money_url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2020-01-01&endDate=2020-12-31",
+      "china_money_sha256": "8b5f0cf5177caabce86cc0789ff140293a09c34674b7f01d7a3339207d42ed16",
+      "fdr007_rows": 249,
+      "merged_rows": 249
+    },
+    {
+      "year": 2021,
+      "china_bond_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2021&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+      "china_bond_sha256": "6f2c1ea69bc2c0350d75e1095a132c7a094c42bd04374adeeb19801de2f23867",
+      "china_bond_10y_rows": 250,
+      "china_money_url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2021-01-01&endDate=2021-12-31",
+      "china_money_sha256": "de3d0e3dad454c8122728586dfa256fab1cfff241911716ae7a65ebabaec2678",
+      "fdr007_rows": 250,
+      "merged_rows": 250
+    },
+    {
+      "year": 2022,
+      "china_bond_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2022&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+      "china_bond_sha256": "50c382f7a2b5fe37347994a41866a785c9ab7f25217e75b4825a05a11cba34ed",
+      "china_bond_10y_rows": 250,
+      "china_money_url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2022-01-01&endDate=2022-12-31",
+      "china_money_sha256": "f85a10f882a170e38a2b05edd39f15cab375e69fbcf2cb338f82a7d293e42c7a",
+      "fdr007_rows": 249,
+      "merged_rows": 249
+    },
+    {
+      "year": 2023,
+      "china_bond_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2023&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+      "china_bond_sha256": "d7244334d9285d3f9935cda754572140808f659b1ec8faf4431b8ea4ebc52b1a",
+      "china_bond_10y_rows": 250,
+      "china_money_url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2023-01-01&endDate=2023-12-31",
+      "china_money_sha256": "26cb28563d6ea9e52b50d73491fc4ab5f62fea31472de89d05d910ec58e0da17",
+      "fdr007_rows": 249,
+      "merged_rows": 249
+    },
+    {
+      "year": 2024,
+      "china_bond_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2024&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+      "china_bond_sha256": "79484e688e14e169965f3fbd3b400012e8ed10c9de1b24431c9d6092d979d836",
+      "china_bond_10y_rows": 251,
+      "china_money_url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2024-01-01&endDate=2024-12-31",
+      "china_money_sha256": "cab40b1ef3c9c27bde882fd523902bf45ce713b756815d3d6b0747172c9fbc25",
+      "fdr007_rows": 251,
+      "merged_rows": 251
+    },
+    {
+      "year": 2025,
+      "china_bond_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2025&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+      "china_bond_sha256": "a3f8be890b242cad74212e97636b9a104904c39fa4f03693f6e053d952b7a6d6",
+      "china_bond_10y_rows": 248,
+      "china_money_url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2025-01-01&endDate=2025-12-31",
+      "china_money_sha256": "4f3bb58907d0b62ebe591e5b94020ef2ae72b184f7a015d38a39debec5c67ed5",
+      "fdr007_rows": 248,
+      "merged_rows": 248
+    },
+    {
+      "year": 2026,
+      "china_bond_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2026&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
+      "china_bond_sha256": "87bd29234c389ff193141fb97625c2641c353ac09ee120e219409697f0d667c0",
+      "china_bond_10y_rows": 165,
+      "china_money_url": "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis?lang=CN&startDate=2026-01-01&endDate=2026-12-31",
+      "china_money_sha256": "fdc8728394005d0e8aa296ea768d71d74ab4b22a698a0af21a6785a3d4658139",
+      "fdr007_rows": 166,
+      "merged_rows": 165
+    }
+  ],
   "china_money_current_dr007": {
     "url": "https://www.chinamoney.com.cn/r/cms/www/chinamoney/data/currency/prr-md.json",
-    "sha256": "12a1a3c06a4eebf0f245c4040628587cedcd779fc0c58da1bfa2940e7870f150",
+    "sha256": "43e72bfa72f2b5d04f2d1bdb2d96f818b4e96597df274ec7bb6008a0e7416bdc",
     "record": {
-      "date": "26-08-28",
+      "date": "26-09-02",
       "productCode": "DR007",
-      "latestRate": "1.3800",
+      "latestRate": "1.3809",
       "bp": "---",
       "bpPositive": true,
-      "weightedRate": "1.3859",
-      "avgPrd": "5.76"
+      "weightedRate": "1.3739",
+      "avgPrd": "6.82"
     }
   },
-  "merged_rows": 163,
-  "warning": "FDR007定盘利率不是原始DR007；本MVP仅将其作为公开历史代理。"
+  "merged_rows": 2161,
+  "warning": "FDR007定盘利率不是原始DR007；公开历史MVP仅将其作为银行间流动性代理。"
 }

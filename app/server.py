@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import csv
+import hashlib
+import io
 import json
 import os
 import subprocess
@@ -14,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from flask import Flask, jsonify, request, send_from_directory
+from pypdf import PdfReader
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,7 +56,11 @@ from src.rates.engine import (  # noqa: E402
     analyze_document as analyze_rates_document,
     append_review as append_rates_review,
     load_backtest as load_rates_backtest,
+    load_demo_cases as load_rates_demo_cases,
+    load_evidence as load_rates_evidence,
     load_forecast as load_rates_forecast,
+    load_report as load_rates_report,
+    load_reviews as load_rates_reviews,
     load_status as load_rates_status,
 )
 from src.lithium.engine import (  # noqa: E402
@@ -1093,6 +1100,63 @@ def rates_forecast():
 @app.get("/api/rates/backtest")
 def rates_backtest():
     return jsonify(load_rates_backtest())
+
+
+@app.get("/api/rates/evidence")
+def rates_evidence():
+    try:
+        limit = int(request.args.get("limit", "100"))
+    except ValueError:
+        return jsonify({"error": "limit必须是整数", "disclaimer": DISCLAIMER}), 400
+    return jsonify(load_rates_evidence(limit))
+
+
+@app.get("/api/rates/reviews")
+def rates_reviews():
+    return jsonify({"reviews": load_rates_reviews(), "append_only": True, "disclaimer": DISCLAIMER})
+
+
+@app.get("/api/rates/demo-cases")
+def rates_demo_cases():
+    return jsonify(load_rates_demo_cases())
+
+
+@app.get("/api/rates/report")
+def rates_report():
+    response = app.response_class(load_rates_report(), mimetype="text/markdown; charset=utf-8")
+    response.headers["Content-Disposition"] = 'attachment; filename="alphalens-rates-report.md"'
+    return response
+
+
+@app.post("/api/rates/extract-file")
+def rates_extract_file():
+    uploaded = request.files.get("file")
+    if uploaded is None or not uploaded.filename:
+        return jsonify({"error": "请选择TXT、Markdown或PDF文件", "disclaimer": DISCLAIMER}), 400
+    suffix = Path(uploaded.filename).suffix.lower()
+    if suffix not in {".txt", ".md", ".pdf"}:
+        return jsonify({"error": "仅支持TXT、Markdown和PDF文件", "disclaimer": DISCLAIMER}), 400
+    payload = uploaded.read(10 * 1024 * 1024 + 1)
+    if len(payload) > 10 * 1024 * 1024:
+        return jsonify({"error": "文件不能超过10MB", "disclaimer": DISCLAIMER}), 413
+    try:
+        if suffix == ".pdf":
+            reader = PdfReader(io.BytesIO(payload))
+            content = "\n".join((page.extract_text() or "").strip() for page in reader.pages).strip()
+        else:
+            content = payload.decode("utf-8-sig").strip()
+    except (UnicodeDecodeError, ValueError, OSError) as exc:
+        return jsonify({"error": f"文件解析失败：{exc}", "disclaimer": DISCLAIMER}), 400
+    if not content:
+        return jsonify({"error": "文件没有可提取的正文；扫描版PDF需先完成OCR", "disclaimer": DISCLAIMER}), 400
+    return jsonify({
+        "filename": Path(uploaded.filename).name,
+        "content": content[:120000],
+        "characters": len(content),
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "truncated": len(content) > 120000,
+        "disclaimer": DISCLAIMER,
+    })
 
 
 @app.post("/api/rates/analyze")
