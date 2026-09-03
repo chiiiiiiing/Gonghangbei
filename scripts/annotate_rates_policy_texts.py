@@ -51,6 +51,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--workers", type=int, default=2)
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--source-name", default="", help="只标注指定来源，便于增量补跑")
     parser.add_argument("--refresh", action="store_true")
     args = parser.parse_args()
     settings = AISettings.from_environment()
@@ -59,7 +60,11 @@ def main() -> None:
     with TEXT_PATH.open(encoding="utf-8", newline="") as handle:
         documents = list(csv.DictReader(handle))
     existing = {} if args.refresh else _existing()
-    pending = [row for row in documents if (row["doc_id"], row["source_sha256"]) not in existing]
+    pending = [
+        row for row in documents
+        if (row["doc_id"], row["source_sha256"]) not in existing
+        and (not args.source_name or row["source_name"] == args.source_name)
+    ]
     if args.limit > 0:
         pending = pending[:args.limit]
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -69,7 +74,7 @@ def main() -> None:
         for future in as_completed(futures):
             try:
                 annotation = future.result()
-            except AIServiceError as exc:
+            except (AIServiceError, OSError, ValueError) as exc:
                 print(f"warning: {futures[future]}: {exc}", file=sys.stderr)
                 continue
             output.write(json.dumps(annotation, ensure_ascii=False) + "\n")

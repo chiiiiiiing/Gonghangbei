@@ -79,11 +79,16 @@ def extract_10y(workbook: bytes) -> dict[str, float]:
 
 def extract_fdr007(payload: bytes) -> dict[str, float]:
     parsed = json.loads(payload)
-    return {
-        row["lfiProducDate"]: float(row["frValueMap"]["FDR007"])
-        for row in parsed.get("records", [])
-        if row.get("frValueMap", {}).get("FDR007") not in {None, ""}
-    }
+    result: dict[str, float] = {}
+    for row in parsed.get("records", []):
+        value = row.get("frValueMap", {}).get("FDR007")
+        if value in {None, "", "---"}:
+            continue
+        try:
+            result[row["lfiProducDate"]] = float(value)
+        except (KeyError, TypeError, ValueError):
+            continue
+    return result
 
 
 def collect(start_year: int, end_year: int) -> tuple[list[dict[str, str]], dict[str, object]]:

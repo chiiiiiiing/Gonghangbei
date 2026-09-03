@@ -30,7 +30,18 @@ export DEEPSEEK_API_KEY="你的密钥"
 export ALPHALENS_AI_MODE="api"
 ```
 
-密钥只参与当次请求，不写入项目文件或浏览器存储。
+密钥只参与当次请求，不写入项目文件或浏览器存储。未配置模型时，系统明确显示“确定性降级”，不会把关键词结果包装成LLM结果。
+
+## 更新官方样例数据
+
+```bash
+.venv/bin/python scripts/fetch_rates_market_data.py
+.venv/bin/python scripts/fetch_rates_policy_texts.py
+.venv/bin/python scripts/augment_rates_policy_sources.py
+.venv/bin/python scripts/fetch_rates_structured_data.py
+```
+
+第一条命令下载中债年度国债收益率曲线、中国货币网FDR007历史定盘数据和当日DR007公开行情。第二、三条命令下载2015年至今央行文本，并合并已核验国家统计局历史正文和财政部官方样本。第四条命令生成CPI、PPI、PMI、社融、MLF操作金额和政府债计划发行数据；所有数值按 `release_time` 对齐，事后实际发行量不进入历史特征。
 
 ## 当前真实数据快照
 
@@ -38,10 +49,27 @@ export ALPHALENS_AI_MODE="api"
 | --- | --- | --- | --- |
 | 10 年期国债收益率 | 2018-01-02 至 2026-09-01，共 2161 个交易日 | 中债收益率曲线 | 主目标与市场特征 |
 | FDR007 定盘利率 | 同期 2161 个交易日 | 中国货币网 | DR007 历史公开代理 |
-| 政策文本 | 2020-01-02 至 2026-08-31，共 374 篇去重文本 | 中国人民银行 | 事件、谓词、六类文本因子 |
-| LLM 结构化缓存 | 374 条，其中 339 条通过模型抽取，35 条透明降级 | DeepSeek + 原文证据门控 | 可恢复语义抽取与审计 |
+| 政策文本 | 2015-01-22 至 2026-08-31，共 737 篇去重文本 | 人民银行、国家统计局、财政部 | 独立事件、谓词、六类文本因子 |
+| 结构化宏观数据 | 2006-01 至最新，共 4420 条观测 | 公开数据接口与来源哈希审计 | 融合模型确认变量 |
+| LLM 结构化缓存 | 当前语料匹配404条，其中363条通过门控 | DeepSeek + 原文证据门控 | 可恢复语义抽取与审计 |
 
-每条数据保留来源网址、下载时间和 SHA-256。四条路线共完成 1899 个滚动预测观测；规则增强路线相对市场基线的冻结 OOS 准确率差为 `+0.735` 个百分点，但 20 日移动区块 Bootstrap 95% 区间覆盖零，因此当前结论仍为“冻结 OOS 文本预测增量尚未建立”。
+文本样本按独立政策事件键计数。单个因子累计不足5个独立事件时标记为“证据不足”，该因子和依赖它的规则不会进入模型。五日模型采用5日embargo，并以5个交易日为评估步长，避免正式指标重复计算重叠标签。
+
+每条数据保留来源网址、下载时间和 SHA-256。四条路线共完成380个非重叠滚动预测观测；规则增强路线相对市场基线的冻结OOS准确率差为 `-9.88` 个百分点，20个交易日移动区块Bootstrap 95%区间为 `[-20.99%, -1.23%]`，因此当前结论仍为“冻结OOS文本预测增量尚未建立”。
+
+若需使用真实LLM为历史文本生成可恢复缓存：
+
+```bash
+.venv/bin/python scripts/annotate_rates_policy_texts.py --workers 3
+```
+
+也可用 `--source-name 财政部` 只补跑某一新增来源。
+
+每日刷新（可跳过网络抓取，适合服务器定时任务）：
+
+```bash
+.venv/bin/python scripts/run_daily_rates_research.py --annotate-llm
+```
 
 ## 页面
 
@@ -79,7 +107,7 @@ export ALPHALENS_AI_MODE="api"
 服务器无法联网但需要从当前冻结快照重建研究产物时，运行：
 
 ```bash
-.venv/bin/python scripts/run_daily_rates_research.py --skip-market --skip-text
+.venv/bin/python scripts/run_daily_rates_research.py --skip-market --skip-text --skip-structured
 ```
 
 ## 目录

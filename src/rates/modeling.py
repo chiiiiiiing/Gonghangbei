@@ -22,13 +22,18 @@ ROUTES = ("market_baseline", "text_only", "fusion", "fusion_rules")
 ROUTE_LABELS = {
     "market_baseline": "仅市场数据",
     "text_only": "仅文本因子",
-    "fusion": "市场数据+文本因子",
-    "fusion_rules": "市场数据+文本因子+规则增强",
+    "fusion": "市场数据+文本因子+结构化宏观",
+    "fusion_rules": "市场数据+文本因子+结构化宏观+规则增强",
 }
 MARKET_FEATURES = (
     "yield_change_1d_bp", "yield_change_5d_bp", "yield_change_20d_bp",
     "yield_volatility_20d_bp", "fdr007_level", "fdr007_change_1d_bp",
     "fdr007_gap_20d_bp",
+)
+STRUCTURED_FEATURES = (
+    "cpi_yoy", "ppi_yoy", "pmi_manufacturing", "afre_flow",
+    "afre_rmb_loans", "afre_government_bonds", "mlf_amount", "mlf_rate",
+    "government_bond_issuance",
 )
 
 
@@ -72,9 +77,9 @@ def feature_names(route: str) -> list[str]:
     if route == "text_only":
         return text_names
     if route == "fusion":
-        return list(MARKET_FEATURES) + text_names
+        return list(MARKET_FEATURES) + text_names + [f"structured_{name}" for name in STRUCTURED_FEATURES]
     if route == "fusion_rules":
-        return list(MARKET_FEATURES) + text_names + ["rule_pressure"]
+        return list(MARKET_FEATURES) + text_names + [f"structured_{name}" for name in STRUCTURED_FEATURES] + ["rule_pressure"]
     raise ValueError(f"未知模型路线：{route}")
 
 
@@ -106,14 +111,16 @@ def _feature_rows(
         ]
         factor_map = factors_by_date.get(str(row["trade_date"]), {})
         text = [float(factor_map.get(name, 0.0)) for name in FACTOR_NAMES]
+        structured_map = factor_map.get("__structured__", {})
+        structured = [float(structured_map.get(name, 0.0)) for name in STRUCTURED_FEATURES]
         if route == "market_baseline":
             features = market
         elif route == "text_only":
             features = text
         elif route == "fusion":
-            features = market + text
+            features = market + text + structured
         elif route == "fusion_rules":
-            features = market + text + [float(rule_pressure_by_date.get(str(row["trade_date"]), 0.0))]
+            features = market + text + structured + [float(rule_pressure_by_date.get(str(row["trade_date"]), 0.0))]
         else:
             raise ValueError(f"未知模型路线：{route}")
         result.append(features)
@@ -228,6 +235,7 @@ def evaluate_route(
     route: str,
     minimum_train: int = MINIMUM_TRAIN_DAYS,
     rolling_window: int = ROLLING_TRAIN_DAYS,
+    evaluation_stride: int = HORIZON_TRADING_DAYS,
 ) -> dict[str, Any]:
     features = _feature_rows(market_rows, factors_by_date, rule_pressure_by_date, route)
     labels = labels_for_market(market_rows)
@@ -237,7 +245,7 @@ def evaluate_route(
     timeline: list[dict[str, Any]] = []
     first_prediction = minimum_train + HORIZON_TRADING_DAYS
     last_labeled = len(market_rows) - HORIZON_TRADING_DAYS
-    for index in range(first_prediction, last_labeled):
+    for index in range(first_prediction, last_labeled, max(1, evaluation_stride)):
         earliest = max(0, index - rolling_window)
         train_indices = [
             item for item in range(earliest, index)
@@ -280,9 +288,10 @@ def evaluate_route(
         "calibration": _calibration(actual, predicted, probabilities),
         "examples": examples, "timeline": timeline,
         "training_policy": {
-            "kind": "purged_rolling_window", "rolling_window_days": rolling_window,
+            "kind": "purged_non_overlapping_rolling_window" if evaluation_stride >= HORIZON_TRADING_DAYS else "purged_rolling_window",
+            "rolling_window_days": rolling_window,
             "minimum_train_days": minimum_train, "label_embargo_days": HORIZON_TRADING_DAYS,
-            "shuffle": False,
+            "evaluation_stride_days": evaluation_stride, "shuffle": False,
         },
     }
 
@@ -340,20 +349,32 @@ def paired_block_bootstrap(
         float(enhanced_by_date[day]["correct"]) - float(baseline_by_date[day]["correct"])
         for day in dates
     ])
-    if len(differences) < block_days:
-        return {"observations": len(differences), "accuracy_difference": 0.0, "ci_lower_95": None, "ci_upper_95": None, "stable": False}
-    starts = np.arange(max(len(differences) - block_days + 1, 1))
+    # Formal predictions are five trading days apart. Convert calendar intent
+    # into evaluation observations so a 20-day block remains 20 trading days.
+    block_observations = max(1, int(np.ceil(block_days / HORIZON_TRADING_DAYS)))
+    if len(differences) < block_observations:
+        return {
+            "method": "paired_moving_block_bootstrap", "block_days": block_days,
+            "block_observations": block_observations, "observations": len(differences),
+            "accuracy_difference": 0.0, "ci_lower_95": None, "ci_upper_95": None,
+            "stable": False,
+        }
+    starts = np.arange(max(len(differences) - block_observations + 1, 1))
     rng = np.random.default_rng(20260902)
     estimates = []
-    blocks_needed = int(np.ceil(len(differences) / block_days))
+    blocks_needed = int(np.ceil(len(differences) / block_observations))
     for _ in range(iterations):
-        sample = np.concatenate([differences[start:start + block_days] for start in rng.choice(starts, blocks_needed)])[:len(differences)]
+        sample = np.concatenate([
+            differences[start:start + block_observations]
+            for start in rng.choice(starts, blocks_needed)
+        ])[:len(differences)]
         estimates.append(float(sample.mean()))
     lower, upper = np.quantile(estimates, [0.025, 0.975])
     point = float(differences.mean())
     return {
         "method": "paired_moving_block_bootstrap", "iterations": iterations,
-        "block_days": block_days, "observations": len(differences),
+        "block_days": block_days, "block_observations": block_observations,
+        "observations": len(differences),
         "accuracy_difference": round(point, 6), "ci_lower_95": round(float(lower), 6),
         "ci_upper_95": round(float(upper), 6), "stable": bool(lower > 0),
     }

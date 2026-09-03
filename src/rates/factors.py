@@ -47,7 +47,11 @@ PATTERNS: dict[str, tuple[tuple[str, ...], ...]] = {
     ),
     "government_bond_supply_rises": (
         ("国债", "地方债", "政府债券", "特别国债", "专项债"),
-        ("增发", "拟发行", "续发行", "发行增加", "供给增加", "加快发行", "发行规模", "集中发行", "面值总额"),
+        (
+            "增发", "拟发行", "续发行", "发行增加", "供给增加", "加快发行",
+            "发行规模", "集中发行", "面值总额", "计划发行", "决定发行",
+            "最大发行总额", "发行额",
+        ),
     ),
     "government_bond_supply_falls": (
         ("国债", "地方债", "政府债券", "特别国债", "专项债"),
@@ -70,6 +74,21 @@ def normalize_text(value: str) -> str:
 
 def document_fingerprint(document: dict[str, str]) -> str:
     payload = normalize_text(f"{document.get('title', '')}|{document.get('content', '')}")
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def independent_event_key(event: dict[str, Any]) -> str:
+    """Return a semantic key so repeated notices do not inflate evidence.
+
+    Dates and whitespace are removed from the evidence sentence, while
+    quantities remain part of the key: a repeated routine OMO notice collapses
+    to one event, but a materially different operation amount remains distinct.
+    """
+    evidence = re.sub(r"\d{4}年?\d{1,2}月?\d{1,2}日?|\d{4}-\d{1,2}-\d{1,2}|\s+", "", str(event.get("evidence_text", "")))
+    payload = "|".join(
+        str(event.get(name, "")).strip().lower()
+        for name in ("subject", "action", "object", "policy_direction", "transmission_channel")
+    ) + "|" + evidence
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 

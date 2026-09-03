@@ -208,14 +208,25 @@ def fetch_mof_article(entry: tuple[str, str, str]) -> dict[str, str]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--start-date", default="2020-01-01")
-    parser.add_argument("--omo-pages", type=int, default=110)
-    parser.add_argument("--report-pages", type=int, default=165)
+    parser.add_argument("--start-date", default="2015-01-01")
+    parser.add_argument("--omo-pages", type=int, default=145)
+    parser.add_argument("--report-pages", type=int, default=300)
     parser.add_argument("--mof-pages", type=int, default=22)
     parser.add_argument("--mof-workers", type=int, default=2)
     parser.add_argument("--workers", type=int, default=6)
     args = parser.parse_args()
     date.fromisoformat(args.start_date)
+    # The clean submission keeps the verified NBS/MOF sample in this same
+    # contract. Preserve those sources while refreshing the PBOC listings so
+    # the following augmentation step can run without the removed legacy
+    # macro corpus.
+    preserved: list[dict[str, str]] = []
+    if OUT.exists():
+        with OUT.open(encoding="utf-8", newline="") as handle:
+            preserved = [
+                row for row in csv.DictReader(handle)
+                if row.get("source_name") in {"国家统计局", "财政部"}
+            ]
     omo = crawl_listings(
         OMO_LIST_ROOT, OMO_LIST_ID, args.omo_pages,
         re.compile(r"^公开市场业务交易公告"), args.start_date, args.workers,
@@ -238,7 +249,8 @@ def main() -> None:
                     rows.append(future.result())
                 except Exception as exc:
                     print(f"warning: article failed {futures[future]}: {exc}", file=sys.stderr)
-    rows.sort(key=lambda row: (row["publish_time"], row["doc_id"]))
+    by_url = {row["source_url"]: row for row in preserved + rows if row.get("source_url")}
+    rows = sorted(by_url.values(), key=lambda row: (row["publish_time"], row["doc_id"]))
     report_count = sum("货币政策执行报告" in row["title"] for row in rows)
     mof_count = sum(row["source_name"] == "财政部" for row in rows)
     if len(rows) < 150 or not report_count:
@@ -255,7 +267,7 @@ def main() -> None:
         "pbc_weekly_omo_announcements": sum(row["doc_id"].startswith("PBC-OMO") for row in rows),
         "mof_government_bond_announcements": mof_count,
         "sources": sorted({row["source_name"] for row in rows}),
-        "method": "官方列表页发现、官方正文抓取、原始响应SHA-256、发布日期时间对齐",
+        "method": "央行官方列表刷新；保留已核验统计局/财政部样本；官方正文、响应SHA-256与发布日期时间对齐",
         "optional_source_warning": "财政部国债发行公告为可选来源；若站点限流，数量不足不覆盖央行文本样本。",
     }
     AUDIT_OUT.write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

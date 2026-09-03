@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+from http.client import IncompleteRead
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -145,7 +146,7 @@ class OpenAICompatibleGateway:
         except HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")[:500]
             raise AIServiceError(_http_error_message(exc.code, detail), status_code=exc.code) from exc
-        except (URLError, TimeoutError, json.JSONDecodeError) as exc:
+        except (URLError, TimeoutError, json.JSONDecodeError, IncompleteRead, OSError) as exc:
             raise AIServiceError(f"模型接口不可用: {exc}") from exc
 
     def _get(self, path: str) -> dict[str, Any]:
@@ -165,7 +166,7 @@ class OpenAICompatibleGateway:
         except HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")[:500]
             raise AIServiceError(_http_error_message(exc.code, detail), status_code=exc.code) from exc
-        except (URLError, TimeoutError, json.JSONDecodeError) as exc:
+        except (URLError, TimeoutError, json.JSONDecodeError, IncompleteRead, OSError) as exc:
             raise AIServiceError(f"模型接口不可用: {exc}") from exc
 
     def chat_json(

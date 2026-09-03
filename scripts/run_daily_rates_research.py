@@ -29,14 +29,16 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-market", action="store_true")
     parser.add_argument("--skip-text", action="store_true")
+    parser.add_argument("--skip-structured", action="store_true")
     parser.add_argument("--annotate-llm", action="store_true")
     parser.add_argument("--start-year", type=int, default=2018)
-    parser.add_argument("--text-start-date", default="2020-01-01")
+    parser.add_argument("--text-start-date", default="2015-01-01")
     args = parser.parse_args()
     started_at = datetime.now().astimezone().isoformat(timespec="seconds")
     ledger: dict[str, Any] = {
         "started_at": started_at, "status": "running",
         "market_refreshed": not args.skip_market, "text_refreshed": not args.skip_text,
+        "structured_refreshed": not args.skip_structured,
         "llm_annotation_requested": args.annotate_llm,
     }
     RUN_LEDGER.parent.mkdir(parents=True, exist_ok=True)
@@ -45,6 +47,9 @@ def main() -> None:
             _run("fetch_rates_market_data.py", ["--start-year", str(args.start_year)])
         if not args.skip_text:
             _run("fetch_rates_policy_texts.py", ["--start-date", args.text_start_date])
+            _run("augment_rates_policy_sources.py", [])
+        if not args.skip_structured:
+            _run("fetch_rates_structured_data.py", [])
         if args.annotate_llm:
             _run("annotate_rates_policy_texts.py", [])
         ledger["outputs"] = build_rates_outputs()

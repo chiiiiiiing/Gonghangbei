@@ -9,16 +9,18 @@ from unittest.mock import patch
 
 from app.server import app
 from src.ai.gateway import AISettings
-from src.rates.engine import append_review, load_backtest, load_forecast, load_status
-from src.rates.factors import factor_scores, ground_predicates, merge_llm_predicates
+from src.rates.engine import _structured_context, append_review, load_backtest, load_forecast, load_status
+from src.rates.factors import factor_scores, ground_predicates, independent_event_key, merge_llm_predicates
 from src.rates.llm import extract_with_llm
-from src.rates.modeling import labels_for_market
+from src.rates.modeling import labels_for_market, paired_block_bootstrap
 from src.rates.rules import RULES, activate_rules
 from src.rates.schema import (
     FLAT_THRESHOLD_BP,
     PREDICATES,
+    STRUCTURED_FIELDS,
     direction_label,
     effective_trade_date,
+    validate_structured_row,
 )
 
 
@@ -112,11 +114,60 @@ class RatesResearchTests(unittest.TestCase):
         self.assertIsNone(labels[-1])
         self.assertEqual(sum(label is None for label in labels), 5)
 
+    def test_independent_event_key_collapses_repeated_calendar_notice(self) -> None:
+        base = {
+            "subject": "中国人民银行", "action": "投放", "object": "银行间流动性",
+            "policy_direction": -1, "transmission_channel": "liquidity",
+        }
+        first = {**base, "evidence_text": "2026年8月1日开展逆回购投放100亿元。"}
+        repeated = {**base, "evidence_text": "2026年8月2日开展逆回购投放100亿元。"}
+        changed = {**base, "evidence_text": "2026年8月2日开展逆回购投放200亿元。"}
+        self.assertEqual(independent_event_key(first), independent_event_key(repeated))
+        self.assertNotEqual(independent_event_key(first), independent_event_key(changed))
+
+    def test_structured_observation_requires_public_release_contract(self) -> None:
+        row = dict.fromkeys(STRUCTURED_FIELDS, "")
+        row.update({
+            "observation_date": "2020-01-31", "release_time": "2020-02-15 23:59:59",
+            "period_start": "2020-01-01", "period_end": "2020-01-31",
+            "indicator": "cpi_yoy", "value": "5.4", "unit": "%",
+            "source_name": "国家统计局", "source_url": "https://www.stats.gov.cn/",
+            "source_sha256": "a" * 64, "vintage": "first_publication",
+        })
+        validate_structured_row(row)
+        row["observation_date"] = "1900-01-01"
+        with self.assertRaises(ValueError):
+            validate_structured_row(row)
+
+    def test_structured_value_is_invisible_before_public_release(self) -> None:
+        market = [{"trade_date": "2020-02-14"}, {"trade_date": "2020-02-17"}]
+        structured = [{"release_time": "2020-02-15 10:00:00", "indicator": "cpi_yoy", "value": "5.4"}]
+        context, coverage = _structured_context(market, structured)
+        self.assertNotIn("cpi_yoy", context["2020-02-14"])
+        self.assertEqual(context["2020-02-17"]["cpi_yoy"], 5.4)
+        self.assertEqual(coverage["cpi_yoy"], 1)
+
+    def test_bootstrap_converts_twenty_days_to_four_non_overlapping_windows(self) -> None:
+        timeline = [
+            {"as_of": f"2026-01-{index + 1:02d}", "correct": index % 2 == 0}
+            for index in range(10)
+        ]
+        baseline = {"timeline": timeline}
+        enhanced = {"timeline": [{**row, "correct": True} for row in timeline]}
+        result = paired_block_bootstrap(baseline, enhanced, iterations=20, block_days=20)
+        self.assertEqual(result["block_days"], 20)
+        self.assertEqual(result["block_observations"], 4)
+
     def test_official_sample_loads_and_backtest_has_no_lookahead(self) -> None:
         status = load_status()
         self.assertTrue(status["data_ready"], status["data_errors"])
         self.assertGreaterEqual(status["market_rows"], 2000)
         self.assertGreaterEqual(status["text_rows"], 350)
+        self.assertGreaterEqual(status["structured_rows"], 500)
+        self.assertTrue(status["structured_data_ready"], status["data_errors"])
+        self.assertEqual(status["structured_indicator_status"]["mlf_rate"], "missing")
+        self.assertEqual(status["structured_indicator_status"]["government_bond_issuance"], "sufficient")
+        self.assertEqual(status["structured_data_status"], "partial")
         self.assertGreaterEqual(len(RULES), 10)
         forecast = load_forecast()
         self.assertEqual(forecast["horizon_trading_days"], 5)
@@ -127,7 +178,8 @@ class RatesResearchTests(unittest.TestCase):
             self.assertIn("macro_precision", route)
             self.assertIn("macro_recall", route)
             self.assertIn("macro_auc_ovr", route)
-            self.assertEqual(route["training_policy"]["kind"], "purged_rolling_window")
+            self.assertEqual(route["training_policy"]["kind"], "purged_non_overlapping_rolling_window")
+            self.assertEqual(route["training_policy"]["evaluation_stride_days"], 5)
             for row in route["timeline"]:
                 self.assertLess(row["train_origin_end"], row["as_of"])
                 self.assertLessEqual(row["label_known_through"], row["as_of"])

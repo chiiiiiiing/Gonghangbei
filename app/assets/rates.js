@@ -1,12 +1,17 @@
 const $ = (id) => document.getElementById(id);
 const labels = {down:"收益率下行",flat:"震荡",up:"收益率上行",insufficient:"证据不足"};
-const routes = {market_baseline:"仅市场数据",text_only:"仅文本因子",fusion:"市场+文本融合",fusion_rules:"市场+文本+规则增强"};
+// “市场+文本融合”是验收材料中的稳定路线名；结构化宏观为该路线新增输入。
+const routes = {market_baseline:"仅市场数据",text_only:"仅文本因子",fusion:"市场+文本融合（含结构化宏观）",fusion_rules:"市场+文本融合+规则增强（含结构化宏观）"};
 const featureLabels = {
   yield_change_1d_bp:"收益率1日变化",yield_change_5d_bp:"收益率5日变化",yield_change_20d_bp:"收益率20日变化",
   yield_volatility_20d_bp:"收益率20日波动",fdr007_level:"FDR007水平",fdr007_change_1d_bp:"FDR007日变化",
   fdr007_gap_20d_bp:"FDR007相对20日均值",rule_pressure:"冻结规则压力",
   text_monetary_policy:"货币政策文本",text_liquidity:"流动性文本",text_growth:"增长文本",
   text_inflation:"通胀文本",text_bond_supply:"债券供给文本",text_risk_appetite:"风险偏好文本",
+  structured_cpi_yoy:"CPI同比",structured_ppi_yoy:"PPI同比",structured_pmi_manufacturing:"制造业PMI",
+  structured_afre_flow:"社会融资规模增量",structured_afre_rmb_loans:"社融口径人民币贷款",
+  structured_afre_government_bonds:"社融口径政府债券",structured_mlf_amount:"MLF操作量",
+  structured_mlf_rate:"MLF利率",structured_government_bond_issuance:"政府债计划发行量",
 };
 let state = {status:null,forecast:null,backtest:null,evidence:[],reviews:[],demoCases:[],lastDocumentId:""};
 
@@ -27,9 +32,10 @@ function renderProbabilities(probabilities={}){
 }
 
 function renderFactors(factors=[]){
-  const rows=factors.map(row=>{const score=Number(row.score||0);const left=50+Math.max(-1,Math.min(1,score))*48;return `<div class="factor-row"><span>${esc(row.label)}</span><div class="factor-axis"><i class="factor-marker" style="left:${left}%"></i></div><b>${score>0?"+":""}${score.toFixed(3)}</b></div>`}).join("");
+  const status=state.forecast?.factor_evidence_status||{};
+  const rows=factors.map(row=>{const score=Number(row.score||0);const insufficient=status[row.name]&&status[row.name]!=="sufficient";const left=50+Math.max(-1,Math.min(1,score))*48;return `<div class="factor-row"><span>${esc(row.label)}</span><div class="factor-axis"><i class="factor-marker" style="left:${left}%"></i></div><b>${insufficient?'证据不足':`${score>0?"+":""}${score.toFixed(3)}`}</b></div>`}).join("");
   $("overviewFactors").innerHTML=rows||"<p class='muted'>当期没有已生效的文本因子。</p>";
-  $("factorGrid").innerHTML=factors.map(row=>{const score=Number(row.score||0);return `<article class="factor-card"><span>${esc(row.label)}</span><b class="${score>0?'positive':score<0?'negative':'neutral'}">${score>0?"+":""}${score.toFixed(3)}</b><small>${score>0?'收益率上行压力':score<0?'收益率下行压力':'当前窗口无信号'}</small></article>`}).join("");
+  $("factorGrid").innerHTML=factors.map(row=>{const score=Number(row.score||0);const insufficient=status[row.name]&&status[row.name]!=="sufficient";return `<article class="factor-card"><span>${esc(row.label)}</span><b class="${insufficient?'neutral':score>0?'positive':score<0?'negative':'neutral'}">${insufficient?'证据不足':`${score>0?"+":""}${score.toFixed(3)}`}</b><small>${insufficient?'独立事件数不足5个，未进入模型':score>0?'收益率上行压力':score<0?'收益率下行压力':'当前窗口无信号'}</small></article>`}).join("");
 }
 
 function contributionHtml(items=[]){
@@ -53,15 +59,16 @@ function renderOverview(){
   const s=state.status,f=state.forecast;if(!s||!f)return;
   $("serviceStatus").textContent=s.data_ready?"官方数据已就绪":"证据不足";
   const enough=f.status==="model_estimate";
+  const insufficient=Object.entries(f.factor_evidence_status||{}).filter(([,value])=>value!=="sufficient").map(([name])=>name).join("、");
   $("overviewNotice").className=`notice ${enough?'good':'warn'}`;
-  $("overviewNotice").textContent=enough?`${s.first_trade_date}至${s.latest_trade_date}，${s.market_rows}个交易日、${s.text_rows}篇去重政策文本；${state.backtest?.increment_conclusion||'评估中'}。`:`研究证据不足：${f.reason||(s.data_errors||[]).join('；')}`;
+  $("overviewNotice").textContent=enough?`${s.first_trade_date}至${s.latest_trade_date}，${s.market_rows}个交易日、${s.text_rows}篇去重政策文本、${s.structured_rows||0}条结构化观测；${insufficient?`部分因子证据不足（${insufficient}）；`:""}${state.backtest?.increment_conclusion||'评估中'}。`:`研究证据不足：${f.reason||(s.data_errors||[]).join('；')}`;
   $("directionLabel").textContent=labels[f.predicted_label]||"证据不足";
   $("directionSub").textContent=f.bond_price_direction||f.reason||"—";
   $("yieldValue").textContent=f.market_snapshot?`${Number(f.market_snapshot.cgb_10y_yield).toFixed(4)}%`:"—";
   $("drValue").textContent=f.market_snapshot?`${Number(f.market_snapshot.dr007_proxy).toFixed(4)}%`:"—";
   $("drState").textContent=f.market_snapshot?`${f.market_snapshot.dr007_proxy_name} · ${f.market_snapshot.dr007_state}`:"—";
   $("asOfValue").textContent=f.as_of||s.latest_trade_date||"—";
-  $("rowCount").textContent=`${s.market_rows}个交易日 · ${s.text_rows}篇文本`;
+  $("rowCount").textContent=`${s.market_rows}个交易日 · ${s.text_rows}篇文本 · ${s.structured_rows||0}条结构化观测`;
   $("proxyName").textContent=f.market_snapshot?.dr007_proxy_name||"FDR007_FIXING";
   $("priceDirection").textContent=f.bond_price_direction||"—";
   $("modelWindow").textContent=f.train_observations?`${f.train_observations}个训练观测`:"滚动训练";

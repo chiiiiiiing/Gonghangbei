@@ -18,6 +18,7 @@ from src.rates.factors import (
     events_from_predicates,
     factor_scores,
     ground_predicates,
+    independent_event_key,
     merge_llm_predicates,
 )
 from src.rates.llm import extract_with_llm
@@ -29,7 +30,10 @@ from src.rates.schema import (
     FACTOR_NAMES,
     FLAT_THRESHOLD_BP,
     HORIZON_TRADING_DAYS,
+    MINIMUM_INDEPENDENT_EVENTS,
+    PREDICATES,
     RESEARCH_BOUNDARY,
+    STRUCTURED_INDICATORS,
     TARGET_NAME,
     TEXT_DECAY_DAYS,
     TEXT_HALF_LIFE_DAYS,
@@ -37,6 +41,7 @@ from src.rates.schema import (
     factor_dictionary,
     parse_datetime,
     validate_market_row,
+    validate_structured_row,
     validate_text_row,
 )
 
@@ -45,6 +50,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT / "data" / "sample"
 MARKET_PATH = DATA_DIR / "rates_market.csv"
 TEXT_PATH = DATA_DIR / "rates_policy_texts.csv"
+STRUCTURED_PATH = DATA_DIR / "rates_structured_data.csv"
 LLM_ANNOTATION_PATH = DATA_DIR / "rates_llm_annotations.jsonl"
 AUDIT_PATH = DATA_DIR / "rates_source_audit.json"
 POLICY_AUDIT_PATH = DATA_DIR / "rates_policy_source_audit.json"
@@ -80,6 +86,7 @@ def _source_signature() -> dict[str, str]:
         "rates_market.csv": _file_hash(MARKET_PATH),
         "rates_policy_texts.csv": _file_hash(TEXT_PATH),
         "rates_llm_annotations.jsonl": _file_hash(LLM_ANNOTATION_PATH),
+        "rates_structured_data.csv": _file_hash(STRUCTURED_PATH),
     }
 
 
@@ -125,18 +132,68 @@ def _load() -> tuple[list[dict[str, str]], list[dict[str, str]], list[str], int]
     return market, texts, errors, duplicates
 
 
+def _load_structured() -> tuple[list[dict[str, str]], list[str]]:
+    rows = _read_csv(STRUCTURED_PATH)
+    errors: list[str] = []
+    for index, row in enumerate(rows, 2):
+        try:
+            validate_structured_row(row)
+        except (ValueError, TypeError) as exc:
+            errors.append(f"rates_structured_data.csv第{index}行：{exc}")
+    return rows, errors
+
+
+def _structured_status(rows: list[dict[str, str]]) -> tuple[dict[str, int], dict[str, str], str]:
+    counts = Counter(row.get("indicator", "") for row in rows)
+    indicator_counts = {name: counts[name] for name in STRUCTURED_INDICATORS}
+    indicator_status = {
+        name: "sufficient" if indicator_counts[name] else "missing"
+        for name in STRUCTURED_INDICATORS
+    }
+    overall = "sufficient" if all(indicator_counts.values()) else "partial" if rows else "insufficient_evidence"
+    return indicator_counts, indicator_status, overall
+
+
+def _structured_context(
+    market: list[dict[str, str]], structured: list[dict[str, str]]
+) -> tuple[dict[str, dict[str, float]], dict[str, int]]:
+    """Carry forward only observations whose public release precedes the close."""
+    dates = [row["trade_date"] for row in market]
+    by_date: dict[str, dict[str, float]] = {day: {} for day in dates}
+    release_rows: list[tuple[str, str, float]] = []
+    for row in structured:
+        effective = effective_trade_date(row["release_time"], dates)
+        if effective:
+            release_rows.append((effective, str(row["indicator"]), float(row["value"])))
+    release_rows.sort()
+    latest: dict[str, float] = {}
+    cursor = 0
+    for day in dates:
+        while cursor < len(release_rows) and release_rows[cursor][0] <= day:
+            _effective, indicator, value = release_rows[cursor]
+            latest[indicator] = value
+            cursor += 1
+        by_date[day] = dict(latest)
+    coverage = Counter(indicator for _effective, indicator, _value in release_rows)
+    return by_date, dict(coverage)
+
+
 def _daily_context(
-    market: list[dict[str, str]], texts: list[dict[str, str]]
+    market: list[dict[str, str]], texts: list[dict[str, str]],
+    structured: list[dict[str, str]] | None = None,
 ) -> tuple[dict[str, dict[str, float]], dict[str, float], list[dict[str, Any]], list[dict[str, Any]]]:
+    if structured is None:
+        structured, _structured_errors = _load_structured()
     dates = [row["trade_date"] for row in market]
     date_index = {day: index for index, day in enumerate(dates)}
-    factor_sums: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
+    rule_entries: dict[str, list[tuple[float, set[str], float]]] = defaultdict(list)
+    factor_events_by_date: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
+    factor_contributions: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
     factor_weights: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
-    rule_sums: dict[str, float] = defaultdict(float)
-    rule_weights: dict[str, float] = defaultdict(float)
     document_counts: Counter[str] = Counter()
     evidence_audit: list[dict[str, Any]] = []
     llm_cache = _llm_annotation_cache()
+    seen_event_keys: set[str] = set()
     for document in texts:
         effective = effective_trade_date(document["publish_time"], dates)
         deterministic = ground_predicates(document)
@@ -154,6 +211,23 @@ def _daily_context(
         rules = activate_rules(predicates)
         if effective:
             start = date_index[effective]
+            new_event_factors: set[str] = set()
+            for event in events:
+                factor = str(event.get("transmission_channel", ""))
+                if factor not in FACTOR_NAMES:
+                    continue
+                event_key = independent_event_key(event)
+                if event_key not in seen_event_keys:
+                    factor_events_by_date[effective][factor].add(event_key)
+                    seen_event_keys.add(event_key)
+                    new_event_factors.add(factor)
+            rule_factors = {
+                factor
+                for rule in rules
+                for predicate_name in rule.get("conditions", [])
+                for factor in [PREDICATES.get(predicate_name).factor if PREDICATES.get(predicate_name) else ""]
+                if factor
+            }
             for age in range(TEXT_DECAY_DAYS):
                 if start + age >= len(dates):
                     break
@@ -161,12 +235,11 @@ def _daily_context(
                 decay = 0.5 ** (age / TEXT_HALF_LIFE_DAYS)
                 document_counts[trade_date] += 1
                 for name, score in scores.items():
-                    if score:
-                        factor_sums[trade_date][name] += score * decay
+                    if score and name in new_event_factors:
+                        factor_contributions[trade_date][name] += score * decay
                         factor_weights[trade_date][name] += decay
-                if rules:
-                    rule_sums[trade_date] += rule_pressure(rules) * decay
-                    rule_weights[trade_date] += decay
+                if rules and new_event_factors:
+                    rule_entries[trade_date].append((rule_pressure(rules), set(rule_factors), decay))
         evidence_audit.append({
             "doc_id": document["doc_id"], "title": document["title"],
             "publish_time": document["publish_time"], "effective_trade_date": effective,
@@ -175,34 +248,59 @@ def _daily_context(
             "extraction_mode": extraction_mode,
             "llm_request_id": (annotation or {}).get("metadata", {}).get("request_id", ""),
             "events": events,
+            "independent_event_keys": sorted({independent_event_key(event) for event in events}),
             "active_predicates": [row for row in predicates if row["value"]],
             "factor_scores": scores, "triggered_rules": rules,
         })
+    structured_by_date, structured_coverage = _structured_context(market, structured or [])
     factors_by_date: dict[str, dict[str, float]] = {}
+    available_events: dict[str, set[str]] = defaultdict(set)
     daily_rows: list[dict[str, Any]] = []
     for trade_date in dates:
+        for name in FACTOR_NAMES:
+            available_events[name].update(factor_events_by_date[trade_date].get(name, set()))
+        factor_status = {
+            name: "sufficient" if len(available_events[name]) >= MINIMUM_INDEPENDENT_EVENTS else "insufficient_evidence"
+            for name in FACTOR_NAMES
+        }
         scores = {
-            name: round(factor_sums[trade_date][name] / factor_weights[trade_date][name], 8)
-            if factor_weights[trade_date][name] else 0.0
+            name: round(factor_contributions[trade_date][name] / factor_weights[trade_date][name], 8)
+            if factor_status[name] == "sufficient" and factor_weights[trade_date][name] else 0.0
             for name in FACTOR_NAMES
         }
         factors_by_date[trade_date] = scores
-        pressure = rule_sums[trade_date] / rule_weights[trade_date] if rule_weights[trade_date] else 0.0
+        eligible_rules = [entry for entry in rule_entries[trade_date] if all(
+            factor_status[name] == "sufficient" for name in entry[1]
+        )]
+        rule_weight = sum(entry[2] for entry in eligible_rules)
+        pressure = sum(entry[0] * entry[2] for entry in eligible_rules) / rule_weight if rule_weight else 0.0
         daily_rows.append({
             "trade_date": trade_date, **scores, "rule_pressure": round(pressure, 8),
             "supporting_document_count": int(document_counts[trade_date]),
+            "structured_observation_count": sum(1 for value in structured_by_date[trade_date].values() if value is not None),
+            "independent_event_count": sum(len(available_events[name]) for name in FACTOR_NAMES),
+            **{f"{name}_independent_event_count": len(available_events[name]) for name in FACTOR_NAMES},
+            **{f"{name}_evidence_status": factor_status[name] for name in FACTOR_NAMES},
         })
     pressure_by_date = {row["trade_date"]: float(row["rule_pressure"]) for row in daily_rows}
+    # Keep structured observations alongside the factor map for the modeling
+    # layer without changing the public four-value return contract.
+    for day, values in structured_by_date.items():
+        factors_by_date[day]["__structured__"] = values  # type: ignore[assignment]
     return factors_by_date, pressure_by_date, evidence_audit, daily_rows
 
 
 def load_status() -> dict[str, Any]:
     market, texts, errors, duplicates = _load()
+    structured, structured_errors = _load_structured()
     market_audit = json.loads(AUDIT_PATH.read_text(encoding="utf-8")) if AUDIT_PATH.exists() else {}
     policy_audit = json.loads(POLICY_AUDIT_PATH.read_text(encoding="utf-8")) if POLICY_AUDIT_PATH.exists() else {}
     sources = Counter(row["source_name"] for row in texts)
     llm_cache = _llm_annotation_cache()
-    llm_usable = sum(bool(row.get("used")) for row in llm_cache.values())
+    current_text_keys = {(row["doc_id"], row["source_sha256"]) for row in texts}
+    current_annotations = [row for key, row in llm_cache.items() if key in current_text_keys]
+    llm_usable = sum(bool(row.get("used")) for row in current_annotations)
+    structured_counts, structured_indicator_status, structured_status = _structured_status(structured)
     return {
         "version": "rates-text-factor-v2",
         "target": TARGET_NAME, "horizon_trading_days": HORIZON_TRADING_DAYS,
@@ -214,9 +312,14 @@ def load_status() -> dict[str, Any]:
         "liquidity_series": market[-1]["dr007_proxy_name"] if market else None,
         "source_counts": dict(sources), "factor_dictionary": factor_dictionary(),
         "rule_count": len(RULES), "rule_version": RULE_VERSION,
-        "llm_annotations": len(llm_cache), "llm_usable_annotations": llm_usable,
+        "llm_annotations": len(current_annotations), "llm_usable_annotations": llm_usable,
         "llm_coverage": round(llm_usable / len(texts), 4) if texts else 0.0,
-        "data_errors": errors, "source_audit": {"market": market_audit, "policy": policy_audit},
+        "structured_rows": len(structured), "structured_indicator_counts": structured_counts,
+        "structured_indicator_status": structured_indicator_status,
+        "structured_data_status": structured_status if not structured_errors else "invalid",
+        "structured_data_ready": bool(structured) and not structured_errors,
+        "data_errors": errors + structured_errors,
+        "source_audit": {"market": market_audit, "policy": policy_audit},
         "source_signature": _source_signature(),
         "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
     }
@@ -235,7 +338,11 @@ def _compute_forecast(as_of: str | None = None, horizon: int = HORIZON_TRADING_D
             "probabilities": {"down": 1 / 3, "flat": 1 / 3, "up": 1 / 3},
             "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
         }
-    factors, pressure, audit, _daily = _daily_context(market, texts)
+    structured, structured_errors = _load_structured()
+    structured_counts, structured_indicator_status, structured_status = _structured_status(structured)
+    if as_of:
+        structured = [row for row in structured if parse_datetime(row["release_time"]).date().isoformat() <= as_of]
+    factors, pressure, audit, daily = _daily_context(market, texts, structured)
     model = live_probabilities(market, factors, pressure)
     latest = market[-1]
     latest_factors = factors.get(latest["trade_date"], {name: 0.0 for name in FACTOR_NAMES})
@@ -254,6 +361,7 @@ def _compute_forecast(as_of: str | None = None, horizon: int = HORIZON_TRADING_D
         ) < TEXT_DECAY_DAYS
     ]
     current_rules = [rule for row in active_evidence for rule in row["triggered_rules"]]
+    latest_daily = next((row for row in daily if row["trade_date"] == latest["trade_date"]), {})
     return {
         "status": "model_estimate" if model["data_sufficient"] else "research_evidence_insufficient",
         "as_of": latest["trade_date"], "horizon_trading_days": horizon,
@@ -265,6 +373,12 @@ def _compute_forecast(as_of: str | None = None, horizon: int = HORIZON_TRADING_D
             "cgb_source_url": latest["cgb_source_url"], "liquidity_source_url": latest["liquidity_source_url"],
         },
         "factor_scores": [{"name": name, "label": FACTOR_LABELS[name], "score": round(latest_factors.get(name, 0.0), 6)} for name in FACTOR_NAMES],
+        "factor_evidence_status": {
+            name: latest_daily.get(f"{name}_evidence_status", "insufficient_evidence") for name in FACTOR_NAMES
+        },
+        "structured_data_status": structured_status if not structured_errors else "invalid",
+        "structured_indicator_counts": structured_counts,
+        "structured_indicator_status": structured_indicator_status,
         "triggered_rules": current_rules[-8:], "evidence": recent_evidence,
         "source_signature": _source_signature(),
         "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
@@ -287,7 +401,9 @@ def _compute_backtest() -> dict[str, Any]:
             "routes": [], "increment_conclusion": "文本预测增量尚未建立",
             "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
         }
-    factors, pressure, _audit, _daily = _daily_context(market, texts)
+    structured, structured_errors = _load_structured()
+    structured_counts, structured_indicator_status, structured_status = _structured_status(structured)
+    factors, pressure, _audit, _daily = _daily_context(market, texts, structured)
     routes = [evaluate_route(market, factors, pressure, route) for route in ROUTES]
     baseline, enhanced = routes[0], routes[-1]
     oos_baseline = {"timeline": [row for row in baseline["timeline"] if row["period"] == "oos_2025_latest"]}
@@ -303,7 +419,10 @@ def _compute_backtest() -> dict[str, Any]:
     )
     return {
         "status": "evaluated", "target": TARGET_NAME,
-        "split_policy": "purged_756_day_rolling_window_no_shuffle",
+        "structured_data_status": structured_status if not structured_errors else "invalid",
+        "structured_indicator_counts": structured_counts,
+        "structured_indicator_status": structured_indicator_status,
+        "split_policy": "purged_non_overlapping_756_day_rolling_window_no_shuffle",
         "periods": {
             "discovery": "2018-01-01至2022-12-31", "validation": "2023-01-01至2024-12-31",
             "oos": "2025-01-01至最新",
@@ -363,7 +482,8 @@ def analyze_document(payload: dict[str, Any]) -> dict[str, Any]:
         scenario_effective_date = None
         scenario_active = False
     else:
-        historical_factors, historical_pressure, _audit, _daily = _daily_context(market, texts)
+        structured, _structured_errors = _load_structured()
+        historical_factors, historical_pressure, _audit, _daily = _daily_context(market, texts, structured)
         latest_date = market[-1]["trade_date"]
         trade_dates = [row["trade_date"] for row in market]
         scenario_effective_date = effective_trade_date(normalized["publish_time"], trade_dates)
@@ -453,7 +573,8 @@ def load_evidence(limit: int = 100) -> dict[str, Any]:
     market, texts, errors, _duplicates = _load()
     if errors:
         return {"documents": [], "errors": errors, "disclaimer": DISCLAIMER}
-    _factors, _pressure, evidence, _daily = _daily_context(market, texts)
+    structured, _structured_errors = _load_structured()
+    _factors, _pressure, evidence, _daily = _daily_context(market, texts, structured)
     return {"version": "rates-evidence-v2", "documents": evidence[-max(1, min(limit, 500)):], "disclaimer": DISCLAIMER}
 
 
@@ -467,7 +588,9 @@ def load_report() -> str:
     if REPORT_PATH.exists():
         return REPORT_PATH.read_text(encoding="utf-8")
     status = load_status()
-    return _research_report(load_forecast(), load_backtest(), status["market_rows"], status["text_rows"])
+    return _research_report(
+        load_forecast(), load_backtest(), status["market_rows"], status["text_rows"], status["structured_rows"]
+    )
 
 
 def _write_json(path: Path, payload: Any) -> None:
@@ -478,11 +601,27 @@ def build_rates_outputs() -> dict[str, Any]:
     market, texts, errors, _duplicates = _load()
     if errors:
         raise ValueError("；".join(errors))
-    factors, pressure, evidence, daily = _daily_context(market, texts)
+    structured, structured_errors = _load_structured()
+    structured_counts, structured_indicator_status, structured_status = _structured_status(structured)
+    factors, pressure, evidence, daily = _daily_context(market, texts, structured)
+    final_daily = daily[-1] if daily else {}
+    factor_evidence = {
+        name: {
+            "independent_event_count": int(final_daily.get(f"{name}_independent_event_count", 0)),
+            "minimum_required": MINIMUM_INDEPENDENT_EVENTS,
+            "status": final_daily.get(f"{name}_evidence_status", "insufficient_evidence"),
+        }
+        for name in FACTOR_NAMES
+    }
     forecast = _compute_forecast()
     backtest = _compute_backtest()
     with DAILY_FACTOR_PATH.open("w", encoding="utf-8", newline="") as handle:
-        fields = ["trade_date", *FACTOR_NAMES, "rule_pressure", "supporting_document_count"]
+        fields = [
+            "trade_date", *FACTOR_NAMES, "rule_pressure", "supporting_document_count",
+            "structured_observation_count", "independent_event_count",
+            *[f"{name}_independent_event_count" for name in FACTOR_NAMES],
+            *[f"{name}_evidence_status" for name in FACTOR_NAMES],
+        ]
         writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(daily)
@@ -501,6 +640,13 @@ def build_rates_outputs() -> dict[str, Any]:
         "flat_threshold_bp": FLAT_THRESHOLD_BP, "routes": list(ROUTES),
         "split_policy": backtest.get("split_policy"), "periods": backtest.get("periods"),
         "text_decay_days": TEXT_DECAY_DAYS, "text_half_life_days": TEXT_HALF_LIFE_DAYS,
+        "minimum_independent_events_per_factor": MINIMUM_INDEPENDENT_EVENTS,
+        "factor_evidence": factor_evidence,
+        "structured_rows": len(structured), "structured_data_errors": structured_errors,
+        "structured_data_status": structured_status if not structured_errors else "invalid",
+        "structured_indicator_counts": structured_counts,
+        "structured_indicator_status": structured_indicator_status,
+        "evaluation_stride_days": HORIZON_TRADING_DAYS,
         "rule_version": RULE_VERSION, "source_signature": _source_signature(),
         "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
     }
@@ -526,16 +672,20 @@ def build_rates_outputs() -> dict[str, Any]:
         },
     ]
     _write_json(DEMO_CASES_PATH, {"cases": demo_cases, "offline_ready": True, "disclaimer": DISCLAIMER})
-    report = _research_report(forecast, backtest, len(market), len(texts))
+    report = _research_report(forecast, backtest, len(market), len(texts), len(structured))
     REPORT_PATH.write_text(report, encoding="utf-8")
     return {
-        "market_rows": len(market), "text_rows": len(texts), "factor_rows": len(daily),
+        "market_rows": len(market), "text_rows": len(texts), "structured_rows": len(structured),
+        "factor_rows": len(daily),
         "backtest_observations": backtest.get("routes", [{}])[-1].get("observations", 0),
         "increment_conclusion": backtest.get("increment_conclusion"),
     }
 
 
-def _research_report(forecast: dict[str, Any], backtest: dict[str, Any], market_rows: int, text_rows: int) -> str:
+def _research_report(
+    forecast: dict[str, Any], backtest: dict[str, Any], market_rows: int, text_rows: int,
+    structured_rows: int = 0,
+) -> str:
     probabilities = forecast.get("probabilities", {})
     direction_labels = {"down": "收益率下行", "flat": "震荡", "up": "收益率上行"}
     snapshot = forecast.get("market_snapshot", {})
@@ -546,7 +696,7 @@ def _research_report(forecast: dict[str, Any], backtest: dict[str, Any], market_
         f"- 当前判断：{direction_labels.get(forecast.get('predicted_label'), '证据不足')}",
         f"- 概率：下行{probabilities.get('down', 0):.1%} / 震荡{probabilities.get('flat', 0):.1%} / 上行{probabilities.get('up', 0):.1%}",
         f"- 债券价格方向：{forecast.get('bond_price_direction', '证据不足')}",
-        f"- 样本：{market_rows}个交易日，{text_rows}篇去重政策文本", "",
+        f"- 样本：{market_rows}个交易日，{text_rows}篇去重政策文本，{structured_rows}条结构化观测", "",
         "## 市场与流动性", "",
         f"- 10年期国债收益率：{snapshot.get('cgb_10y_yield', '证据不足')}%",
         f"- {snapshot.get('dr007_proxy_name', 'FDR007_FIXING')}：{snapshot.get('dr007_proxy', '证据不足')}%",
@@ -554,10 +704,10 @@ def _research_report(forecast: dict[str, Any], backtest: dict[str, Any], market_
         "## 六类文本因子", "",
         "| 因子 | 收益率压力分数 |", "| --- | ---: |",
     ]
-    lines.extend(
-        f"| {row.get('label', row.get('name', ''))} | {float(row.get('score', 0)):+.4f} |"
-        for row in forecast.get("factor_scores", [])
-    )
+    for row in forecast.get("factor_scores", []):
+        status = forecast.get("factor_evidence_status", {}).get(row.get("name"))
+        display_score = "证据不足" if status == "insufficient_evidence" else f"{float(row.get('score', 0)):+.4f}"
+        lines.append(f"| {row.get('label', row.get('name', ''))} | {display_score} |")
     lines.extend(["", "## 当前生效规则", ""])
     if forecast.get("triggered_rules"):
         lines.extend(
@@ -584,13 +734,17 @@ def _research_report(forecast: dict[str, Any], backtest: dict[str, Any], market_
     lines.extend([
         "", f"- 结论：{backtest.get('increment_conclusion', '尚未评估')}",
         f"- 规则增强相对市场基线的OOS准确率差：{float(bootstrap.get('accuracy_difference') or 0):+.2%}",
-        f"- 20日移动区块Bootstrap 95%区间：[{float(bootstrap.get('ci_lower_95') or 0):.2%}, {float(bootstrap.get('ci_upper_95') or 0):.2%}]",
+        f"- 20个交易日移动区块Bootstrap（{bootstrap.get('block_observations', 0)}个相邻评估观测）95%区间：[{float(bootstrap.get('ci_lower_95') or 0):.2%}, {float(bootstrap.get('ci_upper_95') or 0):.2%}]",
         f"- 切分：{backtest.get('split_policy', '尚未评估')}",
         f"- 注意：{backtest.get('research_warning', '')}", "",
+        "## 结构化数据覆盖", "",
+        f"- 状态：{forecast.get('structured_data_status', 'insufficient_evidence')}",
+        f"- 指标条数：{json.dumps(forecast.get('structured_indicator_counts', {}), ensure_ascii=False, sort_keys=True)}",
+        f"- 缺失指标：{', '.join(name for name, status in forecast.get('structured_indicator_status', {}).items() if status == 'missing') or '无'}", "",
         "## 数据来源与研究边界", "",
         f"- 中债收益率曲线：{snapshot.get('cgb_source_url', '未提供')}",
         f"- 银行间流动性代理：{snapshot.get('liquidity_source_url', '未提供')}",
-        "- FDR007定盘利率仅作DR007历史代理；当前样本没有完整接入CPI、PPI、PMI、社融、MLF和政府债发行结构化序列。",
+        "- FDR007定盘利率仅作DR007历史代理；结构化宏观序列按发布日期对齐，因子事件数少于5个时标记为证据不足并不进入模型。",
         "", RESEARCH_BOUNDARY, "", DISCLAIMER, "",
     ])
     return "\n".join(lines)

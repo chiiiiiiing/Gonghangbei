@@ -92,6 +92,23 @@ TEXT_FIELDS = [
     "source_url", "source_sha256",
 ]
 
+# Structured observations keep the statistical period separate from the first
+# public release timestamp.  This is the B/C data contract for vintage-safe
+# macro inputs (CPI/PPI/PMI, AFRE, MLF and government-bond issuance).
+STRUCTURED_FIELDS = [
+    "observation_date", "release_time", "period_start", "period_end",
+    "indicator", "value", "unit", "source_name", "source_url",
+    "source_sha256", "vintage",
+]
+
+STRUCTURED_INDICATORS = (
+    "cpi_yoy", "ppi_yoy", "pmi_manufacturing", "afre_flow",
+    "afre_rmb_loans", "afre_government_bonds", "mlf_amount",
+    "mlf_rate", "government_bond_issuance",
+)
+
+MINIMUM_INDEPENDENT_EVENTS = 5
+
 EVENT_FIELDS = (
     "event_id", "subject", "action", "object", "policy_direction",
     "intensity", "horizon", "transmission_channel", "evidence_text", "confidence",
@@ -167,6 +184,27 @@ def validate_text_row(row: dict[str, Any]) -> None:
         raise ValueError("政策文本必须提供可核验source_url")
     if len(str(row["source_sha256"])) != 64:
         raise ValueError("政策文本必须提供SHA-256")
+
+
+def validate_structured_row(row: dict[str, Any]) -> None:
+    missing = [field for field in STRUCTURED_FIELDS if str(row.get(field, "")).strip() == ""]
+    if missing:
+        raise ValueError("结构化数据缺少字段：" + "、".join(missing))
+    observation_date = date.fromisoformat(str(row["observation_date"]))
+    period_start = date.fromisoformat(str(row["period_start"]))
+    period_end = date.fromisoformat(str(row["period_end"]))
+    if min(observation_date, period_start, period_end) < date(1990, 1, 1):
+        raise ValueError("结构化数据日期疑似上游缺失值占位")
+    if period_start > period_end:
+        raise ValueError("结构化数据period_start不能晚于period_end")
+    parse_datetime(str(row["release_time"]))
+    if str(row["indicator"]) not in STRUCTURED_INDICATORS:
+        raise ValueError("未知结构化指标：" + str(row["indicator"]))
+    float(row["value"])
+    if not str(row["source_url"]).startswith(("https://", "http://")):
+        raise ValueError("结构化数据必须提供可核验source_url")
+    if len(str(row["source_sha256"])) != 64:
+        raise ValueError("结构化数据必须提供SHA-256")
 
 
 def effective_trade_date(publish_time: str, trade_dates: Iterable[str]) -> str | None:
