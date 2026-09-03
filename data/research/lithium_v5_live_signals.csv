@@ -1,1 +1,0 @@
-signal_id,recorded_at,doc_id,publish_time,source_type,source_name,source_url,title,content,model,predicate_request_id,direction_request_id,direction_score,zero_shot_score,confidence,zero_shot_confidence,predicate_consensus,activated_rules,evidence_text,zero_shot_evidence_text,rulebook_sha256,input_sha256

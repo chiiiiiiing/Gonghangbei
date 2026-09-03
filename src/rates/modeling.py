@@ -133,7 +133,13 @@ def evaluate_route(
     timeline: list[dict[str, Any]] = []
     last_labeled = len(market_rows) - HORIZON_TRADING_DAYS
     for index in range(minimum_train, last_labeled):
-        train_indices = [item for item in range(index) if labels[item] is not None]
+        # At an as-of date, a training row is eligible only if its five-day
+        # outcome has already been observed strictly before that date.
+        train_indices = [
+            item
+            for item in range(index)
+            if labels[item] is not None and item + HORIZON_TRADING_DAYS < index
+        ]
         if len(train_indices) < minimum_train:
             continue
         train_x = [features[item] for item in train_indices]
@@ -149,6 +155,8 @@ def evaluate_route(
             "predicted": prediction,
             "probabilities": probs,
             "train_end": market_rows[index - 1]["trade_date"],
+            "train_feature_end": market_rows[train_indices[-1]]["trade_date"],
+            "train_label_observed_end": market_rows[train_indices[-1] + HORIZON_TRADING_DAYS]["trade_date"],
         })
     return {"route": route, **_metrics(actual, predicted, probabilities), "timeline": timeline}
 

@@ -21,7 +21,7 @@ function renderFactors(factors=[]){
   $("factorGrid").innerHTML=factors.map(row=>{const score=Number(row.score||0);return `<div class="factor-card"><span>${esc(row.label)}</span><b style="color:${score>0?'var(--red)':score<0?'var(--teal)':'var(--ink)'}">${score>0?"+":""}${score.toFixed(3)}</b><small>${score>0?'收益率上行压力':score<0?'收益率下行压力':'暂无有效文本信号'}</small></div>`}).join("");
 }
 function renderAudit(items=[]){
-  $("auditList").innerHTML=items.map(item=>`<article class="audit-card"><h3>${esc(item.doc_id)}</h3><p>生效交易日：${esc(item.effective_trade_date||"未进入样本")}</p><p>${(item.evidence||[]).map(text=>`<span class="evidence-chip">${esc(text)}</span>`).join("")||"无激活谓词"}</p><p><a href="${esc(item.source_url)}" target="_blank" rel="noreferrer">查看官方来源</a> · SHA-256 ${esc(String(item.source_sha256||"").slice(0,16))}…</p></article>`).join("")||"<div class='notice warn'>尚无政策文本证据。</div>";
+  $("auditList").innerHTML=items.map(item=>`<article class="audit-card"><h3>${esc(item.title||item.doc_id)}</h3><p>${esc(item.source_name||"未知来源")} · 公开时间 ${esc(item.publish_time||"—")} · 生效交易日 ${esc(item.effective_trade_date||"未进入样本")}</p><p>${(item.evidence||[]).map(text=>`<span class="evidence-chip">${esc(text)}</span>`).join("")||"无激活谓词"}</p><p>谓词：${esc((item.active_predicates||[]).join("、")||"无")} · 规则：${esc((item.triggered_rules||[]).join("、")||"无")}</p><p><a href="${esc(item.source_url)}" target="_blank" rel="noreferrer">查看官方来源</a> · SHA-256 ${esc(String(item.source_sha256||"").slice(0,16))}…</p></article>`).join("")||"<div class='notice warn'>尚无政策文本证据。</div>";
 }
 function renderOverview(){
   const s=state.status,f=state.forecast;if(!s||!f)return;
@@ -45,7 +45,7 @@ function renderBacktest(){
   $("backtestNotice").textContent=ok?`${b.increment_conclusion}。${b.research_warning}`:`研究证据不足：${b.reason}`;
   $("backtestRows").innerHTML=(b.routes||[]).map(row=>`<tr><td>${routes[row.route]||esc(row.route)}</td><td>${row.observations}</td><td>${pct(row.accuracy)}</td><td>${row.macro_f1??'—'}</td><td>${row.brier??'—'}</td><td>${row.route==='fusion_rules'?(b.increment_conclusion||'—'):'对比路线'}</td></tr>`).join("")||"<tr><td colspan='6'>尚无可展示的滚动评估</td></tr>";
   const timeline=(b.routes||[]).find(row=>row.route==="fusion_rules")?.timeline||[];
-  $("timeline").innerHTML=timeline.slice(-10).map(row=>`<div class="timeline-item ${row.actual===row.predicted?'correct':'wrong'}"><span>${esc(row.as_of)}</span><b>${labels[row.predicted]}</b><span>实际：${labels[row.actual]}</span><span>训练截至 ${esc(row.train_end)}</span></div>`).join("")||"<p class='muted'>样本不足，未生成滚动预测。</p>";
+  $("timeline").innerHTML=timeline.slice(-10).map(row=>`<div class="timeline-item ${row.actual===row.predicted?'correct':'wrong'}"><span>${esc(row.as_of)}</span><b>${labels[row.predicted]}</b><span>实际：${labels[row.actual]}</span><span>标签可用截至 ${esc(row.train_label_observed_end||row.train_end)}</span></div>`).join("")||"<p class='muted'>样本不足，未生成滚动预测。</p>";
 }
 
 $("textFile").addEventListener("change",async event=>{const file=event.target.files[0];if(file)$("textContent").value=await file.text();});

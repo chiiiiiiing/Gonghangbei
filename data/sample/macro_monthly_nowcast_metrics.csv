@@ -1,2 +1,0 @@
-model,training_month_count,validation_month_count,validation_mae,validation_rmse,no_text_validation_mae,validation_mae_improvement,text_weight
-monthly_text_residual_ridge,51,20,2.924229,3.418408,2.976062,0.051833,1.000000

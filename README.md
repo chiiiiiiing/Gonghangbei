@@ -1,48 +1,54 @@
 # AlphaLens：银行利率债文本因子研究平台
 
-AlphaLens利用大模型将央行及宏观政策文本转化为可量化、可验证、可追溯的金融因子，融合债券与银行间市场数据，辅助银行研判未来5个交易日的利率债市场方向。
+AlphaLens 利用大语言模型将央行及宏观政策文本转化为可量化、可验证、可追溯的金融因子，融合债券与银行间市场数据，辅助银行研判未来 5 个交易日的利率债市场方向。
 
-## 首版研究契约
+## 提交版要点
 
-- 主目标：10年期国债收益率未来5个交易日的 `上行 / 震荡 / 下行`。
-- 震荡定义：未来5日变化处于 `[-2bp, +2bp]`。
-- 辅助指标：DR007流动性状态。公开历史MVP使用中国货币网FDR007定盘利率做代理，页面和接口均明确标注，不将其冒充原始DR007。
+- 主目标：10 年期国债收益率未来 5 个交易日的 `上行 / 震荡 / 下行`。
+- 标签口径：变化大于 `+2bp` 为上行，小于 `-2bp` 为下行，其余为震荡。
+- 流动性输入：DR007；公开历史样例使用中国货币网 FDR007 定盘利率做代理并明确标识。
 - 文本因素：货币政策、市场流动性、经济增长、通胀、债券供给、风险偏好。
-- 模型比较：市场数据基线、仅文本、市场文本融合、融合加规则。
-- 研究边界：不自动下单；单篇文本输出的是对现有预测的边际影响。
+- 输出：三类方向概率、主要驱动、原文证据、规则贡献和四路线滚动评估。
+- 边界：不自动下单；单篇文本只输出对现有预测的边际影响。
 
-## 快速启动
+## 一键启动
+
+需要 Python 3.10 或更高版本。
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python 启动演示.py
 ```
 
-浏览器打开终端显示的本地地址。默认首页包含五个页面：每日总览、政策文本分析、预测详情、证据审计、历史回测。
+浏览器打开 `http://127.0.0.1:8701/`。不配置大模型密钥也能完整演示确定性抽取、模型、回测和审计链路。
 
-可选的大模型配置：
+如需演示大模型抽取，可在页面临时填写密钥，或设置：
 
 ```bash
-export DEEPSEEK_API_KEY="你的Key"
+export DEEPSEEK_API_KEY="你的密钥"
 export ALPHALENS_AI_MODE="api"
 ```
 
-也可以仅在“政策文本分析”页面临时输入Key。Key只用于当次请求，不写入文件。未配置模型时，系统明确显示“确定性降级”，不会把关键词结果包装成LLM结果。
+密钥只参与当次请求，不写入项目文件或浏览器存储。
 
-## 更新官方样例数据
+## 当前真实数据快照
 
-```bash
-.venv/bin/python scripts/fetch_rates_market_data.py
-.venv/bin/python scripts/fetch_rates_policy_texts.py
-```
+| 数据 | 范围/数量 | 来源 | 用途 |
+| --- | --- | --- | --- |
+| 10 年期国债收益率 | 2026-01-04 至 2026-08-28，共 163 个交集交易日 | 中债收益率曲线 | 主目标与市场特征 |
+| FDR007 定盘利率 | 同期 163 个交集交易日 | 中国货币网 | DR007 历史公开代理 |
+| 政策文本 | 1 篇可核验样例 | 中国人民银行 | 验证文本抽取与证据审计 |
 
-第一条命令下载中债年度国债收益率曲线、中国货币网FDR007历史定盘数据和当日DR007公开行情，生成：
+每条市场数据保留来源网址、下载时间和源文件 SHA-256。当前文本覆盖不足，因此系统明确显示“文本预测增量尚未建立”；现有分数只证明流程可复现，不代表正式研究结论。
 
-- `data/sample/rates_market.csv`
-- `data/sample/rates_source_audit.json`
+## 页面
 
-第二条命令下载央行政策文本样例并记录页面SHA-256，生成 `data/sample/rates_policy_texts.csv`。
+1. 每日研究总览：五日方向概率、收益率、流动性状态和驱动因素。
+2. 政策文本分析：粘贴或上传文本，查看结构化谓词及概率边际变化。
+3. 预测详情：六类因素、市场口径和模型契约。
+4. 证据审计：来源、原文片段、文件哈希和人工复核。
+5. 历史回测：市场基线、仅文本、融合、融合加规则四条路线。
 
 ## API
 
@@ -52,46 +58,30 @@ export ALPHALENS_AI_MODE="api"
 - `POST /api/rates/analyze`
 - `POST /api/rates/review`
 
-`POST /api/rates/analyze` 示例：
+详细字段见 `docs/05_系统使用与API.md`。
 
-```json
-{
-  "title": "公开市场逆回购操作",
-  "content": "中国人民银行开展逆回购操作，向市场投放流动性。",
-  "source_name": "中国人民银行",
-  "source_url": "https://www.pbc.gov.cn/",
-  "publish_time": "2026-08-28T09:30:00",
-  "api_key": "可选"
-}
-```
-
-## 测试
+## 数据更新与测试
 
 ```bash
+.venv/bin/python scripts/fetch_rates_market_data.py
+.venv/bin/python scripts/fetch_rates_policy_texts.py
+.venv/bin/python 运行利率研究.py
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-利率版测试覆盖交易日映射、收盘后信息归属、标签阈值、证据原文、规则触发、滚动训练无未来泄漏、全部新增API和人工复核追加写入。
+## 目录
 
-## 人员2方案材料
+```text
+app/                 五页网页与 Flask API
+src/rates/           时间对齐、因素、规则、模型和服务层
+src/ai/gateway.py    可选的大模型网关
+scripts/             官方数据获取脚本
+data/sample/         带来源审计的真实样例快照
+docs/                项目、技术、数据、评估、答辩和分工材料
+tests/               自动化验收测试
+演示截图/            新版页面截图
+```
 
-位于 `docs/person2/`：
+完整说明见 `完整说明文档.md`，现场操作见 `现场演示操作文档.md`。
 
-1. 项目定位与目标比较。
-2. 六类因素字典与规则。
-3. 技术流程与论文方法迁移。
-4. 朱越腾老师咨询提纲。
-5. 人员2交付与队友衔接。
-
-## 旧版兼容
-
-原碳酸锂研究模块、数据和 `/api/lithium/*` 接口仍保留，便于追溯；新版默认首页与主导航不再展示旧项目。原月度宏观实验接口也保持不变。
-
-## 官方来源
-
-- 中债收益率曲线：https://yield.chinabond.com.cn/cbweb-mn/pgxh/showHistory
-- 中国货币网回购定盘利率：https://www.chinamoney.com.cn/chinese/bkfrr/
-- 中国货币网质押式回购行情：https://www.chinamoney.com.cn/chinese/mkdatapm/?tab=2
-- 中国人民银行公开市场业务：https://www.pbc.gov.cn/zhengcehuobisi/125207/125213/125431/index.html
-
-本报告仅供研究参考，不构成投资建议或自动交易指令。
+本系统仅供研究参考，不构成投资建议或自动交易指令。

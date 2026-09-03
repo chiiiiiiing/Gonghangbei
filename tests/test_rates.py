@@ -69,9 +69,14 @@ class RatesResearchTests(unittest.TestCase):
         self.assertAlmostEqual(sum(forecast["probabilities"].values()), 1.0, places=5)
         backtest = load_backtest()
         self.assertEqual({row["route"] for row in backtest["routes"]}, {"market_baseline", "text_only", "fusion", "fusion_rules"})
+        self.assertFalse(backtest["increment_established"])
+        self.assertEqual(backtest["increment_conclusion"], "文本预测增量尚未建立")
+        self.assertFalse(backtest["text_coverage"]["sufficient_for_increment_claim"])
         for route in backtest["routes"]:
             for row in route["timeline"]:
                 self.assertLess(row["train_end"], row["as_of"])
+                self.assertLess(row["train_feature_end"], row["train_label_observed_end"])
+                self.assertLess(row["train_label_observed_end"], row["as_of"])
 
     def test_rates_endpoints_and_single_text_marginal_output(self) -> None:
         client = app.test_client()
@@ -80,6 +85,9 @@ class RatesResearchTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200, path)
         invalid = client.get("/api/rates/forecast?horizon=10")
         self.assertEqual(invalid.status_code, 400)
+        missing = client.post("/api/rates/analyze", json={"title": "缺少字段"})
+        self.assertEqual(missing.status_code, 400)
+        self.assertIn("缺少字段", missing.get_json()["error"])
         response = client.post("/api/rates/analyze", json={
             "title": "逆回购投放",
             "content": "中国人民银行开展逆回购操作，向市场投放流动性，保持流动性合理充裕。",
@@ -93,6 +101,38 @@ class RatesResearchTests(unittest.TestCase):
         self.assertFalse(payload["llm_analysis"]["used"])
         self.assertAlmostEqual(sum(payload["updated_forecast"].values()), 1.0, places=5)
         self.assertIn("边际影响", payload["interpretation"])
+        self.assertIn("processed_at", payload)
+
+    def test_missing_market_snapshot_returns_evidence_insufficient(self) -> None:
+        missing = Path("/path/that/does/not/exist.csv")
+        with (
+            patch("src.rates.engine.MARKET_PATH", missing),
+            patch("src.rates.engine.TEXT_PATH", missing),
+            patch("src.rates.engine.AUDIT_PATH", missing),
+        ):
+            status = load_status()
+            forecast = load_forecast()
+            backtest = load_backtest()
+        self.assertFalse(status["data_ready"])
+        self.assertEqual(forecast["status"], "research_evidence_insufficient")
+        self.assertEqual(backtest["status"], "research_evidence_insufficient")
+
+    def test_submission_routes_are_small_and_explicit(self) -> None:
+        routes = {
+            rule.rule
+            for rule in app.url_map.iter_rules()
+            if rule.rule.startswith("/api/")
+        }
+        self.assertEqual(routes, {
+            "/api/rates/status",
+            "/api/rates/forecast",
+            "/api/rates/backtest",
+            "/api/rates/analyze",
+            "/api/rates/review",
+        })
+        response = app.test_client().get("/api/unknown")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json()["error"], "接口不存在")
 
     def test_review_is_append_only_and_validated(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

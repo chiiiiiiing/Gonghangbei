@@ -6,7 +6,7 @@ import csv
 import hashlib
 import json
 from collections import defaultdict
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -27,7 +27,7 @@ DATA_DIR = ROOT / "data" / "sample"
 MARKET_PATH = DATA_DIR / "rates_market.csv"
 TEXT_PATH = DATA_DIR / "rates_policy_texts.csv"
 AUDIT_PATH = DATA_DIR / "rates_source_audit.json"
-REVIEW_PATH = ROOT / "data" / "research" / "rates_reviews.jsonl"
+REVIEW_PATH = ROOT / "data" / "runtime" / "rates_reviews.jsonl"
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
@@ -70,9 +70,14 @@ def _daily_context(
             factor_parts[effective].append(scores)
             rules_by_date[effective].append(rule_pressure(rules))
         audit.append({
-            "doc_id": document["doc_id"], "effective_trade_date": effective,
+            "doc_id": document["doc_id"],
+            "title": document["title"],
+            "source_name": document["source_name"],
+            "publish_time": document["publish_time"],
+            "effective_trade_date": effective,
             "active_predicates": [row["predicate_name"] for row in predicates if row["value"]],
             "evidence": [row["evidence_text"] for row in predicates if row["value"]],
+            "triggered_rules": [row["rule_id"] for row in rules],
             "source_url": document["source_url"], "source_sha256": document["source_sha256"],
         })
     factors_by_date: dict[str, dict[str, float]] = {}
@@ -91,11 +96,15 @@ def load_status() -> dict[str, Any]:
     market, texts, errors = _load()
     audit = json.loads(AUDIT_PATH.read_text(encoding="utf-8")) if AUDIT_PATH.exists() else {}
     return {
-        "version": "rates-text-factor-mvp-v1",
+        "version": "rates-text-factor-submission-v1",
         "target": TARGET_NAME,
         "horizon_trading_days": HORIZON_TRADING_DAYS,
         "flat_threshold_bp": FLAT_THRESHOLD_BP,
         "data_ready": len(market) >= 25 and not errors,
+        "model_status": {
+            "market_model": "ready" if len(market) >= 25 and not errors else "insufficient_data",
+            "text_increment_validation": "pending_more_text_coverage",
+        },
         "market_rows": len(market), "text_rows": len(texts),
         "first_trade_date": market[0]["trade_date"] if market else None,
         "latest_trade_date": market[-1]["trade_date"] if market else None,
@@ -111,6 +120,7 @@ def load_forecast(as_of: str | None = None, horizon: int = HORIZON_TRADING_DAYS)
     if horizon != HORIZON_TRADING_DAYS:
         raise ValueError("首版仅支持5个交易日预测窗口")
     if as_of:
+        date.fromisoformat(as_of)
         market = [row for row in market if row["trade_date"] <= as_of]
         texts = [row for row in texts if row["publish_time"][:10] <= as_of]
     if errors or not market:
@@ -157,23 +167,38 @@ def load_backtest() -> dict[str, Any]:
             "routes": [], "increment_conclusion": "文本预测增量尚未建立",
             "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
         }
-    factors, pressure, _audit = _daily_context(market, texts)
+    factors, pressure, audit = _daily_context(market, texts)
     routes = [evaluate_route(market, factors, pressure, route) for route in ROUTES]
     baseline = routes[0]
     enhanced = routes[-1]
     baseline_f1 = baseline.get("macro_f1")
     enhanced_f1 = enhanced.get("macro_f1")
+    effective_text_dates = {
+        row["effective_trade_date"] for row in audit if row.get("effective_trade_date")
+    }
+    minimum_text_dates = 30
+    text_coverage_sufficient = len(effective_text_dates) >= minimum_text_dates
     incremental = (
         baseline_f1 is not None and enhanced_f1 is not None and enhanced_f1 > baseline_f1
         and enhanced.get("observations", 0) >= 30
+        and text_coverage_sufficient
     )
     return {
         "status": "evaluated", "target": TARGET_NAME,
         "split_policy": "expanding_window_no_shuffle",
         "routes": routes,
+        "text_coverage": {
+            "documents": len(texts),
+            "effective_trade_dates": len(effective_text_dates),
+            "minimum_effective_trade_dates": minimum_text_dates,
+            "sufficient_for_increment_claim": text_coverage_sufficient,
+        },
         "increment_established": incremental,
         "increment_conclusion": "文本预测增量初步成立" if incremental else "文本预测增量尚未建立",
-        "research_warning": "单年度公开MVP样本不能替代跨周期严格样本外检验。",
+        "research_warning": (
+            "当前公开样例只用于验证数据、建模和审计链路；文本覆盖不足，"
+            "不得把四路线分数差异解释为已证明的文本增量。正式结论需要跨周期样本外检验。"
+        ),
         "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
     }
 
@@ -213,6 +238,7 @@ def analyze_document(payload: dict[str, Any]) -> dict[str, Any]:
     updated = {label: round(value / total, 6) for label, value in updated.items()}
     return {
         "analysis_type": "incremental_single_text", "document": {key: document[key] for key in document if key != "content"},
+        "processed_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "llm_analysis": llm, "predicates": predicates,
         "factor_scores": [{"name": name, "label": FACTOR_LABELS[name], "score": scores[name]} for name in FACTOR_NAMES],
         "triggered_rules": activated,

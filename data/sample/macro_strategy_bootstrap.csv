@@ -1,2 +1,0 @@
-comparison,cost_bps,sample_months,block_months,bootstrap_iterations,annualized_net_return_difference,ci_lower_95,ci_upper_95,conclusion
-trend_alphalens_minus_trend,10,27,6,1000,-0.055593,-0.148069,0.000340,trading_increment_not_established
