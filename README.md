@@ -36,25 +36,31 @@ export ALPHALENS_AI_MODE="api"
 
 | 数据 | 范围/数量 | 来源 | 用途 |
 | --- | --- | --- | --- |
-| 10 年期国债收益率 | 2026-01-04 至 2026-08-28，共 163 个交集交易日 | 中债收益率曲线 | 主目标与市场特征 |
-| FDR007 定盘利率 | 同期 163 个交集交易日 | 中国货币网 | DR007 历史公开代理 |
-| 政策文本 | 1 篇可核验样例 | 中国人民银行 | 验证文本抽取与证据审计 |
+| 10 年期国债收益率 | 2018-01-02 至 2026-09-01，共 2161 个交易日 | 中债收益率曲线 | 主目标与市场特征 |
+| FDR007 定盘利率 | 同期 2161 个交易日 | 中国货币网 | DR007 历史公开代理 |
+| 政策文本 | 2020-01-02 至 2026-08-31，共 374 篇去重文本 | 中国人民银行 | 事件、谓词、六类文本因子 |
+| LLM 结构化缓存 | 374 条，其中 339 条通过模型抽取，35 条透明降级 | DeepSeek + 原文证据门控 | 可恢复语义抽取与审计 |
 
-每条市场数据保留来源网址、下载时间和源文件 SHA-256。当前文本覆盖不足，因此系统明确显示“文本预测增量尚未建立”；现有分数只证明流程可复现，不代表正式研究结论。
+每条数据保留来源网址、下载时间和 SHA-256。四条路线共完成 1899 个滚动预测观测；规则增强路线相对市场基线的冻结 OOS 准确率差为 `+0.735` 个百分点，但 20 日移动区块 Bootstrap 95% 区间覆盖零，因此当前结论仍为“冻结 OOS 文本预测增量尚未建立”。
 
 ## 页面
 
 1. 每日研究总览：五日方向概率、收益率、流动性状态和驱动因素。
 2. 政策文本分析：粘贴或上传文本，查看结构化谓词及概率边际变化。
-3. 预测详情：六类因素、市场口径和模型契约。
-4. 证据审计：来源、原文片段、文件哈希和人工复核。
-5. 历史回测：市场基线、仅文本、融合、融合加规则四条路线。
+3. 预测详情：六类因素、特征贡献、冻结规则和模型契约。
+4. 证据审计：来源、原文、事件、谓词、规则、文件哈希和追加式人工复核。
+5. 历史回测：四条路线、分时期结果、概率校准和典型正确/错误案例。
 
 ## API
 
 - `GET /api/rates/status`
 - `GET /api/rates/forecast?as_of=YYYY-MM-DD&horizon=5`
 - `GET /api/rates/backtest`
+- `GET /api/rates/evidence`
+- `GET /api/rates/reviews`
+- `GET /api/rates/demo-cases`
+- `GET /api/rates/report`
+- `POST /api/rates/extract-file`
 - `POST /api/rates/analyze`
 - `POST /api/rates/review`
 
@@ -65,8 +71,15 @@ export ALPHALENS_AI_MODE="api"
 ```bash
 .venv/bin/python scripts/fetch_rates_market_data.py
 .venv/bin/python scripts/fetch_rates_policy_texts.py
-.venv/bin/python 运行利率研究.py
+.venv/bin/python scripts/annotate_rates_policy_texts.py --workers 3
+.venv/bin/python scripts/run_daily_rates_research.py --annotate-llm
 .venv/bin/python -m unittest discover -s tests -v
+```
+
+服务器无法联网但需要从当前冻结快照重建研究产物时，运行：
+
+```bash
+.venv/bin/python scripts/run_daily_rates_research.py --skip-market --skip-text
 ```
 
 ## 目录

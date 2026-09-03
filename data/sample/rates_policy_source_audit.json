@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-09-02T15:19:00+08:00",
+  "period": {
+    "start": "2020-01-02 09:15:19",
+    "end": "2026-08-31 09:20:30"
+  },
+  "documents": 374,
+  "pbc_monetary_policy_reports": 28,
+  "pbc_weekly_omo_announcements": 346,
+  "mof_government_bond_announcements": 0,
+  "sources": [
+    "中国人民银行"
+  ],
+  "method": "官方列表页发现、官方正文抓取、原始响应SHA-256、发布日期时间对齐",
+  "optional_source_warning": "财政部国债发行公告为可选来源；当前样本未纳入财政部正文，不能将债券供给因子表述为已由财政部结构化序列确认。"
+}
