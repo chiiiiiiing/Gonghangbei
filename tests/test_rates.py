@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from app.server import app
+from scripts.fetch_rates_structured_data import _mlf_amount, _mlf_rate, parse_pboc_afre_stock_text
 from src.ai.gateway import AISettings
 from src.rates.engine import _structured_context, append_review, load_backtest, load_forecast, load_status
 from src.rates.factors import factor_scores, ground_predicates, independent_event_key, merge_llm_predicates
@@ -147,6 +148,32 @@ class RatesResearchTests(unittest.TestCase):
         self.assertEqual(context["2020-02-17"]["cpi_yoy"], 5.4)
         self.assertEqual(coverage["cpi_yoy"], 1)
 
+    def test_structured_context_keeps_latest_period_not_latest_file(self) -> None:
+        market = [{"trade_date": "2025-10-14"}, {"trade_date": "2025-11-04"}, {"trade_date": "2025-11-06"}]
+        structured = [
+            {"release_time": "2025-10-15 09:00:00", "observation_date": "2025-10-31", "indicator": "afre_government_bonds", "value": "100"},
+            {"release_time": "2025-11-05 09:00:00", "observation_date": "2019-12-31", "indicator": "afre_government_bonds", "value": "999"},
+        ]
+        context, _coverage = _structured_context(market, structured)
+        self.assertEqual(context["2025-11-04"]["afre_government_bonds"], 100.0)
+        self.assertEqual(context["2025-11-06"]["afre_government_bonds"], 100.0)
+
+    def test_official_mlf_and_afre_parsers_reject_ambiguous_values(self) -> None:
+        notice = (
+            "人民银行开展中期借贷便利操作共7330亿元，其中期限6个月3580亿元、"
+            "1年期3750亿元，利率分别为2.85%、3.0%。"
+        )
+        self.assertEqual(_mlf_amount(notice), 7330.0)
+        self.assertEqual(_mlf_rate(notice), 3.0)
+        self.assertIsNone(_mlf_rate("开展9000亿元MLF操作，采用多重价位中标。"))
+        pdf_layout = "\n".join(
+            f"2017.{index + 1:02d} 1800000 1000000 1 2 3 4 5 {220000 + index} 7 8 9"
+            for index in range(36)
+        )
+        parsed = parse_pboc_afre_stock_text(pdf_layout)
+        self.assertEqual(len(parsed), 36)
+        self.assertEqual(parsed[0], ("2017-01-31", 220000.0))
+
     def test_bootstrap_converts_twenty_days_to_four_non_overlapping_windows(self) -> None:
         timeline = [
             {"as_of": f"2026-01-{index + 1:02d}", "correct": index % 2 == 0}
@@ -165,9 +192,10 @@ class RatesResearchTests(unittest.TestCase):
         self.assertGreaterEqual(status["text_rows"], 350)
         self.assertGreaterEqual(status["structured_rows"], 500)
         self.assertTrue(status["structured_data_ready"], status["data_errors"])
-        self.assertEqual(status["structured_indicator_status"]["mlf_rate"], "missing")
+        self.assertEqual(status["structured_indicator_status"]["mlf_rate"], "sufficient")
         self.assertEqual(status["structured_indicator_status"]["government_bond_issuance"], "sufficient")
-        self.assertEqual(status["structured_data_status"], "partial")
+        self.assertEqual(status["structured_indicator_status"]["afre_government_bonds"], "sufficient")
+        self.assertEqual(status["structured_data_status"], "sufficient")
         self.assertGreaterEqual(len(RULES), 10)
         forecast = load_forecast()
         self.assertEqual(forecast["horizon_trading_days"], 5)

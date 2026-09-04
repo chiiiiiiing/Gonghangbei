@@ -157,24 +157,37 @@ def _structured_status(rows: list[dict[str, str]]) -> tuple[dict[str, int], dict
 def _structured_context(
     market: list[dict[str, str]], structured: list[dict[str, str]]
 ) -> tuple[dict[str, dict[str, float]], dict[str, int]]:
-    """Carry forward only observations whose public release precedes the close."""
+    """Carry forward vintage-safe observations whose public release precedes the close.
+
+    A later historical-reconstruction file may publish old periods after newer
+    observations are already known.  Such a revision can replace the value for
+    its own period, but must never make the model travel backwards in time.
+    """
     dates = [row["trade_date"] for row in market]
     by_date: dict[str, dict[str, float]] = {day: {} for day in dates}
-    release_rows: list[tuple[str, str, float]] = []
+    release_rows: list[tuple[str, str, str, str, float]] = []
     for row in structured:
         effective = effective_trade_date(row["release_time"], dates)
         if effective:
-            release_rows.append((effective, str(row["indicator"]), float(row["value"])))
+            release_rows.append((
+                effective, row["release_time"], str(row["indicator"]),
+                str(row.get("observation_date") or effective), float(row["value"]),
+            ))
     release_rows.sort()
-    latest: dict[str, float] = {}
+    latest: dict[str, tuple[str, float]] = {}
     cursor = 0
     for day in dates:
         while cursor < len(release_rows) and release_rows[cursor][0] <= day:
-            _effective, indicator, value = release_rows[cursor]
-            latest[indicator] = value
+            _effective, _release_time, indicator, observation_date, value = release_rows[cursor]
+            # Only the newest statistical period available by this date is
+            # carried forward.  This prevents a 2025 retrospective table for
+            # 2017--2019 from overwriting a 2025 monthly observation.
+            previous = latest.get(indicator)
+            if previous is None or observation_date >= previous[0]:
+                latest[indicator] = (observation_date, value)
             cursor += 1
-        by_date[day] = dict(latest)
-    coverage = Counter(indicator for _effective, indicator, _value in release_rows)
+        by_date[day] = {indicator: value for indicator, (_period, value) in latest.items()}
+    coverage = Counter(indicator for _effective, _release_time, indicator, _period, _value in release_rows)
     return by_date, dict(coverage)
 
 

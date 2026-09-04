@@ -14,6 +14,7 @@ import hashlib
 import json
 import re
 import sys
+import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -45,11 +46,33 @@ MOF_SEEDS = (
     ("https://www.mof.gov.cn/gp/xxgkml/gks/201712/t20171213_2776284.htm", "2017年记账式附息（二十三期）国债第二次续发行通知", "2017-12-06 09:00:00"),
 )
 
+# NBS migrated historical releases to stable 2023 archive URLs.  These seeds
+# are deliberately limited to releases that add inflation/growth evidence to
+# the 2015--2019 discovery period; the crawler still downloads and hashes the
+# official response instead of persisting search-result snippets.
+NBS_SEEDS = (
+    ("https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1898695.html", "2015年1月份居民消费价格变动情况", "2015-02-10 23:59:59"),
+    ("https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1899011.html", "2015年12月份工业生产者出厂价格同比下降5.9%", "2016-01-09 23:59:59"),
+    ("https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1899004.html", "2015年12月中国制造业采购经理指数为49.7%", "2016-01-01 23:59:59"),
+    ("https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1899420.html", "2017年1月份居民消费价格同比上涨2.5%", "2017-02-14 23:59:59"),
+)
+
 
 def fetch(url: str) -> tuple[bytes, str]:
-    request = Request(url, headers={"User-Agent": "Mozilla/5.0 AlphaLensResearch/2.0"})
-    with urlopen(request, timeout=45) as response:
-        raw = response.read()
+    last_error: Exception | None = None
+    raw = b""
+    for attempt in range(4):
+        try:
+            request = Request(url, headers={"User-Agent": "Mozilla/5.0 AlphaLensResearch/2.0"})
+            with urlopen(request, timeout=45) as response:
+                raw = response.read()
+            break
+        except Exception as exc:
+            last_error = exc
+            if attempt < 3:
+                time.sleep(1.0 * (attempt + 1))
+    if not raw:
+        raise RuntimeError(f"下载失败：{url}：{last_error}")
     soup = BeautifulSoup(raw, "html.parser")
     for node in soup(("script", "style", "noscript")):
         node.decompose()
@@ -106,6 +129,14 @@ def main() -> None:
                 "doc_id": doc_id, "title": title, "publish_time": publish_time,
                 "source_name": "财政部",
             })
+    for index, (url, title, publish_time) in enumerate(NBS_SEEDS, 1):
+        doc_id = f"NBS-MACRO-SEED-{index:02d}"
+        targets.append((url, doc_id, title, publish_time, "国家统计局"))
+        if url in by_url:
+            by_url[url].update({
+                "doc_id": doc_id, "title": title, "publish_time": publish_time,
+                "source_name": "国家统计局",
+            })
 
     failures: list[dict[str, str]] = []
     with ThreadPoolExecutor(max_workers=8) as pool:
@@ -152,7 +183,7 @@ def main() -> None:
         "nbs_historical_documents_added_this_run": sum(row["source_name"] == "国家统计局" for row in added),
         "mof_documents_added_this_run": sum(row["source_name"] == "财政部" for row in added),
         "augmentation_failures": failures,
-        "augmentation_method": "NBS复用已核验历史语料并记录持久化正文SHA-256；MOF重新抓取官方响应并记录SHA-256；按URL去重",
+        "augmentation_method": "NBS复用已核验历史语料并抓取CPI/PPI/PMI官方URL种子；MOF重新抓取官方响应；新增正文均记录响应SHA-256并按URL去重",
         "optional_source_warning": "财政部清单为可审计官方URL种子；抓取失败会记录且不会用标题或摘要替代正文。",
     })
     AUDIT.write_text(json.dumps(previous, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

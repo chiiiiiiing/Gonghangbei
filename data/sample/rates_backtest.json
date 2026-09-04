@@ -1,17 +1,17 @@
 {
   "status": "evaluated",
   "target": "cgb_10y_yield_5d_direction",
-  "structured_data_status": "partial",
+  "structured_data_status": "sufficient",
   "structured_indicator_counts": {
     "cpi_yoy": 223,
     "ppi_yoy": 247,
     "pmi_manufacturing": 224,
     "afre_flow": 136,
     "afre_rmb_loans": 136,
-    "afre_government_bonds": 0,
-    "mlf_amount": 33,
-    "mlf_rate": 0,
-    "government_bond_issuance": 3421
+    "afre_government_bonds": 36,
+    "mlf_amount": 131,
+    "mlf_rate": 113,
+    "government_bond_issuance": 3423
   },
   "structured_indicator_status": {
     "cpi_yoy": "sufficient",
@@ -19,9 +19,9 @@
     "pmi_manufacturing": "sufficient",
     "afre_flow": "sufficient",
     "afre_rmb_loans": "sufficient",
-    "afre_government_bonds": "missing",
+    "afre_government_bonds": "sufficient",
     "mlf_amount": "sufficient",
-    "mlf_rate": "missing",
+    "mlf_rate": "sufficient",
     "government_bond_issuance": "sufficient"
   },
   "split_policy": "purged_non_overlapping_756_day_rolling_window_no_shuffle",
@@ -2306,12 +2306,12 @@
       "route": "text_only",
       "route_label": "仅文本因子",
       "observations": 380,
-      "accuracy": 0.3816,
-      "macro_precision": 0.3539,
-      "macro_recall": 0.36,
-      "macro_f1": 0.3477,
-      "macro_auc_ovr": 0.5209,
-      "brier": 0.2205,
+      "accuracy": 0.3789,
+      "macro_precision": 0.3513,
+      "macro_recall": 0.3577,
+      "macro_f1": 0.3458,
+      "macro_auc_ovr": 0.5201,
+      "brier": 0.2207,
       "confusion_matrix": {
         "down": {
           "down": 42,
@@ -2320,8 +2320,8 @@
         },
         "flat": {
           "down": 42,
-          "flat": 86,
-          "up": 20
+          "flat": 85,
+          "up": 21
         },
         "up": {
           "down": 51,
@@ -2340,21 +2340,21 @@
           "precision": 0.3111,
           "recall": 0.3443,
           "f1": 0.3268,
-          "auc_ovr": 0.4766
+          "auc_ovr": 0.4764
         },
         "flat": {
           "support": 148,
-          "precision": 0.4624,
-          "recall": 0.5811,
-          "f1": 0.515,
-          "auc_ovr": 0.5905
+          "precision": 0.4595,
+          "recall": 0.5743,
+          "f1": 0.5105,
+          "auc_ovr": 0.5892
         },
         "up": {
           "support": 110,
-          "precision": 0.2881,
+          "precision": 0.2833,
           "recall": 0.1545,
-          "f1": 0.2012,
-          "auc_ovr": 0.4956
+          "f1": 0.2,
+          "auc_ovr": 0.4946
         }
       },
       "period_metrics": [
@@ -2420,7 +2420,7 @@
           "macro_precision": 0.1263,
           "macro_recall": 0.3077,
           "macro_f1": 0.1791,
-          "macro_auc_ovr": 0.3932,
+          "macro_auc_ovr": 0.3946,
           "brier": 0.2213,
           "confusion_matrix": {
             "down": {
@@ -2450,33 +2450,33 @@
               "precision": 0.0,
               "recall": 0.0,
               "f1": 0.0,
-              "auc_ovr": 0.5296
+              "auc_ovr": 0.5333
             },
             "flat": {
               "support": 39,
               "precision": 0.3789,
               "recall": 0.9231,
               "f1": 0.5373,
-              "auc_ovr": 0.281
+              "auc_ovr": 0.2797
             },
             "up": {
               "support": 20,
               "precision": 0.0,
               "recall": 0.0,
               "f1": 0.0,
-              "auc_ovr": 0.3691
+              "auc_ovr": 0.3709
             }
           }
         },
         {
           "period": "oos_2025_latest",
           "observations": 81,
-          "accuracy": 0.6049,
-          "macro_precision": 0.2042,
-          "macro_recall": 0.3267,
-          "macro_f1": 0.2513,
-          "macro_auc_ovr": 0.5197,
-          "brier": 0.2134,
+          "accuracy": 0.5926,
+          "macro_precision": 0.2025,
+          "macro_recall": 0.32,
+          "macro_f1": 0.2481,
+          "macro_auc_ovr": 0.517,
+          "brier": 0.2143,
           "confusion_matrix": {
             "down": {
               "down": 0,
@@ -2485,8 +2485,8 @@
             },
             "flat": {
               "down": 0,
-              "flat": 49,
-              "up": 1
+              "flat": 48,
+              "up": 2
             },
             "up": {
               "down": 0,
@@ -2509,17 +2509,17 @@
             },
             "flat": {
               "support": 50,
-              "precision": 0.6125,
-              "recall": 0.98,
-              "f1": 0.7538,
-              "auc_ovr": 0.6058
+              "precision": 0.6076,
+              "recall": 0.96,
+              "f1": 0.7442,
+              "auc_ovr": 0.6013
             },
             "up": {
               "support": 18,
               "precision": 0.0,
               "recall": 0.0,
               "f1": 0.0,
-              "auc_ovr": 0.4489
+              "auc_ovr": 0.4453
             }
           }
         }
@@ -2527,15 +2527,21 @@
       "calibration": [
         {
           "confidence_range": "0.00-0.40",
-          "observations": 358,
+          "observations": 359,
           "mean_confidence": 0.3588,
-          "accuracy": 0.3659
+          "accuracy": 0.3649
         },
         {
           "confidence_range": "0.40-0.50",
-          "observations": 22,
-          "mean_confidence": 0.4101,
-          "accuracy": 0.6364
+          "observations": 20,
+          "mean_confidence": 0.4047,
+          "accuracy": 0.65
+        },
+        {
+          "confidence_range": "0.50-0.60",
+          "observations": 1,
+          "mean_confidence": 0.5474,
+          "accuracy": 0.0
         }
       ],
       "examples": {
@@ -2545,30 +2551,14 @@
             "actual": "flat",
             "predicted": "flat",
             "probabilities": {
-              "down": 0.22850486,
-              "flat": 0.44727402,
-              "up": 0.32422112
+              "down": 0.23780302,
+              "flat": 0.42436737,
+              "up": 0.33782961
             },
             "correct": true,
             "train_origin_start": "2023-04-26",
             "train_origin_end": "2026-05-07",
             "label_known_through": "2026-05-13",
-            "train_observations": 752,
-            "period": "oos_2025_latest"
-          },
-          {
-            "as_of": "2026-02-14",
-            "actual": "flat",
-            "predicted": "flat",
-            "probabilities": {
-              "down": 0.22917898,
-              "flat": 0.41858861,
-              "up": 0.35223241
-            },
-            "correct": true,
-            "train_origin_start": "2023-02-08",
-            "train_origin_end": "2026-02-09",
-            "label_known_through": "2026-02-14",
             "train_observations": 752,
             "period": "oos_2025_latest"
           },
@@ -2587,6 +2577,22 @@
             "label_known_through": "2019-05-31",
             "train_observations": 348,
             "period": "discovery_2018_2022"
+          },
+          {
+            "as_of": "2026-03-13",
+            "actual": "flat",
+            "predicted": "flat",
+            "probabilities": {
+              "down": 0.32764252,
+              "flat": 0.40395315,
+              "up": 0.26840433
+            },
+            "correct": true,
+            "train_origin_start": "2023-03-01",
+            "train_origin_end": "2026-03-06",
+            "label_known_through": "2026-03-13",
+            "train_observations": 752,
+            "period": "oos_2025_latest"
           }
         ],
         "incorrect": [
@@ -2595,9 +2601,9 @@
             "actual": "flat",
             "predicted": "up",
             "probabilities": {
-              "down": 0.23189969,
-              "flat": 0.28164447,
-              "up": 0.48645584
+              "down": 0.19384346,
+              "flat": 0.25875849,
+              "up": 0.54739805
             },
             "correct": false,
             "train_origin_start": "2022-11-03",
@@ -2758,9 +2764,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3302423,
-            "flat": 0.35635419,
-            "up": 0.31340351
+            "down": 0.33022755,
+            "flat": 0.35632371,
+            "up": 0.31344873
           },
           "correct": true,
           "train_origin_start": "2021-05-12",
@@ -2774,9 +2780,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32737572,
-            "flat": 0.35883793,
-            "up": 0.31378635
+            "down": 0.32734977,
+            "flat": 0.35883178,
+            "up": 0.31381845
           },
           "correct": true,
           "train_origin_start": "2021-05-19",
@@ -2790,9 +2796,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33133338,
-            "flat": 0.35699908,
-            "up": 0.31166754
+            "down": 0.33130878,
+            "flat": 0.35699285,
+            "up": 0.31169837
           },
           "correct": true,
           "train_origin_start": "2021-05-26",
@@ -2806,9 +2812,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32852588,
-            "flat": 0.36199673,
-            "up": 0.30947739
+            "down": 0.32850154,
+            "flat": 0.36199096,
+            "up": 0.3095075
           },
           "correct": false,
           "train_origin_start": "2021-06-02",
@@ -2822,9 +2828,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3360623,
-            "flat": 0.36792313,
-            "up": 0.29601457
+            "down": 0.33650097,
+            "flat": 0.36802116,
+            "up": 0.29547787
           },
           "correct": false,
           "train_origin_start": "2021-06-09",
@@ -2838,9 +2844,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33515311,
-            "flat": 0.36977401,
-            "up": 0.29507289
+            "down": 0.33558285,
+            "flat": 0.36989057,
+            "up": 0.29452657
           },
           "correct": false,
           "train_origin_start": "2021-06-17",
@@ -2854,9 +2860,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3347437,
-            "flat": 0.36986255,
-            "up": 0.29539375
+            "down": 0.33516744,
+            "flat": 0.36998042,
+            "up": 0.29485214
           },
           "correct": false,
           "train_origin_start": "2021-06-24",
@@ -2870,9 +2876,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3350347,
-            "flat": 0.35653731,
-            "up": 0.30842799
+            "down": 0.33501115,
+            "flat": 0.35653136,
+            "up": 0.30845749
           },
           "correct": true,
           "train_origin_start": "2021-07-01",
@@ -2886,9 +2892,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33260692,
-            "flat": 0.36940264,
-            "up": 0.29799044
+            "down": 0.33300869,
+            "flat": 0.36951791,
+            "up": 0.2974734
           },
           "correct": false,
           "train_origin_start": "2021-07-08",
@@ -2902,9 +2908,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33331799,
-            "flat": 0.36953378,
-            "up": 0.29714823
+            "down": 0.33374085,
+            "flat": 0.36965003,
+            "up": 0.29660911
           },
           "correct": false,
           "train_origin_start": "2021-07-15",
@@ -2918,9 +2924,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33526736,
-            "flat": 0.36770371,
-            "up": 0.29702893
+            "down": 0.33569117,
+            "flat": 0.36779871,
+            "up": 0.29651012
           },
           "correct": true,
           "train_origin_start": "2021-07-22",
@@ -2934,9 +2940,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33541371,
-            "flat": 0.36818609,
-            "up": 0.29640019
+            "down": 0.33583598,
+            "flat": 0.36828351,
+            "up": 0.29588051
           },
           "correct": false,
           "train_origin_start": "2021-07-29",
@@ -2950,9 +2956,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33451938,
-            "flat": 0.36691232,
-            "up": 0.2985683
+            "down": 0.33493033,
+            "flat": 0.36699766,
+            "up": 0.29807201
           },
           "correct": false,
           "train_origin_start": "2021-08-05",
@@ -2966,9 +2972,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3353047,
-            "flat": 0.36618699,
-            "up": 0.29850831
+            "down": 0.33571981,
+            "flat": 0.36626387,
+            "up": 0.29801631
           },
           "correct": true,
           "train_origin_start": "2021-08-12",
@@ -2982,9 +2988,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33486969,
-            "flat": 0.3668844,
-            "up": 0.29824591
+            "down": 0.3352789,
+            "flat": 0.36696764,
+            "up": 0.29775346
           },
           "correct": false,
           "train_origin_start": "2021-08-19",
@@ -2998,9 +3004,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33538997,
-            "flat": 0.36727621,
-            "up": 0.29733382
+            "down": 0.33580172,
+            "flat": 0.36736216,
+            "up": 0.29683612
           },
           "correct": false,
           "train_origin_start": "2021-08-26",
@@ -3014,9 +3020,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33732092,
-            "flat": 0.36608955,
-            "up": 0.29658953
+            "down": 0.33775079,
+            "flat": 0.3661624,
+            "up": 0.2960868
           },
           "correct": false,
           "train_origin_start": "2021-09-02",
@@ -3030,9 +3036,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33959181,
-            "flat": 0.36522867,
-            "up": 0.29517952
+            "down": 0.34004107,
+            "flat": 0.36529067,
+            "up": 0.29466826
           },
           "correct": false,
           "train_origin_start": "2021-09-09",
@@ -3046,9 +3052,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33941175,
-            "flat": 0.36498049,
-            "up": 0.29560776
+            "down": 0.33985853,
+            "flat": 0.36504111,
+            "up": 0.29510036
           },
           "correct": false,
           "train_origin_start": "2021-09-16",
@@ -3062,9 +3068,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33938721,
-            "flat": 0.36239805,
-            "up": 0.29821474
+            "down": 0.33983444,
+            "flat": 0.36243669,
+            "up": 0.29772887
           },
           "correct": false,
           "train_origin_start": "2021-09-24",
@@ -3078,9 +3084,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34125963,
-            "flat": 0.36255124,
-            "up": 0.29618913
+            "down": 0.34172493,
+            "flat": 0.36258939,
+            "up": 0.29568568
           },
           "correct": false,
           "train_origin_start": "2021-09-30",
@@ -3094,9 +3100,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34211845,
-            "flat": 0.36342632,
-            "up": 0.29445524
+            "down": 0.34259036,
+            "flat": 0.36347073,
+            "up": 0.29393892
           },
           "correct": true,
           "train_origin_start": "2021-10-13",
@@ -3110,9 +3116,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34173991,
-            "flat": 0.36295948,
-            "up": 0.29530061
+            "down": 0.34220752,
+            "flat": 0.36299979,
+            "up": 0.29479268
           },
           "correct": false,
           "train_origin_start": "2021-10-20",
@@ -3126,9 +3132,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32014716,
-            "flat": 0.36934823,
-            "up": 0.31050461
+            "down": 0.32011431,
+            "flat": 0.36934302,
+            "up": 0.31054268
           },
           "correct": false,
           "train_origin_start": "2021-10-27",
@@ -3142,9 +3148,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34032513,
-            "flat": 0.36451698,
-            "up": 0.2951579
+            "down": 0.34077713,
+            "flat": 0.36457275,
+            "up": 0.29465012
           },
           "correct": false,
           "train_origin_start": "2021-11-03",
@@ -3158,9 +3164,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34009617,
-            "flat": 0.36560282,
-            "up": 0.29430101
+            "down": 0.3405463,
+            "flat": 0.36566872,
+            "up": 0.29378498
           },
           "correct": false,
           "train_origin_start": "2021-11-10",
@@ -3174,9 +3180,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33949643,
-            "flat": 0.36621578,
-            "up": 0.29428779
+            "down": 0.33994054,
+            "flat": 0.3662876,
+            "up": 0.29377186
           },
           "correct": false,
           "train_origin_start": "2021-11-17",
@@ -3190,9 +3196,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3402429,
-            "flat": 0.36568045,
-            "up": 0.29407665
+            "down": 0.34069337,
+            "flat": 0.36574623,
+            "up": 0.2935604
           },
           "correct": false,
           "train_origin_start": "2021-11-24",
@@ -3206,9 +3212,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34251893,
-            "flat": 0.36423681,
-            "up": 0.29324427
+            "down": 0.34298879,
+            "flat": 0.36428774,
+            "up": 0.29272347
           },
           "correct": false,
           "train_origin_start": "2021-12-01",
@@ -3222,9 +3228,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34486827,
-            "flat": 0.36238307,
-            "up": 0.29274866
+            "down": 0.34536123,
+            "flat": 0.36241565,
+            "up": 0.29222312
           },
           "correct": true,
           "train_origin_start": "2021-12-08",
@@ -3238,9 +3244,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34620165,
-            "flat": 0.36125005,
-            "up": 0.29254831
+            "down": 0.34670577,
+            "flat": 0.36127196,
+            "up": 0.29202228
           },
           "correct": false,
           "train_origin_start": "2021-12-15",
@@ -3254,9 +3260,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34550289,
-            "flat": 0.36228264,
-            "up": 0.29221447
+            "down": 0.34599775,
+            "flat": 0.36231372,
+            "up": 0.29168854
           },
           "correct": false,
           "train_origin_start": "2021-12-22",
@@ -3270,9 +3276,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34622684,
-            "flat": 0.36176338,
-            "up": 0.29200978
+            "down": 0.34672719,
+            "flat": 0.36178925,
+            "up": 0.29148357
           },
           "correct": false,
           "train_origin_start": "2021-12-29",
@@ -3286,9 +3292,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34573963,
-            "flat": 0.35996695,
-            "up": 0.29429341
+            "down": 0.34623374,
+            "flat": 0.3599779,
+            "up": 0.29378836
           },
           "correct": false,
           "train_origin_start": "2022-01-06",
@@ -3302,9 +3308,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34418465,
-            "flat": 0.36071399,
-            "up": 0.29510136
+            "down": 0.34466302,
+            "flat": 0.36073239,
+            "up": 0.29460459
           },
           "correct": false,
           "train_origin_start": "2022-01-13",
@@ -3318,9 +3324,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34376956,
-            "flat": 0.36083447,
-            "up": 0.29539597
+            "down": 0.3442431,
+            "flat": 0.36085383,
+            "up": 0.29490307
           },
           "correct": true,
           "train_origin_start": "2022-01-20",
@@ -3334,9 +3340,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34512588,
-            "flat": 0.35987194,
-            "up": 0.29500218
+            "down": 0.34561288,
+            "flat": 0.35988211,
+            "up": 0.294505
           },
           "correct": false,
           "train_origin_start": "2022-01-27",
@@ -3350,9 +3356,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34479881,
-            "flat": 0.35888327,
-            "up": 0.29631792
+            "down": 0.34528161,
+            "flat": 0.3588853,
+            "up": 0.29583309
           },
           "correct": false,
           "train_origin_start": "2022-02-08",
@@ -3366,9 +3372,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34487221,
-            "flat": 0.35833257,
-            "up": 0.29679522
+            "down": 0.34535629,
+            "flat": 0.35833001,
+            "up": 0.29631369
           },
           "correct": true,
           "train_origin_start": "2022-02-15",
@@ -3382,9 +3388,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34525882,
-            "flat": 0.3578272,
-            "up": 0.29691397
+            "down": 0.34575934,
+            "flat": 0.35782467,
+            "up": 0.29641599
           },
           "correct": false,
           "train_origin_start": "2022-02-22",
@@ -3398,9 +3404,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34427272,
-            "flat": 0.3589053,
-            "up": 0.29682198
+            "down": 0.34475085,
+            "flat": 0.35890808,
+            "up": 0.29634107
           },
           "correct": true,
           "train_origin_start": "2022-03-01",
@@ -3414,9 +3420,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34347669,
-            "flat": 0.35925195,
-            "up": 0.29727136
+            "down": 0.34394666,
+            "flat": 0.35925819,
+            "up": 0.29679515
           },
           "correct": false,
           "train_origin_start": "2022-03-08",
@@ -3430,9 +3436,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.344325,
-            "flat": 0.35884988,
-            "up": 0.29682513
+            "down": 0.34480011,
+            "flat": 0.35885197,
+            "up": 0.29634792
           },
           "correct": true,
           "train_origin_start": "2022-03-15",
@@ -3446,9 +3452,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31834256,
-            "flat": 0.37226248,
-            "up": 0.30939496
+            "down": 0.31830143,
+            "flat": 0.37226133,
+            "up": 0.30943723
           },
           "correct": false,
           "train_origin_start": "2022-03-22",
@@ -3462,9 +3468,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34589618,
-            "flat": 0.35755452,
-            "up": 0.2965493
+            "down": 0.34638723,
+            "flat": 0.3575448,
+            "up": 0.29606796
           },
           "correct": true,
           "train_origin_start": "2022-03-29",
@@ -3478,9 +3484,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34442531,
-            "flat": 0.35840622,
-            "up": 0.29716847
+            "down": 0.34490251,
+            "flat": 0.35840573,
+            "up": 0.29669176
           },
           "correct": true,
           "train_origin_start": "2022-04-06",
@@ -3494,9 +3500,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34333393,
-            "flat": 0.36009383,
-            "up": 0.29657223
+            "down": 0.34379568,
+            "flat": 0.36010817,
+            "up": 0.29609615
           },
           "correct": false,
           "train_origin_start": "2022-04-13",
@@ -3510,9 +3516,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34282869,
-            "flat": 0.36118407,
-            "up": 0.29598724
+            "down": 0.34328079,
+            "flat": 0.36120709,
+            "up": 0.29551212
           },
           "correct": true,
           "train_origin_start": "2022-04-20",
@@ -3526,9 +3532,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34332338,
-            "flat": 0.36101269,
-            "up": 0.29566393
+            "down": 0.34377722,
+            "flat": 0.36103455,
+            "up": 0.29518823
           },
           "correct": false,
           "train_origin_start": "2022-04-26",
@@ -3542,9 +3548,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33554331,
-            "flat": 0.36411352,
-            "up": 0.30034317
+            "down": 0.33550096,
+            "flat": 0.36411161,
+            "up": 0.30038743
           },
           "correct": false,
           "train_origin_start": "2022-05-06",
@@ -3558,9 +3564,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34233119,
-            "flat": 0.3599612,
-            "up": 0.29770762
+            "down": 0.34277688,
+            "flat": 0.3599766,
+            "up": 0.29724652
           },
           "correct": false,
           "train_origin_start": "2022-05-12",
@@ -3574,9 +3580,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3419682,
-            "flat": 0.35953316,
-            "up": 0.29849864
+            "down": 0.34241014,
+            "flat": 0.359545,
+            "up": 0.29804486
           },
           "correct": true,
           "train_origin_start": "2022-05-19",
@@ -3590,9 +3596,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34140559,
-            "flat": 0.36010452,
-            "up": 0.29848988
+            "down": 0.34184224,
+            "flat": 0.36012151,
+            "up": 0.29803625
           },
           "correct": true,
           "train_origin_start": "2022-05-26",
@@ -3606,9 +3612,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33326378,
-            "flat": 0.36373732,
-            "up": 0.3029989
+            "down": 0.33321886,
+            "flat": 0.36373406,
+            "up": 0.30304709
           },
           "correct": true,
           "train_origin_start": "2022-06-02",
@@ -3622,9 +3628,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34156057,
-            "flat": 0.36175884,
-            "up": 0.29668058
+            "down": 0.34199147,
+            "flat": 0.36178976,
+            "up": 0.29621877
           },
           "correct": true,
           "train_origin_start": "2022-06-10",
@@ -3638,9 +3644,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34135316,
-            "flat": 0.36208989,
-            "up": 0.29655695
+            "down": 0.34178123,
+            "flat": 0.36212284,
+            "up": 0.29609593
           },
           "correct": true,
           "train_origin_start": "2022-06-17",
@@ -3654,9 +3660,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34032762,
-            "flat": 0.36370458,
-            "up": 0.2959678
+            "down": 0.34074163,
+            "flat": 0.36374988,
+            "up": 0.29550849
           },
           "correct": false,
           "train_origin_start": "2022-06-24",
@@ -3670,9 +3676,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33942905,
-            "flat": 0.36367327,
-            "up": 0.29689768
+            "down": 0.33983101,
+            "flat": 0.36371998,
+            "up": 0.29644901
           },
           "correct": true,
           "train_origin_start": "2022-07-01",
@@ -3686,9 +3692,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33755862,
-            "flat": 0.36567541,
-            "up": 0.29676597
+            "down": 0.33794278,
+            "flat": 0.36573995,
+            "up": 0.29631727
           },
           "correct": false,
           "train_origin_start": "2022-07-08",
@@ -3702,9 +3708,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3363811,
-            "flat": 0.36483475,
-            "up": 0.29878415
+            "down": 0.33675485,
+            "flat": 0.36489241,
+            "up": 0.29835274
           },
           "correct": true,
           "train_origin_start": "2022-07-15",
@@ -3718,9 +3724,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33726719,
-            "flat": 0.36403905,
-            "up": 0.29869376
+            "down": 0.33764806,
+            "flat": 0.36408995,
+            "up": 0.29826199
           },
           "correct": true,
           "train_origin_start": "2022-07-22",
@@ -3734,9 +3740,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33511161,
-            "flat": 0.36624851,
-            "up": 0.29863987
+            "down": 0.33547302,
+            "flat": 0.36631866,
+            "up": 0.29820832
           },
           "correct": false,
           "train_origin_start": "2022-07-29",
@@ -3750,9 +3756,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33474446,
-            "flat": 0.36414144,
-            "up": 0.3011141
+            "down": 0.33510388,
+            "flat": 0.36419546,
+            "up": 0.30070065
           },
           "correct": false,
           "train_origin_start": "2022-08-05",
@@ -3766,9 +3772,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33376532,
-            "flat": 0.36309171,
-            "up": 0.30314297
+            "down": 0.33413418,
+            "flat": 0.36314067,
+            "up": 0.30272515
           },
           "correct": false,
           "train_origin_start": "2022-08-12",
@@ -3782,9 +3788,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33240968,
-            "flat": 0.36376922,
-            "up": 0.30382111
+            "down": 0.33274916,
+            "flat": 0.36382164,
+            "up": 0.3034292
           },
           "correct": false,
           "train_origin_start": "2022-08-19",
@@ -3798,9 +3804,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33240431,
-            "flat": 0.36377641,
-            "up": 0.30381928
+            "down": 0.33274356,
+            "flat": 0.36382887,
+            "up": 0.30342758
           },
           "correct": false,
           "train_origin_start": "2022-08-26",
@@ -3814,9 +3820,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33202162,
-            "flat": 0.3616697,
-            "up": 0.30630868
+            "down": 0.3323586,
+            "flat": 0.36170602,
+            "up": 0.30593537
           },
           "correct": true,
           "train_origin_start": "2022-09-02",
@@ -3830,9 +3836,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3386855,
-            "flat": 0.36579206,
-            "up": 0.29552245
+            "down": 0.33864067,
+            "flat": 0.36578649,
+            "up": 0.29557284
           },
           "correct": true,
           "train_origin_start": "2022-09-09",
@@ -3846,9 +3852,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34221407,
-            "flat": 0.36326267,
-            "up": 0.29452326
+            "down": 0.34216826,
+            "flat": 0.36325726,
+            "up": 0.29457448
           },
           "correct": false,
           "train_origin_start": "2022-09-19",
@@ -3862,9 +3868,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33273271,
-            "flat": 0.36420414,
-            "up": 0.30306316
+            "down": 0.33307361,
+            "flat": 0.36426104,
+            "up": 0.30266536
           },
           "correct": true,
           "train_origin_start": "2022-09-26",
@@ -3878,9 +3884,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33320325,
-            "flat": 0.36471919,
-            "up": 0.30207756
+            "down": 0.33354787,
+            "flat": 0.36477971,
+            "up": 0.30167241
           },
           "correct": false,
           "train_origin_start": "2022-10-08",
@@ -3894,9 +3900,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3305649,
-            "flat": 0.36693689,
-            "up": 0.30249821
+            "down": 0.33088612,
+            "flat": 0.36701708,
+            "up": 0.3020968
           },
           "correct": false,
           "train_origin_start": "2022-10-13",
@@ -3910,9 +3916,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3315658,
-            "flat": 0.3669037,
-            "up": 0.3015305
+            "down": 0.33189547,
+            "flat": 0.36698277,
+            "up": 0.30112176
           },
           "correct": true,
           "train_origin_start": "2022-10-20",
@@ -3926,9 +3932,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34911141,
-            "flat": 0.35942616,
-            "up": 0.29146243
+            "down": 0.34906915,
+            "flat": 0.35941634,
+            "up": 0.29151451
           },
           "correct": true,
           "train_origin_start": "2022-10-27",
@@ -3942,9 +3948,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.23189969,
-            "flat": 0.28164447,
-            "up": 0.48645584
+            "down": 0.19384346,
+            "flat": 0.25875849,
+            "up": 0.54739805
           },
           "correct": false,
           "train_origin_start": "2022-11-03",
@@ -3958,9 +3964,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33186732,
-            "flat": 0.36964597,
-            "up": 0.29848671
+            "down": 0.33217436,
+            "flat": 0.36898645,
+            "up": 0.29883919
           },
           "correct": false,
           "train_origin_start": "2022-11-10",
@@ -3974,9 +3980,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33109798,
-            "flat": 0.36939354,
-            "up": 0.29950848
+            "down": 0.33141411,
+            "flat": 0.36862771,
+            "up": 0.29995818
           },
           "correct": true,
           "train_origin_start": "2022-11-17",
@@ -3990,9 +3996,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34405483,
-            "flat": 0.36941608,
-            "up": 0.28652909
+            "down": 0.34400073,
+            "flat": 0.36954016,
+            "up": 0.28645911
           },
           "correct": true,
           "train_origin_start": "2022-11-24",
@@ -4006,9 +4012,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33174309,
-            "flat": 0.37100215,
-            "up": 0.29725475
+            "down": 0.33204945,
+            "flat": 0.37027576,
+            "up": 0.29767478
           },
           "correct": true,
           "train_origin_start": "2022-12-01",
@@ -4022,9 +4028,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3311175,
-            "flat": 0.37265831,
-            "up": 0.29622419
+            "down": 0.33142131,
+            "flat": 0.3719405,
+            "up": 0.2966382
           },
           "correct": true,
           "train_origin_start": "2022-12-08",
@@ -4038,9 +4044,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33054445,
-            "flat": 0.37357948,
-            "up": 0.29587607
+            "down": 0.33084432,
+            "flat": 0.37286956,
+            "up": 0.29628612
           },
           "correct": false,
           "train_origin_start": "2022-12-15",
@@ -4054,9 +4060,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32948478,
-            "flat": 0.37340068,
-            "up": 0.29711454
+            "down": 0.32978918,
+            "flat": 0.37266624,
+            "up": 0.29754458
           },
           "correct": true,
           "train_origin_start": "2022-12-22",
@@ -4070,9 +4076,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33631324,
-            "flat": 0.38195077,
-            "up": 0.28173599
+            "down": 0.33625899,
+            "flat": 0.38207774,
+            "up": 0.28166327
           },
           "correct": true,
           "train_origin_start": "2022-12-29",
@@ -4086,9 +4092,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33146246,
-            "flat": 0.37060464,
-            "up": 0.2979329
+            "down": 0.33178089,
+            "flat": 0.36984921,
+            "up": 0.2983699
           },
           "correct": true,
           "train_origin_start": "2023-01-06",
@@ -4102,9 +4108,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33272372,
-            "flat": 0.39481765,
-            "up": 0.27245863
+            "down": 0.33266678,
+            "flat": 0.39494296,
+            "up": 0.27239026
           },
           "correct": true,
           "train_origin_start": "2023-01-13",
@@ -4118,9 +4124,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33219581,
-            "flat": 0.37195537,
-            "up": 0.29584882
+            "down": 0.33250644,
+            "flat": 0.37123461,
+            "up": 0.29625895
           },
           "correct": true,
           "train_origin_start": "2023-01-20",
@@ -4134,9 +4140,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33131816,
-            "flat": 0.37241953,
-            "up": 0.29626232
+            "down": 0.33162599,
+            "flat": 0.37169516,
+            "up": 0.29667885
           },
           "correct": false,
           "train_origin_start": "2023-02-01",
@@ -4148,13 +4154,13 @@
         {
           "as_of": "2026-02-14",
           "actual": "flat",
-          "predicted": "flat",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.22917898,
-            "flat": 0.41858861,
-            "up": 0.35223241
+            "down": 0.24281152,
+            "flat": 0.37386853,
+            "up": 0.38331995
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2023-02-08",
           "train_origin_end": "2026-02-09",
           "label_known_through": "2026-02-14",
@@ -4166,9 +4172,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33333541,
-            "flat": 0.37078718,
-            "up": 0.29587742
+            "down": 0.33362888,
+            "flat": 0.37022884,
+            "up": 0.29614228
           },
           "correct": true,
           "train_origin_start": "2023-02-15",
@@ -4182,9 +4188,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33489639,
-            "flat": 0.37073912,
-            "up": 0.29436449
+            "down": 0.33520007,
+            "flat": 0.37018033,
+            "up": 0.2946196
           },
           "correct": false,
           "train_origin_start": "2023-02-22",
@@ -4198,9 +4204,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3276992,
-            "flat": 0.40384897,
-            "up": 0.26845183
+            "down": 0.32764252,
+            "flat": 0.40395315,
+            "up": 0.26840433
           },
           "correct": true,
           "train_origin_start": "2023-03-01",
@@ -4214,9 +4220,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33384978,
-            "flat": 0.36869959,
-            "up": 0.29745062
+            "down": 0.33414827,
+            "flat": 0.36812646,
+            "up": 0.29772527
           },
           "correct": true,
           "train_origin_start": "2023-03-08",
@@ -4230,9 +4236,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3237091,
-            "flat": 0.4021257,
-            "up": 0.2741652
+            "down": 0.32365622,
+            "flat": 0.40222514,
+            "up": 0.27411864
           },
           "correct": true,
           "train_origin_start": "2023-03-15",
@@ -4246,9 +4252,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33427787,
-            "flat": 0.36768633,
-            "up": 0.29803581
+            "down": 0.33458111,
+            "flat": 0.36710269,
+            "up": 0.2983162
           },
           "correct": false,
           "train_origin_start": "2023-03-22",
@@ -4262,9 +4268,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33483987,
-            "flat": 0.3671084,
-            "up": 0.29805172
+            "down": 0.33514633,
+            "flat": 0.36652188,
+            "up": 0.29833179
           },
           "correct": false,
           "train_origin_start": "2023-03-29",
@@ -4278,9 +4284,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33723618,
-            "flat": 0.36488021,
-            "up": 0.29788361
+            "down": 0.33755626,
+            "flat": 0.36428392,
+            "up": 0.29815982
           },
           "correct": true,
           "train_origin_start": "2023-04-06",
@@ -4294,9 +4300,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33765472,
-            "flat": 0.36422225,
-            "up": 0.29812304
+            "down": 0.33797728,
+            "flat": 0.36362137,
+            "up": 0.29840136
           },
           "correct": true,
           "train_origin_start": "2023-04-13",
@@ -4310,9 +4316,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33766229,
-            "flat": 0.3631885,
-            "up": 0.29914921
+            "down": 0.33799554,
+            "flat": 0.36256392,
+            "up": 0.29944054
           },
           "correct": true,
           "train_origin_start": "2023-04-20",
@@ -4326,9 +4332,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.22850486,
-            "flat": 0.44727402,
-            "up": 0.32422112
+            "down": 0.23780302,
+            "flat": 0.42436737,
+            "up": 0.33782961
           },
           "correct": true,
           "train_origin_start": "2023-04-26",
@@ -4342,9 +4348,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33241406,
-            "flat": 0.36886486,
-            "up": 0.29872108
+            "down": 0.33278947,
+            "flat": 0.36829757,
+            "up": 0.29891296
           },
           "correct": true,
           "train_origin_start": "2023-05-06",
@@ -4358,9 +4364,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33073592,
-            "flat": 0.37059049,
-            "up": 0.29867358
+            "down": 0.33108482,
+            "flat": 0.37009555,
+            "up": 0.29881963
           },
           "correct": true,
           "train_origin_start": "2023-05-12",
@@ -4374,9 +4380,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33278753,
-            "flat": 0.36858863,
-            "up": 0.29862384
+            "down": 0.33314752,
+            "flat": 0.36808468,
+            "up": 0.2987678
           },
           "correct": false,
           "train_origin_start": "2023-05-19",
@@ -4390,9 +4396,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33233833,
-            "flat": 0.36749225,
-            "up": 0.30016942
+            "down": 0.33269477,
+            "flat": 0.36698314,
+            "up": 0.30032209
           },
           "correct": false,
           "train_origin_start": "2023-05-26",
@@ -4406,9 +4412,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33241003,
-            "flat": 0.36637648,
-            "up": 0.30121349
+            "down": 0.33276621,
+            "flat": 0.36586201,
+            "up": 0.30137178
           },
           "correct": true,
           "train_origin_start": "2023-06-02",
@@ -4422,9 +4428,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32287073,
-            "flat": 0.40327767,
-            "up": 0.2738516
+            "down": 0.32281042,
+            "flat": 0.40336584,
+            "up": 0.27382374
           },
           "correct": true,
           "train_origin_start": "2023-06-09",
@@ -4438,9 +4444,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32998468,
-            "flat": 0.36901529,
-            "up": 0.30100002
+            "down": 0.33032641,
+            "flat": 0.36851393,
+            "up": 0.30115966
           },
           "correct": true,
           "train_origin_start": "2023-06-16",
@@ -4454,9 +4460,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32890734,
-            "flat": 0.36960865,
-            "up": 0.30148401
+            "down": 0.32924259,
+            "flat": 0.36911034,
+            "up": 0.30164706
           },
           "correct": true,
           "train_origin_start": "2023-06-26",
@@ -4470,9 +4476,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32779513,
-            "flat": 0.37076186,
-            "up": 0.30144301
+            "down": 0.32812405,
+            "flat": 0.37026932,
+            "up": 0.30160663
           },
           "correct": true,
           "train_origin_start": "2023-07-03",
@@ -4486,9 +4492,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32779513,
-            "flat": 0.37076186,
-            "up": 0.30144301
+            "down": 0.32812405,
+            "flat": 0.37026932,
+            "up": 0.30160663
           },
           "correct": true,
           "train_origin_start": "2023-07-10",
@@ -4502,9 +4508,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32723954,
-            "flat": 0.37133878,
-            "up": 0.30142168
+            "down": 0.32756529,
+            "flat": 0.37084913,
+            "up": 0.30158557
           },
           "correct": true,
           "train_origin_start": "2023-07-17",
@@ -4518,9 +4524,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32716401,
-            "flat": 0.37246206,
-            "up": 0.30037393
+            "down": 0.32748996,
+            "flat": 0.37197788,
+            "up": 0.30053216
           },
           "correct": true,
           "train_origin_start": "2023-07-24",
@@ -4534,9 +4540,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32712538,
-            "flat": 0.37302399,
-            "up": 0.29985063
+            "down": 0.32745143,
+            "flat": 0.37254254,
+            "up": 0.30000603
           },
           "correct": false,
           "train_origin_start": "2023-07-31",
@@ -4550,9 +4556,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32879547,
-            "flat": 0.37128926,
-            "up": 0.29991527
+            "down": 0.32913106,
+            "flat": 0.37079909,
+            "up": 0.30006985
           },
           "correct": true,
           "train_origin_start": "2023-08-07",
@@ -4577,27 +4583,27 @@
       "route": "fusion",
       "route_label": "市场数据+文本因子+结构化宏观",
       "observations": 380,
-      "accuracy": 0.4289,
-      "macro_precision": 0.4242,
-      "macro_recall": 0.4218,
-      "macro_f1": 0.4216,
-      "macro_auc_ovr": 0.5698,
-      "brier": 0.2191,
+      "accuracy": 0.4421,
+      "macro_precision": 0.4321,
+      "macro_recall": 0.4335,
+      "macro_f1": 0.43,
+      "macro_auc_ovr": 0.5871,
+      "brier": 0.2154,
       "confusion_matrix": {
         "down": {
-          "down": 54,
-          "flat": 45,
-          "up": 23
+          "down": 63,
+          "flat": 40,
+          "up": 19
         },
         "flat": {
-          "down": 41,
-          "flat": 72,
-          "up": 35
+          "down": 38,
+          "flat": 73,
+          "up": 37
         },
         "up": {
-          "down": 46,
-          "flat": 27,
-          "up": 37
+          "down": 47,
+          "flat": 31,
+          "up": 32
         }
       },
       "actual_distribution": {
@@ -4608,24 +4614,24 @@
       "per_class": {
         "down": {
           "support": 122,
-          "precision": 0.383,
-          "recall": 0.4426,
-          "f1": 0.4106,
-          "auc_ovr": 0.551
+          "precision": 0.4257,
+          "recall": 0.5164,
+          "f1": 0.4667,
+          "auc_ovr": 0.6007
         },
         "flat": {
           "support": 148,
-          "precision": 0.5,
-          "recall": 0.4865,
-          "f1": 0.4932,
-          "auc_ovr": 0.6133
+          "precision": 0.5069,
+          "recall": 0.4932,
+          "f1": 0.5,
+          "auc_ovr": 0.6116
         },
         "up": {
           "support": 110,
-          "precision": 0.3895,
-          "recall": 0.3364,
-          "f1": 0.361,
-          "auc_ovr": 0.5452
+          "precision": 0.3636,
+          "recall": 0.2909,
+          "f1": 0.3232,
+          "auc_ovr": 0.549
         }
       },
       "period_metrics": [
@@ -4633,26 +4639,26 @@
           "period": "discovery_2018_2022",
           "observations": 199,
           "accuracy": 0.4271,
-          "macro_precision": 0.4263,
-          "macro_recall": 0.4176,
-          "macro_f1": 0.407,
-          "macro_auc_ovr": 0.5371,
-          "brier": 0.2229,
+          "macro_precision": 0.4201,
+          "macro_recall": 0.4178,
+          "macro_f1": 0.4016,
+          "macro_auc_ovr": 0.5521,
+          "brier": 0.2191,
           "confusion_matrix": {
             "down": {
-              "down": 40,
-              "flat": 10,
-              "up": 18
+              "down": 44,
+              "flat": 9,
+              "up": 15
             },
             "flat": {
-              "down": 23,
-              "flat": 13,
-              "up": 23
+              "down": 22,
+              "flat": 12,
+              "up": 25
             },
             "up": {
-              "down": 32,
-              "flat": 8,
-              "up": 32
+              "down": 34,
+              "flat": 9,
+              "up": 29
             }
           },
           "actual_distribution": {
@@ -4663,51 +4669,51 @@
           "per_class": {
             "down": {
               "support": 68,
-              "precision": 0.4211,
-              "recall": 0.5882,
-              "f1": 0.4908,
-              "auc_ovr": 0.5484
+              "precision": 0.44,
+              "recall": 0.6471,
+              "f1": 0.5238,
+              "auc_ovr": 0.5964
             },
             "flat": {
               "support": 59,
-              "precision": 0.4194,
-              "recall": 0.2203,
-              "f1": 0.2889,
-              "auc_ovr": 0.5557
+              "precision": 0.4,
+              "recall": 0.2034,
+              "f1": 0.2697,
+              "auc_ovr": 0.5232
             },
             "up": {
               "support": 72,
-              "precision": 0.4384,
-              "recall": 0.4444,
-              "f1": 0.4414,
-              "auc_ovr": 0.5071
+              "precision": 0.4203,
+              "recall": 0.4028,
+              "f1": 0.4113,
+              "auc_ovr": 0.5367
             }
           }
         },
         {
           "period": "validation_2023_2024",
           "observations": 100,
-          "accuracy": 0.4,
-          "macro_precision": 0.3806,
-          "macro_recall": 0.3633,
-          "macro_f1": 0.324,
-          "macro_auc_ovr": 0.613,
-          "brier": 0.215,
+          "accuracy": 0.46,
+          "macro_precision": 0.4608,
+          "macro_recall": 0.4044,
+          "macro_f1": 0.3736,
+          "macro_auc_ovr": 0.6007,
+          "brier": 0.214,
           "confusion_matrix": {
             "down": {
-              "down": 7,
-              "flat": 30,
-              "up": 4
+              "down": 12,
+              "flat": 27,
+              "up": 2
             },
             "flat": {
-              "down": 3,
-              "flat": 30,
+              "down": 1,
+              "flat": 32,
               "up": 6
             },
             "up": {
-              "down": 4,
-              "flat": 13,
-              "up": 3
+              "down": 3,
+              "flat": 15,
+              "up": 2
             }
           },
           "actual_distribution": {
@@ -4718,41 +4724,41 @@
           "per_class": {
             "down": {
               "support": 41,
-              "precision": 0.5,
-              "recall": 0.1707,
-              "f1": 0.2545,
-              "auc_ovr": 0.6809
+              "precision": 0.75,
+              "recall": 0.2927,
+              "f1": 0.4211,
+              "auc_ovr": 0.704
             },
             "flat": {
               "support": 39,
-              "precision": 0.411,
-              "recall": 0.7692,
-              "f1": 0.5357,
-              "auc_ovr": 0.6225
+              "precision": 0.4324,
+              "recall": 0.8205,
+              "f1": 0.5664,
+              "auc_ovr": 0.6326
             },
             "up": {
               "support": 20,
-              "precision": 0.2308,
-              "recall": 0.15,
-              "f1": 0.1818,
-              "auc_ovr": 0.5356
+              "precision": 0.2,
+              "recall": 0.1,
+              "f1": 0.1333,
+              "auc_ovr": 0.4656
             }
           }
         },
         {
           "period": "oos_2025_latest",
           "observations": 81,
-          "accuracy": 0.4691,
-          "macro_precision": 0.3887,
-          "macro_recall": 0.4099,
-          "macro_f1": 0.3679,
-          "macro_auc_ovr": 0.5621,
-          "brier": 0.2148,
+          "accuracy": 0.4568,
+          "macro_precision": 0.3516,
+          "macro_recall": 0.3914,
+          "macro_f1": 0.3432,
+          "macro_auc_ovr": 0.5738,
+          "brier": 0.2083,
           "confusion_matrix": {
             "down": {
               "down": 7,
-              "flat": 5,
-              "up": 1
+              "flat": 4,
+              "up": 2
             },
             "flat": {
               "down": 15,
@@ -4761,8 +4767,8 @@
             },
             "up": {
               "down": 10,
-              "flat": 6,
-              "up": 2
+              "flat": 7,
+              "up": 1
             }
           },
           "actual_distribution": {
@@ -4776,21 +4782,21 @@
               "precision": 0.2188,
               "recall": 0.5385,
               "f1": 0.3111,
-              "auc_ovr": 0.5158
+              "auc_ovr": 0.5656
             },
             "flat": {
               "support": 50,
               "precision": 0.725,
               "recall": 0.58,
               "f1": 0.6444,
-              "auc_ovr": 0.6265
+              "auc_ovr": 0.5968
             },
             "up": {
               "support": 18,
-              "precision": 0.2222,
-              "recall": 0.1111,
-              "f1": 0.1481,
-              "auc_ovr": 0.5441
+              "precision": 0.1111,
+              "recall": 0.0556,
+              "f1": 0.0741,
+              "auc_ovr": 0.5591
             }
           }
         }
@@ -4798,61 +4804,39 @@
       "calibration": [
         {
           "confidence_range": "0.00-0.40",
-          "observations": 217,
-          "mean_confidence": 0.3712,
-          "accuracy": 0.3963
+          "observations": 197,
+          "mean_confidence": 0.3714,
+          "accuracy": 0.4112
         },
         {
           "confidence_range": "0.40-0.50",
-          "observations": 149,
-          "mean_confidence": 0.4303,
-          "accuracy": 0.4631
+          "observations": 150,
+          "mean_confidence": 0.4373,
+          "accuracy": 0.4533
         },
         {
           "confidence_range": "0.50-0.60",
-          "observations": 11,
-          "mean_confidence": 0.5317,
-          "accuracy": 0.6364
+          "observations": 28,
+          "mean_confidence": 0.5371,
+          "accuracy": 0.5357
         },
         {
           "confidence_range": "0.60-0.75",
-          "observations": 2,
-          "mean_confidence": 0.6182,
-          "accuracy": 0.5
-        },
-        {
-          "confidence_range": "0.75-1.00",
-          "observations": 1,
-          "mean_confidence": 0.9144,
-          "accuracy": 0.0
+          "observations": 5,
+          "mean_confidence": 0.6362,
+          "accuracy": 0.8
         }
       ],
       "examples": {
         "correct": [
           {
-            "as_of": "2020-03-30",
-            "actual": "down",
-            "predicted": "down",
-            "probabilities": {
-              "down": 0.60010582,
-              "flat": 0.29929617,
-              "up": 0.10059801
-            },
-            "correct": true,
-            "train_origin_start": "2018-01-02",
-            "train_origin_end": "2020-03-23",
-            "label_known_through": "2020-03-30",
-            "train_observations": 553,
-            "period": "discovery_2018_2022"
-          },
-          {
             "as_of": "2022-07-25",
             "actual": "down",
             "predicted": "down",
             "probabilities": {
-              "down": 0.58376322,
-              "flat": 0.29402557,
-              "up": 0.12221121
+              "down": 0.67824854,
+              "flat": 0.26007839,
+              "up": 0.06167307
             },
             "correct": true,
             "train_origin_start": "2019-07-12",
@@ -4862,69 +4846,85 @@
             "period": "discovery_2018_2022"
           },
           {
-            "as_of": "2019-02-01",
-            "actual": "down",
-            "predicted": "down",
+            "as_of": "2019-12-06",
+            "actual": "flat",
+            "predicted": "flat",
             "probabilities": {
-              "down": 0.54631897,
-              "flat": 0.23429627,
-              "up": 0.21938476
+              "down": 0.10317633,
+              "flat": 0.65247367,
+              "up": 0.24434999
             },
             "correct": true,
             "train_origin_start": "2018-01-02",
-            "train_origin_end": "2019-01-25",
-            "label_known_through": "2019-02-01",
-            "train_observations": 268,
+            "train_origin_end": "2019-11-29",
+            "label_known_through": "2019-12-06",
+            "train_observations": 478,
+            "period": "discovery_2018_2022"
+          },
+          {
+            "as_of": "2019-12-13",
+            "actual": "flat",
+            "predicted": "flat",
+            "probabilities": {
+              "down": 0.13976782,
+              "flat": 0.6415858,
+              "up": 0.21864639
+            },
+            "correct": true,
+            "train_origin_start": "2018-01-02",
+            "train_origin_end": "2019-12-06",
+            "label_known_through": "2019-12-13",
+            "train_observations": 483,
             "period": "discovery_2018_2022"
           }
         ],
         "incorrect": [
           {
-            "as_of": "2020-03-23",
-            "actual": "flat",
-            "predicted": "down",
+            "as_of": "2025-11-21",
+            "actual": "up",
+            "predicted": "flat",
             "probabilities": {
-              "down": 0.91441822,
-              "flat": 0.06747916,
-              "up": 0.01810262
+              "down": 0.2484505,
+              "flat": 0.60485181,
+              "up": 0.14669769
             },
             "correct": false,
-            "train_origin_start": "2018-01-02",
-            "train_origin_end": "2020-03-16",
-            "label_known_through": "2020-03-23",
-            "train_observations": 548,
-            "period": "discovery_2018_2022"
+            "train_origin_start": "2022-11-10",
+            "train_origin_end": "2025-11-14",
+            "label_known_through": "2025-11-21",
+            "train_observations": 752,
+            "period": "oos_2025_latest"
           },
           {
-            "as_of": "2022-07-18",
+            "as_of": "2022-08-01",
             "actual": "flat",
             "predicted": "down",
             "probabilities": {
-              "down": 0.63638028,
-              "flat": 0.25860066,
-              "up": 0.10501905
+              "down": 0.59546482,
+              "flat": 0.26599882,
+              "up": 0.13853636
             },
             "correct": false,
-            "train_origin_start": "2019-07-05",
-            "train_origin_end": "2022-07-11",
-            "label_known_through": "2022-07-18",
+            "train_origin_start": "2019-07-19",
+            "train_origin_end": "2022-07-25",
+            "label_known_through": "2022-08-01",
             "train_observations": 752,
             "period": "discovery_2018_2022"
           },
           {
-            "as_of": "2019-02-13",
-            "actual": "up",
-            "predicted": "down",
+            "as_of": "2020-01-06",
+            "actual": "down",
+            "predicted": "flat",
             "probabilities": {
-              "down": 0.54168292,
-              "flat": 0.2447412,
-              "up": 0.21357588
+              "down": 0.23551624,
+              "flat": 0.56555006,
+              "up": 0.1989337
             },
             "correct": false,
             "train_origin_start": "2018-01-02",
-            "train_origin_end": "2019-02-01",
-            "label_known_through": "2019-02-13",
-            "train_observations": 273,
+            "train_origin_end": "2019-12-27",
+            "label_known_through": "2020-01-06",
+            "train_observations": 498,
             "period": "discovery_2018_2022"
           }
         ]
@@ -4935,9 +4935,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28844271,
-            "flat": 0.40308702,
-            "up": 0.30847027
+            "down": 0.25412093,
+            "flat": 0.40824134,
+            "up": 0.33763773
           },
           "correct": true,
           "train_origin_start": "2021-03-22",
@@ -4951,9 +4951,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30048611,
-            "flat": 0.40309158,
-            "up": 0.29642231
+            "down": 0.26689401,
+            "flat": 0.42210808,
+            "up": 0.31099791
           },
           "correct": true,
           "train_origin_start": "2021-03-29",
@@ -4967,9 +4967,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31620064,
-            "flat": 0.39681262,
-            "up": 0.28698674
+            "down": 0.26321425,
+            "flat": 0.4313699,
+            "up": 0.30541585
           },
           "correct": false,
           "train_origin_start": "2021-04-06",
@@ -4983,9 +4983,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34333631,
-            "flat": 0.37663117,
-            "up": 0.28003252
+            "down": 0.3506171,
+            "flat": 0.38626331,
+            "up": 0.2631196
           },
           "correct": false,
           "train_origin_start": "2021-04-13",
@@ -4999,9 +4999,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.36794014,
-            "flat": 0.35792472,
-            "up": 0.27413513
+            "down": 0.38415039,
+            "flat": 0.35474121,
+            "up": 0.2611084
           },
           "correct": true,
           "train_origin_start": "2021-04-20",
@@ -5013,13 +5013,13 @@
         {
           "as_of": "2024-05-08",
           "actual": "flat",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.36522955,
-            "flat": 0.34993869,
-            "up": 0.28483176
+            "down": 0.31238512,
+            "flat": 0.38001226,
+            "up": 0.30760262
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2021-04-26",
           "train_origin_end": "2024-04-28",
           "label_known_through": "2024-05-08",
@@ -5029,11 +5029,11 @@
         {
           "as_of": "2024-05-14",
           "actual": "up",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.36169135,
-            "flat": 0.35316932,
-            "up": 0.28513933
+            "down": 0.31590919,
+            "flat": 0.38370381,
+            "up": 0.30038701
           },
           "correct": false,
           "train_origin_start": "2021-05-06",
@@ -5047,9 +5047,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33173328,
-            "flat": 0.40252726,
-            "up": 0.26573946
+            "down": 0.31393812,
+            "flat": 0.38849456,
+            "up": 0.29756732
           },
           "correct": true,
           "train_origin_start": "2021-05-12",
@@ -5063,9 +5063,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30513731,
-            "flat": 0.42261774,
-            "up": 0.27224496
+            "down": 0.28668773,
+            "flat": 0.41321899,
+            "up": 0.30009328
           },
           "correct": true,
           "train_origin_start": "2021-05-19",
@@ -5079,9 +5079,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3311954,
-            "flat": 0.40518908,
-            "up": 0.26361552
+            "down": 0.32975496,
+            "flat": 0.39291519,
+            "up": 0.27732985
           },
           "correct": true,
           "train_origin_start": "2021-05-26",
@@ -5095,9 +5095,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3358792,
-            "flat": 0.41261735,
-            "up": 0.25150346
+            "down": 0.32419985,
+            "flat": 0.41015426,
+            "up": 0.26564589
           },
           "correct": false,
           "train_origin_start": "2021-06-02",
@@ -5111,9 +5111,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33966596,
-            "flat": 0.35640137,
-            "up": 0.30393267
+            "down": 0.32477215,
+            "flat": 0.39364129,
+            "up": 0.28158657
           },
           "correct": false,
           "train_origin_start": "2021-06-09",
@@ -5127,9 +5127,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31666357,
-            "flat": 0.37829305,
-            "up": 0.30504338
+            "down": 0.25349686,
+            "flat": 0.43164977,
+            "up": 0.31485337
           },
           "correct": false,
           "train_origin_start": "2021-06-17",
@@ -5143,9 +5143,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34245893,
-            "flat": 0.36405922,
-            "up": 0.29348185
+            "down": 0.28850614,
+            "flat": 0.40876337,
+            "up": 0.30273049
           },
           "correct": false,
           "train_origin_start": "2021-06-24",
@@ -5159,9 +5159,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32252959,
-            "flat": 0.36508167,
-            "up": 0.31238874
+            "down": 0.29455919,
+            "flat": 0.38443089,
+            "up": 0.32100992
           },
           "correct": true,
           "train_origin_start": "2021-07-01",
@@ -5175,9 +5175,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.35760785,
-            "flat": 0.35923133,
-            "up": 0.28316083
+            "down": 0.27511075,
+            "flat": 0.40004082,
+            "up": 0.32484843
           },
           "correct": false,
           "train_origin_start": "2021-07-08",
@@ -5189,13 +5189,13 @@
         {
           "as_of": "2024-07-24",
           "actual": "down",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.36608742,
-            "flat": 0.34980542,
-            "up": 0.28410716
+            "down": 0.31925493,
+            "flat": 0.37700308,
+            "up": 0.30374199
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-07-15",
           "train_origin_end": "2024-07-17",
           "label_known_through": "2024-07-24",
@@ -5205,13 +5205,13 @@
         {
           "as_of": "2024-07-31",
           "actual": "flat",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.34635972,
-            "flat": 0.34438205,
-            "up": 0.30925823
+            "down": 0.29832522,
+            "flat": 0.36175988,
+            "up": 0.3399149
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2021-07-22",
           "train_origin_end": "2024-07-24",
           "label_known_through": "2024-07-31",
@@ -5221,11 +5221,11 @@
         {
           "as_of": "2024-08-07",
           "actual": "up",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.35725816,
-            "flat": 0.35187411,
-            "up": 0.29086773
+            "down": 0.33642601,
+            "flat": 0.37035885,
+            "up": 0.29321514
           },
           "correct": false,
           "train_origin_start": "2021-07-29",
@@ -5239,9 +5239,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3420549,
-            "flat": 0.36480271,
-            "up": 0.2931424
+            "down": 0.3200398,
+            "flat": 0.35937909,
+            "up": 0.3205811
           },
           "correct": false,
           "train_origin_start": "2021-08-05",
@@ -5253,13 +5253,13 @@
         {
           "as_of": "2024-08-21",
           "actual": "flat",
-          "predicted": "flat",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.30027985,
-            "flat": 0.37732552,
-            "up": 0.32239462
+            "down": 0.25000734,
+            "flat": 0.32972721,
+            "up": 0.42026545
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-08-12",
           "train_origin_end": "2024-08-14",
           "label_known_through": "2024-08-21",
@@ -5271,9 +5271,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32386123,
-            "flat": 0.36784283,
-            "up": 0.30829594
+            "down": 0.30987703,
+            "flat": 0.35864756,
+            "up": 0.33147541
           },
           "correct": false,
           "train_origin_start": "2021-08-19",
@@ -5287,9 +5287,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32253103,
-            "flat": 0.37027172,
-            "up": 0.30719725
+            "down": 0.3118186,
+            "flat": 0.36898411,
+            "up": 0.31919729
           },
           "correct": false,
           "train_origin_start": "2021-08-26",
@@ -5303,9 +5303,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31341201,
-            "flat": 0.36941918,
-            "up": 0.31716881
+            "down": 0.31895521,
+            "flat": 0.36095027,
+            "up": 0.32009452
           },
           "correct": false,
           "train_origin_start": "2021-09-02",
@@ -5317,13 +5317,13 @@
         {
           "as_of": "2024-09-19",
           "actual": "up",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.20961726,
-            "flat": 0.36967221,
-            "up": 0.42071053
+            "down": 0.29867521,
+            "flat": 0.36049314,
+            "up": 0.34083165
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-09-09",
           "train_origin_end": "2024-09-11",
           "label_known_through": "2024-09-19",
@@ -5333,13 +5333,13 @@
         {
           "as_of": "2024-09-26",
           "actual": "up",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.21227009,
-            "flat": 0.37488354,
-            "up": 0.41284637
+            "down": 0.27990102,
+            "flat": 0.36936986,
+            "up": 0.35072912
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-09-16",
           "train_origin_end": "2024-09-19",
           "label_known_through": "2024-09-26",
@@ -5349,11 +5349,11 @@
         {
           "as_of": "2024-10-09",
           "actual": "down",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.21220935,
-            "flat": 0.34525963,
-            "up": 0.44253102
+            "down": 0.28317773,
+            "flat": 0.38839806,
+            "up": 0.32842421
           },
           "correct": false,
           "train_origin_start": "2021-09-24",
@@ -5365,13 +5365,13 @@
         {
           "as_of": "2024-10-15",
           "actual": "up",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.24211231,
-            "flat": 0.34269631,
-            "up": 0.41519138
+            "down": 0.27245608,
+            "flat": 0.37697826,
+            "up": 0.35056566
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-09-30",
           "train_origin_end": "2024-10-09",
           "label_known_through": "2024-10-15",
@@ -5383,9 +5383,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32103657,
-            "flat": 0.35507532,
-            "up": 0.32388811
+            "down": 0.34499344,
+            "flat": 0.35150357,
+            "up": 0.30350299
           },
           "correct": true,
           "train_origin_start": "2021-10-13",
@@ -5397,13 +5397,13 @@
         {
           "as_of": "2024-10-29",
           "actual": "down",
-          "predicted": "up",
+          "predicted": "down",
           "probabilities": {
-            "down": 0.32260072,
-            "flat": 0.33319342,
-            "up": 0.34420587
+            "down": 0.38443137,
+            "flat": 0.30917657,
+            "up": 0.30639206
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2021-10-20",
           "train_origin_end": "2024-10-22",
           "label_known_through": "2024-10-29",
@@ -5413,13 +5413,13 @@
         {
           "as_of": "2024-11-05",
           "actual": "down",
-          "predicted": "up",
+          "predicted": "down",
           "probabilities": {
-            "down": 0.30014096,
-            "flat": 0.31943928,
-            "up": 0.38041977
+            "down": 0.36137382,
+            "flat": 0.30424264,
+            "up": 0.33438354
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2021-10-27",
           "train_origin_end": "2024-10-29",
           "label_known_through": "2024-11-05",
@@ -5431,9 +5431,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.34733742,
-            "flat": 0.30836364,
-            "up": 0.34429894
+            "down": 0.39795985,
+            "flat": 0.28771778,
+            "up": 0.31432237
           },
           "correct": false,
           "train_origin_start": "2021-11-03",
@@ -5447,9 +5447,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.39028689,
-            "flat": 0.33276257,
-            "up": 0.27695054
+            "down": 0.41388799,
+            "flat": 0.28407187,
+            "up": 0.30204014
           },
           "correct": true,
           "train_origin_start": "2021-11-10",
@@ -5463,9 +5463,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.3587814,
-            "flat": 0.34647214,
-            "up": 0.29474646
+            "down": 0.39189533,
+            "flat": 0.30039853,
+            "up": 0.30770614
           },
           "correct": true,
           "train_origin_start": "2021-11-17",
@@ -5479,9 +5479,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.37931083,
-            "flat": 0.33151483,
-            "up": 0.28917435
+            "down": 0.40104761,
+            "flat": 0.30002684,
+            "up": 0.29892556
           },
           "correct": true,
           "train_origin_start": "2021-11-24",
@@ -5493,11 +5493,11 @@
         {
           "as_of": "2024-12-10",
           "actual": "down",
-          "predicted": "flat",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.32639484,
-            "flat": 0.33865989,
-            "up": 0.33494527
+            "down": 0.32625113,
+            "flat": 0.32318592,
+            "up": 0.35056295
           },
           "correct": false,
           "train_origin_start": "2021-12-01",
@@ -5511,9 +5511,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.32994465,
-            "flat": 0.30743392,
-            "up": 0.36262142
+            "down": 0.30832625,
+            "flat": 0.33058677,
+            "up": 0.36108699
           },
           "correct": false,
           "train_origin_start": "2021-12-08",
@@ -5527,9 +5527,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.4230548,
-            "flat": 0.29394056,
-            "up": 0.28300464
+            "down": 0.39451996,
+            "flat": 0.31204227,
+            "up": 0.29343777
           },
           "correct": true,
           "train_origin_start": "2021-12-15",
@@ -5543,9 +5543,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34415078,
-            "flat": 0.34783023,
-            "up": 0.30801899
+            "down": 0.27500131,
+            "flat": 0.38249701,
+            "up": 0.34250168
           },
           "correct": false,
           "train_origin_start": "2021-12-22",
@@ -5557,11 +5557,11 @@
         {
           "as_of": "2025-01-08",
           "actual": "up",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.43143581,
-            "flat": 0.30303684,
-            "up": 0.26552735
+            "down": 0.34363521,
+            "flat": 0.34590366,
+            "up": 0.31046112
           },
           "correct": false,
           "train_origin_start": "2021-12-29",
@@ -5573,13 +5573,13 @@
         {
           "as_of": "2025-01-15",
           "actual": "up",
-          "predicted": "down",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.39732667,
-            "flat": 0.30474234,
-            "up": 0.29793099
+            "down": 0.31373982,
+            "flat": 0.33267742,
+            "up": 0.35358276
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2022-01-06",
           "train_origin_end": "2025-01-08",
           "label_known_through": "2025-01-15",
@@ -5591,9 +5591,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.39625638,
-            "flat": 0.3116642,
-            "up": 0.29207942
+            "down": 0.34335546,
+            "flat": 0.3341488,
+            "up": 0.32249573
           },
           "correct": true,
           "train_origin_start": "2022-01-13",
@@ -5607,9 +5607,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.43201627,
-            "flat": 0.30123134,
-            "up": 0.2667524
+            "down": 0.37172313,
+            "flat": 0.31664607,
+            "up": 0.3116308
           },
           "correct": false,
           "train_origin_start": "2022-01-20",
@@ -5623,9 +5623,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.46644156,
-            "flat": 0.30622919,
-            "up": 0.22732925
+            "down": 0.41239895,
+            "flat": 0.3162099,
+            "up": 0.27139114
           },
           "correct": false,
           "train_origin_start": "2022-01-27",
@@ -5639,9 +5639,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.41930775,
-            "flat": 0.32353371,
-            "up": 0.25715854
+            "down": 0.37436069,
+            "flat": 0.32558513,
+            "up": 0.30005418
           },
           "correct": false,
           "train_origin_start": "2022-02-08",
@@ -5655,9 +5655,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.38258915,
-            "flat": 0.33855186,
-            "up": 0.27885899
+            "down": 0.36937705,
+            "flat": 0.32367379,
+            "up": 0.30694916
           },
           "correct": false,
           "train_origin_start": "2022-02-15",
@@ -5671,9 +5671,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.37746345,
-            "flat": 0.32301702,
-            "up": 0.29951953
+            "down": 0.3574084,
+            "flat": 0.31486714,
+            "up": 0.32772446
           },
           "correct": false,
           "train_origin_start": "2022-02-22",
@@ -5687,9 +5687,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.41318708,
-            "flat": 0.31589858,
-            "up": 0.27091435
+            "down": 0.42202586,
+            "flat": 0.31008463,
+            "up": 0.26788951
           },
           "correct": false,
           "train_origin_start": "2022-03-01",
@@ -5701,13 +5701,13 @@
         {
           "as_of": "2025-03-18",
           "actual": "down",
-          "predicted": "down",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.38877343,
-            "flat": 0.32017335,
-            "up": 0.29105322
+            "down": 0.30306609,
+            "flat": 0.34448168,
+            "up": 0.35245222
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2022-03-08",
           "train_origin_end": "2025-03-11",
           "label_known_through": "2025-03-18",
@@ -5719,9 +5719,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.39325976,
-            "flat": 0.29954701,
-            "up": 0.30719324
+            "down": 0.38135549,
+            "flat": 0.31367846,
+            "up": 0.30496604
           },
           "correct": false,
           "train_origin_start": "2022-03-15",
@@ -5735,9 +5735,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.35577996,
-            "flat": 0.30470983,
-            "up": 0.33951022
+            "down": 0.36713438,
+            "flat": 0.32529633,
+            "up": 0.30756929
           },
           "correct": true,
           "train_origin_start": "2022-03-22",
@@ -5751,9 +5751,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.35752684,
-            "flat": 0.32057638,
-            "up": 0.32189678
+            "down": 0.33803215,
+            "flat": 0.32937667,
+            "up": 0.33259118
           },
           "correct": false,
           "train_origin_start": "2022-03-29",
@@ -5767,9 +5767,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.40818486,
-            "flat": 0.30517435,
-            "up": 0.28664079
+            "down": 0.3967292,
+            "flat": 0.31084013,
+            "up": 0.29243066
           },
           "correct": false,
           "train_origin_start": "2022-04-06",
@@ -5783,9 +5783,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.39057717,
-            "flat": 0.31121951,
-            "up": 0.29820333
+            "down": 0.40533766,
+            "flat": 0.30384765,
+            "up": 0.29081469
           },
           "correct": true,
           "train_origin_start": "2022-04-13",
@@ -5799,9 +5799,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.37500583,
-            "flat": 0.30917408,
-            "up": 0.31582009
+            "down": 0.40013846,
+            "flat": 0.29724927,
+            "up": 0.30261227
           },
           "correct": false,
           "train_origin_start": "2022-04-20",
@@ -5815,9 +5815,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.47916545,
-            "flat": 0.22779182,
-            "up": 0.29304273
+            "down": 0.5014643,
+            "flat": 0.21565703,
+            "up": 0.28287867
           },
           "correct": false,
           "train_origin_start": "2022-04-26",
@@ -5831,9 +5831,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.42854382,
-            "flat": 0.24349575,
-            "up": 0.32796043
+            "down": 0.47288191,
+            "flat": 0.22814173,
+            "up": 0.29897637
           },
           "correct": false,
           "train_origin_start": "2022-05-06",
@@ -5847,9 +5847,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.45983467,
-            "flat": 0.23449362,
-            "up": 0.30567172
+            "down": 0.45491288,
+            "flat": 0.23238614,
+            "up": 0.31270098
           },
           "correct": true,
           "train_origin_start": "2022-05-12",
@@ -5863,9 +5863,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.41153743,
-            "flat": 0.24955333,
-            "up": 0.33890924
+            "down": 0.40301979,
+            "flat": 0.24768681,
+            "up": 0.3492934
           },
           "correct": false,
           "train_origin_start": "2022-05-19",
@@ -5879,9 +5879,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.44817436,
-            "flat": 0.22906385,
-            "up": 0.32276179
+            "down": 0.43759982,
+            "flat": 0.23344393,
+            "up": 0.32895625
           },
           "correct": false,
           "train_origin_start": "2022-05-26",
@@ -5895,9 +5895,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.40294387,
-            "flat": 0.25787599,
-            "up": 0.33918013
+            "down": 0.39078321,
+            "flat": 0.24017689,
+            "up": 0.3690399
           },
           "correct": false,
           "train_origin_start": "2022-06-02",
@@ -5911,9 +5911,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.39847576,
-            "flat": 0.2746587,
-            "up": 0.32686554
+            "down": 0.39984585,
+            "flat": 0.27054013,
+            "up": 0.32961402
           },
           "correct": false,
           "train_origin_start": "2022-06-10",
@@ -5927,9 +5927,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.36351213,
-            "flat": 0.32375265,
-            "up": 0.31273522
+            "down": 0.35114053,
+            "flat": 0.31167591,
+            "up": 0.33718356
           },
           "correct": false,
           "train_origin_start": "2022-06-17",
@@ -5943,9 +5943,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.37097295,
-            "flat": 0.32129587,
-            "up": 0.30773118
+            "down": 0.35563799,
+            "flat": 0.31213939,
+            "up": 0.33222262
           },
           "correct": false,
           "train_origin_start": "2022-06-24",
@@ -5959,9 +5959,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.36053771,
-            "flat": 0.32466676,
-            "up": 0.31479553
+            "down": 0.35131756,
+            "flat": 0.31571672,
+            "up": 0.33296571
           },
           "correct": false,
           "train_origin_start": "2022-07-01",
@@ -5975,9 +5975,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31281536,
-            "flat": 0.36704665,
-            "up": 0.32013799
+            "down": 0.31472219,
+            "flat": 0.34809276,
+            "up": 0.33718504
           },
           "correct": false,
           "train_origin_start": "2022-07-08",
@@ -5991,9 +5991,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.31901487,
-            "flat": 0.33899724,
-            "up": 0.34198789
+            "down": 0.33311043,
+            "flat": 0.31224641,
+            "up": 0.35464316
           },
           "correct": false,
           "train_origin_start": "2022-07-15",
@@ -6005,13 +6005,13 @@
         {
           "as_of": "2025-08-04",
           "actual": "flat",
-          "predicted": "flat",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.31266738,
-            "flat": 0.35023283,
-            "up": 0.33709979
+            "down": 0.32708317,
+            "flat": 0.33633252,
+            "up": 0.33658431
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2022-07-22",
           "train_origin_end": "2025-07-28",
           "label_known_through": "2025-08-04",
@@ -6023,9 +6023,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31255499,
-            "flat": 0.36947195,
-            "up": 0.31797306
+            "down": 0.33981788,
+            "flat": 0.35765252,
+            "up": 0.3025296
           },
           "correct": false,
           "train_origin_start": "2022-07-29",
@@ -6037,13 +6037,13 @@
         {
           "as_of": "2025-08-18",
           "actual": "down",
-          "predicted": "flat",
+          "predicted": "down",
           "probabilities": {
-            "down": 0.33592449,
-            "flat": 0.34704413,
-            "up": 0.31703139
+            "down": 0.33767588,
+            "flat": 0.32955414,
+            "up": 0.33276998
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2022-08-05",
           "train_origin_end": "2025-08-11",
           "label_known_through": "2025-08-18",
@@ -6055,9 +6055,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30152213,
-            "flat": 0.3513605,
-            "up": 0.34711737
+            "down": 0.33040214,
+            "flat": 0.338164,
+            "up": 0.33143387
           },
           "correct": false,
           "train_origin_start": "2022-08-12",
@@ -6069,13 +6069,13 @@
         {
           "as_of": "2025-09-01",
           "actual": "up",
-          "predicted": "up",
+          "predicted": "down",
           "probabilities": {
-            "down": 0.32268085,
-            "flat": 0.33581002,
-            "up": 0.34150913
+            "down": 0.36338592,
+            "flat": 0.32116771,
+            "up": 0.31544637
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2022-08-19",
           "train_origin_end": "2025-08-25",
           "label_known_through": "2025-09-01",
@@ -6085,13 +6085,13 @@
         {
           "as_of": "2025-09-08",
           "actual": "up",
-          "predicted": "up",
+          "predicted": "down",
           "probabilities": {
-            "down": 0.32396007,
-            "flat": 0.33360461,
-            "up": 0.34243532
+            "down": 0.35354696,
+            "flat": 0.32940482,
+            "up": 0.31704822
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2022-08-26",
           "train_origin_end": "2025-09-01",
           "label_known_through": "2025-09-08",
@@ -6103,9 +6103,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.30978253,
-            "flat": 0.32905563,
-            "up": 0.36116184
+            "down": 0.31882429,
+            "flat": 0.31296508,
+            "up": 0.36821063
           },
           "correct": false,
           "train_origin_start": "2022-09-02",
@@ -6119,9 +6119,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.30714327,
-            "flat": 0.3016106,
-            "up": 0.39124613
+            "down": 0.31753556,
+            "flat": 0.30358842,
+            "up": 0.37887602
           },
           "correct": false,
           "train_origin_start": "2022-09-09",
@@ -6135,9 +6135,9 @@
           "actual": "down",
           "predicted": "up",
           "probabilities": {
-            "down": 0.31246814,
-            "flat": 0.30238611,
-            "up": 0.38514575
+            "down": 0.33529196,
+            "flat": 0.30394523,
+            "up": 0.36076281
           },
           "correct": false,
           "train_origin_start": "2022-09-19",
@@ -6151,9 +6151,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.32002278,
-            "flat": 0.31588568,
-            "up": 0.36409154
+            "down": 0.32686587,
+            "flat": 0.31993669,
+            "up": 0.35319744
           },
           "correct": false,
           "train_origin_start": "2022-09-26",
@@ -6167,9 +6167,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.34752381,
-            "flat": 0.31436894,
-            "up": 0.33810725
+            "down": 0.35121327,
+            "flat": 0.3198991,
+            "up": 0.32888763
           },
           "correct": false,
           "train_origin_start": "2022-10-08",
@@ -6183,9 +6183,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.36259669,
-            "flat": 0.31665592,
-            "up": 0.32074739
+            "down": 0.39529922,
+            "flat": 0.31527057,
+            "up": 0.28943021
           },
           "correct": true,
           "train_origin_start": "2022-10-13",
@@ -6199,9 +6199,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.33649584,
-            "flat": 0.33246161,
-            "up": 0.33104255
+            "down": 0.36584807,
+            "flat": 0.33461962,
+            "up": 0.29953231
           },
           "correct": false,
           "train_origin_start": "2022-10-20",
@@ -6215,9 +6215,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.34956416,
-            "flat": 0.31345303,
-            "up": 0.33698282
+            "down": 0.38603393,
+            "flat": 0.31608977,
+            "up": 0.2978763
           },
           "correct": false,
           "train_origin_start": "2022-10-27",
@@ -6231,9 +6231,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.22115103,
-            "flat": 0.27558232,
-            "up": 0.50326665
+            "down": 0.114529,
+            "flat": 0.44106941,
+            "up": 0.4444016
           },
           "correct": false,
           "train_origin_start": "2022-11-03",
@@ -6247,9 +6247,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34345493,
-            "flat": 0.38245993,
-            "up": 0.27408515
+            "down": 0.2484505,
+            "flat": 0.60485181,
+            "up": 0.14669769
           },
           "correct": false,
           "train_origin_start": "2022-11-10",
@@ -6263,9 +6263,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33359834,
-            "flat": 0.38070577,
-            "up": 0.28569589
+            "down": 0.27774999,
+            "flat": 0.46787342,
+            "up": 0.25437659
           },
           "correct": true,
           "train_origin_start": "2022-11-17",
@@ -6279,9 +6279,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31308232,
-            "flat": 0.38599366,
-            "up": 0.30092401
+            "down": 0.25002544,
+            "flat": 0.49831287,
+            "up": 0.25166169
           },
           "correct": true,
           "train_origin_start": "2022-11-24",
@@ -6295,9 +6295,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31701937,
-            "flat": 0.40694591,
-            "up": 0.27603472
+            "down": 0.25339056,
+            "flat": 0.51846506,
+            "up": 0.22814438
           },
           "correct": true,
           "train_origin_start": "2022-12-01",
@@ -6311,9 +6311,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.24886444,
-            "flat": 0.383994,
-            "up": 0.36714157
+            "down": 0.23714671,
+            "flat": 0.52434956,
+            "up": 0.23850373
           },
           "correct": true,
           "train_origin_start": "2022-12-08",
@@ -6327,9 +6327,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.25138971,
-            "flat": 0.39781213,
-            "up": 0.35079816
+            "down": 0.14473188,
+            "flat": 0.52841848,
+            "up": 0.32684964
           },
           "correct": false,
           "train_origin_start": "2022-12-15",
@@ -6343,9 +6343,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.2482506,
-            "flat": 0.39242821,
-            "up": 0.35932118
+            "down": 0.15625439,
+            "flat": 0.47393177,
+            "up": 0.36981384
           },
           "correct": true,
           "train_origin_start": "2022-12-22",
@@ -6357,13 +6357,13 @@
         {
           "as_of": "2026-01-12",
           "actual": "flat",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.22953538,
-            "flat": 0.3802038,
-            "up": 0.39026082
+            "down": 0.16776314,
+            "flat": 0.45227743,
+            "up": 0.37995944
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2022-12-29",
           "train_origin_end": "2026-01-05",
           "label_known_through": "2026-01-12",
@@ -6375,9 +6375,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.23967113,
-            "flat": 0.39550786,
-            "up": 0.36482101
+            "down": 0.18166696,
+            "flat": 0.41950375,
+            "up": 0.39882929
           },
           "correct": true,
           "train_origin_start": "2023-01-06",
@@ -6391,9 +6391,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.27132779,
-            "flat": 0.46450196,
-            "up": 0.26417025
+            "down": 0.27178448,
+            "flat": 0.51160703,
+            "up": 0.21660849
           },
           "correct": true,
           "train_origin_start": "2023-01-13",
@@ -6407,9 +6407,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28665995,
-            "flat": 0.4514381,
-            "up": 0.26190195
+            "down": 0.2735695,
+            "flat": 0.4936905,
+            "up": 0.23274
           },
           "correct": true,
           "train_origin_start": "2023-01-20",
@@ -6423,9 +6423,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28922212,
-            "flat": 0.44752215,
-            "up": 0.26325573
+            "down": 0.27670034,
+            "flat": 0.49499874,
+            "up": 0.22830092
           },
           "correct": false,
           "train_origin_start": "2023-02-01",
@@ -6439,9 +6439,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.18789315,
-            "flat": 0.50270592,
-            "up": 0.30940094
+            "down": 0.1957793,
+            "flat": 0.49962147,
+            "up": 0.30459923
           },
           "correct": true,
           "train_origin_start": "2023-02-08",
@@ -6455,9 +6455,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30345774,
-            "flat": 0.36379739,
-            "up": 0.33274487
+            "down": 0.23901691,
+            "flat": 0.45108503,
+            "up": 0.30989806
           },
           "correct": true,
           "train_origin_start": "2023-02-15",
@@ -6471,9 +6471,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32752505,
-            "flat": 0.36548607,
-            "up": 0.30698888
+            "down": 0.2718031,
+            "flat": 0.44200443,
+            "up": 0.28619247
           },
           "correct": false,
           "train_origin_start": "2023-02-22",
@@ -6487,9 +6487,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30206003,
-            "flat": 0.37391695,
-            "up": 0.32402302
+            "down": 0.2694915,
+            "flat": 0.42970737,
+            "up": 0.30080113
           },
           "correct": true,
           "train_origin_start": "2023-03-01",
@@ -6503,9 +6503,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28281181,
-            "flat": 0.42509801,
-            "up": 0.29209018
+            "down": 0.26981525,
+            "flat": 0.40626143,
+            "up": 0.32392332
           },
           "correct": true,
           "train_origin_start": "2023-03-08",
@@ -6519,9 +6519,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.24583447,
-            "flat": 0.45013293,
-            "up": 0.3040326
+            "down": 0.2540047,
+            "flat": 0.4815051,
+            "up": 0.26449019
           },
           "correct": true,
           "train_origin_start": "2023-03-15",
@@ -6535,9 +6535,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.26290375,
-            "flat": 0.44232776,
-            "up": 0.29476849
+            "down": 0.27377415,
+            "flat": 0.45084264,
+            "up": 0.27538321
           },
           "correct": false,
           "train_origin_start": "2023-03-22",
@@ -6551,9 +6551,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.26594235,
-            "flat": 0.44620508,
-            "up": 0.28785257
+            "down": 0.27131724,
+            "flat": 0.46325577,
+            "up": 0.26542698
           },
           "correct": false,
           "train_origin_start": "2023-03-29",
@@ -6567,9 +6567,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32068699,
-            "flat": 0.4148294,
-            "up": 0.2644836
+            "down": 0.27024219,
+            "flat": 0.45252613,
+            "up": 0.27723168
           },
           "correct": true,
           "train_origin_start": "2023-04-06",
@@ -6583,9 +6583,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.37073556,
-            "flat": 0.37513162,
-            "up": 0.25413282
+            "down": 0.36576801,
+            "flat": 0.40096842,
+            "up": 0.23326357
           },
           "correct": true,
           "train_origin_start": "2023-04-13",
@@ -6599,9 +6599,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34401549,
-            "flat": 0.40041872,
-            "up": 0.2555658
+            "down": 0.34579409,
+            "flat": 0.42094129,
+            "up": 0.23326462
           },
           "correct": true,
           "train_origin_start": "2023-04-20",
@@ -6615,9 +6615,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.23120988,
-            "flat": 0.47998589,
-            "up": 0.28880424
+            "down": 0.24561648,
+            "flat": 0.47104241,
+            "up": 0.28334111
           },
           "correct": true,
           "train_origin_start": "2023-04-26",
@@ -6631,9 +6631,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.39334498,
-            "flat": 0.42815039,
-            "up": 0.17850462
+            "down": 0.27401451,
+            "flat": 0.47750086,
+            "up": 0.24848463
           },
           "correct": true,
           "train_origin_start": "2023-05-06",
@@ -6647,9 +6647,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.38641737,
-            "flat": 0.42475857,
-            "up": 0.18882407
+            "down": 0.41422311,
+            "flat": 0.44158811,
+            "up": 0.14418878
           },
           "correct": true,
           "train_origin_start": "2023-05-12",
@@ -6663,9 +6663,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.4156324,
-            "flat": 0.39189809,
-            "up": 0.19246952
+            "down": 0.45031316,
+            "flat": 0.38827756,
+            "up": 0.16140928
           },
           "correct": false,
           "train_origin_start": "2023-05-19",
@@ -6679,9 +6679,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.40076235,
-            "flat": 0.38176205,
-            "up": 0.2174756
+            "down": 0.43353333,
+            "flat": 0.3759185,
+            "up": 0.19054818
           },
           "correct": true,
           "train_origin_start": "2023-05-26",
@@ -6695,9 +6695,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.37296385,
-            "flat": 0.37937816,
-            "up": 0.24765799
+            "down": 0.34665895,
+            "flat": 0.3999726,
+            "up": 0.25336845
           },
           "correct": true,
           "train_origin_start": "2023-06-02",
@@ -6711,9 +6711,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.37094748,
-            "flat": 0.39107907,
-            "up": 0.23797345
+            "down": 0.37445789,
+            "flat": 0.39442097,
+            "up": 0.23112113
           },
           "correct": true,
           "train_origin_start": "2023-06-09",
@@ -6727,9 +6727,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.37390567,
-            "flat": 0.37410796,
-            "up": 0.25198637
+            "down": 0.36689435,
+            "flat": 0.38904056,
+            "up": 0.24406509
           },
           "correct": true,
           "train_origin_start": "2023-06-16",
@@ -6743,9 +6743,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.35682598,
-            "flat": 0.39273859,
-            "up": 0.25043543
+            "down": 0.34393808,
+            "flat": 0.4062346,
+            "up": 0.24982732
           },
           "correct": true,
           "train_origin_start": "2023-06-26",
@@ -6759,9 +6759,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33775104,
-            "flat": 0.41623856,
-            "up": 0.2460104
+            "down": 0.32527999,
+            "flat": 0.42797395,
+            "up": 0.24674607
           },
           "correct": true,
           "train_origin_start": "2023-07-03",
@@ -6775,9 +6775,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3132644,
-            "flat": 0.44600673,
-            "up": 0.24072887
+            "down": 0.2955563,
+            "flat": 0.46088855,
+            "up": 0.24355514
           },
           "correct": true,
           "train_origin_start": "2023-07-10",
@@ -6791,9 +6791,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.29208213,
-            "flat": 0.46084624,
-            "up": 0.24707163
+            "down": 0.28128306,
+            "flat": 0.46899155,
+            "up": 0.24972539
           },
           "correct": true,
           "train_origin_start": "2023-07-17",
@@ -6807,9 +6807,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30150237,
-            "flat": 0.46141496,
-            "up": 0.23708267
+            "down": 0.28884284,
+            "flat": 0.47061161,
+            "up": 0.24054555
           },
           "correct": true,
           "train_origin_start": "2023-07-24",
@@ -6823,9 +6823,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28314449,
-            "flat": 0.48496894,
-            "up": 0.23188657
+            "down": 0.27054159,
+            "flat": 0.49056571,
+            "up": 0.2388927
           },
           "correct": false,
           "train_origin_start": "2023-07-31",
@@ -6839,9 +6839,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28340185,
-            "flat": 0.48721656,
-            "up": 0.22938159
+            "down": 0.27151237,
+            "flat": 0.48785432,
+            "up": 0.24063331
           },
           "correct": true,
           "train_origin_start": "2023-08-07",
@@ -6866,27 +6866,27 @@
       "route": "fusion_rules",
       "route_label": "市场数据+文本因子+结构化宏观+规则增强",
       "observations": 380,
-      "accuracy": 0.4342,
-      "macro_precision": 0.4281,
-      "macro_recall": 0.4265,
-      "macro_f1": 0.4257,
-      "macro_auc_ovr": 0.5694,
-      "brier": 0.2192,
+      "accuracy": 0.4474,
+      "macro_precision": 0.4378,
+      "macro_recall": 0.4383,
+      "macro_f1": 0.4354,
+      "macro_auc_ovr": 0.5849,
+      "brier": 0.2157,
       "confusion_matrix": {
         "down": {
-          "down": 56,
-          "flat": 42,
-          "up": 24
+          "down": 62,
+          "flat": 40,
+          "up": 20
         },
         "flat": {
-          "down": 41,
-          "flat": 73,
-          "up": 34
+          "down": 38,
+          "flat": 75,
+          "up": 35
         },
         "up": {
-          "down": 45,
-          "flat": 29,
-          "up": 36
+          "down": 46,
+          "flat": 31,
+          "up": 33
         }
       },
       "actual_distribution": {
@@ -6897,24 +6897,24 @@
       "per_class": {
         "down": {
           "support": 122,
-          "precision": 0.3944,
-          "recall": 0.459,
-          "f1": 0.4242,
-          "auc_ovr": 0.5501
+          "precision": 0.4247,
+          "recall": 0.5082,
+          "f1": 0.4627,
+          "auc_ovr": 0.5987
         },
         "flat": {
           "support": 148,
-          "precision": 0.5069,
-          "recall": 0.4932,
-          "f1": 0.5,
-          "auc_ovr": 0.6126
+          "precision": 0.5137,
+          "recall": 0.5068,
+          "f1": 0.5102,
+          "auc_ovr": 0.6074
         },
         "up": {
           "support": 110,
-          "precision": 0.383,
-          "recall": 0.3273,
-          "f1": 0.3529,
-          "auc_ovr": 0.5456
+          "precision": 0.375,
+          "recall": 0.3,
+          "f1": 0.3333,
+          "auc_ovr": 0.5485
         }
       },
       "period_metrics": [
@@ -6922,26 +6922,26 @@
           "period": "discovery_2018_2022",
           "observations": 199,
           "accuracy": 0.4271,
-          "macro_precision": 0.4263,
-          "macro_recall": 0.4176,
-          "macro_f1": 0.407,
-          "macro_auc_ovr": 0.5371,
-          "brier": 0.2229,
+          "macro_precision": 0.4201,
+          "macro_recall": 0.4178,
+          "macro_f1": 0.4016,
+          "macro_auc_ovr": 0.5521,
+          "brier": 0.2191,
           "confusion_matrix": {
             "down": {
-              "down": 40,
-              "flat": 10,
-              "up": 18
+              "down": 44,
+              "flat": 9,
+              "up": 15
             },
             "flat": {
-              "down": 23,
-              "flat": 13,
-              "up": 23
+              "down": 22,
+              "flat": 12,
+              "up": 25
             },
             "up": {
-              "down": 32,
-              "flat": 8,
-              "up": 32
+              "down": 34,
+              "flat": 9,
+              "up": 29
             }
           },
           "actual_distribution": {
@@ -6952,51 +6952,51 @@
           "per_class": {
             "down": {
               "support": 68,
-              "precision": 0.4211,
-              "recall": 0.5882,
-              "f1": 0.4908,
-              "auc_ovr": 0.5485
+              "precision": 0.44,
+              "recall": 0.6471,
+              "f1": 0.5238,
+              "auc_ovr": 0.5964
             },
             "flat": {
               "support": 59,
-              "precision": 0.4194,
-              "recall": 0.2203,
-              "f1": 0.2889,
-              "auc_ovr": 0.5557
+              "precision": 0.4,
+              "recall": 0.2034,
+              "f1": 0.2697,
+              "auc_ovr": 0.5232
             },
             "up": {
               "support": 72,
-              "precision": 0.4384,
-              "recall": 0.4444,
-              "f1": 0.4414,
-              "auc_ovr": 0.5071
+              "precision": 0.4203,
+              "recall": 0.4028,
+              "f1": 0.4113,
+              "auc_ovr": 0.5367
             }
           }
         },
         {
           "period": "validation_2023_2024",
           "observations": 100,
-          "accuracy": 0.42,
-          "macro_precision": 0.4053,
-          "macro_recall": 0.3796,
-          "macro_f1": 0.3477,
-          "macro_auc_ovr": 0.6167,
-          "brier": 0.2144,
+          "accuracy": 0.46,
+          "macro_precision": 0.4608,
+          "macro_recall": 0.4044,
+          "macro_f1": 0.3736,
+          "macro_auc_ovr": 0.6018,
+          "brier": 0.2138,
           "confusion_matrix": {
             "down": {
-              "down": 9,
-              "flat": 28,
-              "up": 4
+              "down": 12,
+              "flat": 27,
+              "up": 2
             },
             "flat": {
-              "down": 3,
-              "flat": 30,
+              "down": 1,
+              "flat": 32,
               "up": 6
             },
             "up": {
-              "down": 4,
-              "flat": 13,
-              "up": 3
+              "down": 3,
+              "flat": 15,
+              "up": 2
             }
           },
           "actual_distribution": {
@@ -7007,51 +7007,51 @@
           "per_class": {
             "down": {
               "support": 41,
-              "precision": 0.5625,
-              "recall": 0.2195,
-              "f1": 0.3158,
-              "auc_ovr": 0.6846
+              "precision": 0.75,
+              "recall": 0.2927,
+              "f1": 0.4211,
+              "auc_ovr": 0.7065
             },
             "flat": {
               "support": 39,
-              "precision": 0.4225,
-              "recall": 0.7692,
-              "f1": 0.5455,
-              "auc_ovr": 0.6293
+              "precision": 0.4324,
+              "recall": 0.8205,
+              "f1": 0.5664,
+              "auc_ovr": 0.6339
             },
             "up": {
               "support": 20,
-              "precision": 0.2308,
-              "recall": 0.15,
-              "f1": 0.1818,
-              "auc_ovr": 0.5363
+              "precision": 0.2,
+              "recall": 0.1,
+              "f1": 0.1333,
+              "auc_ovr": 0.465
             }
           }
         },
         {
           "period": "oos_2025_latest",
           "observations": 81,
-          "accuracy": 0.4691,
-          "macro_precision": 0.355,
-          "macro_recall": 0.398,
-          "macro_f1": 0.3491,
-          "macro_auc_ovr": 0.5501,
-          "brier": 0.2162,
+          "accuracy": 0.4815,
+          "macro_precision": 0.3868,
+          "macro_recall": 0.3975,
+          "macro_f1": 0.367,
+          "macro_auc_ovr": 0.5659,
+          "brier": 0.2098,
           "confusion_matrix": {
             "down": {
-              "down": 7,
+              "down": 6,
               "flat": 4,
-              "up": 2
+              "up": 3
             },
             "flat": {
               "down": 15,
-              "flat": 30,
-              "up": 5
+              "flat": 31,
+              "up": 4
             },
             "up": {
               "down": 9,
-              "flat": 8,
-              "up": 1
+              "flat": 7,
+              "up": 2
             }
           },
           "actual_distribution": {
@@ -7062,24 +7062,24 @@
           "per_class": {
             "down": {
               "support": 13,
-              "precision": 0.2258,
-              "recall": 0.5385,
-              "f1": 0.3182,
-              "auc_ovr": 0.4955
+              "precision": 0.2,
+              "recall": 0.4615,
+              "f1": 0.2791,
+              "auc_ovr": 0.5452
             },
             "flat": {
               "support": 50,
-              "precision": 0.7143,
-              "recall": 0.6,
-              "f1": 0.6522,
-              "auc_ovr": 0.6161
+              "precision": 0.7381,
+              "recall": 0.62,
+              "f1": 0.6739,
+              "auc_ovr": 0.5768
             },
             "up": {
               "support": 18,
-              "precision": 0.125,
-              "recall": 0.0556,
-              "f1": 0.0769,
-              "auc_ovr": 0.5388
+              "precision": 0.2222,
+              "recall": 0.1111,
+              "f1": 0.1481,
+              "auc_ovr": 0.5758
             }
           }
         }
@@ -7087,61 +7087,39 @@
       "calibration": [
         {
           "confidence_range": "0.00-0.40",
-          "observations": 206,
-          "mean_confidence": 0.371,
-          "accuracy": 0.4029
+          "observations": 191,
+          "mean_confidence": 0.3715,
+          "accuracy": 0.4188
         },
         {
           "confidence_range": "0.40-0.50",
-          "observations": 160,
-          "mean_confidence": 0.4297,
-          "accuracy": 0.4625
+          "observations": 155,
+          "mean_confidence": 0.4366,
+          "accuracy": 0.4581
         },
         {
           "confidence_range": "0.50-0.60",
-          "observations": 11,
-          "mean_confidence": 0.5354,
-          "accuracy": 0.6364
+          "observations": 29,
+          "mean_confidence": 0.5376,
+          "accuracy": 0.5172
         },
         {
           "confidence_range": "0.60-0.75",
-          "observations": 2,
-          "mean_confidence": 0.6182,
-          "accuracy": 0.5
-        },
-        {
-          "confidence_range": "0.75-1.00",
-          "observations": 1,
-          "mean_confidence": 0.9144,
-          "accuracy": 0.0
+          "observations": 5,
+          "mean_confidence": 0.6368,
+          "accuracy": 0.8
         }
       ],
       "examples": {
         "correct": [
           {
-            "as_of": "2020-03-30",
-            "actual": "down",
-            "predicted": "down",
-            "probabilities": {
-              "down": 0.60006713,
-              "flat": 0.29931718,
-              "up": 0.10061569
-            },
-            "correct": true,
-            "train_origin_start": "2018-01-02",
-            "train_origin_end": "2020-03-23",
-            "label_known_through": "2020-03-30",
-            "train_observations": 553,
-            "period": "discovery_2018_2022"
-          },
-          {
             "as_of": "2022-07-25",
             "actual": "down",
             "predicted": "down",
             "probabilities": {
-              "down": 0.58376322,
-              "flat": 0.29402557,
-              "up": 0.12221121
+              "down": 0.67824854,
+              "flat": 0.26007839,
+              "up": 0.06167307
             },
             "correct": true,
             "train_origin_start": "2019-07-12",
@@ -7151,70 +7129,86 @@
             "period": "discovery_2018_2022"
           },
           {
-            "as_of": "2019-02-01",
-            "actual": "down",
-            "predicted": "down",
+            "as_of": "2019-12-06",
+            "actual": "flat",
+            "predicted": "flat",
             "probabilities": {
-              "down": 0.54631632,
-              "flat": 0.23430407,
-              "up": 0.21937961
+              "down": 0.10318198,
+              "flat": 0.65247446,
+              "up": 0.24434355
             },
             "correct": true,
             "train_origin_start": "2018-01-02",
-            "train_origin_end": "2019-01-25",
-            "label_known_through": "2019-02-01",
-            "train_observations": 268,
+            "train_origin_end": "2019-11-29",
+            "label_known_through": "2019-12-06",
+            "train_observations": 478,
+            "period": "discovery_2018_2022"
+          },
+          {
+            "as_of": "2019-12-13",
+            "actual": "flat",
+            "predicted": "flat",
+            "probabilities": {
+              "down": 0.13977538,
+              "flat": 0.64158453,
+              "up": 0.21864009
+            },
+            "correct": true,
+            "train_origin_start": "2018-01-02",
+            "train_origin_end": "2019-12-06",
+            "label_known_through": "2019-12-13",
+            "train_observations": 483,
             "period": "discovery_2018_2022"
           }
         ],
         "incorrect": [
           {
-            "as_of": "2020-03-23",
-            "actual": "flat",
-            "predicted": "down",
-            "probabilities": {
-              "down": 0.91440043,
-              "flat": 0.06748992,
-              "up": 0.01810965
-            },
-            "correct": false,
-            "train_origin_start": "2018-01-02",
-            "train_origin_end": "2020-03-16",
-            "label_known_through": "2020-03-23",
-            "train_observations": 548,
-            "period": "discovery_2018_2022"
-          },
-          {
-            "as_of": "2022-07-18",
-            "actual": "flat",
-            "predicted": "down",
-            "probabilities": {
-              "down": 0.63638028,
-              "flat": 0.25860066,
-              "up": 0.10501905
-            },
-            "correct": false,
-            "train_origin_start": "2019-07-05",
-            "train_origin_end": "2022-07-11",
-            "label_known_through": "2022-07-18",
-            "train_observations": 752,
-            "period": "discovery_2018_2022"
-          },
-          {
-            "as_of": "2025-02-18",
+            "as_of": "2025-11-21",
             "actual": "up",
             "predicted": "flat",
             "probabilities": {
-              "down": 0.21422479,
-              "flat": 0.544941,
-              "up": 0.24083421
+              "down": 0.23987056,
+              "flat": 0.6081487,
+              "up": 0.15198073
             },
             "correct": false,
-            "train_origin_start": "2022-02-08",
-            "train_origin_end": "2025-02-11",
-            "label_known_through": "2025-02-18",
+            "train_origin_start": "2022-11-10",
+            "train_origin_end": "2025-11-14",
+            "label_known_through": "2025-11-21",
             "train_observations": 752,
             "period": "oos_2025_latest"
+          },
+          {
+            "as_of": "2022-08-01",
+            "actual": "flat",
+            "predicted": "down",
+            "probabilities": {
+              "down": 0.59546482,
+              "flat": 0.26599882,
+              "up": 0.13853636
+            },
+            "correct": false,
+            "train_origin_start": "2019-07-19",
+            "train_origin_end": "2022-07-25",
+            "label_known_through": "2022-08-01",
+            "train_observations": 752,
+            "period": "discovery_2018_2022"
+          },
+          {
+            "as_of": "2020-01-06",
+            "actual": "down",
+            "predicted": "flat",
+            "probabilities": {
+              "down": 0.23552593,
+              "flat": 0.56554464,
+              "up": 0.19892943
+            },
+            "correct": false,
+            "train_origin_start": "2018-01-02",
+            "train_origin_end": "2019-12-27",
+            "label_known_through": "2020-01-06",
+            "train_observations": 498,
+            "period": "discovery_2018_2022"
           }
         ]
       },
@@ -7224,9 +7218,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28844271,
-            "flat": 0.40308702,
-            "up": 0.30847027
+            "down": 0.25412093,
+            "flat": 0.40824134,
+            "up": 0.33763773
           },
           "correct": true,
           "train_origin_start": "2021-03-22",
@@ -7240,9 +7234,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30048611,
-            "flat": 0.40309158,
-            "up": 0.29642231
+            "down": 0.26689401,
+            "flat": 0.42210808,
+            "up": 0.31099791
           },
           "correct": true,
           "train_origin_start": "2021-03-29",
@@ -7256,9 +7250,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31620064,
-            "flat": 0.39681262,
-            "up": 0.28698674
+            "down": 0.26321425,
+            "flat": 0.4313699,
+            "up": 0.30541585
           },
           "correct": false,
           "train_origin_start": "2021-04-06",
@@ -7272,9 +7266,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34333631,
-            "flat": 0.37663117,
-            "up": 0.28003252
+            "down": 0.3506171,
+            "flat": 0.38626331,
+            "up": 0.2631196
           },
           "correct": false,
           "train_origin_start": "2021-04-13",
@@ -7288,9 +7282,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.36794014,
-            "flat": 0.35792472,
-            "up": 0.27413513
+            "down": 0.38415039,
+            "flat": 0.35474121,
+            "up": 0.2611084
           },
           "correct": true,
           "train_origin_start": "2021-04-20",
@@ -7302,13 +7296,13 @@
         {
           "as_of": "2024-05-08",
           "actual": "flat",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.36522955,
-            "flat": 0.34993869,
-            "up": 0.28483176
+            "down": 0.31238512,
+            "flat": 0.38001226,
+            "up": 0.30760262
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2021-04-26",
           "train_origin_end": "2024-04-28",
           "label_known_through": "2024-05-08",
@@ -7318,11 +7312,11 @@
         {
           "as_of": "2024-05-14",
           "actual": "up",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.36169135,
-            "flat": 0.35316932,
-            "up": 0.28513933
+            "down": 0.31590919,
+            "flat": 0.38370381,
+            "up": 0.30038701
           },
           "correct": false,
           "train_origin_start": "2021-05-06",
@@ -7336,9 +7330,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33173328,
-            "flat": 0.40252726,
-            "up": 0.26573946
+            "down": 0.31393812,
+            "flat": 0.38849456,
+            "up": 0.29756732
           },
           "correct": true,
           "train_origin_start": "2021-05-12",
@@ -7352,9 +7346,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30513731,
-            "flat": 0.42261774,
-            "up": 0.27224496
+            "down": 0.28668773,
+            "flat": 0.41321899,
+            "up": 0.30009328
           },
           "correct": true,
           "train_origin_start": "2021-05-19",
@@ -7368,9 +7362,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3311954,
-            "flat": 0.40518908,
-            "up": 0.26361552
+            "down": 0.32975496,
+            "flat": 0.39291519,
+            "up": 0.27732985
           },
           "correct": true,
           "train_origin_start": "2021-05-26",
@@ -7384,9 +7378,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3358792,
-            "flat": 0.41261735,
-            "up": 0.25150346
+            "down": 0.32419985,
+            "flat": 0.41015426,
+            "up": 0.26564589
           },
           "correct": false,
           "train_origin_start": "2021-06-02",
@@ -7400,9 +7394,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33966596,
-            "flat": 0.35640137,
-            "up": 0.30393267
+            "down": 0.32477215,
+            "flat": 0.39364129,
+            "up": 0.28158657
           },
           "correct": false,
           "train_origin_start": "2021-06-09",
@@ -7416,9 +7410,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31666357,
-            "flat": 0.37829305,
-            "up": 0.30504338
+            "down": 0.25349686,
+            "flat": 0.43164977,
+            "up": 0.31485337
           },
           "correct": false,
           "train_origin_start": "2021-06-17",
@@ -7432,9 +7426,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34245893,
-            "flat": 0.36405922,
-            "up": 0.29348185
+            "down": 0.28850614,
+            "flat": 0.40876337,
+            "up": 0.30273049
           },
           "correct": false,
           "train_origin_start": "2021-06-24",
@@ -7448,9 +7442,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32252959,
-            "flat": 0.36508167,
-            "up": 0.31238874
+            "down": 0.29455919,
+            "flat": 0.38443089,
+            "up": 0.32100992
           },
           "correct": true,
           "train_origin_start": "2021-07-01",
@@ -7464,9 +7458,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.35760785,
-            "flat": 0.35923133,
-            "up": 0.28316083
+            "down": 0.27511075,
+            "flat": 0.40004082,
+            "up": 0.32484843
           },
           "correct": false,
           "train_origin_start": "2021-07-08",
@@ -7478,13 +7472,13 @@
         {
           "as_of": "2024-07-24",
           "actual": "down",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.36608742,
-            "flat": 0.34980542,
-            "up": 0.28410716
+            "down": 0.31925493,
+            "flat": 0.37700308,
+            "up": 0.30374199
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-07-15",
           "train_origin_end": "2024-07-17",
           "label_known_through": "2024-07-24",
@@ -7494,13 +7488,13 @@
         {
           "as_of": "2024-07-31",
           "actual": "flat",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.34635972,
-            "flat": 0.34438205,
-            "up": 0.30925823
+            "down": 0.29832522,
+            "flat": 0.36175988,
+            "up": 0.3399149
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2021-07-22",
           "train_origin_end": "2024-07-24",
           "label_known_through": "2024-07-31",
@@ -7510,11 +7504,11 @@
         {
           "as_of": "2024-08-07",
           "actual": "up",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.35725816,
-            "flat": 0.35187411,
-            "up": 0.29086773
+            "down": 0.33642601,
+            "flat": 0.37035885,
+            "up": 0.29321514
           },
           "correct": false,
           "train_origin_start": "2021-07-29",
@@ -7528,9 +7522,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3420549,
-            "flat": 0.36480271,
-            "up": 0.2931424
+            "down": 0.3200398,
+            "flat": 0.35937909,
+            "up": 0.3205811
           },
           "correct": false,
           "train_origin_start": "2021-08-05",
@@ -7542,13 +7536,13 @@
         {
           "as_of": "2024-08-21",
           "actual": "flat",
-          "predicted": "flat",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.30027985,
-            "flat": 0.37732552,
-            "up": 0.32239462
+            "down": 0.25000734,
+            "flat": 0.32972721,
+            "up": 0.42026545
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-08-12",
           "train_origin_end": "2024-08-14",
           "label_known_through": "2024-08-21",
@@ -7560,9 +7554,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32386123,
-            "flat": 0.36784283,
-            "up": 0.30829594
+            "down": 0.30987703,
+            "flat": 0.35864756,
+            "up": 0.33147541
           },
           "correct": false,
           "train_origin_start": "2021-08-19",
@@ -7576,9 +7570,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32253103,
-            "flat": 0.37027172,
-            "up": 0.30719725
+            "down": 0.3118186,
+            "flat": 0.36898411,
+            "up": 0.31919729
           },
           "correct": false,
           "train_origin_start": "2021-08-26",
@@ -7592,9 +7586,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31341201,
-            "flat": 0.36941918,
-            "up": 0.31716881
+            "down": 0.31895521,
+            "flat": 0.36095027,
+            "up": 0.32009452
           },
           "correct": false,
           "train_origin_start": "2021-09-02",
@@ -7606,13 +7600,13 @@
         {
           "as_of": "2024-09-19",
           "actual": "up",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.20961726,
-            "flat": 0.36967221,
-            "up": 0.42071053
+            "down": 0.29867521,
+            "flat": 0.36049314,
+            "up": 0.34083165
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-09-09",
           "train_origin_end": "2024-09-11",
           "label_known_through": "2024-09-19",
@@ -7622,13 +7616,13 @@
         {
           "as_of": "2024-09-26",
           "actual": "up",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.21227009,
-            "flat": 0.37488354,
-            "up": 0.41284637
+            "down": 0.27990102,
+            "flat": 0.36936986,
+            "up": 0.35072912
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-09-16",
           "train_origin_end": "2024-09-19",
           "label_known_through": "2024-09-26",
@@ -7638,11 +7632,11 @@
         {
           "as_of": "2024-10-09",
           "actual": "down",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.21220935,
-            "flat": 0.34525963,
-            "up": 0.44253102
+            "down": 0.28317773,
+            "flat": 0.38839806,
+            "up": 0.32842421
           },
           "correct": false,
           "train_origin_start": "2021-09-24",
@@ -7654,13 +7648,13 @@
         {
           "as_of": "2024-10-15",
           "actual": "up",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.24211231,
-            "flat": 0.34269631,
-            "up": 0.41519138
+            "down": 0.27245608,
+            "flat": 0.37697826,
+            "up": 0.35056566
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-09-30",
           "train_origin_end": "2024-10-09",
           "label_known_through": "2024-10-15",
@@ -7672,9 +7666,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32103657,
-            "flat": 0.35507532,
-            "up": 0.32388811
+            "down": 0.34499344,
+            "flat": 0.35150357,
+            "up": 0.30350299
           },
           "correct": true,
           "train_origin_start": "2021-10-13",
@@ -7686,13 +7680,13 @@
         {
           "as_of": "2024-10-29",
           "actual": "down",
-          "predicted": "up",
+          "predicted": "down",
           "probabilities": {
-            "down": 0.32260072,
-            "flat": 0.33319342,
-            "up": 0.34420587
+            "down": 0.38443137,
+            "flat": 0.30917657,
+            "up": 0.30639206
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2021-10-20",
           "train_origin_end": "2024-10-22",
           "label_known_through": "2024-10-29",
@@ -7702,13 +7696,13 @@
         {
           "as_of": "2024-11-05",
           "actual": "down",
-          "predicted": "up",
+          "predicted": "down",
           "probabilities": {
-            "down": 0.30014096,
-            "flat": 0.31943928,
-            "up": 0.38041977
+            "down": 0.36137382,
+            "flat": 0.30424264,
+            "up": 0.33438354
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2021-10-27",
           "train_origin_end": "2024-10-29",
           "label_known_through": "2024-11-05",
@@ -7720,9 +7714,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.34733742,
-            "flat": 0.30836364,
-            "up": 0.34429894
+            "down": 0.39795985,
+            "flat": 0.28771778,
+            "up": 0.31432237
           },
           "correct": false,
           "train_origin_start": "2021-11-03",
@@ -7736,9 +7730,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.40792751,
-            "flat": 0.31788575,
-            "up": 0.27418674
+            "down": 0.42143686,
+            "flat": 0.27814921,
+            "up": 0.30041392
           },
           "correct": true,
           "train_origin_start": "2021-11-10",
@@ -7752,9 +7746,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.38596936,
-            "flat": 0.3171282,
-            "up": 0.29690244
+            "down": 0.40185165,
+            "flat": 0.2903597,
+            "up": 0.30778864
           },
           "correct": true,
           "train_origin_start": "2021-11-17",
@@ -7768,9 +7762,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.40610653,
-            "flat": 0.3049729,
-            "up": 0.28892057
+            "down": 0.41222901,
+            "flat": 0.28915586,
+            "up": 0.29861513
           },
           "correct": true,
           "train_origin_start": "2021-11-24",
@@ -7782,13 +7776,13 @@
         {
           "as_of": "2024-12-10",
           "actual": "down",
-          "predicted": "down",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.34769124,
-            "flat": 0.31727734,
-            "up": 0.33503142
+            "down": 0.33527028,
+            "flat": 0.31380432,
+            "up": 0.35092541
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-12-01",
           "train_origin_end": "2024-12-03",
           "label_known_through": "2024-12-10",
@@ -7800,9 +7794,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.35536235,
-            "flat": 0.28393596,
-            "up": 0.36070169
+            "down": 0.31690865,
+            "flat": 0.32158695,
+            "up": 0.3615044
           },
           "correct": false,
           "train_origin_start": "2021-12-08",
@@ -7816,9 +7810,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.44083595,
-            "flat": 0.27931041,
-            "up": 0.27985364
+            "down": 0.39841259,
+            "flat": 0.30844923,
+            "up": 0.29313818
           },
           "correct": true,
           "train_origin_start": "2021-12-15",
@@ -7830,13 +7824,13 @@
         {
           "as_of": "2024-12-31",
           "actual": "down",
-          "predicted": "down",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.35918202,
-            "flat": 0.33475441,
-            "up": 0.30606357
+            "down": 0.2789044,
+            "flat": 0.37825543,
+            "up": 0.34284017
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2021-12-22",
           "train_origin_end": "2024-12-24",
           "label_known_through": "2024-12-31",
@@ -7848,9 +7842,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.44832256,
-            "flat": 0.28970501,
-            "up": 0.26197243
+            "down": 0.34709125,
+            "flat": 0.34255767,
+            "up": 0.31035108
           },
           "correct": false,
           "train_origin_start": "2021-12-29",
@@ -7862,13 +7856,13 @@
         {
           "as_of": "2025-01-15",
           "actual": "up",
-          "predicted": "down",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.41949822,
-            "flat": 0.28639492,
-            "up": 0.29410686
+            "down": 0.31855146,
+            "flat": 0.32787129,
+            "up": 0.35357726
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2022-01-06",
           "train_origin_end": "2025-01-08",
           "label_known_through": "2025-01-15",
@@ -7880,9 +7874,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.41488128,
-            "flat": 0.2959526,
-            "up": 0.28916612
+            "down": 0.34978635,
+            "flat": 0.3279075,
+            "up": 0.32230615
           },
           "correct": true,
           "train_origin_start": "2022-01-13",
@@ -7896,9 +7890,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.45577233,
-            "flat": 0.28199754,
-            "up": 0.26223013
+            "down": 0.38531458,
+            "flat": 0.30420257,
+            "up": 0.31048285
           },
           "correct": false,
           "train_origin_start": "2022-01-20",
@@ -7912,9 +7906,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.49069757,
-            "flat": 0.28667115,
-            "up": 0.22263128
+            "down": 0.42517369,
+            "flat": 0.30493405,
+            "up": 0.26989226
           },
           "correct": false,
           "train_origin_start": "2022-01-27",
@@ -7928,9 +7922,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.21422479,
-            "flat": 0.544941,
-            "up": 0.24083421
+            "down": 0.18476725,
+            "flat": 0.54776008,
+            "up": 0.26747266
           },
           "correct": false,
           "train_origin_start": "2022-02-08",
@@ -7944,9 +7938,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.41662693,
-            "flat": 0.32172331,
-            "up": 0.26164977
+            "down": 0.392491,
+            "flat": 0.31241204,
+            "up": 0.29509696
           },
           "correct": false,
           "train_origin_start": "2022-02-15",
@@ -7960,9 +7954,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.40477496,
-            "flat": 0.31245821,
-            "up": 0.28276684
+            "down": 0.37468067,
+            "flat": 0.30845666,
+            "up": 0.31686267
           },
           "correct": false,
           "train_origin_start": "2022-02-22",
@@ -7976,9 +7970,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.44240866,
-            "flat": 0.30352986,
-            "up": 0.25406148
+            "down": 0.43853898,
+            "flat": 0.30288758,
+            "up": 0.25857344
           },
           "correct": false,
           "train_origin_start": "2022-03-01",
@@ -7990,13 +7984,13 @@
         {
           "as_of": "2025-03-18",
           "actual": "down",
-          "predicted": "down",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.41071805,
-            "flat": 0.31090302,
-            "up": 0.27837893
+            "down": 0.3128612,
+            "flat": 0.34081373,
+            "up": 0.34632507
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2022-03-08",
           "train_origin_end": "2025-03-11",
           "label_known_through": "2025-03-18",
@@ -8008,9 +8002,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.40996041,
-            "flat": 0.29284089,
-            "up": 0.2971987
+            "down": 0.38671258,
+            "flat": 0.31145539,
+            "up": 0.30183203
           },
           "correct": false,
           "train_origin_start": "2022-03-15",
@@ -8024,9 +8018,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.37184675,
-            "flat": 0.29878485,
-            "up": 0.32936841
+            "down": 0.3703341,
+            "flat": 0.32395763,
+            "up": 0.30570827
           },
           "correct": true,
           "train_origin_start": "2022-03-22",
@@ -8040,9 +8034,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.35802304,
-            "flat": 0.3203818,
-            "up": 0.32159516
+            "down": 0.33636713,
+            "flat": 0.33003759,
+            "up": 0.33359527
           },
           "correct": false,
           "train_origin_start": "2022-03-29",
@@ -8056,9 +8050,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.41708259,
-            "flat": 0.30136325,
-            "up": 0.28155416
+            "down": 0.4000748,
+            "flat": 0.30937883,
+            "up": 0.29054636
           },
           "correct": false,
           "train_origin_start": "2022-04-06",
@@ -8072,9 +8066,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.40194961,
-            "flat": 0.30639968,
-            "up": 0.29165071
+            "down": 0.41307896,
+            "flat": 0.30033617,
+            "up": 0.28658487
           },
           "correct": true,
           "train_origin_start": "2022-04-13",
@@ -8088,9 +8082,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.38743338,
-            "flat": 0.30409229,
-            "up": 0.30847433
+            "down": 0.40892235,
+            "flat": 0.2931696,
+            "up": 0.29790805
           },
           "correct": false,
           "train_origin_start": "2022-04-20",
@@ -8104,9 +8098,9 @@
           "actual": "up",
           "predicted": "up",
           "probabilities": {
-            "down": 0.31718093,
-            "flat": 0.27972479,
-            "up": 0.40309428
+            "down": 0.34847585,
+            "flat": 0.27357126,
+            "up": 0.37795288
           },
           "correct": true,
           "train_origin_start": "2022-04-26",
@@ -8120,9 +8114,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.45626897,
-            "flat": 0.2335247,
-            "up": 0.31020633
+            "down": 0.4904196,
+            "flat": 0.22095429,
+            "up": 0.28862611
           },
           "correct": false,
           "train_origin_start": "2022-05-06",
@@ -8136,9 +8130,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.48824679,
-            "flat": 0.22373637,
-            "up": 0.28801684
+            "down": 0.47059883,
+            "flat": 0.22604414,
+            "up": 0.30335702
           },
           "correct": true,
           "train_origin_start": "2022-05-12",
@@ -8152,9 +8146,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.43255717,
-            "flat": 0.24183588,
-            "up": 0.32560695
+            "down": 0.41558036,
+            "flat": 0.24272828,
+            "up": 0.34169135
           },
           "correct": false,
           "train_origin_start": "2022-05-19",
@@ -8168,9 +8162,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.47186354,
-            "flat": 0.22110469,
-            "up": 0.30703177
+            "down": 0.45067932,
+            "flat": 0.22855783,
+            "up": 0.32076285
           },
           "correct": false,
           "train_origin_start": "2022-05-26",
@@ -8184,9 +8178,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.42098413,
-            "flat": 0.25236402,
-            "up": 0.32665185
+            "down": 0.40323687,
+            "flat": 0.23612052,
+            "up": 0.36064261
           },
           "correct": false,
           "train_origin_start": "2022-06-02",
@@ -8200,9 +8194,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.4144335,
-            "flat": 0.27039314,
-            "up": 0.31517336
+            "down": 0.41216798,
+            "flat": 0.26655325,
+            "up": 0.32127877
           },
           "correct": false,
           "train_origin_start": "2022-06-10",
@@ -8216,9 +8210,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.37937814,
-            "flat": 0.32032167,
-            "up": 0.30030019
+            "down": 0.36519346,
+            "flat": 0.30791054,
+            "up": 0.326896
           },
           "correct": false,
           "train_origin_start": "2022-06-17",
@@ -8232,9 +8226,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.38405064,
-            "flat": 0.31941069,
-            "up": 0.29653867
+            "down": 0.36731302,
+            "flat": 0.30974399,
+            "up": 0.32294299
           },
           "correct": false,
           "train_origin_start": "2022-06-24",
@@ -8248,9 +8242,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.37255407,
-            "flat": 0.32300955,
-            "up": 0.30443638
+            "down": 0.36165049,
+            "flat": 0.31365729,
+            "up": 0.32469222
           },
           "correct": false,
           "train_origin_start": "2022-07-01",
@@ -8264,9 +8258,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32106702,
-            "flat": 0.36690049,
-            "up": 0.31203248
+            "down": 0.32305376,
+            "flat": 0.34728107,
+            "up": 0.32966517
           },
           "correct": false,
           "train_origin_start": "2022-07-08",
@@ -8278,13 +8272,13 @@
         {
           "as_of": "2025-07-28",
           "actual": "flat",
-          "predicted": "flat",
+          "predicted": "up",
           "probabilities": {
-            "down": 0.3271412,
-            "flat": 0.3385991,
-            "up": 0.3342597
+            "down": 0.34146209,
+            "flat": 0.31112036,
+            "up": 0.34741754
           },
-          "correct": true,
+          "correct": false,
           "train_origin_start": "2022-07-15",
           "train_origin_end": "2025-07-21",
           "label_known_through": "2025-07-28",
@@ -8296,9 +8290,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31763246,
-            "flat": 0.35003955,
-            "up": 0.33232799
+            "down": 0.33230875,
+            "flat": 0.33558885,
+            "up": 0.33210239
           },
           "correct": true,
           "train_origin_start": "2022-07-22",
@@ -8312,9 +8306,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31587399,
-            "flat": 0.36933172,
-            "up": 0.31479429
+            "down": 0.34334536,
+            "flat": 0.35703868,
+            "up": 0.29961596
           },
           "correct": false,
           "train_origin_start": "2022-07-29",
@@ -8328,9 +8322,9 @@
           "actual": "down",
           "predicted": "up",
           "probabilities": {
-            "down": 0.24423721,
-            "flat": 0.3433236,
-            "up": 0.41243919
+            "down": 0.24746901,
+            "flat": 0.33377515,
+            "up": 0.41875585
           },
           "correct": false,
           "train_origin_start": "2022-08-05",
@@ -8344,9 +8338,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3064989,
-            "flat": 0.35258194,
-            "up": 0.34091916
+            "down": 0.33501994,
+            "flat": 0.33843404,
+            "up": 0.32654603
           },
           "correct": false,
           "train_origin_start": "2022-08-12",
@@ -8358,11 +8352,11 @@
         {
           "as_of": "2025-09-01",
           "actual": "up",
-          "predicted": "flat",
+          "predicted": "down",
           "probabilities": {
-            "down": 0.33268167,
-            "flat": 0.33446789,
-            "up": 0.33285045
+            "down": 0.37277128,
+            "flat": 0.31855097,
+            "up": 0.30867776
           },
           "correct": false,
           "train_origin_start": "2022-08-19",
@@ -8376,9 +8370,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.33383901,
-            "flat": 0.33234428,
-            "up": 0.33381671
+            "down": 0.36026935,
+            "flat": 0.327443,
+            "up": 0.31228765
           },
           "correct": false,
           "train_origin_start": "2022-08-26",
@@ -8392,9 +8386,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.31776217,
-            "flat": 0.32803785,
-            "up": 0.35419998
+            "down": 0.32700969,
+            "flat": 0.31100321,
+            "up": 0.3619871
           },
           "correct": false,
           "train_origin_start": "2022-09-02",
@@ -8408,9 +8402,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.31280733,
-            "flat": 0.30144319,
-            "up": 0.38574948
+            "down": 0.32247436,
+            "flat": 0.30271766,
+            "up": 0.37480798
           },
           "correct": false,
           "train_origin_start": "2022-09-09",
@@ -8424,9 +8418,9 @@
           "actual": "down",
           "predicted": "up",
           "probabilities": {
-            "down": 0.31673905,
-            "flat": 0.3023301,
-            "up": 0.38093085
+            "down": 0.3386296,
+            "flat": 0.30334275,
+            "up": 0.35802765
           },
           "correct": false,
           "train_origin_start": "2022-09-19",
@@ -8440,9 +8434,9 @@
           "actual": "flat",
           "predicted": "up",
           "probabilities": {
-            "down": 0.32309639,
-            "flat": 0.31577858,
-            "up": 0.36112503
+            "down": 0.32912704,
+            "flat": 0.31949288,
+            "up": 0.35138008
           },
           "correct": false,
           "train_origin_start": "2022-09-26",
@@ -8456,9 +8450,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.35196891,
-            "flat": 0.31409249,
-            "up": 0.3339386
+            "down": 0.3544904,
+            "flat": 0.3191758,
+            "up": 0.32633379
           },
           "correct": false,
           "train_origin_start": "2022-10-08",
@@ -8472,9 +8466,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.3662248,
-            "flat": 0.31647221,
-            "up": 0.31730299
+            "down": 0.39815216,
+            "flat": 0.31451444,
+            "up": 0.2873334
           },
           "correct": true,
           "train_origin_start": "2022-10-13",
@@ -8488,9 +8482,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.33843992,
-            "flat": 0.33250791,
-            "up": 0.32905217
+            "down": 0.36722643,
+            "flat": 0.33432148,
+            "up": 0.29845208
           },
           "correct": false,
           "train_origin_start": "2022-10-20",
@@ -8504,9 +8498,9 @@
           "actual": "flat",
           "predicted": "down",
           "probabilities": {
-            "down": 0.35285921,
-            "flat": 0.31352869,
-            "up": 0.33361209
+            "down": 0.38817909,
+            "flat": 0.31562188,
+            "up": 0.29619902
           },
           "correct": false,
           "train_origin_start": "2022-10-27",
@@ -8518,13 +8512,13 @@
         {
           "as_of": "2025-11-14",
           "actual": "flat",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.28025987,
-            "flat": 0.29195556,
-            "up": 0.42778457
+            "down": 0.13076982,
+            "flat": 0.44841413,
+            "up": 0.42081605
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2022-11-03",
           "train_origin_end": "2025-11-07",
           "label_known_through": "2025-11-14",
@@ -8536,9 +8530,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3450689,
-            "flat": 0.38356928,
-            "up": 0.27136182
+            "down": 0.23987056,
+            "flat": 0.6081487,
+            "up": 0.15198073
           },
           "correct": false,
           "train_origin_start": "2022-11-10",
@@ -8552,9 +8546,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.335278,
-            "flat": 0.38206428,
-            "up": 0.28265772
+            "down": 0.27198065,
+            "flat": 0.46796624,
+            "up": 0.26005311
           },
           "correct": true,
           "train_origin_start": "2022-11-17",
@@ -8568,9 +8562,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31404828,
-            "flat": 0.38688842,
-            "up": 0.29906329
+            "down": 0.24578524,
+            "flat": 0.49848799,
+            "up": 0.25572677
           },
           "correct": true,
           "train_origin_start": "2022-11-24",
@@ -8584,9 +8578,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31754505,
-            "flat": 0.40744147,
-            "up": 0.27501349
+            "down": 0.25018922,
+            "flat": 0.51890109,
+            "up": 0.2309097
           },
           "correct": true,
           "train_origin_start": "2022-12-01",
@@ -8600,9 +8594,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.25201048,
-            "flat": 0.38802367,
-            "up": 0.35996585
+            "down": 0.23555887,
+            "flat": 0.52453773,
+            "up": 0.2399034
           },
           "correct": true,
           "train_origin_start": "2022-12-08",
@@ -8616,9 +8610,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.25381943,
-            "flat": 0.40128452,
-            "up": 0.34489606
+            "down": 0.14554912,
+            "flat": 0.52867952,
+            "up": 0.32577136
           },
           "correct": false,
           "train_origin_start": "2022-12-15",
@@ -8632,9 +8626,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.25153813,
-            "flat": 0.39700093,
-            "up": 0.35146094
+            "down": 0.15826735,
+            "flat": 0.47446902,
+            "up": 0.36726362
           },
           "correct": true,
           "train_origin_start": "2022-12-22",
@@ -8646,13 +8640,13 @@
         {
           "as_of": "2026-01-12",
           "actual": "flat",
-          "predicted": "up",
+          "predicted": "flat",
           "probabilities": {
-            "down": 0.23149763,
-            "flat": 0.38305456,
-            "up": 0.38544782
+            "down": 0.16806001,
+            "flat": 0.45233877,
+            "up": 0.37960122
           },
-          "correct": false,
+          "correct": true,
           "train_origin_start": "2022-12-29",
           "train_origin_end": "2026-01-05",
           "label_known_through": "2026-01-12",
@@ -8664,9 +8658,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.24294704,
-            "flat": 0.39967463,
-            "up": 0.35737833
+            "down": 0.18424338,
+            "flat": 0.41974675,
+            "up": 0.39600987
           },
           "correct": true,
           "train_origin_start": "2023-01-06",
@@ -8680,9 +8674,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.27161936,
-            "flat": 0.46486586,
-            "up": 0.26351478
+            "down": 0.27044777,
+            "flat": 0.51205952,
+            "up": 0.21749271
           },
           "correct": true,
           "train_origin_start": "2023-01-13",
@@ -8696,9 +8690,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.287473,
-            "flat": 0.45237879,
-            "up": 0.26014821
+            "down": 0.27364406,
+            "flat": 0.49366803,
+            "up": 0.23268791
           },
           "correct": true,
           "train_origin_start": "2023-01-20",
@@ -8712,9 +8706,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28968807,
-            "flat": 0.44805373,
-            "up": 0.2622582
+            "down": 0.27606216,
+            "flat": 0.49520477,
+            "up": 0.22873307
           },
           "correct": false,
           "train_origin_start": "2023-02-01",
@@ -8728,9 +8722,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.18745841,
-            "flat": 0.50177512,
-            "up": 0.31076648
+            "down": 0.2088206,
+            "flat": 0.4990383,
+            "up": 0.2921411
           },
           "correct": true,
           "train_origin_start": "2023-02-08",
@@ -8744,9 +8738,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30336198,
-            "flat": 0.3637041,
-            "up": 0.33293392
+            "down": 0.237702,
+            "flat": 0.45119499,
+            "up": 0.31110301
           },
           "correct": true,
           "train_origin_start": "2023-02-15",
@@ -8760,9 +8754,9 @@
           "actual": "up",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.32728842,
-            "flat": 0.36528077,
-            "up": 0.30743081
+            "down": 0.27045941,
+            "flat": 0.44227811,
+            "up": 0.28726249
           },
           "correct": false,
           "train_origin_start": "2023-02-22",
@@ -8776,9 +8770,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30237638,
-            "flat": 0.37423098,
-            "up": 0.32339264
+            "down": 0.26888294,
+            "flat": 0.42978816,
+            "up": 0.3013289
           },
           "correct": true,
           "train_origin_start": "2023-03-01",
@@ -8792,9 +8786,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28317528,
-            "flat": 0.42552966,
-            "up": 0.29129506
+            "down": 0.26887991,
+            "flat": 0.40635259,
+            "up": 0.3247675
           },
           "correct": true,
           "train_origin_start": "2023-03-08",
@@ -8808,9 +8802,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.24552861,
-            "flat": 0.44968499,
-            "up": 0.3047864
+            "down": 0.252108,
+            "flat": 0.48184597,
+            "up": 0.26604603
           },
           "correct": true,
           "train_origin_start": "2023-03-15",
@@ -8824,9 +8818,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.26371349,
-            "flat": 0.44330921,
-            "up": 0.29297729
+            "down": 0.2732927,
+            "flat": 0.45093626,
+            "up": 0.27577104
           },
           "correct": false,
           "train_origin_start": "2023-03-22",
@@ -8840,9 +8834,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.26549238,
-            "flat": 0.44572811,
-            "up": 0.28877952
+            "down": 0.27004357,
+            "flat": 0.46354219,
+            "up": 0.26641424
           },
           "correct": false,
           "train_origin_start": "2023-03-29",
@@ -8856,9 +8850,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31999741,
-            "flat": 0.41433182,
-            "up": 0.26567077
+            "down": 0.27053679,
+            "flat": 0.45246693,
+            "up": 0.27699629
           },
           "correct": true,
           "train_origin_start": "2023-04-06",
@@ -8872,9 +8866,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.36891766,
-            "flat": 0.3742497,
-            "up": 0.25683264
+            "down": 0.36338162,
+            "flat": 0.40171921,
+            "up": 0.23489917
           },
           "correct": true,
           "train_origin_start": "2023-04-13",
@@ -8888,9 +8882,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.34238024,
-            "flat": 0.39973531,
-            "up": 0.25788444
+            "down": 0.3436994,
+            "flat": 0.42167323,
+            "up": 0.23462737
           },
           "correct": true,
           "train_origin_start": "2023-04-20",
@@ -8904,9 +8898,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.20750211,
-            "flat": 0.45363399,
-            "up": 0.3388639
+            "down": 0.22493165,
+            "flat": 0.47438064,
+            "up": 0.3006877
           },
           "correct": true,
           "train_origin_start": "2023-04-26",
@@ -8920,9 +8914,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.39279926,
-            "flat": 0.42779142,
-            "up": 0.17940931
+            "down": 0.27487001,
+            "flat": 0.47730825,
+            "up": 0.24782175
           },
           "correct": true,
           "train_origin_start": "2023-05-06",
@@ -8936,9 +8930,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.38591411,
-            "flat": 0.42443552,
-            "up": 0.18965038
+            "down": 0.41068193,
+            "flat": 0.44343985,
+            "up": 0.14587823
           },
           "correct": true,
           "train_origin_start": "2023-05-12",
@@ -8952,9 +8946,9 @@
           "actual": "up",
           "predicted": "down",
           "probabilities": {
-            "down": 0.41514382,
-            "flat": 0.3916729,
-            "up": 0.19318328
+            "down": 0.44761619,
+            "flat": 0.38957767,
+            "up": 0.16280613
           },
           "correct": false,
           "train_origin_start": "2023-05-19",
@@ -8968,9 +8962,9 @@
           "actual": "down",
           "predicted": "down",
           "probabilities": {
-            "down": 0.40114612,
-            "flat": 0.38194906,
-            "up": 0.21690482
+            "down": 0.43226424,
+            "flat": 0.37644323,
+            "up": 0.19129253
           },
           "correct": true,
           "train_origin_start": "2023-05-26",
@@ -8984,9 +8978,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.37273346,
-            "flat": 0.37924603,
-            "up": 0.24802051
+            "down": 0.34646118,
+            "flat": 0.40002667,
+            "up": 0.25351215
           },
           "correct": true,
           "train_origin_start": "2023-06-02",
@@ -9000,9 +8994,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3703479,
-            "flat": 0.39071466,
-            "up": 0.23893744
+            "down": 0.37197004,
+            "flat": 0.39524989,
+            "up": 0.23278007
           },
           "correct": true,
           "train_origin_start": "2023-06-09",
@@ -9016,9 +9010,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.3739268,
-            "flat": 0.37412023,
-            "up": 0.25195297
+            "down": 0.3650221,
+            "flat": 0.38965007,
+            "up": 0.24532783
           },
           "correct": true,
           "train_origin_start": "2023-06-16",
@@ -9032,9 +9026,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.35672839,
-            "flat": 0.39267747,
-            "up": 0.25059414
+            "down": 0.34211127,
+            "flat": 0.40682528,
+            "up": 0.25106345
           },
           "correct": true,
           "train_origin_start": "2023-06-26",
@@ -9048,9 +9042,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.33788537,
-            "flat": 0.41633225,
-            "up": 0.24578238
+            "down": 0.3242607,
+            "flat": 0.42831942,
+            "up": 0.24741988
           },
           "correct": true,
           "train_origin_start": "2023-07-03",
@@ -9064,9 +9058,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.31296324,
-            "flat": 0.44574889,
-            "up": 0.24128786
+            "down": 0.29412022,
+            "flat": 0.46133253,
+            "up": 0.24454725
           },
           "correct": true,
           "train_origin_start": "2023-07-10",
@@ -9080,9 +9074,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.29189145,
-            "flat": 0.46066085,
-            "up": 0.2474477
+            "down": 0.28039815,
+            "flat": 0.46923826,
+            "up": 0.25036359
           },
           "correct": true,
           "train_origin_start": "2023-07-17",
@@ -9096,9 +9090,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.30135387,
-            "flat": 0.4612767,
-            "up": 0.23736942
+            "down": 0.28788378,
+            "flat": 0.47089583,
+            "up": 0.24122039
           },
           "correct": true,
           "train_origin_start": "2023-07-24",
@@ -9112,9 +9106,9 @@
           "actual": "down",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.24983808,
-            "flat": 0.44782187,
-            "up": 0.30234005
+            "down": 0.21461567,
+            "flat": 0.50260461,
+            "up": 0.28277972
           },
           "correct": false,
           "train_origin_start": "2023-07-31",
@@ -9128,9 +9122,9 @@
           "actual": "flat",
           "predicted": "flat",
           "probabilities": {
-            "down": 0.28341647,
-            "flat": 0.4888313,
-            "up": 0.22775223
+            "down": 0.27196654,
+            "flat": 0.48836223,
+            "up": 0.23967123
           },
           "correct": true,
           "train_origin_start": "2023-08-07",
@@ -9158,8 +9152,8 @@
     "block_days": 20,
     "block_observations": 4,
     "observations": 81,
-    "accuracy_difference": -0.098765,
-    "ci_lower_95": -0.209877,
+    "accuracy_difference": -0.08642,
+    "ci_lower_95": -0.197531,
     "ci_upper_95": -0.012346,
     "stable": false
   },
@@ -9168,9 +9162,9 @@
   "research_warning": "回测只衡量方向分类，不代表可交易收益；结论必须同时查看分期指标与区块Bootstrap。",
   "source_signature": {
     "rates_market.csv": "5961a60703092082fd73188e768a86e2cac567a5d8439138fa77a0f75ca94cac",
-    "rates_policy_texts.csv": "2de526b9bc9ef0d2ac5abdec67d98055826afc0533f100e0d9ef06df320100d5",
+    "rates_policy_texts.csv": "00faaf5bfb09dc6f5a828ecce48afc1eb3651067a08363be972739a63c013683",
     "rates_llm_annotations.jsonl": "318ff754c2009e39d54dc7073f4c9d0877fe7edbd4a9a17341181e73e684b909",
-    "rates_structured_data.csv": "7a57d43d0a78b6c223a6f0588910fe86a938a6333e9e5699a5267b4e724e29b1"
+    "rates_structured_data.csv": "f9be9e7c98d63144389423a7d923afdf722398236c0cfd5c641186491ac50f51"
   },
   "disclaimer": "本报告仅供研究参考，不构成投资建议",
   "research_boundary": "系统预测的是10年期国债收益率未来5个交易日方向，用于银行金融市场投研辅助，不自动下单、不输出目标价或收益保证。公开历史流动性序列使用FDR007定盘利率作为DR007代理，不能将其表述为原始DR007成交加权利率。"

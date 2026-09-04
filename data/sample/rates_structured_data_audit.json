@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-03T19:50:24+08:00",
+  "generated_at": "2026-09-04T10:35:51+08:00",
   "nbs_series": [
     {
       "indicator": "cpi_yoy",
@@ -33,43 +33,65 @@
     "rows_received": 136,
     "rows_accepted": 272
   },
-  "mlf": {
-    "source": "source-hashed PBOC policy corpus",
-    "rows_accepted": 33
+  "mlf_official": {
+    "list_root": "https://www.pbc.gov.cn/zhengcehuobisi/125207/125213/125437/125446/125873/",
+    "pages_crawled": 8,
+    "detail_pages": 138,
+    "rows_accepted": 244,
+    "amount_rows": 131,
+    "rate_rows": 113,
+    "failures": [],
+    "method": "央行中期借贷便利工作信息逐月公告正文"
+  },
+  "afre_government_bonds_official": {
+    "source_url": "https://www.pbc.gov.cn/diaochatongjisi/attachDir/2025/11/2025110511314347909.pdf",
+    "source_sha256": "2a49fb167295be9969e181bf3dd77899a4f4f98b5b87ae32a26c44f575ac5328",
+    "release_time": "2025-11-05 23:59:59",
+    "rows_accepted": 36,
+    "period": {
+      "start": "2017-01-31",
+      "end": "2019-12-31"
+    },
+    "method": "人民银行社会融资规模存量官方PDF第1表政府债券列",
+    "vintage_note": "历史列在2025-11-05官方PDF中追溯发布；release_time按PDF公开时间记录，不回填到早期实时特征"
   },
   "treasury": {
-    "rows_received": 6432,
+    "rows_received": 6440,
     "errors": [],
     "source": "CNINFO public bond issue table"
   },
   "local_government": {
-    "rows_received": 56067,
+    "rows_received": 56077,
     "errors": [],
     "source": "CNINFO public bond issue table"
   },
   "government_bond_issuance": {
-    "unique_issues": 20622,
-    "daily_aggregates": 3421,
+    "unique_issues": 20628,
+    "daily_aggregates": 3423,
     "deduplication": "max planned issuance per official bond name/date across market aliases, then sum once per announcement/start date",
     "vintage_field": "planned issuance known at announcement; actual post-auction issuance is deliberately excluded",
     "source_hash_scope": "SHA-256 of canonical planned-issuance record; AkShare does not expose the raw upstream response"
   },
-  "rows": 4420,
+  "rows": 4669,
   "indicators": [
     "afre_flow",
+    "afre_government_bonds",
     "afre_rmb_loans",
     "cpi_yoy",
     "government_bond_issuance",
     "mlf_amount",
+    "mlf_rate",
     "pmi_manufacturing",
     "ppi_yoy"
   ],
   "indicator_counts": {
     "afre_flow": 136,
+    "afre_government_bonds": 36,
     "afre_rmb_loans": 136,
     "cpi_yoy": 223,
-    "government_bond_issuance": 3421,
-    "mlf_amount": 33,
+    "government_bond_issuance": 3423,
+    "mlf_amount": 131,
+    "mlf_rate": 113,
     "pmi_manufacturing": 224,
     "ppi_yoy": 247
   },
@@ -79,14 +101,14 @@
     "pmi_manufacturing": "sufficient",
     "afre_flow": "sufficient",
     "afre_rmb_loans": "sufficient",
-    "afre_government_bonds": "missing",
+    "afre_government_bonds": "sufficient",
     "mlf_amount": "sufficient",
-    "mlf_rate": "missing",
+    "mlf_rate": "sufficient",
     "government_bond_issuance": "sufficient"
   },
   "period": {
     "start": "2006-01-31",
-    "end": "2026-09-03"
+    "end": "2026-09-04"
   },
   "vintage_rule": "release_time is the earliest allowed availability; no backfilled value is used before it"
 }

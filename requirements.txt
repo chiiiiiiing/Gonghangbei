@@ -3,6 +3,8 @@ Flask>=3.0
 requests>=2.31
 # PDF 公告全文抽取（巨潮资讯等链接为 PDF）。未安装时该类链接如实降级为抓取失败。
 pypdf>=4.0
+# Official PBOC AFRE historical PDF table extraction.
+pdfplumber>=0.11
 # 官方网页正文解析和政府债发行公开表抓取。
 beautifulsoup4>=4.12
 akshare>=1.18

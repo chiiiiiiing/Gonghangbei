@@ -6,9 +6,9 @@
   "flat_threshold_bp": 2.0,
   "data_sufficient": true,
   "probabilities": {
-    "down": 0.31583967,
-    "flat": 0.45695085,
-    "up": 0.22720948
+    "down": 0.25681722,
+    "flat": 0.49337484,
+    "up": 0.24980794
   },
   "predicted_label": "flat",
   "train_observations": 752,
@@ -17,98 +17,108 @@
   "label_known_through": "2026-09-01",
   "feature_contributions": [
     {
+      "feature": "structured_afre_government_bonds",
+      "label": "structured_afre_government_bonds",
+      "contribution": 0.204097
+    },
+    {
       "feature": "fdr007_level",
       "label": "fdr007_level",
-      "contribution": 0.170834
+      "contribution": 0.132843
     },
     {
       "feature": "structured_afre_flow",
       "label": "structured_afre_flow",
-      "contribution": 0.091666
-    },
-    {
-      "feature": "structured_ppi_yoy",
-      "label": "structured_ppi_yoy",
-      "contribution": 0.078632
+      "contribution": 0.100735
     },
     {
       "feature": "structured_afre_rmb_loans",
       "label": "structured_afre_rmb_loans",
-      "contribution": -0.061884
-    },
-    {
-      "feature": "structured_pmi_manufacturing",
-      "label": "structured_pmi_manufacturing",
-      "contribution": -0.030385
-    },
-    {
-      "feature": "text_liquidity",
-      "label": "市场流动性",
-      "contribution": -0.012991
-    },
-    {
-      "feature": "structured_government_bond_issuance",
-      "label": "structured_government_bond_issuance",
-      "contribution": -0.011063
-    },
-    {
-      "feature": "structured_mlf_amount",
-      "label": "structured_mlf_amount",
-      "contribution": -0.010505
-    },
-    {
-      "feature": "structured_cpi_yoy",
-      "label": "structured_cpi_yoy",
-      "contribution": 0.007627
-    },
-    {
-      "feature": "text_monetary_policy",
-      "label": "货币政策",
-      "contribution": -0.005379
-    },
-    {
-      "feature": "rule_pressure",
-      "label": "rule_pressure",
-      "contribution": 0.005215
-    },
-    {
-      "feature": "yield_change_5d_bp",
-      "label": "yield_change_5d_bp",
-      "contribution": -0.004232
-    },
-    {
-      "feature": "fdr007_change_1d_bp",
-      "label": "fdr007_change_1d_bp",
-      "contribution": -0.00247
+      "contribution": -0.060867
     },
     {
       "feature": "yield_volatility_20d_bp",
       "label": "yield_volatility_20d_bp",
-      "contribution": -0.002297
+      "contribution": -0.036989
     },
     {
-      "feature": "yield_change_1d_bp",
-      "label": "yield_change_1d_bp",
-      "contribution": 0.001384
+      "feature": "structured_ppi_yoy",
+      "label": "structured_ppi_yoy",
+      "contribution": 0.035861
     },
     {
-      "feature": "yield_change_20d_bp",
-      "label": "yield_change_20d_bp",
-      "contribution": -0.000667
+      "feature": "structured_mlf_rate",
+      "label": "structured_mlf_rate",
+      "contribution": -0.033757
     },
     {
-      "feature": "fdr007_gap_20d_bp",
-      "label": "fdr007_gap_20d_bp",
-      "contribution": -0.000199
+      "feature": "structured_pmi_manufacturing",
+      "label": "structured_pmi_manufacturing",
+      "contribution": -0.024199
     },
     {
-      "feature": "text_growth",
-      "label": "经济增长",
-      "contribution": 0.0
+      "feature": "structured_government_bond_issuance",
+      "label": "structured_government_bond_issuance",
+      "contribution": 0.022181
+    },
+    {
+      "feature": "structured_cpi_yoy",
+      "label": "structured_cpi_yoy",
+      "contribution": -0.020909
+    },
+    {
+      "feature": "text_liquidity",
+      "label": "市场流动性",
+      "contribution": -0.009947
+    },
+    {
+      "feature": "yield_change_5d_bp",
+      "label": "yield_change_5d_bp",
+      "contribution": -0.004713
+    },
+    {
+      "feature": "fdr007_change_1d_bp",
+      "label": "fdr007_change_1d_bp",
+      "contribution": -0.002576
+    },
+    {
+      "feature": "structured_mlf_amount",
+      "label": "structured_mlf_amount",
+      "contribution": 0.002302
+    },
+    {
+      "feature": "text_monetary_policy",
+      "label": "货币政策",
+      "contribution": -0.002164
     },
     {
       "feature": "text_inflation",
       "label": "通胀",
+      "contribution": -0.001261
+    },
+    {
+      "feature": "yield_change_1d_bp",
+      "label": "yield_change_1d_bp",
+      "contribution": 0.001203
+    },
+    {
+      "feature": "rule_pressure",
+      "label": "rule_pressure",
+      "contribution": 0.000921
+    },
+    {
+      "feature": "yield_change_20d_bp",
+      "label": "yield_change_20d_bp",
+      "contribution": -0.00086
+    },
+    {
+      "feature": "fdr007_gap_20d_bp",
+      "label": "fdr007_gap_20d_bp",
+      "contribution": -0.000137
+    },
+    {
+      "feature": "text_growth",
+      "label": "经济增长",
       "contribution": 0.0
     },
     {
@@ -119,16 +129,6 @@
     {
       "feature": "text_risk_appetite",
       "label": "风险偏好",
-      "contribution": 0.0
-    },
-    {
-      "feature": "structured_afre_government_bonds",
-      "label": "structured_afre_government_bonds",
-      "contribution": 0.0
-    },
-    {
-      "feature": "structured_mlf_rate",
-      "label": "structured_mlf_rate",
       "contribution": 0.0
     }
   ],
@@ -178,21 +178,21 @@
     "monetary_policy": "sufficient",
     "liquidity": "sufficient",
     "growth": "sufficient",
-    "inflation": "insufficient_evidence",
+    "inflation": "sufficient",
     "bond_supply": "sufficient",
     "risk_appetite": "sufficient"
   },
-  "structured_data_status": "partial",
+  "structured_data_status": "sufficient",
   "structured_indicator_counts": {
     "cpi_yoy": 223,
     "ppi_yoy": 247,
     "pmi_manufacturing": 224,
     "afre_flow": 136,
     "afre_rmb_loans": 136,
-    "afre_government_bonds": 0,
-    "mlf_amount": 33,
-    "mlf_rate": 0,
-    "government_bond_issuance": 3421
+    "afre_government_bonds": 36,
+    "mlf_amount": 131,
+    "mlf_rate": 113,
+    "government_bond_issuance": 3423
   },
   "structured_indicator_status": {
     "cpi_yoy": "sufficient",
@@ -200,9 +200,9 @@
     "pmi_manufacturing": "sufficient",
     "afre_flow": "sufficient",
     "afre_rmb_loans": "sufficient",
-    "afre_government_bonds": "missing",
+    "afre_government_bonds": "sufficient",
     "mlf_amount": "sufficient",
-    "mlf_rate": "missing",
+    "mlf_rate": "sufficient",
     "government_bond_issuance": "sufficient"
   },
   "triggered_rules": [],
@@ -713,9 +713,9 @@
   ],
   "source_signature": {
     "rates_market.csv": "5961a60703092082fd73188e768a86e2cac567a5d8439138fa77a0f75ca94cac",
-    "rates_policy_texts.csv": "2de526b9bc9ef0d2ac5abdec67d98055826afc0533f100e0d9ef06df320100d5",
+    "rates_policy_texts.csv": "00faaf5bfb09dc6f5a828ecce48afc1eb3651067a08363be972739a63c013683",
     "rates_llm_annotations.jsonl": "318ff754c2009e39d54dc7073f4c9d0877fe7edbd4a9a17341181e73e684b909",
-    "rates_structured_data.csv": "7a57d43d0a78b6c223a6f0588910fe86a938a6333e9e5699a5267b4e724e29b1"
+    "rates_structured_data.csv": "f9be9e7c98d63144389423a7d923afdf722398236c0cfd5c641186491ac50f51"
   },
   "disclaimer": "本报告仅供研究参考，不构成投资建议",
   "research_boundary": "系统预测的是10年期国债收益率未来5个交易日方向，用于银行金融市场投研辅助，不自动下单、不输出目标价或收益保证。公开历史流动性序列使用FDR007定盘利率作为DR007代理，不能将其表述为原始DR007成交加权利率。"

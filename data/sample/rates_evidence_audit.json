@@ -299,6 +299,85 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "NBS-MACRO-SEED-01",
+      "title": "2015年1月份居民消费价格变动情况",
+      "publish_time": "2015-02-10 23:59:59",
+      "effective_trade_date": "2018-01-02",
+      "source_name": "国家统计局",
+      "source_url": "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1898695.html",
+      "source_sha256": "34e9afaacc03abb455e8a4bac6239f1f4ae911aac0d4bda3da48d4de5bce928c",
+      "document_fingerprint": "487e0851bfd0e6423ca40dac670ac84e407436f8b0b35795bf04ab9819e21638",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "events": [
+        {
+          "event_id": "RATE-E-9b74c2d7a7d3",
+          "subject": "价格水平",
+          "action": "上升",
+          "object": "通胀压力",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "中期",
+          "transmission_channel": "inflation",
+          "evidence_text": "月份，全国居民消费价格总水平同比上涨。",
+          "confidence": 0.7488
+        },
+        {
+          "event_id": "RATE-E-653165ff4bb7",
+          "subject": "价格水平",
+          "action": "下降",
+          "object": "通胀压力",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "中期",
+          "transmission_channel": "inflation",
+          "evidence_text": "，影响居民消费价格总水平下降约。",
+          "confidence": 0.7488
+        }
+      ],
+      "independent_event_keys": [
+        "af873acdf8c06a960ac7df01d1310ea58478e02e8a33b7d38c0b5ce6faa2d941",
+        "d0c48c17850b1ec4c374a95cd7c10a13d40c43cd45bbd3fedf5ded7deed8116f"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "inflation_pressure_rises",
+          "factor": "inflation",
+          "description": "通胀压力上升",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7488,
+          "source_weight": 0.96,
+          "evidence_text": "月份，全国居民消费价格总水平同比上涨。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        },
+        {
+          "predicate_name": "inflation_pressure_falls",
+          "factor": "inflation",
+          "description": "通胀压力下降",
+          "value": true,
+          "yield_direction": -1,
+          "intensity": 0.75,
+          "confidence": 0.7488,
+          "source_weight": 0.96,
+          "evidence_text": "，影响居民消费价格总水平下降约。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.0,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": []
+    },
+    {
       "doc_id": "PBC-OMO-20150226-f05a135ac3",
       "title": "公开市场业务交易公告 [2015]第8号",
       "publish_time": "2015-02-26 09:46:15",
@@ -2792,6 +2871,59 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "NBS-MACRO-SEED-03",
+      "title": "2015年12月中国制造业采购经理指数为49.7%",
+      "publish_time": "2016-01-01 23:59:59",
+      "effective_trade_date": "2018-01-02",
+      "source_name": "国家统计局",
+      "source_url": "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1899004.html",
+      "source_sha256": "697000d1269794c9b543dcad572d0814b712c32adc68d51f88d1e158c7e2b12b",
+      "document_fingerprint": "b4805d3d76483e5b7b1bf658fdf9b6a19325acf6e9e0d802b74728867a3102fe",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "events": [
+        {
+          "event_id": "RATE-E-f890cb7df474",
+          "subject": "宏观经济",
+          "action": "增强",
+          "object": "增长预期",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "中期",
+          "transmission_channel": "growth",
+          "evidence_text": "个百分点，重回临界点上方，表明制造业市场需求回升。",
+          "confidence": 0.7488
+        }
+      ],
+      "independent_event_keys": [
+        "384df23a277d2dc27bcdfa40aee98f81d97eecf67d1736519e43b815190b1001"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "growth_outlook_strengthens",
+          "factor": "growth",
+          "description": "增长预期增强",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7488,
+          "source_weight": 0.96,
+          "evidence_text": "个百分点，重回临界点上方，表明制造业市场需求回升。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.5616,
+        "inflation": 0.0,
+        "bond_supply": 0.0,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": []
+    },
+    {
       "doc_id": "PBC-OMO-20160105-4181bcf62b",
       "title": "公开市场业务交易公告 [2016]第1号",
       "publish_time": "2016-01-05 09:46:07",
@@ -2839,6 +2971,59 @@
         "liquidity": -0.585,
         "growth": 0.0,
         "inflation": 0.0,
+        "bond_supply": 0.0,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": []
+    },
+    {
+      "doc_id": "NBS-MACRO-SEED-02",
+      "title": "2015年12月份工业生产者出厂价格同比下降5.9%",
+      "publish_time": "2016-01-09 23:59:59",
+      "effective_trade_date": "2018-01-02",
+      "source_name": "国家统计局",
+      "source_url": "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1899011.html",
+      "source_sha256": "0710b1095a1239160f959a796eb76b1423593c2dbe8f220f4decb2fdf46adbab",
+      "document_fingerprint": "be98a63ddc3fe614c4dfa4f7aecf4dc30736f4ac3ce519f27d38fd970e1a301f",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "events": [
+        {
+          "event_id": "RATE-E-22e3ab92c4a8",
+          "subject": "价格水平",
+          "action": "下降",
+          "object": "通胀压力",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "中期",
+          "transmission_channel": "inflation",
+          "evidence_text": "2015年12月份工业生产者出厂价格同比下降5.9%。",
+          "confidence": 0.7488
+        }
+      ],
+      "independent_event_keys": [
+        "871151bc2157b02f6306cac2ef0d3b926348c219bfda04b3295f2eb2c5cce78a"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "inflation_pressure_falls",
+          "factor": "inflation",
+          "description": "通胀压力下降",
+          "value": true,
+          "yield_direction": -1,
+          "intensity": 0.75,
+          "confidence": 0.7488,
+          "source_weight": 0.96,
+          "evidence_text": "2015年12月份工业生产者出厂价格同比下降5.9%。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": -0.5616,
         "bond_supply": 0.0,
         "risk_appetite": 0.0
       },
@@ -6412,6 +6597,59 @@
         "liquidity": -0.585,
         "growth": 0.0,
         "inflation": 0.0,
+        "bond_supply": 0.0,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": []
+    },
+    {
+      "doc_id": "NBS-MACRO-SEED-04",
+      "title": "2017年1月份居民消费价格同比上涨2.5%",
+      "publish_time": "2017-02-14 23:59:59",
+      "effective_trade_date": "2018-01-02",
+      "source_name": "国家统计局",
+      "source_url": "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1899420.html",
+      "source_sha256": "38aa2264b0bf3cd98638baf198008a187ab3291b4dba836768d8458e3adbd248",
+      "document_fingerprint": "6a27bf66e7aba192861defb72173f12f57110946dbd2a55e11788f0a829b2f81",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "events": [
+        {
+          "event_id": "RATE-E-6bd14019771a",
+          "subject": "价格水平",
+          "action": "上升",
+          "object": "通胀压力",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "中期",
+          "transmission_channel": "inflation",
+          "evidence_text": "2017年1月份居民消费价格同比上涨2.5%。",
+          "confidence": 0.7488
+        }
+      ],
+      "independent_event_keys": [
+        "33e8f84f2281889f36b7d3f6182ec194d3c6f180973ccca4778e00aa962415e1"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "inflation_pressure_rises",
+          "factor": "inflation",
+          "description": "通胀压力上升",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7488,
+          "source_weight": 0.96,
+          "evidence_text": "2017年1月份居民消费价格同比上涨2.5%。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.5616,
         "bond_supply": 0.0,
         "risk_appetite": 0.0
       },

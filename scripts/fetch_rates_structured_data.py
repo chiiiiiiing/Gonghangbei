@@ -3,25 +3,31 @@
 The script deliberately keeps each observation's statistical period separate
 from its first usable public timestamp.  CPI/PPI/PMI and AFRE are downloaded
 from public data interfaces, while MLF observations are parsed from the
-source-hashed PBOC corpus and bond issuance is obtained from CNINFO's public
-bond tables through AkShare.  Every row retains the endpoint/hash used to
-build it so a later run can be audited or replaced by a primary-source file.
+official PBOC monthly notices and bond issuance is obtained from CNINFO's
+public bond tables through AkShare.  Every row retains the endpoint/hash used
+to build it so a later run can be audited or replaced by a primary-source file.
 """
 
 from __future__ import annotations
 
 import csv
 import hashlib
+import io
 import json
 import re
 import sys
+import time
 from calendar import monthrange
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
+from urllib.parse import urljoin
 
 import requests
+from bs4 import BeautifulSoup
+import pdfplumber
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -31,7 +37,6 @@ from src.rates.schema import STRUCTURED_FIELDS, STRUCTURED_INDICATORS, validate_
 
 
 DATA_DIR = ROOT / "data" / "sample"
-TEXT_PATH = DATA_DIR / "rates_policy_texts.csv"
 TARGET_PATH = DATA_DIR / "macro_target_history.csv"
 OUT = DATA_DIR / "rates_structured_data.csv"
 AUDIT_OUT = DATA_DIR / "rates_structured_data_audit.json"
@@ -39,6 +44,12 @@ AUDIT_OUT = DATA_DIR / "rates_structured_data_audit.json"
 EASTMONEY_URL = "https://datacenter-web.eastmoney.com/api/data/v1/get"
 AFRE_URL = "https://data.mofcom.gov.cn/datamofcom/front/gnmy/shrzgmQuery"
 AFRE_LANDING_URL = "https://data.mofcom.gov.cn/gnmy/shrzgm.shtml"
+PBC_HOST = "https://www.pbc.gov.cn"
+MLF_WORK_ROOT = PBC_HOST + "/zhengcehuobisi/125207/125213/125437/125446/125873/"
+MLF_WORK_LIST_ID = "17099"
+MLF_WORK_PAGES = 8
+AFRE_STOCK_PDF_URL = "https://www.pbc.gov.cn/diaochatongjisi/attachDir/2025/11/2025110511314347909.pdf"
+AFRE_STOCK_RELEASE_TIME = "2025-11-05 23:59:59"
 
 
 def _get_json(url: str, params: dict[str, str] | None = None, method: str = "GET") -> tuple[Any, bytes]:
@@ -47,6 +58,22 @@ def _get_json(url: str, params: dict[str, str] | None = None, method: str = "GET
     )
     response.raise_for_status()
     return response.json(), response.content
+
+
+def _get_bytes(url: str) -> bytes:
+    last_error: Exception | None = None
+    for attempt in range(4):
+        try:
+            response = requests.get(
+                url, headers={"User-Agent": "Mozilla/5.0 AlphaLensResearch/2.0"}, timeout=45
+            )
+            response.raise_for_status()
+            return response.content
+        except Exception as exc:
+            last_error = exc
+            if attempt < 3:
+                time.sleep(1.0 * (attempt + 1))
+    raise RuntimeError(f"下载失败：{url}：{last_error}")
 
 
 def _month(value: str) -> tuple[str, str, str]:
@@ -75,6 +102,13 @@ def _target_releases() -> dict[str, str]:
         return {}
     with TARGET_PATH.open(encoding="utf-8", newline="") as handle:
         return {row["period_end"][:7]: row["release_date"] for row in csv.DictReader(handle) if row.get("release_date")}
+
+
+def _existing_structured_rows(indicator: str) -> list[dict[str, str]]:
+    if not OUT.exists():
+        return []
+    with OUT.open(encoding="utf-8", newline="") as handle:
+        return [row for row in csv.DictReader(handle) if row.get("indicator") == indicator]
 
 
 def _row(
@@ -164,57 +198,231 @@ def fetch_afre(target_releases: dict[str, str]) -> tuple[list[dict[str, str]], d
                             "rows_accepted": accepted}}
 
 
-def parse_mlf_from_texts() -> tuple[list[dict[str, str]], dict[str, Any]]:
-    if not TEXT_PATH.exists():
-        return [], {"mlf": {"rows_accepted": 0, "reason": "policy text corpus missing"}}
-    with TEXT_PATH.open(encoding="utf-8", newline="") as handle:
-        texts = list(csv.DictReader(handle))
-    rows: list[dict[str, str]] = []
-    amount_pattern = re.compile(r"(?:MLF|中期借贷便利|定向中期借贷便利)[^。；\n]{0,100}?(\d+(?:\.\d+)?)\s*亿元")
-    rate_pattern = re.compile(
-        r"(?:MLF|中期借贷便利|定向中期借贷便利)[^。；\n]{0,220}?"
-        r"(?:操作|中标)?利率(?:为|下调至|降至)?\s*(\d+(?:\.\d+)?)\s*%",
-        flags=re.I,
-    )
-    for text in texts:
-        content = f"{text.get('title', '')}。{text.get('content', '')}"
-        if not re.search(r"MLF|中期借贷便利", content, flags=re.I):
-            continue
-        published = str(text.get("publish_time", ""))
-        day = published[:10]
-        try:
-            date.fromisoformat(day)
-        except ValueError:
-            continue
-        period_end = day
-        for indicator, pattern, unit in (("mlf_amount", amount_pattern, "亿元"), ("mlf_rate", rate_pattern, "%")):
-            match = pattern.search(content)
-            if not match:
+def _mlf_listing_url(page: int) -> str:
+    return MLF_WORK_ROOT + ("index.html" if page == 1 else f"{MLF_WORK_LIST_ID}-{page}.html")
+
+
+def _mlf_detail_entries() -> list[tuple[str, str]]:
+    """Collect the official PBOC MLF monthly announcement URLs.
+
+    The PBOC list is paginated oldest-first by static HTML.  We inspect the
+    title rather than guessing article IDs, so a changed pagination layout
+    cannot silently fabricate a historical observation.
+    """
+    entries: dict[str, str] = {}
+    for page in range(1, MLF_WORK_PAGES + 1):
+        body = _get_bytes(_mlf_listing_url(page))
+        soup = BeautifulSoup(body, "html.parser")
+        for anchor in soup.select("a[href]"):
+            title = " ".join(anchor.get_text(" ", strip=True).split())
+            if not re.search(r"中期借贷便利(?:开展情况|招标公告)$", title):
                 continue
-            rows.append(_row(
-                observation_date=day, release_time=published, period_start=day, period_end=period_end,
-                indicator=indicator, value=float(match.group(1)), unit=unit, source_name="中国人民银行",
-                source_url=text["source_url"], source_sha256=text["source_sha256"],
-            ))
-    return rows, {"mlf": {"source": "source-hashed PBOC policy corpus", "rows_accepted": len(rows)}}
+            url = urljoin(PBC_HOST, anchor.get("href", ""))
+            if url.startswith(PBC_HOST) and url.endswith("/index.html"):
+                entries[url] = title
+    return sorted(entries.items(), key=lambda item: item[0])
+
+
+def _mlf_amount(content: str) -> float | None:
+    patterns = (
+        r"(?:开展|进行|操作|投放|净投放)[^。；\n]{0,45}?(\d+(?:\.\d+)?)\s*亿元[^。；\n]{0,25}?(?:中期借贷便利|MLF)",
+        r"(?:中期借贷便利|MLF)[^。；\n]{0,65}?(?:操作共|操作|开展|投放|净投放)\s*(\d+(?:\.\d+)?)\s*亿元",
+    )
+    values: list[float] = []
+    for pattern in patterns:
+        values.extend(float(match) for match in re.findall(pattern, content, flags=re.I))
+    return values[0] if values else None
+
+
+def _mlf_rate(content: str) -> float | None:
+    # Prefer the one-year operation when a notice contains multiple tenors;
+    # this is the comparable policy-rate series used by the model.
+    all_rates = [float(value) for value in re.findall(r"(\d+(?:\.\d+)?)\s*%", content)]
+    if "利率分别" in content and "1年" in content and all_rates:
+        return all_rates[-1]
+    one_year = re.findall(
+        r"1年(?:期)?[^。；\n]{0,100}?(?:利率(?:为)?[^。；\n]{0,20}?)?(\d+(?:\.\d+)?)\s*%", content
+    )
+    if one_year:
+        return float(one_year[-1])
+    uniform = re.findall(
+        r"利率[^。；\n]{0,20}?(\d+(?:\.\d+)?)\s*%", content
+    )
+    return float(uniform[-1]) if uniform else None
+
+
+def _period_from_month_title(title: str, fallback_day: str) -> tuple[str, str, str]:
+    match = re.search(r"(20\d{2})年(\d{1,2})月", title)
+    if match:
+        year, month = int(match.group(1)), int(match.group(2))
+        last = monthrange(year, month)[1]
+        return f"{year:04d}-{month:02d}-{last:02d}", f"{year:04d}-{month:02d}-01", f"{year:04d}-{month:02d}-{last:02d}"
+    quarter = re.search(r"(20\d{2})年([1-4])季度", title)
+    if quarter:
+        year, number = int(quarter.group(1)), int(quarter.group(2))
+        start_month, end_month = (number - 1) * 3 + 1, number * 3
+        last = monthrange(year, end_month)[1]
+        return f"{year:04d}-{end_month:02d}-{last:02d}", f"{year:04d}-{start_month:02d}-01", f"{year:04d}-{end_month:02d}-{last:02d}"
+    return fallback_day, fallback_day, fallback_day
+
+
+def _mlf_detail(entry: tuple[str, str]) -> tuple[list[dict[str, str]], dict[str, Any]]:
+    url, listing_title = entry
+    body = _get_bytes(url)
+    source_hash = hashlib.sha256(body).hexdigest()
+    soup = BeautifulSoup(body, "html.parser")
+    title = soup.title.get_text(" ", strip=True) if soup.title else listing_title
+    zoom = soup.find(id="zoom")
+    content = " ".join(zoom.get_text("。", strip=True).split()) if zoom else ""
+    stamp = soup.find(id="shijian")
+    publish_time = " ".join(stamp.get_text(" ", strip=True).split()) if stamp else ""
+    if not re.fullmatch(r"20\d{2}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}", publish_time):
+        match = re.search(r"20\d{2}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}", body.decode("utf-8", errors="ignore"))
+        publish_time = match.group(0) if match else ""
+    if not publish_time or len(content) < 20:
+        raise ValueError(f"MLF正文或发布时间不完整：{url}")
+    day = publish_time[:10]
+    observation_date, period_start, period_end = _period_from_month_title(listing_title, day)
+    amount = _mlf_amount(content)
+    rate = _mlf_rate(content)
+    rows: list[dict[str, str]] = []
+    for indicator, value, unit in (("mlf_amount", amount, "亿元"), ("mlf_rate", rate, "%")):
+        if value is None:
+            continue
+        rows.append(_row(
+            observation_date=observation_date, release_time=publish_time,
+            period_start=period_start, period_end=period_end,
+            indicator=indicator, value=value, unit=unit, source_name="中国人民银行",
+            source_url=url, source_sha256=source_hash, vintage="official_pboc_mlf_monthly",
+        ))
+    return rows, {"url": url, "title": title, "amount_found": amount is not None, "rate_found": rate is not None}
+
+
+def fetch_pboc_mlf() -> tuple[list[dict[str, str]], dict[str, Any]]:
+    try:
+        entries = [
+            entry for entry in _mlf_detail_entries()
+            if int(re.search(r"20\d{2}", entry[1]).group(0)) >= 2015
+        ]
+    except Exception as exc:
+        return [], {"mlf_official": {"rows_accepted": 0, "reason": str(exc)[:300]}}
+    rows: list[dict[str, str]] = []
+    failures: list[dict[str, str]] = []
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        futures = {pool.submit(_mlf_detail, entry): entry for entry in entries}
+        for future in as_completed(futures):
+            url, _title = futures[future]
+            try:
+                loaded, _detail = future.result()
+            except Exception as exc:
+                failures.append({"url": url, "error": str(exc)[:300]})
+                continue
+            rows.extend(loaded)
+    return rows, {
+        "mlf_official": {
+            "list_root": MLF_WORK_ROOT, "pages_crawled": MLF_WORK_PAGES,
+            "detail_pages": len(entries), "rows_accepted": len(rows),
+            "amount_rows": sum(row["indicator"] == "mlf_amount" for row in rows),
+            "rate_rows": sum(row["indicator"] == "mlf_rate" for row in rows),
+            "failures": failures, "method": "央行中期借贷便利工作信息逐月公告正文",
+        }
+    }
+
+
+def parse_pboc_afre_stock_text(text: str) -> list[tuple[str, float]]:
+    """Extract the 2017-01--2019-12 government-bond stock column.
+
+    The official one-page PDF prints October as ``2017.1``/``2018.1`` in
+    places.  Row order is authoritative; we therefore map the first 36 data
+    rows to consecutive months and require the full 11-column table.
+    """
+    candidates: list[list[float]] = []
+    # pdfplumber preserves the table's horizontal layout and avoids the
+    # character-by-character extraction produced by pypdf for this PDF.
+    # Keep the pypdf text parser above as a deterministic fallback for tests.
+    for match in re.finditer(r"^\s*20\d{2}\.\d{1,2}\s+(.+)$", text, flags=re.MULTILINE):
+        numbers = re.findall(r"[-+]?\d+(?:\.\d+)?", match.group(1))
+        # The PDF repeats a month header (2019.1, 2019.2, ...) that also
+        # matches the date pattern.  Stock rows begin with AFRE values in
+        # hundred-millions of yuan (over one million); growth-rate rows begin
+        # with small percentages.
+        if len(numbers) >= 11 and float(numbers[0]) > 100_000:
+            candidates.append([float(number) for number in numbers[:11]])
+    if len(candidates) < 36:
+        return []
+    start = date(2017, 1, 1)
+    parsed: list[tuple[str, float]] = []
+    for index, values in enumerate(candidates[:36]):
+        year = start.year + (start.month - 1 + index) // 12
+        month = (start.month - 1 + index) % 12 + 1
+        last = monthrange(year, month)[1]
+        parsed.append((f"{year:04d}-{month:02d}-{last:02d}", values[7]))
+    return parsed
+
+
+def fetch_pboc_afre_government_bonds() -> tuple[list[dict[str, str]], dict[str, Any]]:
+    try:
+        raw = _get_bytes(AFRE_STOCK_PDF_URL)
+        with pdfplumber.open(io.BytesIO(raw)) as pdf:
+            text = "\n".join(
+                page.extract_text(x_tolerance=1, y_tolerance=3, layout=True) or ""
+                for page in pdf.pages
+            )
+        parsed = parse_pboc_afre_stock_text(text)
+    except Exception as exc:
+        return [], {"afre_government_bonds_official": {"rows_accepted": 0, "reason": str(exc)[:300]}}
+    source_hash = hashlib.sha256(raw).hexdigest()
+    rows = [
+        _row(
+            observation_date=period_end, release_time=AFRE_STOCK_RELEASE_TIME,
+            period_start=period_end[:7] + "-01", period_end=period_end,
+            indicator="afre_government_bonds", value=value, unit="亿元",
+            source_name="中国人民银行", source_url=AFRE_STOCK_PDF_URL,
+            source_sha256=source_hash, vintage="official_pboc_afre_stock_reconstruction_2025",
+        )
+        for period_end, value in parsed
+    ]
+    return rows, {
+        "afre_government_bonds_official": {
+            "source_url": AFRE_STOCK_PDF_URL, "source_sha256": source_hash,
+            "release_time": AFRE_STOCK_RELEASE_TIME, "rows_accepted": len(rows),
+            "period": {"start": parsed[0][0] if parsed else None, "end": parsed[-1][0] if parsed else None},
+            "method": "人民银行社会融资规模存量官方PDF第1表政府债券列",
+            "vintage_note": "历史列在2025-11-05官方PDF中追溯发布；release_time按PDF公开时间记录，不回填到早期实时特征",
+        }
+    }
 
 
 def fetch_bond_issuance() -> tuple[list[dict[str, str]], dict[str, Any]]:
     try:
         import akshare as ak
     except ImportError as exc:
-        return [], {"government_bond_issuance": {"rows_accepted": 0, "reason": f"akshare unavailable: {exc}"}}
+        preserved = _existing_structured_rows("government_bond_issuance")
+        return preserved, {"government_bond_issuance": {
+            "rows_accepted": len(preserved), "preserved_existing_rows": len(preserved),
+            "reason": f"akshare unavailable: {exc}",
+        }}
     frames: list[Any] = []
     audit: dict[str, Any] = {}
+    failed_years: set[tuple[str, int]] = set()
     for name, function in (("treasury", ak.bond_treasure_issue_cninfo), ("local_government", ak.bond_local_government_issue_cninfo)):
         received = 0
         errors: list[str] = []
         for year in range(2015, date.today().year + 1):
             end = min(date(year, 12, 31), date.today())
-            try:
-                frame = function(f"{year}0101", end.strftime("%Y%m%d"))
-            except Exception as exc:  # optional source: preserve other structured series
-                errors.append(f"{year}: {str(exc)[:120]}")
+            frame = None
+            last_error: Exception | None = None
+            for attempt in range(4):
+                try:
+                    frame = function(f"{year}0101", end.strftime("%Y%m%d"))
+                    break
+                except Exception as exc:  # intermittent CNINFO connection resets
+                    last_error = exc
+                    if attempt < 3:
+                        time.sleep(1.0 * (attempt + 1))
+            if frame is None:
+                errors.append(f"{year}: {str(last_error)[:120]}")
+                failed_years.add((name, year))
                 continue
             frames.append((name, frame))
             received += int(len(frame))
@@ -251,8 +459,14 @@ def fetch_bond_issuance() -> tuple[list[dict[str, str]], dict[str, Any]]:
             source_name="巨潮资讯（中国证监会数据中心）", source_url="http://webapi.cninfo.com.cn/",
             source_sha256=hashlib.sha256(raw).hexdigest(), vintage=kind,
         ))
+    preserved = [
+        row for row in _existing_structured_rows("government_bond_issuance")
+        if (row.get("vintage", ""), int(row["observation_date"][:4])) in failed_years
+    ]
+    rows.extend(preserved)
     audit["government_bond_issuance"] = {
         "unique_issues": len(issue_values), "daily_aggregates": len(rows),
+        "preserved_existing_rows": len(preserved),
         "deduplication": "max planned issuance per official bond name/date across market aliases, then sum once per announcement/start date",
         "vintage_field": "planned issuance known at announcement; actual post-auction issuance is deliberately excluded",
         "source_hash_scope": "SHA-256 of canonical planned-issuance record; AkShare does not expose the raw upstream response",
@@ -267,9 +481,23 @@ def main() -> None:
     for loader in (fetch_nbs_mirrored_series, fetch_afre):
         loaded, audit = loader(target_releases)
         rows.extend(loaded); audits.update(audit)
-    for loader in (parse_mlf_from_texts, fetch_bond_issuance):
+    for loader in (
+        fetch_pboc_mlf,
+        fetch_pboc_afre_government_bonds,
+        fetch_bond_issuance,
+    ):
         loaded, audit = loader()
         rows.extend(loaded); audits.update(audit)
+    preserved_indicators: dict[str, int] = {}
+    generated_counts = Counter(row["indicator"] for row in rows)
+    for indicator in STRUCTURED_INDICATORS:
+        if generated_counts[indicator]:
+            continue
+        preserved = _existing_structured_rows(indicator)
+        if preserved:
+            rows.extend(preserved)
+            preserved_indicators[indicator] = len(preserved)
+    audits["preserved_existing_indicators"] = preserved_indicators
     unique: dict[tuple[str, str, str, str], dict[str, str]] = {}
     for row in rows:
         validate_structured_row(row)
