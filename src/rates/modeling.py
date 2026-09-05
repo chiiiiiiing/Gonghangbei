@@ -10,6 +10,7 @@ import numpy as np
 from src.rates.schema import (
     FACTOR_LABELS,
     FACTOR_NAMES,
+    FLAT_THRESHOLD_BP,
     HORIZON_TRADING_DAYS,
     MINIMUM_TRAIN_DAYS,
     ROLLING_TRAIN_DAYS,
@@ -127,15 +128,23 @@ def _feature_rows(
     return result
 
 
-def labels_for_market(market_rows: list[dict[str, Any]]) -> list[str | None]:
+def labels_for_market(
+    market_rows: list[dict[str, Any]],
+    horizon_trading_days: int = HORIZON_TRADING_DAYS,
+    threshold_bp: float = FLAT_THRESHOLD_BP,
+) -> list[str | None]:
+    if horizon_trading_days < 1:
+        raise ValueError("预测窗口至少为1个交易日")
+    if threshold_bp <= 0:
+        raise ValueError("震荡阈值必须大于0bp")
     labels: list[str | None] = []
     for index, row in enumerate(market_rows):
-        future_index = index + HORIZON_TRADING_DAYS
+        future_index = index + horizon_trading_days
         if future_index >= len(market_rows):
             labels.append(None)
             continue
         delta_bp = (float(market_rows[future_index]["cgb_10y_yield"]) - float(row["cgb_10y_yield"])) * 100
-        labels.append(direction_label(delta_bp))
+        labels.append(direction_label(delta_bp, threshold_bp))
     return labels
 
 
@@ -235,21 +244,24 @@ def evaluate_route(
     route: str,
     minimum_train: int = MINIMUM_TRAIN_DAYS,
     rolling_window: int = ROLLING_TRAIN_DAYS,
-    evaluation_stride: int = HORIZON_TRADING_DAYS,
+    evaluation_stride: int | None = None,
+    horizon_trading_days: int = HORIZON_TRADING_DAYS,
+    threshold_bp: float = FLAT_THRESHOLD_BP,
 ) -> dict[str, Any]:
     features = _feature_rows(market_rows, factors_by_date, rule_pressure_by_date, route)
-    labels = labels_for_market(market_rows)
+    labels = labels_for_market(market_rows, horizon_trading_days, threshold_bp)
     actual: list[str] = []
     predicted: list[str] = []
     probabilities: list[dict[str, float]] = []
     timeline: list[dict[str, Any]] = []
-    first_prediction = minimum_train + HORIZON_TRADING_DAYS
-    last_labeled = len(market_rows) - HORIZON_TRADING_DAYS
-    for index in range(first_prediction, last_labeled, max(1, evaluation_stride)):
+    evaluation_stride = horizon_trading_days if evaluation_stride is None else max(1, evaluation_stride)
+    first_prediction = minimum_train + horizon_trading_days
+    last_labeled = len(market_rows) - horizon_trading_days
+    for index in range(first_prediction, last_labeled, evaluation_stride):
         earliest = max(0, index - rolling_window)
         train_indices = [
             item for item in range(earliest, index)
-            if labels[item] is not None and item + HORIZON_TRADING_DAYS <= index
+            if labels[item] is not None and item + horizon_trading_days <= index
         ]
         if len(train_indices) < minimum_train:
             continue
@@ -266,7 +278,7 @@ def evaluate_route(
             "probabilities": probs, "correct": truth == prediction,
             "train_origin_start": market_rows[train_indices[0]]["trade_date"],
             "train_origin_end": market_rows[train_indices[-1]]["trade_date"],
-            "label_known_through": market_rows[train_indices[-1] + HORIZON_TRADING_DAYS]["trade_date"],
+            "label_known_through": market_rows[train_indices[-1] + horizon_trading_days]["trade_date"],
             "train_observations": len(train_indices), "period": _period(str(market_rows[index]["trade_date"])),
         })
     overall = _metrics(actual, predicted, probabilities)
@@ -292,10 +304,11 @@ def evaluate_route(
         "calibration": _calibration(actual, predicted, probabilities),
         "examples": examples, "timeline": timeline,
         "training_policy": {
-            "kind": "purged_non_overlapping_rolling_window" if evaluation_stride >= HORIZON_TRADING_DAYS else "purged_rolling_window",
+            "kind": "purged_non_overlapping_rolling_window" if evaluation_stride >= horizon_trading_days else "purged_rolling_window",
             "rolling_window_days": rolling_window,
-            "minimum_train_days": minimum_train, "label_embargo_days": HORIZON_TRADING_DAYS,
-            "evaluation_stride_days": evaluation_stride, "shuffle": False,
+            "minimum_train_days": minimum_train, "label_embargo_days": horizon_trading_days,
+            "evaluation_stride_days": evaluation_stride, "horizon_trading_days": horizon_trading_days,
+            "threshold_bp": threshold_bp, "shuffle": False,
         },
     }
 

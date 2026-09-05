@@ -1,0 +1,11 @@
+{
+  "version": "rates-annotation-validation-v1",
+  "generated_at": "2026-09-05T13:41:38+08:00",
+  "documents": 60,
+  "labels_required": 840,
+  "labels_completed": 0,
+  "completion_rate": 0.0,
+  "status": "awaiting_independent_human_labels",
+  "metrics": {},
+  "disclaimer": "空白模板不构成人工验收；只有独立复核员填写全部金标签后才计算正式指标。"
+}

@@ -231,7 +231,11 @@ def _structured_context(
 def _daily_context(
     market: list[dict[str, str]], texts: list[dict[str, str]],
     structured: list[dict[str, str]] | None = None,
+    text_decay_days: int = TEXT_DECAY_DAYS,
+    text_half_life_days: float = TEXT_HALF_LIFE_DAYS,
 ) -> tuple[dict[str, dict[str, float]], dict[str, float], list[dict[str, Any]], list[dict[str, Any]]]:
+    if text_decay_days < 1 or text_half_life_days <= 0:
+        raise ValueError("文本影响窗口和半衰期必须为正数")
     if structured is None:
         structured, _structured_errors = _load_structured()
     dates = [row["trade_date"] for row in market]
@@ -290,11 +294,11 @@ def _daily_context(
                 for factor in [PREDICATES.get(predicate_name).factor if PREDICATES.get(predicate_name) else ""]
                 if factor
             }
-            for age in range(TEXT_DECAY_DAYS):
+            for age in range(text_decay_days):
                 if start + age >= len(dates):
                     break
                 trade_date = dates[start + age]
-                decay = 0.5 ** (age / TEXT_HALF_LIFE_DAYS)
+                decay = 0.5 ** (age / text_half_life_days)
                 document_counts[trade_date] += 1
                 for name, score in scores.items():
                     if score and name in new_event_factors:

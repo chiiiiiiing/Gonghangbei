@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-09-04T11:06:19+08:00",
+  "generated_at": "2026-09-05T13:39:47+08:00",
   "period": {
     "start": "2015-01-22 10:18:01",
-    "end": "2026-08-31 09:20:30"
+    "end": "2026-09-01 15:01:00"
   },
-  "documents": 741,
+  "documents": 780,
   "pbc_monetary_policy_reports": 48,
   "pbc_weekly_omo_announcements": 591,
-  "mof_government_bond_announcements": 10,
+  "mof_government_bond_announcements": 49,
   "sources": [
     "中国人民银行",
     "国家统计局",
     "财政部"
   ],
-  "method": "官方列表页发现、官方正文抓取、原始响应SHA-256、发布日期时间对齐",
+  "method": "央行官方列表刷新；保留已核验统计局/财政部样本；官方正文、响应SHA-256与发布日期时间对齐",
   "optional_source_warning": "财政部清单为可审计官方URL种子；抓取失败会记录且不会用标题或摘要替代正文。",
-  "augmentation_failures": [],
-  "augmentation_method": "NBS复用已核验历史语料并抓取CPI/PPI/PMI官方URL种子；MOF重新抓取官方响应；新增正文均记录响应SHA-256并按URL去重",
   "source_counts": {
     "中国人民银行": 639,
     "国家统计局": 92,
-    "财政部": 10
+    "财政部": 49
   },
   "nbs_historical_documents": 92,
-  "nbs_historical_documents_added_this_run": 1,
-  "mof_documents_added_this_run": 0
+  "nbs_historical_documents_added_this_run": 0,
+  "mof_documents_added_this_run": 0,
+  "augmentation_failures": [],
+  "augmentation_method": "NBS复用已核验历史语料并抓取CPI/PPI/PMI官方URL种子；MOF重新抓取官方响应；新增正文均记录响应SHA-256并按URL去重"
 }

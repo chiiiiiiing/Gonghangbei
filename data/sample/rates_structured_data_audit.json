@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T16:12:21+08:00",
+  "generated_at": "2026-09-05T13:34:59+08:00",
   "nbs_series": [
     {
       "indicator": "cpi_yoy",
@@ -59,11 +59,24 @@
     "method": "人民银行社会融资规模存量官方PDF第1表政府债券列",
     "vintage_note": "历史列在2025-11-05官方PDF中追溯发布；release_time按PDF公开时间记录，不回填到早期实时特征"
   },
+  "treasury": {
+    "rows_received": 6442,
+    "errors": [],
+    "source": "CNINFO public bond issue table"
+  },
+  "local_government": {
+    "rows_received": 56091,
+    "errors": [],
+    "source": "CNINFO public bond issue table"
+  },
   "government_bond_issuance": {
-    "rows_accepted": 3423,
-    "preserved_existing_rows": 3423,
-    "reason": "akshare unavailable: No module named 'akshare'",
-    "model_policy": "model_eligible as a dated known-in-advance event; engine sums plans within the next seven calendar days and expires them afterward"
+    "unique_issues": 20628,
+    "daily_aggregates": 3423,
+    "preserved_existing_rows": 0,
+    "deduplication": "max planned issuance per official bond name/date across market aliases, then sum once per announcement/start date",
+    "vintage_field": "planned issuance known at announcement; actual post-auction issuance is deliberately excluded",
+    "model_policy": "model_eligible as a dated known-in-advance event; engine sums plans within the next seven calendar days and expires them afterward",
+    "source_hash_scope": "SHA-256 of canonical planned-issuance record; AkShare does not expose the raw upstream response"
   },
   "preserved_existing_indicators": {},
   "rows": 4669,

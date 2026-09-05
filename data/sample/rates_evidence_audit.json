@@ -1,5 +1,17 @@
 {
   "version": "rates-evidence-v2",
+  "source_signature": {
+    "rates_market.csv": "165f86b12b88549c8d82399265847bf993735249555ba1aadb910feff7ec211c",
+    "rates_policy_texts.csv": "7a4e67389740533a3a33b3a5cbb4d25b8ad2853551023721fb821fa34d8ad6b7",
+    "rates_llm_annotations.jsonl": "318ff754c2009e39d54dc7073f4c9d0877fe7edbd4a9a17341181e73e684b909",
+    "rates_structured_data.csv": "8dc0e056578398e80e43fef339aed37d787279463c01823f3571a846cdd49dac",
+    "rates_rule_version": "rates-rulebook-v1.0-20260902",
+    "rates_engine.py": "f40ddc9d6565b74c3a3b6765152cfe0be06817f73d5a658803d97a558c006a39",
+    "rates_factors.py": "2a3dbfe558eaf8dcca84dd78a037bc6437a202e96b051ce551b75500fcdbfac1",
+    "rates_modeling.py": "12fab80d1295c63ff45202b0463ae983e12b1d2d492ff0ec9a73f5b3346a4191",
+    "rates_rules.py": "a694360bc81d7d69245646c473c45c2bf23fdfffc4a466eacbd1863b0d249d3a",
+    "rates_schema.py": "637387773e3d64c2f5ea1d49c6607ab65b626b7f070a1c2b42acda10d41fc84c"
+  },
   "documents": [
     {
       "doc_id": "PBC-OMO-20150122-efc544c827",
@@ -39141,6 +39153,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20251105-0347345b21",
+      "title": "关于2025年记账式贴现（六十八期）国债发行工作有关事宜的通知",
+      "publish_time": "2025-11-05 17:07:00",
+      "effective_trade_date": "2025-11-05",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202511/t20251104_3975734.htm",
+      "source_sha256": "33aa01fe6549b4f06e25135645d13bc3268b20f7ea94a1142170b5122e0f83d2",
+      "document_fingerprint": "0e34c1fd2a69b95e6fb13f94a2dd00bef93fcf9994cb90160c693ae5e0df376b",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-364a0f9e7551",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2025年记账式贴现（六十八期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "772ee4893e06ff835c2188e39305d7948822ca98d719bbafd33677ae8f8f5135"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2025年记账式贴现（六十八期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20251110-ebfd6a9d32",
       "title": "公开市场业务交易公告 [2025]第216号",
       "publish_time": "2025-11-10 09:20:30",
@@ -39207,6 +39287,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20251110-5a15c1a70a",
+      "title": "关于2025年第九期和第十期储蓄国债（电子式）发行工作有关事宜的通知",
+      "publish_time": "2025-11-10 16:34:00",
+      "effective_trade_date": "2025-11-10",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202511/t20251107_3976013.htm",
+      "source_sha256": "2a25a07e8e83f7860468ffa8fbbb49dee40be37efc496381d275262ff6113e0a",
+      "document_fingerprint": "c0da6b2539ecc39758d899c16d4d8cedcef8f7b8c67a3beb16b79afbc0fda58a",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-1d01d9ea1d63",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "为筹集财政资金，支持国民经济和社会事业发展，财政部决定发行2025年第九期储蓄国债（电子式）（国债简称：25储蓄09，国债代码：251709，以下称第九期）和2025年第十期储蓄国债（电子式）（国债简称：25储蓄10，国债代码：251710，以下称第十期），现就第九期和第十期（以下称两期国债）发行工作有关事宜通知如下：。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "e4348e9707b6b8ef0aaf517401f2e560dc9374dff38e7139d0180fdd3b92711e"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "为筹集财政资金，支持国民经济和社会事业发展，财政部决定发行2025年第九期储蓄国债（电子式）（国债简称：25储蓄09，国债代码：251709，以下称第九期）和2025年第十期储蓄国债（电子式）（国债简称：25储蓄10，国债代码：251710，以下称第十期），现就第九期和第十期（以下称两期国债）发行工作有关事宜通知如下：。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-REPORT-20251111-ef059d1fb2",
@@ -39598,6 +39746,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20251117-890451dc3b",
+      "title": "关于2025年记账式附息（十八期）国债第二次续发行工作有关事宜的通知",
+      "publish_time": "2025-11-17 17:30:00",
+      "effective_trade_date": "2025-11-17",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202511/t20251112_3976289.htm",
+      "source_sha256": "26a709734a4ad59866854d9564551ad38a7f6610b622fcc93352d3665d887494",
+      "document_fingerprint": "7c46fdc96264ac67352153f2f6e1cdbe649e4d4ae6ed7124a2b4e2f6743f8f55",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-85cd125e0724",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2025年记账式附息（十八期）国债第二次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "65303d59a67d56349fb46eded730017ee3730f93d055cb47f19a8e599a9f2d85"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2025年记账式附息（十八期）国债第二次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20251124-c504a6311c",
       "title": "公开市场业务交易公告 [2025]第226号",
       "publish_time": "2025-11-24 09:20:30",
@@ -39654,6 +39870,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20251126-434781a289",
+      "title": "关于2025年记账式贴现（七十三期）国债发行工作有关事宜的通知",
+      "publish_time": "2025-11-26 11:18:00",
+      "effective_trade_date": "2025-11-26",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202511/t20251125_3977278.htm",
+      "source_sha256": "f944d80e282e181804fa42c2793fc65bcf34efad496278009f93557a46a79855",
+      "document_fingerprint": "6882cc779b6e3dcf9c286814f952d7657fd76a4593aed6da68341a44a7070d84",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-a65619a47868",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2025年记账式贴现（七十三期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "f5fc9fedb06b2272a48748e9dd873538c2d971162ebbddb8028e0878436ee8c1"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2025年记账式贴现（七十三期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20251201-afd751376c",
       "title": "公开市场业务交易公告 [2025]第232号",
       "publish_time": "2025-12-01 09:20:30",
@@ -39691,6 +39975,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20251202-2c4f3b255f",
+      "title": "关于2025年记账式附息（十九期）国债第二次续发行工作有关事宜的通知",
+      "publish_time": "2025-12-02 17:22:00",
+      "effective_trade_date": "2025-12-02",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202511/t20251128_3977766.htm",
+      "source_sha256": "1f6d284da1f3658c0062bb352f4426453444c42ab19c373459100d782eb7988f",
+      "document_fingerprint": "b380ca0065a9b8a3bf7c068ceee2582f1a8790a1833fbb86d64d1d03b5907596",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-99f0401ce31f",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2025年记账式附息（十九期）国债第二次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "ac23ca055102c4dbb498f7c9e999f8fc7d6b7d00bd7eed306cb99cb1f4741d79"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2025年记账式附息（十九期）国债第二次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-OMO-20251208-9935cd7dbd",
@@ -39761,6 +40113,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20251208-8241e4e349",
+      "title": "关于2025年记账式附息（二十二期）国债第一次续发行工作有关事宜的通知",
+      "publish_time": "2025-12-08 17:27:00",
+      "effective_trade_date": "2025-12-08",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202512/t20251205_3978373.htm",
+      "source_sha256": "e0c5f4c44ae9c3d4dc1c258fa9bb444d0df485879b42e60845dc675b6e96d3ed",
+      "document_fingerprint": "950f9419ae4f0110da6dc5d411da07c1b5708a8dbc2af49cf8fa50a7982d1931",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-89cfbb9801b1",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2025年记账式附息（二十二期）国债第一次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "fe81cdfb4a7aca96e52281199df9583212ea8787e61226cf5a971ce5e353c889"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2025年记账式附息（二十二期）国债第一次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20251215-254f8ef430",
       "title": "公开市场业务交易公告 [2025]第242号",
       "publish_time": "2025-12-15 09:20:30",
@@ -39815,6 +40235,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20251215-09a913ac3f",
+      "title": "关于2025年记账式附息（二十期）国债第二次续发行工作有关事宜的通知",
+      "publish_time": "2025-12-15 16:41:00",
+      "effective_trade_date": "2025-12-15",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202512/t20251212_3979056.htm",
+      "source_sha256": "b316c857cd2155712eeff3d53386486d39c13704477849f78fd42fd2209b1582",
+      "document_fingerprint": "9ce91f766c98156c3ea40b0fe8dd5de7d724c1212aa0421c9ed5caaf734dd224",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-242a711a9182",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2025年记账式附息（二十期）国债第二次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "005a7337b6771a2d01ad1484d3ce8de82d1a9915231e9d68cc27c5de6e3ad3ac"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2025年记账式附息（二十期）国债第二次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-OMO-20251222-3fa357c41c",
@@ -39885,6 +40373,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20251223-0569a8a4f3",
+      "title": "关于2025年记账式贴现（八十一期）国债发行工作有关事宜的通知",
+      "publish_time": "2025-12-23 15:52:00",
+      "effective_trade_date": "2025-12-23",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202512/t20251217_3979412.htm",
+      "source_sha256": "b82931f424a7c6d421fd0d80fe7b3009611f795eef7f37177b88827cc7db2198",
+      "document_fingerprint": "14792710a7663ffeb1ae0ea093964a06f88b4085d57fbc65b69e9bea41b9e9ee",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-a4bba70944fd",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2025年记账式贴现（八十一期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "72a5d1777726cfab618e72e86fb26de3eb6e6137fd4dcb63806a11426baf2f8e"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2025年记账式贴现（八十一期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20251229-98d9d2726b",
       "title": "公开市场业务交易公告 [2025]第253号",
       "publish_time": "2025-12-29 09:20:30",
@@ -39933,6 +40489,33 @@
       "factor_scores": {
         "monetary_policy": 0.0,
         "liquidity": -0.5625,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.0,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260104-2f1d968cde",
+      "title": "关于公布2026年第一季度国债发行有关安排的通知",
+      "publish_time": "2026-01-04 15:41:00",
+      "effective_trade_date": "2026-01-04",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202512/t20251231_3981011.htm",
+      "source_sha256": "857593e1dfc6aa9317948b96fd5b618987e76f7a013c7d9e68e02ec6360f924c",
+      "document_fingerprint": "b50d2a5fdc9a376f75d58801f0e2096c30dd60d72886a1c81f1cbb0c649a5dab",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [],
+      "independent_event_keys": [],
+      "active_predicates": [],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
         "growth": 0.0,
         "inflation": 0.0,
         "bond_supply": 0.0,
@@ -39997,6 +40580,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260105-ff3dbf34c8",
+      "title": "关于2026年记账式贴现（一期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-01-05 16:31:00",
+      "effective_trade_date": "2026-01-05",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202512/t20251231_3981043.htm",
+      "source_sha256": "cb61c1466b73698a20533733dc17b16fa7db6b1881f37551d0b5433c608f6145",
+      "document_fingerprint": "1422f37427924a720224bc8bdd11f135033b26e6f6d1cbbfd010a944c99cf3fe",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-de6eed3abe34",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（一期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "77ea9936870cc945a78fd384d555daf5192a6a81681437d0cd30e3ec000da6c7"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（一期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260112-bfcf641afb",
       "title": "公开市场业务交易公告 [2026]第7号",
       "publish_time": "2026-01-12 09:20:30",
@@ -40034,6 +40685,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260112-b96be5664d",
+      "title": "关于2026年记账式附息（二期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-01-12 16:23:00",
+      "effective_trade_date": "2026-01-12",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202601/t20260107_3981501.htm",
+      "source_sha256": "77eac4c9150efa1d41c553f484e85f54e2d47f131121d266b754df39fc4746eb",
+      "document_fingerprint": "ca1bb1ac684c24c87388321dd843490235c30163d332f3e310b7bc347f177ac1",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-a3062b2ea3e0",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式附息（二期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "0f203fc2331bf1afbe12097a84bc400e2735a012bbbf8e9ffafcff9b858da787"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式附息（二期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-OMO-20260119-459ee48989",
@@ -40092,6 +40811,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260119-f21dad3beb",
+      "title": "关于2026年记账式附息（三期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-01-19 16:32:00",
+      "effective_trade_date": "2026-01-19",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202601/t20260116_3982047.htm",
+      "source_sha256": "ca6af0bcfef13bcbf6b5a97a999fa802616258d85d0dcfbcef632ded943d0526",
+      "document_fingerprint": "6a55ec17514b03649927b3c3504f375397bd098f401d7c7308c726c037db38ff",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-6238c1e67148",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式附息（三期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "de628f482d036cb9e0bef7aa0414fa472c91c79aeef7168558c7f028ac98ee46"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式附息（三期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260126-1948996251",
       "title": "公开市场业务交易公告 [2026]第17号",
       "publish_time": "2026-01-26 09:20:30",
@@ -40129,6 +40916,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260129-7b3de379d1",
+      "title": "关于2026年记账式贴现（七期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-01-29 15:02:00",
+      "effective_trade_date": "2026-01-29",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202601/t20260127_3982668.htm",
+      "source_sha256": "c6567c46f45c3a145d564354885d74231dac05130ddd21eb491036d5c7a51fe5",
+      "document_fingerprint": "a6e0e1b0e71a6d82fdfeffb3b5e9a8bae59e577aeb827e77f82a374677723e5a",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-ffa99cfdac74",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（七期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "7505abb5609cef6a63b7bd1e4146591612ea131d1661d9f7ba72ba6a71cc088a"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（七期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-OMO-20260202-87246f136d",
@@ -40199,6 +41054,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260202-2f4c3e3d28",
+      "title": "关于2025年记账式附息（二十四期）国债第二次续发行工作有关事宜的通知",
+      "publish_time": "2026-02-02 15:42:00",
+      "effective_trade_date": "2026-02-02",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202601/t20260128_3982782.htm",
+      "source_sha256": "efc6e6158854c158f8d9b1880d71a8d13dcc60b2dc48c12cebf05eff7df9beec",
+      "document_fingerprint": "1611718bc01375a688ea3d4d7072d7eae05cb0156f242ef4409eb297d35a1756",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-9266fbe0a0e5",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2025年记账式附息（二十四期）国债第二次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "81293ff2796c2ec5beb7f507e69a0ab0d07c074c73006f63d7c27d19e509f4fe"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2025年记账式附息（二十四期）国债第二次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260209-c063ef2c20",
       "title": "公开市场业务交易公告 [2026]第27号",
       "publish_time": "2026-02-09 09:20:30",
@@ -40265,6 +41188,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260209-5cbc732c00",
+      "title": "关于2025年记账式附息（二十五期）国债第二次续发行工作有关事宜的通知",
+      "publish_time": "2026-02-09 10:41:00",
+      "effective_trade_date": "2026-02-09",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202602/t20260203_3983196.htm",
+      "source_sha256": "bbe1b18fc24c19355bfa73da649cf5b2364ed1fb914dddd78bf31bea91ce53ec",
+      "document_fingerprint": "4157b04e774b56163e8cf290ca1f393accd8e55962963a58422ef9cea3129057",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-c695af61eff2",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2025年记账式附息（二十五期）国债第二次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "af1855db91b4b6eb82d75039b2d0ff89b2cb27beec74afa0a4069636a8a2a384"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2025年记账式附息（二十五期）国债第二次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-REPORT-20260210-23edaaae2c",
@@ -40588,6 +41579,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260224-46270fe1fa",
+      "title": "关于2026年记账式附息（三期）国债第一次续发行工作有关事宜的通知",
+      "publish_time": "2026-02-24 14:53:00",
+      "effective_trade_date": "2026-02-24",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202602/t20260211_3983677.htm",
+      "source_sha256": "c5bfd01cf8871b88b1faf280a19cf2896bb1a489dc345e85ef83969deddebe7c",
+      "document_fingerprint": "d39a10bb5ae1787bc532416fcb324cf627dd8f36af4d22fba04c314cfdaf91c0",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-4856eaa308df",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2026年记账式附息（三期）国债第一次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "3fb2c0c63f567ee46d0bba09bd7d70b6174ca60e3307460d547184de1cf05671"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2026年记账式附息（三期）国债第一次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260302-e6f3d8a2ad",
       "title": "公开市场业务交易公告 [2026]第39号",
       "publish_time": "2026-03-02 09:20:30",
@@ -40656,6 +41715,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260302-d2cc8916dc",
+      "title": "关于2026年记账式附息（二期）国债第二次续发行工作有关事宜的通知",
+      "publish_time": "2026-03-02 14:24:00",
+      "effective_trade_date": "2026-03-02",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202602/t20260228_3984250.htm",
+      "source_sha256": "5e1c76d83267ca4d0abd853732957bc98a57a9cd0c5b4950aa8056d423effa33",
+      "document_fingerprint": "59da19bcc4e91b6739c49c681ccd7c0cbf836cd69730061ebb0d9cb6b1e7921d",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-0fb1ca1691db",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2026年记账式附息（二期）国债第二次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "06058438cae8e6b3b47abaf90c3102d678e86498e60cfb80604c45c49c7dfc23"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2026年记账式附息（二期）国债第二次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260309-888e73f30b",
       "title": "公开市场业务交易公告 [2026]第44号",
       "publish_time": "2026-03-09 09:20:30",
@@ -40693,6 +41820,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260309-e8559fc188",
+      "title": "关于2025年记账式附息（二十一期）国债第一次续发行工作有关事宜的通知",
+      "publish_time": "2026-03-09 17:50:00",
+      "effective_trade_date": "2026-03-10",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202603/t20260304_3984625.htm",
+      "source_sha256": "25a8bb7095c5a0f75c2af22aa463787c0c1738e2d364a7d0b6c1880aa82a6991",
+      "document_fingerprint": "3b6f6199ef8d9dea2d47604a6f637f7c61fd72425a9c92b168c0639d9a07e209",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-dc3062a68907",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2025年记账式附息（二十一期）国债第一次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "5462392faac8e80d96ff18b7b5ad68f44736bb1bb33ebcb9d954ece429425196"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2025年记账式附息（二十一期）国债第一次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-OMO-20260316-094816eb55",
@@ -40763,6 +41958,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260316-a8c3712cda",
+      "title": "关于2026年记账式附息（三期）国债第二次续发行工作有关事宜的通知",
+      "publish_time": "2026-03-16 16:36:00",
+      "effective_trade_date": "2026-03-16",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202603/t20260311_3985117.htm",
+      "source_sha256": "6d4c575906a140d01af5220c0874b8e6beb7ee6fbfbf7e2bc0ba27eaafb890ce",
+      "document_fingerprint": "ad2bdc63d4a429950c74ca2f8c49d9bd3628f0423ae8b34cf13817181919bdf3",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-09a753804f7b",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2026年记账式附息（三期）国债第二次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "d6e2620bafb29ffd148a5f9389f3fa0f18361d7559c8e28ae6f7037d4da7cb60"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2026年记账式附息（三期）国债第二次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260323-a67455f5cb",
       "title": "公开市场业务交易公告 [2026]第54号",
       "publish_time": "2026-03-23 09:20:30",
@@ -40800,6 +42063,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260324-5e2ca30e9b",
+      "title": "关于2026年记账式贴现（十九期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-03-24 10:56:00",
+      "effective_trade_date": "2026-03-24",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202603/t20260323_3985831.htm",
+      "source_sha256": "856fe5dc1a27e33d8b01945ab56ef0807a9367bb4f37c2e77b2a0bf93d048e2c",
+      "document_fingerprint": "5b918fcc1066fc3897a4714d642fdf1eb998e0d2d35e205ebabe85f8b7404f57",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-d924052b128a",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（十九期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "6c08e45263c2bc98225195071cca80a2ed643a57aef0e33bc694760453da87b4"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（十九期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-OMO-20260330-101de8f997",
@@ -40862,6 +42193,33 @@
       "factor_scores": {
         "monetary_policy": 0.0,
         "liquidity": -0.5625,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.0,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260331-df5201f68c",
+      "title": "关于公布2026年第二季度国债发行有关安排的通知",
+      "publish_time": "2026-03-31 12:31:00",
+      "effective_trade_date": "2026-03-31",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202603/t20260331_3986590.htm",
+      "source_sha256": "0c754ae7b2b496a88734821dd5a3b10e97541e7c40ecb81855d2909fb4739b50",
+      "document_fingerprint": "63d09e116e342bd00026774f6c38217ea446e90b4f61dc27b48e95b0d5a8e62e",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [],
+      "independent_event_keys": [],
+      "active_predicates": [],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
         "growth": 0.0,
         "inflation": 0.0,
         "bond_supply": 0.0,
@@ -40938,6 +42296,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260407-e5d8651dcd",
+      "title": "关于2026年记账式附息（四期）国债第二次续发行工作有关事宜的通知",
+      "publish_time": "2026-04-07 15:15:00",
+      "effective_trade_date": "2026-04-07",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202604/t20260402_3986825.htm",
+      "source_sha256": "197fc9dbae4124f795c98e552bb445b880cd4b331d5f73d693a88647a5c2371b",
+      "document_fingerprint": "8544a78d2bdf14734a8c0420b920db02b698a2f0bb0f004fb7c22ba548bf1ef3",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-dc6ed6f54419",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2026年记账式附息（四期）国债第二次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "dae9489047b4733e598013364e976e1d702eb0d04ed808b9dabc96947e6a58ae"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2026年记账式附息（四期）国债第二次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260413-902ff937a6",
       "title": "公开市场业务交易公告 [2026]第69号",
       "publish_time": "2026-04-13 09:20:30",
@@ -41006,6 +42432,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260413-0ff50368b5",
+      "title": "关于2026年记账式附息（八期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-04-13 10:51:00",
+      "effective_trade_date": "2026-04-13",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202604/t20260407_3986999.htm",
+      "source_sha256": "b5cd76db6c451aebda130fd0da2f7f63061abddfce291e018f0c5c30c26011de",
+      "document_fingerprint": "30ae2480de4894fc710fc3881eb1597f92f2af5eaeb6b74e8b1658b747450539",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-7f2204124e8b",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式附息（八期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "7c3db9310ea61fdc42e059435997de589e5c0bd2910be06d6df11663ccc86177"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式附息（八期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260420-7d0cf6b834",
       "title": "公开市场业务交易公告 [2026]第74号",
       "publish_time": "2026-04-20 09:20:30",
@@ -41066,6 +42560,33 @@
       "factor_scores": {
         "monetary_policy": 0.0,
         "liquidity": -0.5625,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.0,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260420-63f3abf3ef",
+      "title": "关于公布2026年一般国债、特别国债发行有关安排的通知",
+      "publish_time": "2026-04-20 17:35:00",
+      "effective_trade_date": "2026-04-21",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202604/t20260417_3987846.htm",
+      "source_sha256": "3ddc4349a01381fdb3fe3e9f1b250b89761e59cfc0b732c78a5ec62cba329eeb",
+      "document_fingerprint": "29fffdbcc74edcdebbab3d2a9960128966508be9b781234cf533733e89c9c6f0",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [],
+      "independent_event_keys": [],
+      "active_predicates": [],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
         "growth": 0.0,
         "inflation": 0.0,
         "bond_supply": 0.0,
@@ -41142,6 +42663,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260430-b569c28d12",
+      "title": "关于2026年记账式贴现（二十七期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-04-30 09:55:00",
+      "effective_trade_date": "2026-04-30",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202604/t20260430_3988878.htm",
+      "source_sha256": "8d2183e5e7378c6f885dfcd054722ada51cf4396a7ae7eac61e3cd398ff8f080",
+      "document_fingerprint": "2ca1b8b4ed4cdf77a61e21f2928636c3545d0c164487b6407a91a29506536b65",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-6806538c2fff",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（二十七期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "d69cf3e7757a637599954061ed724e1bd30b7b2c45518acb15b6b59650494e8f"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（二十七期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260506-b338538cdd",
       "title": "公开市场业务交易公告 [2026]第83号",
       "publish_time": "2026-05-06 09:20:30",
@@ -41196,6 +42785,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260506-0fea38e2d5",
+      "title": "关于2026年记账式贴现（二十八期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-05-06 09:59:00",
+      "effective_trade_date": "2026-05-06",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202604/t20260430_3988879.htm",
+      "source_sha256": "ec39fc54c53fa0a4cf5b92cfe9dee88cb4f9a41899bbfca8936997782fe319d1",
+      "document_fingerprint": "cdae4e9917cfa134477cde7213d812d07207910f3582f0e70838e082101f0bb3",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-521bdee20531",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（二十八期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "76d4d55186b24debe3af63f56190575d1664d691eac9a461a314bb8f058bd290"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（二十八期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-REPORT-20260511-c3f25daabb",
@@ -41433,6 +43090,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260511-24d661d832",
+      "title": "关于2026年记账式附息（十期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-05-11 16:58:00",
+      "effective_trade_date": "2026-05-11",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202605/t20260508_3989285.htm",
+      "source_sha256": "54170a1207bd5f3914713d70316ec7b53863fee54146b438ecc0d7659b5a1804",
+      "document_fingerprint": "2214b40faf8bc631a7b185e88ce78e2f564e69406560ebef1d181e5e7dbc4f36",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-d0b5af22c08c",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式附息（十期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "bac1ec2b72a002f9f0977458a4267e9994379ed6cf3e1620d0573eb64fd3e707"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式附息（十期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260518-8b28429965",
       "title": "公开市场业务交易公告 [2026]第92号",
       "publish_time": "2026-05-18 09:20:30",
@@ -41512,6 +43237,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260520-8ffa0f5ccf",
+      "title": "关于2026年记账式贴现（三十二期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-05-20 09:06:00",
+      "effective_trade_date": "2026-05-20",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202605/t20260519_3990108.htm",
+      "source_sha256": "bfc3cecb99ea22dd18efcfffb2a284dd909b719fe45ce9107a8df54418e07c2f",
+      "document_fingerprint": "fbae85a837f40f53af8853f31e5b9e3582ad4c23e310b97c18c41cec7ee0e8c1",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-9e4177342c12",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（三十二期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "7dcec83c19bdef56d727df93faccadd966f3e72bf979d6daa713c11862d4b0c4"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（三十二期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260525-057343cdc2",
       "title": "公开市场业务交易公告 [2026]第97号",
       "publish_time": "2026-05-25 09:20:30",
@@ -41580,6 +43373,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260525-686e18e354",
+      "title": "关于2026年记账式附息（十期）国债第一次续发行工作有关事宜的通知",
+      "publish_time": "2026-05-25 16:47:00",
+      "effective_trade_date": "2026-05-25",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202605/t20260520_3990255.htm",
+      "source_sha256": "47fc071b8fe927358de895ed6e3c12e4bbb63ae15885776173aaebf74eb8e2ec",
+      "document_fingerprint": "3e36560725a85ea1736c3b680b3db085e828ffde3aa48b8b1b9957373cd8f5ca",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-fe3e53dd4bfc",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2026年记账式附息（十期）国债第一次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "54c95ad35f34f778f79a11c4adfe7ee6a00fc0eae38dd8c8910248effc6dcfff"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2026年记账式附息（十期）国债第一次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260601-26eb0df309",
       "title": "公开市场业务交易公告 [2026]第103号",
       "publish_time": "2026-06-01 09:20:30",
@@ -41634,6 +43495,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260602-0e97f05c63",
+      "title": "关于2026年记账式贴现（三十三期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-06-02 09:50:00",
+      "effective_trade_date": "2026-06-02",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202606/t20260602_3991018.htm",
+      "source_sha256": "a76e901da30dc5843a8b9f9458ea3c6911b122af1d063dfb79991c8e6dddc218",
+      "document_fingerprint": "c5d3531dd726f0fd2ec263ef494a92637f2bddb5d2c48f9bab420010f8f411f2",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-ede8bc7ab4d8",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（三十三期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "a837acd4061ceb385f6532a8c446790abd8224f85fcd4b9743a900fa635fac5c"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（三十三期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-OMO-20260608-3f916332bd",
@@ -41704,6 +43633,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260608-40925b907f",
+      "title": "关于2026年记账式附息（十期）国债第二次续发行工作有关事宜的通知",
+      "publish_time": "2026-06-08 15:12:00",
+      "effective_trade_date": "2026-06-08",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202606/t20260603_3991084.htm",
+      "source_sha256": "d7510e2fe4c04c334adaf51f3bf187e5197b6f67f648882159216988cc8bc592",
+      "document_fingerprint": "765bc0e2704c0ff4920423edca11fa34ae8724a44dcaa021a777d720fe36cfef",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-1e8e539aad22",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "关于2026年记账式附息（十期）国债第二次续发行工作有关事宜的通知。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "0f21d7f9876e589f1fef942233144dfa96467985ca379a2c012b4ca5f989b072"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "关于2026年记账式附息（十期）国债第二次续发行工作有关事宜的通知。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260615-80bf435d99",
       "title": "公开市场业务交易公告 [2026]第113号",
       "publish_time": "2026-06-15 09:20:30",
@@ -41758,6 +43755,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260615-79152391d8",
+      "title": "关于2026年记账式贴现（三十七期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-06-15 15:14:00",
+      "effective_trade_date": "2026-06-15",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202606/t20260610_3991431.htm",
+      "source_sha256": "50a4357e805d055a1341085341a67786f99b69d462fbfe4f1b4de211b13acd80",
+      "document_fingerprint": "1c3ba2a87496ddfaf2e2986400cdcdd2a8e7589a47ecc2d48839513a1831c25d",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-4ff3783e89e3",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（三十七期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "25d077464ae2554d3800f75f3d667358fb21eaa6a7990dbae34451bee6cd289c"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（三十七期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-OMO-20260622-9e482720da",
@@ -42071,6 +44136,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260723-ef692bc46d",
+      "title": "关于2026年记账式附息（十五期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-07-23 16:03:00",
+      "effective_trade_date": "2026-07-23",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202607/t20260717_3993758.htm",
+      "source_sha256": "55659bb47194861ca0c8cd85fc3051bbec6aa7caf9f04d1b74d656fa50bf9ff6",
+      "document_fingerprint": "d70b494a3765585316a97ec9d4eeb953929c4450059d76fdec26f6d6ce0a3ffc",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-dfd27958f6d2",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式附息（十五期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "c994f166cdfa02502faf61f64777eaf7bf5ffb7ac69998516ddb86827902da43"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式附息（十五期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260727-e394f7408a",
       "title": "公开市场业务交易公告 [2026]第143号",
       "publish_time": "2026-07-27 09:20:30",
@@ -42139,6 +44272,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260727-a811aace3b",
+      "title": "关于2026年记账式贴现（四十五期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-07-27 16:57:00",
+      "effective_trade_date": "2026-07-27",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202607/t20260721_3993907.htm",
+      "source_sha256": "6e41d0b589d0e613be9b191f69478cbd0da7b670bc5ba896c8bdfb5ff373717e",
+      "document_fingerprint": "6a96e7053d2c5725db8ce4764ab8fa1c8384bd407d58926c9dfaac366aee9a8b",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-4391c839e5ea",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（四十五期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "98f656a2db82ba559f6839f594afe8cd8816bfdf50a40f590ffd5167e0a287b5"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（四十五期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260803-c8deb639f2",
       "title": "公开市场业务交易公告 [2026]第148号",
       "publish_time": "2026-08-03 09:20:30",
@@ -42193,6 +44394,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260804-2ffe09fe82",
+      "title": "关于2026年记账式贴现（四十七期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-08-04 09:07:00",
+      "effective_trade_date": "2026-08-04",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202608/t20260804_3994791.htm",
+      "source_sha256": "6297c22faadf00d94f83ea09907b97e15d00d5910fd0a1d8962417ad1150ceed",
+      "document_fingerprint": "1bc30bfa3d34d8c7c991e01461749f7f8b2e36534bc663c279b769515a40114a",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-371c782da6ad",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（四十七期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "b82b3e2d7adad022bf76824161b247090dac6a823fab9c7b35dc387e98db58ce"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（四十七期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-OMO-20260810-d48be8f507",
@@ -42261,6 +44530,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260811-e3760e934e",
+      "title": "关于2026年记账式贴现（四十九期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-08-11 08:51:00",
+      "effective_trade_date": "2026-08-11",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202608/t20260811_3995228.htm",
+      "source_sha256": "c09e673209592284e08e5e407a8fd4b18011baa5c04cf9255de6432499293f84",
+      "document_fingerprint": "576e2e03e5de8bcacdfb863870a3ed8e3a103287e2200abd3e58d743b146beba",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-d16c2c2c1de6",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（四十九期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "6163ed675b79a82227265907df7c8bc6b08858b4cfdc640b57af18fcbdc62c99"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（四十九期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     },
     {
       "doc_id": "PBC-REPORT-20260812-f1aff3d6fc",
@@ -42509,6 +44846,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260818-bece76042a",
+      "title": "关于2026年记账式贴现（五十二期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-08-18 09:30:00",
+      "effective_trade_date": "2026-08-18",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202608/t20260818_3995687.htm",
+      "source_sha256": "1fa67d642f491294c24fbeb9ac2ecef1d9ef0be19841a0b9fd096e71c8ea845e",
+      "document_fingerprint": "980391e8f3e37e1a371a19d26e0813e2e1fc59d2a2bf2f5b89926142f96110e4",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-8acd4aa8c899",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十二期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "61ecd59b79f4ebb1d2c2708df8999cfe70c853f5f43e2625f91780f9c8d3df56"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十二期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260824-29ee29b879",
       "title": "公开市场业务交易公告 [2026]第163号",
       "publish_time": "2026-08-24 09:20:30",
@@ -42577,6 +44982,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260825-bf1fdcae1a",
+      "title": "关于2026年记账式贴现（五十四期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-08-25 12:13:00",
+      "effective_trade_date": "2026-08-25",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202608/t20260825_3996062.htm",
+      "source_sha256": "38b809fce6d1ac17dfb19cabe9b96616c596ad62d5535310c0a42122cee4b7b3",
+      "document_fingerprint": "1dd0df4ddff8691d862215ca170adae7c2071bf2e367736e7d9003b222a49008",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-80d668df24e9",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十四期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "6823d00998604f4cedbd16fe26e027ac2fc97762ed4a23e2aabe4fb65f8d4a24"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十四期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260831-19fb56f310",
       "title": "公开市场业务交易公告 [2026]第169号",
       "publish_time": "2026-08-31 09:20:30",
@@ -42643,6 +45116,74 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260901-4872e50286",
+      "title": "关于2026年记账式贴现（五十六期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-09-01 15:01:00",
+      "effective_trade_date": "2026-09-01",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202609/t20260901_3996444.htm",
+      "source_sha256": "bafb9425d14569a8fde339cffad134803082b486a333af697c11b59b341b653a",
+      "document_fingerprint": "17eaaf2a5cb0ad01811026c63c545967edbbad061b90f9958605eec5b08208ab",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-635ebd5fb4dc",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十六期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "b69746c7e144b8ac38ab4cd89257d35ccfc5144bace5a7ffaba35a335b3eff0b"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十六期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     }
   ],
   "disclaimer": "本报告仅供研究参考，不构成投资建议"

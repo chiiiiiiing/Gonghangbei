@@ -1,0 +1,2304 @@
+{
+  "version": "rates-robustness-audit-v1",
+  "generated_at": "2026-09-05T13:41:50+08:00",
+  "data_cutoff_exclusive": "2025-01-01",
+  "period": {
+    "start": "2018-01-02",
+    "end": "2024-12-31"
+  },
+  "selection_allowed": false,
+  "selection_warning": "仅使用发现期和验证期做敏感性审计；本报告不改写V1参数，不读取2025年后真实标签，也不得把回顾性留出包装为前瞻OOS。",
+  "production_contract": {
+    "horizon_trading_days": 5,
+    "threshold_bp": 2.0,
+    "text_decay_days": 5,
+    "text_half_life_days": 2.0
+  },
+  "interpretation_guard": "窗口缩短或阈值扩大可能显著提高震荡类占比，从而抬高Accuracy；必须同时比较Macro-F1、每类召回率和类别分布。",
+  "production_ablation": {
+    "horizon_trading_days": 5,
+    "threshold_bp": 2.0,
+    "routes": [
+      {
+        "route": "market_baseline",
+        "route_label": "仅市场数据",
+        "observations": 298,
+        "accuracy": 0.3792,
+        "macro_f1": 0.3647,
+        "macro_auc_ovr": 0.51,
+        "validation_observations": 99,
+        "validation_accuracy": 0.404,
+        "validation_macro_f1": 0.2201,
+        "validation_auc_ovr": 0.4638,
+        "validation_actual_distribution": {
+          "up": 20,
+          "flat": 39,
+          "down": 40
+        }
+      },
+      {
+        "route": "text_only",
+        "route_label": "仅文本因子",
+        "observations": 298,
+        "accuracy": 0.3557,
+        "macro_f1": 0.344,
+        "macro_auc_ovr": 0.5153,
+        "validation_observations": 99,
+        "validation_accuracy": 0.3737,
+        "validation_macro_f1": 0.2259,
+        "validation_auc_ovr": 0.4135,
+        "validation_actual_distribution": {
+          "up": 20,
+          "flat": 39,
+          "down": 40
+        }
+      },
+      {
+        "route": "fusion",
+        "route_label": "市场数据+文本因子+结构化宏观",
+        "observations": 298,
+        "accuracy": 0.4094,
+        "macro_f1": 0.3966,
+        "macro_auc_ovr": 0.54,
+        "validation_observations": 99,
+        "validation_accuracy": 0.4444,
+        "validation_macro_f1": 0.2796,
+        "validation_auc_ovr": 0.5061,
+        "validation_actual_distribution": {
+          "up": 20,
+          "flat": 39,
+          "down": 40
+        }
+      },
+      {
+        "route": "fusion_rules",
+        "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+        "observations": 298,
+        "accuracy": 0.406,
+        "macro_f1": 0.393,
+        "macro_auc_ovr": 0.5439,
+        "validation_observations": 99,
+        "validation_accuracy": 0.4343,
+        "validation_macro_f1": 0.2658,
+        "validation_auc_ovr": 0.5223,
+        "validation_actual_distribution": {
+          "up": 20,
+          "flat": 39,
+          "down": 40
+        }
+      }
+    ],
+    "naive_baselines": [
+      {
+        "route": "naive_majority",
+        "route_label": "滚动多数类",
+        "observations": 298,
+        "accuracy": 0.3557,
+        "macro_precision": 0.2387,
+        "macro_recall": 0.3404,
+        "macro_f1": 0.2782,
+        "macro_auc_ovr": 0.4944,
+        "brier": 0.2237,
+        "confusion_matrix": {
+          "down": {
+            "down": 64,
+            "flat": 44,
+            "up": 0
+          },
+          "flat": {
+            "down": 56,
+            "flat": 42,
+            "up": 0
+          },
+          "up": {
+            "down": 64,
+            "flat": 28,
+            "up": 0
+          }
+        },
+        "actual_distribution": {
+          "flat": 98,
+          "up": 92,
+          "down": 108
+        },
+        "per_class": {
+          "down": {
+            "support": 108,
+            "precision": 0.3478,
+            "recall": 0.5926,
+            "f1": 0.4384,
+            "auc_ovr": 0.4816
+          },
+          "flat": {
+            "support": 98,
+            "precision": 0.3684,
+            "recall": 0.4286,
+            "f1": 0.3962,
+            "auc_ovr": 0.535
+          },
+          "up": {
+            "support": 92,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "auc_ovr": 0.4667
+          }
+        },
+        "validation_observations": 99,
+        "validation_accuracy": 0.3838,
+        "validation_macro_f1": 0.1992,
+        "validation_auc_ovr": 0.3999,
+        "validation_actual_distribution": {
+          "up": 20,
+          "flat": 39,
+          "down": 40
+        }
+      },
+      {
+        "route": "naive_momentum",
+        "route_label": "收益率动量规则",
+        "observations": 298,
+        "accuracy": 0.3792,
+        "macro_precision": 0.3792,
+        "macro_recall": 0.3792,
+        "macro_f1": 0.3792,
+        "macro_auc_ovr": 0.5339,
+        "brier": 0.3097,
+        "confusion_matrix": {
+          "down": {
+            "down": 41,
+            "flat": 36,
+            "up": 31
+          },
+          "flat": {
+            "down": 35,
+            "flat": 37,
+            "up": 26
+          },
+          "up": {
+            "down": 32,
+            "flat": 25,
+            "up": 35
+          }
+        },
+        "actual_distribution": {
+          "flat": 98,
+          "up": 92,
+          "down": 108
+        },
+        "per_class": {
+          "down": {
+            "support": 108,
+            "precision": 0.3796,
+            "recall": 0.3796,
+            "f1": 0.3796,
+            "auc_ovr": 0.5135
+          },
+          "flat": {
+            "support": 98,
+            "precision": 0.3776,
+            "recall": 0.3776,
+            "f1": 0.3776,
+            "auc_ovr": 0.5363
+          },
+          "up": {
+            "support": 92,
+            "precision": 0.3804,
+            "recall": 0.3804,
+            "f1": 0.3804,
+            "auc_ovr": 0.5519
+          }
+        },
+        "validation_observations": 99,
+        "validation_accuracy": 0.3838,
+        "validation_macro_f1": 0.3454,
+        "validation_auc_ovr": 0.5136,
+        "validation_actual_distribution": {
+          "up": 20,
+          "flat": 39,
+          "down": 40
+        }
+      }
+    ]
+  },
+  "horizon_threshold_sensitivity": [
+    {
+      "horizon_trading_days": 1,
+      "threshold_bp": 1.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 1494,
+          "accuracy": 0.4485,
+          "macro_f1": 0.3402,
+          "macro_auc_ovr": 0.5751,
+          "validation_observations": 499,
+          "validation_accuracy": 0.521,
+          "validation_macro_f1": 0.2776,
+          "validation_auc_ovr": 0.5548,
+          "validation_actual_distribution": {
+            "down": 145,
+            "up": 95,
+            "flat": 259
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 1494,
+          "accuracy": 0.4324,
+          "macro_f1": 0.226,
+          "macro_auc_ovr": 0.5217,
+          "validation_observations": 499,
+          "validation_accuracy": 0.519,
+          "validation_macro_f1": 0.2278,
+          "validation_auc_ovr": 0.46,
+          "validation_actual_distribution": {
+            "down": 145,
+            "up": 95,
+            "flat": 259
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 1494,
+          "accuracy": 0.4371,
+          "macro_f1": 0.365,
+          "macro_auc_ovr": 0.575,
+          "validation_observations": 499,
+          "validation_accuracy": 0.523,
+          "validation_macro_f1": 0.316,
+          "validation_auc_ovr": 0.5549,
+          "validation_actual_distribution": {
+            "down": 145,
+            "up": 95,
+            "flat": 259
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 1494,
+          "accuracy": 0.4364,
+          "macro_f1": 0.3657,
+          "macro_auc_ovr": 0.574,
+          "validation_observations": 499,
+          "validation_accuracy": 0.521,
+          "validation_macro_f1": 0.3227,
+          "validation_auc_ovr": 0.5541,
+          "validation_actual_distribution": {
+            "down": 145,
+            "up": 95,
+            "flat": 259
+          }
+        }
+      ],
+      "naive_baselines": [
+        {
+          "route": "naive_majority",
+          "route_label": "滚动多数类",
+          "observations": 1494,
+          "accuracy": 0.4411,
+          "macro_precision": 0.147,
+          "macro_recall": 0.3333,
+          "macro_f1": 0.2041,
+          "macro_auc_ovr": 0.5064,
+          "brier": 0.217,
+          "confusion_matrix": {
+            "down": {
+              "down": 0,
+              "flat": 430,
+              "up": 0
+            },
+            "flat": {
+              "down": 0,
+              "flat": 659,
+              "up": 0
+            },
+            "up": {
+              "down": 0,
+              "flat": 405,
+              "up": 0
+            }
+          },
+          "actual_distribution": {
+            "down": 430,
+            "flat": 659,
+            "up": 405
+          },
+          "per_class": {
+            "down": {
+              "support": 430,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.4887
+            },
+            "flat": {
+              "support": 659,
+              "precision": 0.4411,
+              "recall": 1.0,
+              "f1": 0.6122,
+              "auc_ovr": 0.5234
+            },
+            "up": {
+              "support": 405,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.5071
+            }
+          },
+          "validation_observations": 499,
+          "validation_accuracy": 0.519,
+          "validation_macro_f1": 0.2278,
+          "validation_auc_ovr": 0.4398,
+          "validation_actual_distribution": {
+            "down": 145,
+            "up": 95,
+            "flat": 259
+          }
+        },
+        {
+          "route": "naive_momentum",
+          "route_label": "收益率动量规则",
+          "observations": 1494,
+          "accuracy": 0.3969,
+          "macro_precision": 0.3801,
+          "macro_recall": 0.3801,
+          "macro_f1": 0.38,
+          "macro_auc_ovr": 0.5353,
+          "brier": 0.3014,
+          "confusion_matrix": {
+            "down": {
+              "down": 129,
+              "flat": 185,
+              "up": 116
+            },
+            "flat": {
+              "down": 192,
+              "flat": 321,
+              "up": 146
+            },
+            "up": {
+              "down": 108,
+              "flat": 154,
+              "up": 143
+            }
+          },
+          "actual_distribution": {
+            "down": 430,
+            "flat": 659,
+            "up": 405
+          },
+          "per_class": {
+            "down": {
+              "support": 430,
+              "precision": 0.3007,
+              "recall": 0.3,
+              "f1": 0.3003,
+              "auc_ovr": 0.509
+            },
+            "flat": {
+              "support": 659,
+              "precision": 0.4864,
+              "recall": 0.4871,
+              "f1": 0.4867,
+              "auc_ovr": 0.5406
+            },
+            "up": {
+              "support": 405,
+              "precision": 0.3531,
+              "recall": 0.3531,
+              "f1": 0.3531,
+              "auc_ovr": 0.5562
+            }
+          },
+          "validation_observations": 499,
+          "validation_accuracy": 0.4188,
+          "validation_macro_f1": 0.364,
+          "validation_auc_ovr": 0.524,
+          "validation_actual_distribution": {
+            "down": 145,
+            "up": 95,
+            "flat": 259
+          }
+        }
+      ]
+    },
+    {
+      "horizon_trading_days": 1,
+      "threshold_bp": 2.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 1494,
+          "accuracy": 0.7282,
+          "macro_f1": 0.2848,
+          "macro_auc_ovr": 0.6178,
+          "validation_observations": 499,
+          "validation_accuracy": 0.8116,
+          "validation_macro_f1": 0.2987,
+          "validation_auc_ovr": 0.6177,
+          "validation_actual_distribution": {
+            "flat": 405,
+            "up": 37,
+            "down": 57
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 1494,
+          "accuracy": 0.7303,
+          "macro_f1": 0.2814,
+          "macro_auc_ovr": 0.5459,
+          "validation_observations": 499,
+          "validation_accuracy": 0.8116,
+          "validation_macro_f1": 0.2987,
+          "validation_auc_ovr": 0.3976,
+          "validation_actual_distribution": {
+            "flat": 405,
+            "up": 37,
+            "down": 57
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 1494,
+          "accuracy": 0.7256,
+          "macro_f1": 0.2999,
+          "macro_auc_ovr": 0.6069,
+          "validation_observations": 499,
+          "validation_accuracy": 0.8116,
+          "validation_macro_f1": 0.2987,
+          "validation_auc_ovr": 0.5852,
+          "validation_actual_distribution": {
+            "flat": 405,
+            "up": 37,
+            "down": 57
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 1494,
+          "accuracy": 0.7242,
+          "macro_f1": 0.2995,
+          "macro_auc_ovr": 0.6055,
+          "validation_observations": 499,
+          "validation_accuracy": 0.8076,
+          "validation_macro_f1": 0.2979,
+          "validation_auc_ovr": 0.5818,
+          "validation_actual_distribution": {
+            "flat": 405,
+            "up": 37,
+            "down": 57
+          }
+        }
+      ],
+      "naive_baselines": [
+        {
+          "route": "naive_majority",
+          "route_label": "滚动多数类",
+          "observations": 1494,
+          "accuracy": 0.7303,
+          "macro_precision": 0.2434,
+          "macro_recall": 0.3333,
+          "macro_f1": 0.2814,
+          "macro_auc_ovr": 0.5467,
+          "brier": 0.1437,
+          "confusion_matrix": {
+            "down": {
+              "down": 0,
+              "flat": 214,
+              "up": 0
+            },
+            "flat": {
+              "down": 0,
+              "flat": 1091,
+              "up": 0
+            },
+            "up": {
+              "down": 0,
+              "flat": 189,
+              "up": 0
+            }
+          },
+          "actual_distribution": {
+            "down": 214,
+            "flat": 1091,
+            "up": 189
+          },
+          "per_class": {
+            "down": {
+              "support": 214,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.5264
+            },
+            "flat": {
+              "support": 1091,
+              "precision": 0.7303,
+              "recall": 1.0,
+              "f1": 0.8441,
+              "auc_ovr": 0.5627
+            },
+            "up": {
+              "support": 189,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.5511
+            }
+          },
+          "validation_observations": 499,
+          "validation_accuracy": 0.8116,
+          "validation_macro_f1": 0.2987,
+          "validation_auc_ovr": 0.3576,
+          "validation_actual_distribution": {
+            "flat": 405,
+            "up": 37,
+            "down": 57
+          }
+        },
+        {
+          "route": "naive_momentum",
+          "route_label": "收益率动量规则",
+          "observations": 1494,
+          "accuracy": 0.6031,
+          "macro_precision": 0.3807,
+          "macro_recall": 0.3806,
+          "macro_f1": 0.3806,
+          "macro_auc_ovr": 0.5372,
+          "brier": 0.2052,
+          "confusion_matrix": {
+            "down": {
+              "down": 41,
+              "flat": 144,
+              "up": 29
+            },
+            "flat": {
+              "down": 145,
+              "flat": 823,
+              "up": 123
+            },
+            "up": {
+              "down": 27,
+              "flat": 125,
+              "up": 37
+            }
+          },
+          "actual_distribution": {
+            "down": 214,
+            "flat": 1091,
+            "up": 189
+          },
+          "per_class": {
+            "down": {
+              "support": 214,
+              "precision": 0.1925,
+              "recall": 0.1916,
+              "f1": 0.192,
+              "auc_ovr": 0.5286
+            },
+            "flat": {
+              "support": 1091,
+              "precision": 0.7537,
+              "recall": 0.7544,
+              "f1": 0.754,
+              "auc_ovr": 0.5434
+            },
+            "up": {
+              "support": 189,
+              "precision": 0.1958,
+              "recall": 0.1958,
+              "f1": 0.1958,
+              "auc_ovr": 0.5396
+            }
+          },
+          "validation_observations": 499,
+          "validation_accuracy": 0.7134,
+          "validation_macro_f1": 0.3894,
+          "validation_auc_ovr": 0.5491,
+          "validation_actual_distribution": {
+            "flat": 405,
+            "up": 37,
+            "down": 57
+          }
+        }
+      ]
+    },
+    {
+      "horizon_trading_days": 1,
+      "threshold_bp": 3.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 1494,
+          "accuracy": 0.8661,
+          "macro_f1": 0.3094,
+          "macro_auc_ovr": 0.6473,
+          "validation_observations": 499,
+          "validation_accuracy": 0.9259,
+          "validation_macro_f1": 0.3205,
+          "validation_auc_ovr": 0.5951,
+          "validation_actual_distribution": {
+            "flat": 462,
+            "down": 20,
+            "up": 17
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 1494,
+          "accuracy": 0.8661,
+          "macro_f1": 0.3094,
+          "macro_auc_ovr": 0.5612,
+          "validation_observations": 499,
+          "validation_accuracy": 0.9259,
+          "validation_macro_f1": 0.3205,
+          "validation_auc_ovr": 0.314,
+          "validation_actual_distribution": {
+            "flat": 462,
+            "down": 20,
+            "up": 17
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 1494,
+          "accuracy": 0.8621,
+          "macro_f1": 0.3089,
+          "macro_auc_ovr": 0.6367,
+          "validation_observations": 499,
+          "validation_accuracy": 0.9259,
+          "validation_macro_f1": 0.3205,
+          "validation_auc_ovr": 0.6214,
+          "validation_actual_distribution": {
+            "flat": 462,
+            "down": 20,
+            "up": 17
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 1494,
+          "accuracy": 0.8621,
+          "macro_f1": 0.3089,
+          "macro_auc_ovr": 0.6356,
+          "validation_observations": 499,
+          "validation_accuracy": 0.9259,
+          "validation_macro_f1": 0.3205,
+          "validation_auc_ovr": 0.6097,
+          "validation_actual_distribution": {
+            "flat": 462,
+            "down": 20,
+            "up": 17
+          }
+        }
+      ],
+      "naive_baselines": [
+        {
+          "route": "naive_majority",
+          "route_label": "滚动多数类",
+          "observations": 1494,
+          "accuracy": 0.8661,
+          "macro_precision": 0.2887,
+          "macro_recall": 0.3333,
+          "macro_f1": 0.3094,
+          "macro_auc_ovr": 0.5598,
+          "brier": 0.0803,
+          "confusion_matrix": {
+            "down": {
+              "down": 0,
+              "flat": 106,
+              "up": 0
+            },
+            "flat": {
+              "down": 0,
+              "flat": 1294,
+              "up": 0
+            },
+            "up": {
+              "down": 0,
+              "flat": 94,
+              "up": 0
+            }
+          },
+          "actual_distribution": {
+            "flat": 1294,
+            "down": 106,
+            "up": 94
+          },
+          "per_class": {
+            "down": {
+              "support": 106,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.5478
+            },
+            "flat": {
+              "support": 1294,
+              "precision": 0.8661,
+              "recall": 1.0,
+              "f1": 0.9283,
+              "auc_ovr": 0.5716
+            },
+            "up": {
+              "support": 94,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.5599
+            }
+          },
+          "validation_observations": 499,
+          "validation_accuracy": 0.9259,
+          "validation_macro_f1": 0.3205,
+          "validation_auc_ovr": 0.2751,
+          "validation_actual_distribution": {
+            "flat": 462,
+            "down": 20,
+            "up": 17
+          }
+        },
+        {
+          "route": "naive_momentum",
+          "route_label": "收益率动量规则",
+          "observations": 1494,
+          "accuracy": 0.7805,
+          "macro_precision": 0.3914,
+          "macro_recall": 0.3913,
+          "macro_f1": 0.3914,
+          "macro_auc_ovr": 0.5436,
+          "brier": 0.1225,
+          "confusion_matrix": {
+            "down": {
+              "down": 11,
+              "flat": 89,
+              "up": 6
+            },
+            "flat": {
+              "down": 87,
+              "flat": 1137,
+              "up": 70
+            },
+            "up": {
+              "down": 7,
+              "flat": 69,
+              "up": 18
+            }
+          },
+          "actual_distribution": {
+            "flat": 1294,
+            "down": 106,
+            "up": 94
+          },
+          "per_class": {
+            "down": {
+              "support": 106,
+              "precision": 0.1048,
+              "recall": 0.1038,
+              "f1": 0.1043,
+              "auc_ovr": 0.518
+            },
+            "flat": {
+              "support": 1294,
+              "precision": 0.878,
+              "recall": 0.8787,
+              "f1": 0.8783,
+              "auc_ovr": 0.5443
+            },
+            "up": {
+              "support": 94,
+              "precision": 0.1915,
+              "recall": 0.1915,
+              "f1": 0.1915,
+              "auc_ovr": 0.5686
+            }
+          },
+          "validation_observations": 499,
+          "validation_accuracy": 0.8798,
+          "validation_macro_f1": 0.4033,
+          "validation_auc_ovr": 0.5598,
+          "validation_actual_distribution": {
+            "flat": 462,
+            "down": 20,
+            "up": 17
+          }
+        }
+      ]
+    },
+    {
+      "horizon_trading_days": 5,
+      "threshold_bp": 1.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 298,
+          "accuracy": 0.4295,
+          "macro_f1": 0.2883,
+          "macro_auc_ovr": 0.4868,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4848,
+          "validation_macro_f1": 0.2667,
+          "validation_auc_ovr": 0.4555,
+          "validation_actual_distribution": {
+            "up": 26,
+            "down": 55,
+            "flat": 18
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 298,
+          "accuracy": 0.4128,
+          "macro_f1": 0.2575,
+          "macro_auc_ovr": 0.4888,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4747,
+          "validation_macro_f1": 0.2325,
+          "validation_auc_ovr": 0.4279,
+          "validation_actual_distribution": {
+            "up": 26,
+            "down": 55,
+            "flat": 18
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 298,
+          "accuracy": 0.4027,
+          "macro_f1": 0.3207,
+          "macro_auc_ovr": 0.5167,
+          "validation_observations": 99,
+          "validation_accuracy": 0.404,
+          "validation_macro_f1": 0.2741,
+          "validation_auc_ovr": 0.4566,
+          "validation_actual_distribution": {
+            "up": 26,
+            "down": 55,
+            "flat": 18
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 298,
+          "accuracy": 0.4027,
+          "macro_f1": 0.3206,
+          "macro_auc_ovr": 0.5198,
+          "validation_observations": 99,
+          "validation_accuracy": 0.404,
+          "validation_macro_f1": 0.2737,
+          "validation_auc_ovr": 0.4719,
+          "validation_actual_distribution": {
+            "up": 26,
+            "down": 55,
+            "flat": 18
+          }
+        }
+      ],
+      "naive_baselines": [
+        {
+          "route": "naive_majority",
+          "route_label": "滚动多数类",
+          "observations": 298,
+          "accuracy": 0.453,
+          "macro_precision": 0.2011,
+          "macro_recall": 0.3243,
+          "macro_f1": 0.2133,
+          "macro_auc_ovr": 0.4763,
+          "brier": 0.2074,
+          "confusion_matrix": {
+            "down": {
+              "down": 134,
+              "flat": 0,
+              "up": 5
+            },
+            "flat": {
+              "down": 45,
+              "flat": 0,
+              "up": 1
+            },
+            "up": {
+              "down": 112,
+              "flat": 0,
+              "up": 1
+            }
+          },
+          "actual_distribution": {
+            "down": 139,
+            "up": 113,
+            "flat": 46
+          },
+          "per_class": {
+            "down": {
+              "support": 139,
+              "precision": 0.4605,
+              "recall": 0.964,
+              "f1": 0.6233,
+              "auc_ovr": 0.4664
+            },
+            "flat": {
+              "support": 46,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.4735
+            },
+            "up": {
+              "support": 113,
+              "precision": 0.1429,
+              "recall": 0.0088,
+              "f1": 0.0167,
+              "auc_ovr": 0.489
+            }
+          },
+          "validation_observations": 99,
+          "validation_accuracy": 0.5152,
+          "validation_macro_f1": 0.247,
+          "validation_auc_ovr": 0.4366,
+          "validation_actual_distribution": {
+            "up": 26,
+            "down": 55,
+            "flat": 18
+          }
+        },
+        {
+          "route": "naive_momentum",
+          "route_label": "收益率动量规则",
+          "observations": 298,
+          "accuracy": 0.3926,
+          "macro_precision": 0.3318,
+          "macro_recall": 0.3318,
+          "macro_f1": 0.3318,
+          "macro_auc_ovr": 0.5015,
+          "brier": 0.3034,
+          "confusion_matrix": {
+            "down": {
+              "down": 63,
+              "flat": 25,
+              "up": 51
+            },
+            "flat": {
+              "down": 28,
+              "flat": 5,
+              "up": 13
+            },
+            "up": {
+              "down": 48,
+              "flat": 16,
+              "up": 49
+            }
+          },
+          "actual_distribution": {
+            "down": 139,
+            "up": 113,
+            "flat": 46
+          },
+          "per_class": {
+            "down": {
+              "support": 139,
+              "precision": 0.4532,
+              "recall": 0.4532,
+              "f1": 0.4532,
+              "auc_ovr": 0.4876
+            },
+            "flat": {
+              "support": 46,
+              "precision": 0.1087,
+              "recall": 0.1087,
+              "f1": 0.1087,
+              "auc_ovr": 0.473
+            },
+            "up": {
+              "support": 113,
+              "precision": 0.4336,
+              "recall": 0.4336,
+              "f1": 0.4336,
+              "auc_ovr": 0.5438
+            }
+          },
+          "validation_observations": 99,
+          "validation_accuracy": 0.3838,
+          "validation_macro_f1": 0.3031,
+          "validation_auc_ovr": 0.4782,
+          "validation_actual_distribution": {
+            "up": 26,
+            "down": 55,
+            "flat": 18
+          }
+        }
+      ]
+    },
+    {
+      "horizon_trading_days": 5,
+      "threshold_bp": 2.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 298,
+          "accuracy": 0.3792,
+          "macro_f1": 0.3647,
+          "macro_auc_ovr": 0.51,
+          "validation_observations": 99,
+          "validation_accuracy": 0.404,
+          "validation_macro_f1": 0.2201,
+          "validation_auc_ovr": 0.4638,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 298,
+          "accuracy": 0.3557,
+          "macro_f1": 0.344,
+          "macro_auc_ovr": 0.5153,
+          "validation_observations": 99,
+          "validation_accuracy": 0.3737,
+          "validation_macro_f1": 0.2259,
+          "validation_auc_ovr": 0.4135,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 298,
+          "accuracy": 0.4094,
+          "macro_f1": 0.3966,
+          "macro_auc_ovr": 0.54,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4444,
+          "validation_macro_f1": 0.2796,
+          "validation_auc_ovr": 0.5061,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 298,
+          "accuracy": 0.406,
+          "macro_f1": 0.393,
+          "macro_auc_ovr": 0.5439,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4343,
+          "validation_macro_f1": 0.2658,
+          "validation_auc_ovr": 0.5223,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        }
+      ],
+      "naive_baselines": [
+        {
+          "route": "naive_majority",
+          "route_label": "滚动多数类",
+          "observations": 298,
+          "accuracy": 0.3557,
+          "macro_precision": 0.2387,
+          "macro_recall": 0.3404,
+          "macro_f1": 0.2782,
+          "macro_auc_ovr": 0.4944,
+          "brier": 0.2237,
+          "confusion_matrix": {
+            "down": {
+              "down": 64,
+              "flat": 44,
+              "up": 0
+            },
+            "flat": {
+              "down": 56,
+              "flat": 42,
+              "up": 0
+            },
+            "up": {
+              "down": 64,
+              "flat": 28,
+              "up": 0
+            }
+          },
+          "actual_distribution": {
+            "flat": 98,
+            "up": 92,
+            "down": 108
+          },
+          "per_class": {
+            "down": {
+              "support": 108,
+              "precision": 0.3478,
+              "recall": 0.5926,
+              "f1": 0.4384,
+              "auc_ovr": 0.4816
+            },
+            "flat": {
+              "support": 98,
+              "precision": 0.3684,
+              "recall": 0.4286,
+              "f1": 0.3962,
+              "auc_ovr": 0.535
+            },
+            "up": {
+              "support": 92,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.4667
+            }
+          },
+          "validation_observations": 99,
+          "validation_accuracy": 0.3838,
+          "validation_macro_f1": 0.1992,
+          "validation_auc_ovr": 0.3999,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "naive_momentum",
+          "route_label": "收益率动量规则",
+          "observations": 298,
+          "accuracy": 0.3792,
+          "macro_precision": 0.3792,
+          "macro_recall": 0.3792,
+          "macro_f1": 0.3792,
+          "macro_auc_ovr": 0.5339,
+          "brier": 0.3097,
+          "confusion_matrix": {
+            "down": {
+              "down": 41,
+              "flat": 36,
+              "up": 31
+            },
+            "flat": {
+              "down": 35,
+              "flat": 37,
+              "up": 26
+            },
+            "up": {
+              "down": 32,
+              "flat": 25,
+              "up": 35
+            }
+          },
+          "actual_distribution": {
+            "flat": 98,
+            "up": 92,
+            "down": 108
+          },
+          "per_class": {
+            "down": {
+              "support": 108,
+              "precision": 0.3796,
+              "recall": 0.3796,
+              "f1": 0.3796,
+              "auc_ovr": 0.5135
+            },
+            "flat": {
+              "support": 98,
+              "precision": 0.3776,
+              "recall": 0.3776,
+              "f1": 0.3776,
+              "auc_ovr": 0.5363
+            },
+            "up": {
+              "support": 92,
+              "precision": 0.3804,
+              "recall": 0.3804,
+              "f1": 0.3804,
+              "auc_ovr": 0.5519
+            }
+          },
+          "validation_observations": 99,
+          "validation_accuracy": 0.3838,
+          "validation_macro_f1": 0.3454,
+          "validation_auc_ovr": 0.5136,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        }
+      ]
+    },
+    {
+      "horizon_trading_days": 5,
+      "threshold_bp": 3.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 298,
+          "accuracy": 0.4866,
+          "macro_f1": 0.3295,
+          "macro_auc_ovr": 0.5218,
+          "validation_observations": 99,
+          "validation_accuracy": 0.5859,
+          "validation_macro_f1": 0.269,
+          "validation_auc_ovr": 0.5363,
+          "validation_actual_distribution": {
+            "up": 14,
+            "flat": 58,
+            "down": 27
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 298,
+          "accuracy": 0.4765,
+          "macro_f1": 0.278,
+          "macro_auc_ovr": 0.5426,
+          "validation_observations": 99,
+          "validation_accuracy": 0.5758,
+          "validation_macro_f1": 0.2436,
+          "validation_auc_ovr": 0.4657,
+          "validation_actual_distribution": {
+            "up": 14,
+            "flat": 58,
+            "down": 27
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 298,
+          "accuracy": 0.4631,
+          "macro_f1": 0.3348,
+          "macro_auc_ovr": 0.5622,
+          "validation_observations": 99,
+          "validation_accuracy": 0.596,
+          "validation_macro_f1": 0.2943,
+          "validation_auc_ovr": 0.5566,
+          "validation_actual_distribution": {
+            "up": 14,
+            "flat": 58,
+            "down": 27
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 298,
+          "accuracy": 0.4597,
+          "macro_f1": 0.333,
+          "macro_auc_ovr": 0.5594,
+          "validation_observations": 99,
+          "validation_accuracy": 0.5859,
+          "validation_macro_f1": 0.29,
+          "validation_auc_ovr": 0.5506,
+          "validation_actual_distribution": {
+            "up": 14,
+            "flat": 58,
+            "down": 27
+          }
+        }
+      ],
+      "naive_baselines": [
+        {
+          "route": "naive_majority",
+          "route_label": "滚动多数类",
+          "observations": 298,
+          "accuracy": 0.4832,
+          "macro_precision": 0.2613,
+          "macro_recall": 0.3416,
+          "macro_f1": 0.2568,
+          "macro_auc_ovr": 0.5241,
+          "brier": 0.2105,
+          "confusion_matrix": {
+            "down": {
+              "down": 6,
+              "flat": 76,
+              "up": 0
+            },
+            "flat": {
+              "down": 7,
+              "flat": 138,
+              "up": 0
+            },
+            "up": {
+              "down": 8,
+              "flat": 63,
+              "up": 0
+            }
+          },
+          "actual_distribution": {
+            "flat": 145,
+            "up": 71,
+            "down": 82
+          },
+          "per_class": {
+            "down": {
+              "support": 82,
+              "precision": 0.2857,
+              "recall": 0.0732,
+              "f1": 0.1165,
+              "auc_ovr": 0.5128
+            },
+            "flat": {
+              "support": 145,
+              "precision": 0.4982,
+              "recall": 0.9517,
+              "f1": 0.654,
+              "auc_ovr": 0.5653
+            },
+            "up": {
+              "support": 71,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.4942
+            }
+          },
+          "validation_observations": 99,
+          "validation_accuracy": 0.5859,
+          "validation_macro_f1": 0.2463,
+          "validation_auc_ovr": 0.4667,
+          "validation_actual_distribution": {
+            "up": 14,
+            "flat": 58,
+            "down": 27
+          }
+        },
+        {
+          "route": "naive_momentum",
+          "route_label": "收益率动量规则",
+          "observations": 298,
+          "accuracy": 0.396,
+          "macro_precision": 0.3628,
+          "macro_recall": 0.3628,
+          "macro_f1": 0.3628,
+          "macro_auc_ovr": 0.5218,
+          "brier": 0.3019,
+          "confusion_matrix": {
+            "down": {
+              "down": 22,
+              "flat": 43,
+              "up": 17
+            },
+            "flat": {
+              "down": 39,
+              "flat": 74,
+              "up": 32
+            },
+            "up": {
+              "down": 21,
+              "flat": 28,
+              "up": 22
+            }
+          },
+          "actual_distribution": {
+            "flat": 145,
+            "up": 71,
+            "down": 82
+          },
+          "per_class": {
+            "down": {
+              "support": 82,
+              "precision": 0.2683,
+              "recall": 0.2683,
+              "f1": 0.2683,
+              "auc_ovr": 0.4953
+            },
+            "flat": {
+              "support": 145,
+              "precision": 0.5103,
+              "recall": 0.5103,
+              "f1": 0.5103,
+              "auc_ovr": 0.5231
+            },
+            "up": {
+              "support": 71,
+              "precision": 0.3099,
+              "recall": 0.3099,
+              "f1": 0.3099,
+              "auc_ovr": 0.547
+            }
+          },
+          "validation_observations": 99,
+          "validation_accuracy": 0.4646,
+          "validation_macro_f1": 0.3534,
+          "validation_auc_ovr": 0.5179,
+          "validation_actual_distribution": {
+            "up": 14,
+            "flat": 58,
+            "down": 27
+          }
+        }
+      ]
+    },
+    {
+      "horizon_trading_days": 10,
+      "threshold_bp": 1.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 148,
+          "accuracy": 0.4257,
+          "macro_f1": 0.2989,
+          "macro_auc_ovr": 0.4635,
+          "validation_observations": 49,
+          "validation_accuracy": 0.551,
+          "validation_macro_f1": 0.3355,
+          "validation_auc_ovr": 0.5605,
+          "validation_actual_distribution": {
+            "up": 15,
+            "down": 28,
+            "flat": 6
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 148,
+          "accuracy": 0.4189,
+          "macro_f1": 0.2058,
+          "macro_auc_ovr": 0.4253,
+          "validation_observations": 49,
+          "validation_accuracy": 0.551,
+          "validation_macro_f1": 0.2368,
+          "validation_auc_ovr": 0.4226,
+          "validation_actual_distribution": {
+            "up": 15,
+            "down": 28,
+            "flat": 6
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 148,
+          "accuracy": 0.3986,
+          "macro_f1": 0.2835,
+          "macro_auc_ovr": 0.4352,
+          "validation_observations": 49,
+          "validation_accuracy": 0.5102,
+          "validation_macro_f1": 0.3376,
+          "validation_auc_ovr": 0.4953,
+          "validation_actual_distribution": {
+            "up": 15,
+            "down": 28,
+            "flat": 6
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 148,
+          "accuracy": 0.3986,
+          "macro_f1": 0.2835,
+          "macro_auc_ovr": 0.437,
+          "validation_observations": 49,
+          "validation_accuracy": 0.5102,
+          "validation_macro_f1": 0.3376,
+          "validation_auc_ovr": 0.5026,
+          "validation_actual_distribution": {
+            "up": 15,
+            "down": 28,
+            "flat": 6
+          }
+        }
+      ],
+      "naive_baselines": [
+        {
+          "route": "naive_majority",
+          "route_label": "滚动多数类",
+          "observations": 148,
+          "accuracy": 0.4459,
+          "macro_precision": 0.1486,
+          "macro_recall": 0.3333,
+          "macro_f1": 0.2056,
+          "macro_auc_ovr": 0.4069,
+          "brier": 0.2166,
+          "confusion_matrix": {
+            "down": {
+              "down": 66,
+              "flat": 0,
+              "up": 0
+            },
+            "flat": {
+              "down": 23,
+              "flat": 0,
+              "up": 0
+            },
+            "up": {
+              "down": 59,
+              "flat": 0,
+              "up": 0
+            }
+          },
+          "actual_distribution": {
+            "up": 59,
+            "down": 66,
+            "flat": 23
+          },
+          "per_class": {
+            "down": {
+              "support": 66,
+              "precision": 0.4459,
+              "recall": 1.0,
+              "f1": 0.6168,
+              "auc_ovr": 0.3908
+            },
+            "flat": {
+              "support": 23,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.4405
+            },
+            "up": {
+              "support": 59,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.3895
+            }
+          },
+          "validation_observations": 49,
+          "validation_accuracy": 0.5714,
+          "validation_macro_f1": 0.2424,
+          "validation_auc_ovr": 0.4328,
+          "validation_actual_distribution": {
+            "up": 15,
+            "down": 28,
+            "flat": 6
+          }
+        },
+        {
+          "route": "naive_momentum",
+          "route_label": "收益率动量规则",
+          "observations": 148,
+          "accuracy": 0.3581,
+          "macro_precision": 0.3022,
+          "macro_recall": 0.3022,
+          "macro_f1": 0.3022,
+          "macro_auc_ovr": 0.4779,
+          "brier": 0.3195,
+          "confusion_matrix": {
+            "down": {
+              "down": 25,
+              "flat": 14,
+              "up": 27
+            },
+            "flat": {
+              "down": 15,
+              "flat": 2,
+              "up": 6
+            },
+            "up": {
+              "down": 26,
+              "flat": 7,
+              "up": 26
+            }
+          },
+          "actual_distribution": {
+            "up": 59,
+            "down": 66,
+            "flat": 23
+          },
+          "per_class": {
+            "down": {
+              "support": 66,
+              "precision": 0.3788,
+              "recall": 0.3788,
+              "f1": 0.3788,
+              "auc_ovr": 0.4394
+            },
+            "flat": {
+              "support": 23,
+              "precision": 0.087,
+              "recall": 0.087,
+              "f1": 0.087,
+              "auc_ovr": 0.4595
+            },
+            "up": {
+              "support": 59,
+              "precision": 0.4407,
+              "recall": 0.4407,
+              "f1": 0.4407,
+              "auc_ovr": 0.5349
+            }
+          },
+          "validation_observations": 49,
+          "validation_accuracy": 0.3265,
+          "validation_macro_f1": 0.2315,
+          "validation_auc_ovr": 0.4147,
+          "validation_actual_distribution": {
+            "up": 15,
+            "down": 28,
+            "flat": 6
+          }
+        }
+      ]
+    },
+    {
+      "horizon_trading_days": 10,
+      "threshold_bp": 2.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 148,
+          "accuracy": 0.3716,
+          "macro_f1": 0.29,
+          "macro_auc_ovr": 0.454,
+          "validation_observations": 49,
+          "validation_accuracy": 0.5102,
+          "validation_macro_f1": 0.3653,
+          "validation_auc_ovr": 0.4667,
+          "validation_actual_distribution": {
+            "up": 12,
+            "down": 26,
+            "flat": 11
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 148,
+          "accuracy": 0.3716,
+          "macro_f1": 0.1931,
+          "macro_auc_ovr": 0.4326,
+          "validation_observations": 49,
+          "validation_accuracy": 0.4898,
+          "validation_macro_f1": 0.2222,
+          "validation_auc_ovr": 0.4463,
+          "validation_actual_distribution": {
+            "up": 12,
+            "down": 26,
+            "flat": 11
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 148,
+          "accuracy": 0.3311,
+          "macro_f1": 0.2817,
+          "macro_auc_ovr": 0.4435,
+          "validation_observations": 49,
+          "validation_accuracy": 0.3878,
+          "validation_macro_f1": 0.3409,
+          "validation_auc_ovr": 0.4775,
+          "validation_actual_distribution": {
+            "up": 12,
+            "down": 26,
+            "flat": 11
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 148,
+          "accuracy": 0.3311,
+          "macro_f1": 0.2817,
+          "macro_auc_ovr": 0.4444,
+          "validation_observations": 49,
+          "validation_accuracy": 0.3878,
+          "validation_macro_f1": 0.3409,
+          "validation_auc_ovr": 0.4839,
+          "validation_actual_distribution": {
+            "up": 12,
+            "down": 26,
+            "flat": 11
+          }
+        }
+      ],
+      "naive_baselines": [
+        {
+          "route": "naive_majority",
+          "route_label": "滚动多数类",
+          "observations": 148,
+          "accuracy": 0.4054,
+          "macro_precision": 0.137,
+          "macro_recall": 0.3279,
+          "macro_f1": 0.1932,
+          "macro_auc_ovr": 0.43,
+          "brier": 0.2283,
+          "confusion_matrix": {
+            "down": {
+              "down": 60,
+              "flat": 0,
+              "up": 1
+            },
+            "flat": {
+              "down": 38,
+              "flat": 0,
+              "up": 1
+            },
+            "up": {
+              "down": 48,
+              "flat": 0,
+              "up": 0
+            }
+          },
+          "actual_distribution": {
+            "flat": 39,
+            "up": 48,
+            "down": 61
+          },
+          "per_class": {
+            "down": {
+              "support": 61,
+              "precision": 0.411,
+              "recall": 0.9836,
+              "f1": 0.5797,
+              "auc_ovr": 0.4034
+            },
+            "flat": {
+              "support": 39,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.4531
+            },
+            "up": {
+              "support": 48,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.4334
+            }
+          },
+          "validation_observations": 49,
+          "validation_accuracy": 0.5102,
+          "validation_macro_f1": 0.2283,
+          "validation_auc_ovr": 0.4778,
+          "validation_actual_distribution": {
+            "up": 12,
+            "down": 26,
+            "flat": 11
+          }
+        },
+        {
+          "route": "naive_momentum",
+          "route_label": "收益率动量规则",
+          "observations": 148,
+          "accuracy": 0.3243,
+          "macro_precision": 0.3151,
+          "macro_recall": 0.3151,
+          "macro_f1": 0.3151,
+          "macro_auc_ovr": 0.4852,
+          "brier": 0.3353,
+          "confusion_matrix": {
+            "down": {
+              "down": 21,
+              "flat": 22,
+              "up": 18
+            },
+            "flat": {
+              "down": 20,
+              "flat": 8,
+              "up": 11
+            },
+            "up": {
+              "down": 20,
+              "flat": 9,
+              "up": 19
+            }
+          },
+          "actual_distribution": {
+            "flat": 39,
+            "up": 48,
+            "down": 61
+          },
+          "per_class": {
+            "down": {
+              "support": 61,
+              "precision": 0.3443,
+              "recall": 0.3443,
+              "f1": 0.3443,
+              "auc_ovr": 0.4422
+            },
+            "flat": {
+              "support": 39,
+              "precision": 0.2051,
+              "recall": 0.2051,
+              "f1": 0.2051,
+              "auc_ovr": 0.4604
+            },
+            "up": {
+              "support": 48,
+              "precision": 0.3958,
+              "recall": 0.3958,
+              "f1": 0.3958,
+              "auc_ovr": 0.5529
+            }
+          },
+          "validation_observations": 49,
+          "validation_accuracy": 0.3061,
+          "validation_macro_f1": 0.2573,
+          "validation_auc_ovr": 0.4382,
+          "validation_actual_distribution": {
+            "up": 12,
+            "down": 26,
+            "flat": 11
+          }
+        }
+      ]
+    },
+    {
+      "horizon_trading_days": 10,
+      "threshold_bp": 3.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 148,
+          "accuracy": 0.2973,
+          "macro_f1": 0.2902,
+          "macro_auc_ovr": 0.4316,
+          "validation_observations": 49,
+          "validation_accuracy": 0.3061,
+          "validation_macro_f1": 0.244,
+          "validation_auc_ovr": 0.452,
+          "validation_actual_distribution": {
+            "up": 11,
+            "down": 19,
+            "flat": 19
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 148,
+          "accuracy": 0.3041,
+          "macro_f1": 0.2427,
+          "macro_auc_ovr": 0.4496,
+          "validation_observations": 49,
+          "validation_accuracy": 0.3878,
+          "validation_macro_f1": 0.2803,
+          "validation_auc_ovr": 0.5076,
+          "validation_actual_distribution": {
+            "up": 11,
+            "down": 19,
+            "flat": 19
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 148,
+          "accuracy": 0.3108,
+          "macro_f1": 0.2814,
+          "macro_auc_ovr": 0.4299,
+          "validation_observations": 49,
+          "validation_accuracy": 0.3673,
+          "validation_macro_f1": 0.2364,
+          "validation_auc_ovr": 0.4818,
+          "validation_actual_distribution": {
+            "up": 11,
+            "down": 19,
+            "flat": 19
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 148,
+          "accuracy": 0.3108,
+          "macro_f1": 0.2811,
+          "macro_auc_ovr": 0.43,
+          "validation_observations": 49,
+          "validation_accuracy": 0.3673,
+          "validation_macro_f1": 0.2357,
+          "validation_auc_ovr": 0.4886,
+          "validation_actual_distribution": {
+            "up": 11,
+            "down": 19,
+            "flat": 19
+          }
+        }
+      ],
+      "naive_baselines": [
+        {
+          "route": "naive_majority",
+          "route_label": "滚动多数类",
+          "observations": 148,
+          "accuracy": 0.3378,
+          "macro_precision": 0.2263,
+          "macro_recall": 0.3091,
+          "macro_f1": 0.2606,
+          "macro_auc_ovr": 0.4424,
+          "brier": 0.2296,
+          "confusion_matrix": {
+            "down": {
+              "down": 25,
+              "flat": 27,
+              "up": 0
+            },
+            "flat": {
+              "down": 31,
+              "flat": 25,
+              "up": 0
+            },
+            "up": {
+              "down": 23,
+              "flat": 17,
+              "up": 0
+            }
+          },
+          "actual_distribution": {
+            "flat": 56,
+            "up": 40,
+            "down": 52
+          },
+          "per_class": {
+            "down": {
+              "support": 52,
+              "precision": 0.3165,
+              "recall": 0.4808,
+              "f1": 0.3817,
+              "auc_ovr": 0.4221
+            },
+            "flat": {
+              "support": 56,
+              "precision": 0.3623,
+              "recall": 0.4464,
+              "f1": 0.4,
+              "auc_ovr": 0.4745
+            },
+            "up": {
+              "support": 40,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "auc_ovr": 0.4307
+            }
+          },
+          "validation_observations": 49,
+          "validation_accuracy": 0.3878,
+          "validation_macro_f1": 0.1863,
+          "validation_auc_ovr": 0.4689,
+          "validation_actual_distribution": {
+            "up": 11,
+            "down": 19,
+            "flat": 19
+          }
+        },
+        {
+          "route": "naive_momentum",
+          "route_label": "收益率动量规则",
+          "observations": 148,
+          "accuracy": 0.2905,
+          "macro_precision": 0.2933,
+          "macro_recall": 0.2933,
+          "macro_f1": 0.2933,
+          "macro_auc_ovr": 0.4666,
+          "brier": 0.3511,
+          "confusion_matrix": {
+            "down": {
+              "down": 14,
+              "flat": 25,
+              "up": 13
+            },
+            "flat": {
+              "down": 26,
+              "flat": 16,
+              "up": 14
+            },
+            "up": {
+              "down": 12,
+              "flat": 15,
+              "up": 13
+            }
+          },
+          "actual_distribution": {
+            "flat": 56,
+            "up": 40,
+            "down": 52
+          },
+          "per_class": {
+            "down": {
+              "support": 52,
+              "precision": 0.2692,
+              "recall": 0.2692,
+              "f1": 0.2692,
+              "auc_ovr": 0.4367
+            },
+            "flat": {
+              "support": 56,
+              "precision": 0.2857,
+              "recall": 0.2857,
+              "f1": 0.2857,
+              "auc_ovr": 0.4255
+            },
+            "up": {
+              "support": 40,
+              "precision": 0.325,
+              "recall": 0.325,
+              "f1": 0.325,
+              "auc_ovr": 0.5375
+            }
+          },
+          "validation_observations": 49,
+          "validation_accuracy": 0.2449,
+          "validation_macro_f1": 0.2352,
+          "validation_auc_ovr": 0.423,
+          "validation_actual_distribution": {
+            "up": 11,
+            "down": 19,
+            "flat": 19
+          }
+        }
+      ]
+    }
+  ],
+  "text_decay_sensitivity": [
+    {
+      "text_decay_days": 3,
+      "text_half_life_days": 1.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 298,
+          "accuracy": 0.3792,
+          "macro_f1": 0.3647,
+          "macro_auc_ovr": 0.51,
+          "validation_observations": 99,
+          "validation_accuracy": 0.404,
+          "validation_macro_f1": 0.2201,
+          "validation_auc_ovr": 0.4638,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 298,
+          "accuracy": 0.3456,
+          "macro_f1": 0.2926,
+          "macro_auc_ovr": 0.516,
+          "validation_observations": 99,
+          "validation_accuracy": 0.3939,
+          "validation_macro_f1": 0.2032,
+          "validation_auc_ovr": 0.4241,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 298,
+          "accuracy": 0.3893,
+          "macro_f1": 0.3724,
+          "macro_auc_ovr": 0.5421,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4444,
+          "validation_macro_f1": 0.2797,
+          "validation_auc_ovr": 0.5054,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 298,
+          "accuracy": 0.3893,
+          "macro_f1": 0.3724,
+          "macro_auc_ovr": 0.5421,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4444,
+          "validation_macro_f1": 0.2797,
+          "validation_auc_ovr": 0.5038,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        }
+      ]
+    },
+    {
+      "text_decay_days": 5,
+      "text_half_life_days": 2.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 298,
+          "accuracy": 0.3792,
+          "macro_f1": 0.3647,
+          "macro_auc_ovr": 0.51,
+          "validation_observations": 99,
+          "validation_accuracy": 0.404,
+          "validation_macro_f1": 0.2201,
+          "validation_auc_ovr": 0.4638,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 298,
+          "accuracy": 0.3557,
+          "macro_f1": 0.344,
+          "macro_auc_ovr": 0.5153,
+          "validation_observations": 99,
+          "validation_accuracy": 0.3737,
+          "validation_macro_f1": 0.2259,
+          "validation_auc_ovr": 0.4135,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 298,
+          "accuracy": 0.4094,
+          "macro_f1": 0.3966,
+          "macro_auc_ovr": 0.54,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4444,
+          "validation_macro_f1": 0.2796,
+          "validation_auc_ovr": 0.5061,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 298,
+          "accuracy": 0.406,
+          "macro_f1": 0.393,
+          "macro_auc_ovr": 0.5439,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4343,
+          "validation_macro_f1": 0.2658,
+          "validation_auc_ovr": 0.5223,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        }
+      ]
+    },
+    {
+      "text_decay_days": 10,
+      "text_half_life_days": 5.0,
+      "routes": [
+        {
+          "route": "market_baseline",
+          "route_label": "仅市场数据",
+          "observations": 298,
+          "accuracy": 0.3792,
+          "macro_f1": 0.3647,
+          "macro_auc_ovr": 0.51,
+          "validation_observations": 99,
+          "validation_accuracy": 0.404,
+          "validation_macro_f1": 0.2201,
+          "validation_auc_ovr": 0.4638,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "text_only",
+          "route_label": "仅文本因子",
+          "observations": 298,
+          "accuracy": 0.3356,
+          "macro_f1": 0.2748,
+          "macro_auc_ovr": 0.494,
+          "validation_observations": 99,
+          "validation_accuracy": 0.3535,
+          "validation_macro_f1": 0.1994,
+          "validation_auc_ovr": 0.4014,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "fusion",
+          "route_label": "市场数据+文本因子+结构化宏观",
+          "observations": 298,
+          "accuracy": 0.3893,
+          "macro_f1": 0.3701,
+          "macro_auc_ovr": 0.5371,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4444,
+          "validation_macro_f1": 0.2907,
+          "validation_auc_ovr": 0.4993,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        },
+        {
+          "route": "fusion_rules",
+          "route_label": "市场数据+文本因子+结构化宏观+规则增强",
+          "observations": 298,
+          "accuracy": 0.396,
+          "macro_f1": 0.3788,
+          "macro_auc_ovr": 0.5468,
+          "validation_observations": 99,
+          "validation_accuracy": 0.4646,
+          "validation_macro_f1": 0.341,
+          "validation_auc_ovr": 0.5388,
+          "validation_actual_distribution": {
+            "up": 20,
+            "flat": 39,
+            "down": 40
+          }
+        }
+      ]
+    }
+  ]
+}

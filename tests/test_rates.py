@@ -8,7 +8,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 from app.server import _RATE_LIMITS, app
+from scripts.augment_rates_policy_sources import _index_existing_by_url
 from scripts.fetch_rates_structured_data import _mlf_amount, _mlf_rate, parse_pboc_afre_stock_text
+from scripts.review_rates_annotations import evaluate_review, prepare_review
 from src.ai.gateway import AISettings
 from src.rates.engine import (
     _daily_context,
@@ -122,6 +124,20 @@ class RatesResearchTests(unittest.TestCase):
         self.assertEqual(labels[0], "up")
         self.assertIsNone(labels[-1])
         self.assertEqual(sum(label is None for label in labels), 5)
+
+    def test_labels_support_audit_only_horizon_and_threshold_variants(self) -> None:
+        rows = [
+            {"trade_date": f"2026-02-{index + 1:02d}", "cgb_10y_yield": str(1.0 + index * 0.01), "dr007_proxy": "1.5"}
+            for index in range(12)
+        ]
+        one_day = labels_for_market(rows, horizon_trading_days=1, threshold_bp=0.5)
+        ten_day = labels_for_market(rows, horizon_trading_days=10, threshold_bp=2.0)
+        self.assertEqual(one_day[0], "up")
+        self.assertEqual(sum(label is None for label in one_day), 1)
+        self.assertEqual(ten_day[0], "up")
+        self.assertEqual(sum(label is None for label in ten_day), 10)
+        with self.assertRaises(ValueError):
+            labels_for_market(rows, horizon_trading_days=0)
 
     def test_independent_event_key_collapses_repeated_calendar_notice(self) -> None:
         base = {
@@ -326,7 +342,7 @@ class RatesResearchTests(unittest.TestCase):
                 "content": "中国人民银行开展逆回购操作，向市场投放流动性，保持流动性合理充裕。",
                 "source_name": "中国人民银行",
                 "source_url": "https://www.pbc.gov.cn/",
-                "publish_time": "2026-08-28T09:30:00",
+                "publish_time": "2026-09-04T09:30:00",
             })
         llm_call.assert_not_called()
         self.assertEqual(response.status_code, 200)
@@ -442,6 +458,28 @@ class RatesResearchTests(unittest.TestCase):
             self.assertNotEqual(first["review_id"], second["review_id"])
         with self.assertRaises(ValueError):
             append_review({"document_id": "D1", "decision": "unknown"})
+
+    def test_blind_annotation_review_requires_independent_gold_labels(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            review_dir = Path(directory)
+            prepared = prepare_review(review_dir=review_dir)
+            self.assertEqual(prepared["documents"], 60)
+            self.assertEqual(prepared["predicate_labels_required"], 840)
+            self.assertTrue(prepared["blind"])
+            evaluated = evaluate_review(review_dir=review_dir)
+            self.assertEqual(evaluated["status"], "awaiting_independent_human_labels")
+            self.assertEqual(evaluated["labels_completed"], 0)
+            self.assertEqual(evaluated["metrics"], {})
+
+    def test_policy_augmentation_preserves_all_verified_mof_urls(self) -> None:
+        rows = [
+            {"source_url": "https://www.mof.gov.cn/seed.html", "source_name": "财政部"},
+            {"source_url": "https://www.mof.gov.cn/crawled.html", "source_name": "财政部"},
+            {"source_url": "https://www.pbc.gov.cn/policy.html", "source_name": "中国人民银行"},
+        ]
+        indexed = _index_existing_by_url(rows)
+        self.assertEqual(set(indexed), {row["source_url"] for row in rows})
+        self.assertEqual(indexed["https://www.mof.gov.cn/crawled.html"]["source_name"], "财政部")
 
 
 if __name__ == "__main__":

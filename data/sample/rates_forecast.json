@@ -1,105 +1,105 @@
 {
   "status": "model_estimate",
-  "as_of": "2026-09-01",
+  "as_of": "2026-09-04",
   "horizon_trading_days": 5,
   "target": "cgb_10y_yield_5d_direction",
   "flat_threshold_bp": 2.0,
   "data_sufficient": true,
   "probabilities": {
-    "down": 0.27236344,
-    "flat": 0.43885233,
-    "up": 0.28878423
+    "down": 0.27332687,
+    "flat": 0.45602306,
+    "up": 0.27065007
   },
   "predicted_label": "flat",
   "train_observations": 752,
-  "train_start": "2023-08-17",
-  "train_origin_end": "2026-08-25",
-  "label_known_through": "2026-09-01",
+  "train_start": "2023-08-22",
+  "train_origin_end": "2026-08-28",
+  "label_known_through": "2026-09-04",
   "feature_contributions": [
-    {
-      "feature": "fdr007_level",
-      "label": "fdr007_level",
-      "contribution": 0.190772
-    },
-    {
-      "feature": "text_monetary_policy",
-      "label": "货币政策",
-      "contribution": -0.032766
-    },
-    {
-      "feature": "text_liquidity",
-      "label": "市场流动性",
-      "contribution": -0.031549
-    },
     {
       "feature": "rule_pressure",
       "label": "rule_pressure",
-      "contribution": 0.020676
-    },
-    {
-      "feature": "yield_volatility_20d_bp",
-      "label": "yield_volatility_20d_bp",
-      "contribution": 0.017835
-    },
-    {
-      "feature": "structured_mlf_rate",
-      "label": "structured_mlf_rate",
-      "contribution": -0.007663
-    },
-    {
-      "feature": "text_risk_appetite",
-      "label": "风险偏好",
-      "contribution": 0.006664
-    },
-    {
-      "feature": "yield_change_5d_bp",
-      "label": "yield_change_5d_bp",
-      "contribution": -0.005353
-    },
-    {
-      "feature": "fdr007_change_1d_bp",
-      "label": "fdr007_change_1d_bp",
-      "contribution": -0.002801
-    },
-    {
-      "feature": "text_growth",
-      "label": "经济增长",
-      "contribution": 0.001446
-    },
-    {
-      "feature": "yield_change_1d_bp",
-      "label": "yield_change_1d_bp",
-      "contribution": 0.001334
-    },
-    {
-      "feature": "text_inflation",
-      "label": "通胀",
-      "contribution": -0.00123
-    },
-    {
-      "feature": "structured_mlf_amount",
-      "label": "structured_mlf_amount",
-      "contribution": -0.000699
-    },
-    {
-      "feature": "yield_change_20d_bp",
-      "label": "yield_change_20d_bp",
-      "contribution": -0.000498
-    },
-    {
-      "feature": "fdr007_gap_20d_bp",
-      "label": "fdr007_gap_20d_bp",
-      "contribution": -0.000218
-    },
-    {
-      "feature": "structured_government_bond_issuance",
-      "label": "structured_government_bond_issuance",
-      "contribution": -0.000177
+      "contribution": 0.292324
     },
     {
       "feature": "text_bond_supply",
       "label": "债券供给",
-      "contribution": 0.0
+      "contribution": -0.224056
+    },
+    {
+      "feature": "fdr007_level",
+      "label": "fdr007_level",
+      "contribution": 0.189257
+    },
+    {
+      "feature": "text_monetary_policy",
+      "label": "货币政策",
+      "contribution": -0.032385
+    },
+    {
+      "feature": "text_liquidity",
+      "label": "市场流动性",
+      "contribution": -0.030328
+    },
+    {
+      "feature": "yield_volatility_20d_bp",
+      "label": "yield_volatility_20d_bp",
+      "contribution": 0.016572
+    },
+    {
+      "feature": "fdr007_gap_20d_bp",
+      "label": "fdr007_gap_20d_bp",
+      "contribution": -0.011063
+    },
+    {
+      "feature": "structured_mlf_rate",
+      "label": "structured_mlf_rate",
+      "contribution": -0.009913
+    },
+    {
+      "feature": "text_risk_appetite",
+      "label": "风险偏好",
+      "contribution": 0.006563
+    },
+    {
+      "feature": "yield_change_5d_bp",
+      "label": "yield_change_5d_bp",
+      "contribution": 0.005872
+    },
+    {
+      "feature": "text_inflation",
+      "label": "通胀",
+      "contribution": -0.001333
+    },
+    {
+      "feature": "text_growth",
+      "label": "经济增长",
+      "contribution": 0.000794
+    },
+    {
+      "feature": "yield_change_20d_bp",
+      "label": "yield_change_20d_bp",
+      "contribution": -0.000686
+    },
+    {
+      "feature": "yield_change_1d_bp",
+      "label": "yield_change_1d_bp",
+      "contribution": -0.000684
+    },
+    {
+      "feature": "structured_mlf_amount",
+      "label": "structured_mlf_amount",
+      "contribution": -0.000323
+    },
+    {
+      "feature": "structured_government_bond_issuance",
+      "label": "structured_government_bond_issuance",
+      "contribution": -0.000224
+    },
+    {
+      "feature": "fdr007_change_1d_bp",
+      "label": "fdr007_change_1d_bp",
+      "contribution": 8.3e-05
     },
     {
       "feature": "structured_cpi_yoy",
@@ -135,8 +135,8 @@
   "reason": "",
   "bond_price_direction": "债券价格震荡",
   "market_snapshot": {
-    "cgb_10y_yield": 1.6834,
-    "dr007_proxy": 1.39,
+    "cgb_10y_yield": 1.6804,
+    "dr007_proxy": 1.37,
     "dr007_state": "均衡",
     "dr007_proxy_name": "FDR007_FIXING",
     "cgb_source_url": "https://yield.chinabond.com.cn/cbweb-mn/yc/downYearBzqx?year=2026&wrjxCBFlag=0&zblx=txy&ycDefId=2c9081e50a2f9606010a3068cae70001&locale=en_US",
@@ -166,7 +166,7 @@
     {
       "name": "bond_supply",
       "label": "债券供给",
-      "score": 0.0
+      "score": 0.5733
     },
     {
       "name": "risk_appetite",
@@ -179,7 +179,7 @@
     "liquidity": "sufficient",
     "growth": "sufficient",
     "inflation": "sufficient",
-    "bond_supply": "insufficient_evidence",
+    "bond_supply": "sufficient",
     "risk_appetite": "sufficient"
   },
   "structured_data_status": "partial",
@@ -205,267 +205,87 @@
     "mlf_rate": "sufficient",
     "government_bond_issuance": "sufficient"
   },
-  "triggered_rules": [],
+  "triggered_rules": [
+    {
+      "rule_id": "R-SUPPLY-01",
+      "conditions": [
+        "government_bond_supply_rises"
+      ],
+      "yield_direction": 1,
+      "weight": 0.7,
+      "description": "政府债供给扩张，提高期限利率上行压力",
+      "status": "activated",
+      "rule_version": "rates-rulebook-v1.0-20260902"
+    }
+  ],
   "evidence": [
     {
-      "doc_id": "PBC-OMO-20260720-12c3302873",
-      "title": "公开市场业务交易公告 [2026]第138号",
-      "publish_time": "2026-07-20 09:20:30",
-      "effective_trade_date": "2026-07-20",
-      "source_name": "中国人民银行",
-      "source_url": "https://www.pbc.gov.cn/zhengcehuobisi/125207/125213/125431/125475/2026072009014349986/index.html",
-      "source_sha256": "3e52f9cdc80d5104f0b9481ad95f16053d5702b0e34c0d541e4f4d6496560c6b",
-      "document_fingerprint": "9afe0aa4311f097a5f28dc78f157b04fe97763d0344b38250c2e9b272e8576bf",
-      "extraction_mode": "llm_evidence_gated",
-      "llm_request_id": "2e4dd66f-e79d-40ef-8bff-27e08cd16e63",
-      "model_eligible": true,
-      "exclusion_reason": "",
-      "llm_events": [
-        {
-          "subject": "中国人民银行",
-          "action": "开展逆回购操作",
-          "object": "一级交易商",
-          "policy_direction": -1,
-          "intensity": 0.6,
-          "horizon": "7天",
-          "transmission_channel": "liquidity",
-          "evidence_text": "2026年7月20日中国人民银行以固定利率、数量招标方式开展了3985亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "confidence": 0.7
-        }
-      ],
-      "events": [
-        {
-          "event_id": "RATE-E-2001c416c2da",
-          "subject": "中国人民银行",
-          "action": "投放",
-          "object": "银行间流动性",
-          "policy_direction": -1,
-          "intensity": 0.75,
-          "horizon": "短期",
-          "transmission_channel": "liquidity",
-          "evidence_text": "2026年7月20日中国人民银行以固定利率、数量招标方式开展了3985亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "confidence": 0.75
-        }
-      ],
-      "independent_event_keys": [
-        "54700828b003ea3bb22becbea67796b21300185d84a6098b4b3d50cdf032c0ab"
-      ],
-      "active_predicates": [
-        {
-          "predicate_name": "liquidity_supply_increases",
-          "factor": "liquidity",
-          "description": "流动性投放或资金供给增加",
-          "value": true,
-          "yield_direction": -1,
-          "intensity": 0.75,
-          "confidence": 0.75,
-          "source_weight": 1.0,
-          "evidence_text": "2026年7月20日中国人民银行以固定利率、数量招标方式开展了3985亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "source": "deterministic+llm",
-          "consensus": "agreed_true"
-        }
-      ],
-      "factor_scores": {
-        "monetary_policy": 0.0,
-        "liquidity": -0.5625,
-        "growth": 0.0,
-        "inflation": 0.0,
-        "bond_supply": 0.0,
-        "risk_appetite": 0.0
-      },
-      "triggered_rules": []
-    },
-    {
-      "doc_id": "PBC-OMO-20260727-e394f7408a",
-      "title": "公开市场业务交易公告 [2026]第143号",
-      "publish_time": "2026-07-27 09:20:30",
-      "effective_trade_date": "2026-07-27",
-      "source_name": "中国人民银行",
-      "source_url": "https://www.pbc.gov.cn/zhengcehuobisi/125207/125213/125431/125475/2026072709025211011/index.html",
-      "source_sha256": "fbe6907446615620debe0fe7e1d13dd528460942f3bf76252c4cefdae81fece8",
-      "document_fingerprint": "90c9b57b0b5951351e38632524f2e523528db3a2c8d690f1dede6892b94c055a",
-      "extraction_mode": "llm_evidence_gated",
-      "llm_request_id": "182c3b56-7eea-49a1-9a3c-4ddabb4f2b6d",
-      "model_eligible": true,
-      "exclusion_reason": "",
-      "llm_events": [
-        {
-          "subject": "中国人民银行",
-          "action": "开展逆回购操作",
-          "object": "一级交易商",
-          "policy_direction": -1,
-          "intensity": 0.6,
-          "horizon": "短期",
-          "transmission_channel": "liquidity",
-          "evidence_text": "2026年7月27日中国人民银行以固定利率、数量招标方式开展了3255亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "confidence": 0.7
-        }
-      ],
-      "events": [
-        {
-          "event_id": "RATE-E-803619a7ae23",
-          "subject": "中国人民银行",
-          "action": "投放",
-          "object": "银行间流动性",
-          "policy_direction": -1,
-          "intensity": 0.75,
-          "horizon": "短期",
-          "transmission_channel": "liquidity",
-          "evidence_text": "2026年7月27日中国人民银行以固定利率、数量招标方式开展了3255亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "confidence": 0.75
-        }
-      ],
-      "independent_event_keys": [
-        "6a5deaf8457a88d519eea5902b8f9e896ab149ff88c64061398905c66c084e85"
-      ],
-      "active_predicates": [
-        {
-          "predicate_name": "liquidity_supply_increases",
-          "factor": "liquidity",
-          "description": "流动性投放或资金供给增加",
-          "value": true,
-          "yield_direction": -1,
-          "intensity": 0.75,
-          "confidence": 0.75,
-          "source_weight": 1.0,
-          "evidence_text": "2026年7月27日中国人民银行以固定利率、数量招标方式开展了3255亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "source": "deterministic+llm",
-          "consensus": "agreed_true"
-        }
-      ],
-      "factor_scores": {
-        "monetary_policy": 0.0,
-        "liquidity": -0.5625,
-        "growth": 0.0,
-        "inflation": 0.0,
-        "bond_supply": 0.0,
-        "risk_appetite": 0.0
-      },
-      "triggered_rules": []
-    },
-    {
-      "doc_id": "PBC-OMO-20260803-c8deb639f2",
-      "title": "公开市场业务交易公告 [2026]第148号",
-      "publish_time": "2026-08-03 09:20:30",
-      "effective_trade_date": "2026-08-03",
-      "source_name": "中国人民银行",
-      "source_url": "https://www.pbc.gov.cn/zhengcehuobisi/125207/125213/125431/125475/2026080308511890481/index.html",
-      "source_sha256": "ac547ddd5e887f9b1fd4b65cbb8247bcd07e5470b71bd9fac26e5c2d521ad87a",
-      "document_fingerprint": "03d89eadf6ccdda39435575b465c3cc43ad6b7a1ffd5f9f0bc9597d3067d5208",
-      "extraction_mode": "llm_evidence_gated",
-      "llm_request_id": "fe435b6d-10d7-452a-bac5-2b2ccf66ff31",
+      "doc_id": "MOF-BOND-20260811-e3760e934e",
+      "title": "关于2026年记账式贴现（四十九期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-08-11 08:51:00",
+      "effective_trade_date": "2026-08-11",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202608/t20260811_3995228.htm",
+      "source_sha256": "c09e673209592284e08e5e407a8fd4b18011baa5c04cf9255de6432499293f84",
+      "document_fingerprint": "576e2e03e5de8bcacdfb863870a3ed8e3a103287e2200abd3e58d743b146beba",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
       "model_eligible": true,
       "exclusion_reason": "",
       "llm_events": [],
       "events": [
         {
-          "event_id": "RATE-E-c835f06b8eac",
-          "subject": "中国人民银行",
-          "action": "投放",
-          "object": "银行间流动性",
-          "policy_direction": -1,
+          "event_id": "RATE-E-d16c2c2c1de6",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
           "intensity": 0.75,
-          "horizon": "短期",
-          "transmission_channel": "liquidity",
-          "evidence_text": "2026年8月3日中国人民银行以固定利率、数量招标方式开展了630亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "confidence": 0.75
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（四十九期）国债。",
+          "confidence": 0.7644
         }
       ],
       "independent_event_keys": [
-        "dd5f72d1f7d283eec3796b83af999799b8477904069a411df3ee4502d4a91003"
+        "6163ed675b79a82227265907df7c8bc6b08858b4cfdc640b57af18fcbdc62c99"
       ],
       "active_predicates": [
         {
-          "predicate_name": "liquidity_supply_increases",
-          "factor": "liquidity",
-          "description": "流动性投放或资金供给增加",
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
           "value": true,
-          "yield_direction": -1,
+          "yield_direction": 1,
           "intensity": 0.75,
-          "confidence": 0.75,
-          "source_weight": 1.0,
-          "evidence_text": "2026年8月3日中国人民银行以固定利率、数量招标方式开展了630亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "source": "deterministic+llm",
-          "consensus": "agreed_true"
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（四十九期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
         }
       ],
       "factor_scores": {
         "monetary_policy": 0.0,
-        "liquidity": -0.5625,
+        "liquidity": 0.0,
         "growth": 0.0,
         "inflation": 0.0,
-        "bond_supply": 0.0,
+        "bond_supply": 0.5733,
         "risk_appetite": 0.0
       },
-      "triggered_rules": []
-    },
-    {
-      "doc_id": "PBC-OMO-20260810-d48be8f507",
-      "title": "公开市场业务交易公告 [2026]第153号",
-      "publish_time": "2026-08-10 09:20:30",
-      "effective_trade_date": "2026-08-10",
-      "source_name": "中国人民银行",
-      "source_url": "https://www.pbc.gov.cn/zhengcehuobisi/125207/125213/125431/125475/2026081008522023544/index.html",
-      "source_sha256": "80c4177bbf1d69c71e5fe3dc91b1fffbbdd41a30ebbe99947c3e58e53241861b",
-      "document_fingerprint": "e01e7395ad7c73e1dd99d1cc1543dc0909198fd69b5e1579aadb134fbd96c4c6",
-      "extraction_mode": "llm_evidence_gated",
-      "llm_request_id": "3634a9b2-ddea-41da-8461-52b7e114c52a",
-      "model_eligible": true,
-      "exclusion_reason": "",
-      "llm_events": [
+      "triggered_rules": [
         {
-          "subject": "中国人民银行",
-          "action": "开展",
-          "object": "180亿元7天期逆回购操作",
-          "policy_direction": 0,
-          "intensity": 0.35,
-          "horizon": "短期",
-          "transmission_channel": "liquidity",
-          "evidence_text": "2026年8月10日中国人民银行以固定利率、数量招标方式开展了180亿元7天期逆回购操作",
-          "confidence": 0.7
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
         }
-      ],
-      "events": [
-        {
-          "event_id": "RATE-E-75a1630d3410",
-          "subject": "中国人民银行",
-          "action": "投放",
-          "object": "银行间流动性",
-          "policy_direction": -1,
-          "intensity": 0.75,
-          "horizon": "短期",
-          "transmission_channel": "liquidity",
-          "evidence_text": "2026年8月10日中国人民银行以固定利率、数量招标方式开展了180亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "confidence": 0.75
-        }
-      ],
-      "independent_event_keys": [
-        "f14ff13a476e41d418f5ac22c7e4796c103dbef0277dfbc4183dec75bd9d735e"
-      ],
-      "active_predicates": [
-        {
-          "predicate_name": "liquidity_supply_increases",
-          "factor": "liquidity",
-          "description": "流动性投放或资金供给增加",
-          "value": true,
-          "yield_direction": -1,
-          "intensity": 0.75,
-          "confidence": 0.75,
-          "source_weight": 1.0,
-          "evidence_text": "2026年8月10日中国人民银行以固定利率、数量招标方式开展了180亿元7天期逆回购操作，全额满足了一级交易商需求。",
-          "source": "deterministic+llm",
-          "consensus": "agreed_true"
-        }
-      ],
-      "factor_scores": {
-        "monetary_policy": 0.0,
-        "liquidity": -0.5625,
-        "growth": 0.0,
-        "inflation": 0.0,
-        "bond_supply": 0.0,
-        "risk_appetite": 0.0
-      },
-      "triggered_rules": []
+      ]
     },
     {
       "doc_id": "PBC-REPORT-20260812-f1aff3d6fc",
@@ -714,6 +534,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260818-bece76042a",
+      "title": "关于2026年记账式贴现（五十二期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-08-18 09:30:00",
+      "effective_trade_date": "2026-08-18",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202608/t20260818_3995687.htm",
+      "source_sha256": "1fa67d642f491294c24fbeb9ac2ecef1d9ef0be19841a0b9fd096e71c8ea845e",
+      "document_fingerprint": "980391e8f3e37e1a371a19d26e0813e2e1fc59d2a2bf2f5b89926142f96110e4",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-8acd4aa8c899",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十二期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "61ecd59b79f4ebb1d2c2708df8999cfe70c853f5f43e2625f91780f9c8d3df56"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十二期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260824-29ee29b879",
       "title": "公开市场业务交易公告 [2026]第163号",
       "publish_time": "2026-08-24 09:20:30",
@@ -782,6 +670,74 @@
       "triggered_rules": []
     },
     {
+      "doc_id": "MOF-BOND-20260825-bf1fdcae1a",
+      "title": "关于2026年记账式贴现（五十四期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-08-25 12:13:00",
+      "effective_trade_date": "2026-08-25",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202608/t20260825_3996062.htm",
+      "source_sha256": "38b809fce6d1ac17dfb19cabe9b96616c596ad62d5535310c0a42122cee4b7b3",
+      "document_fingerprint": "1dd0df4ddff8691d862215ca170adae7c2071bf2e367736e7d9003b222a49008",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-80d668df24e9",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十四期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "6823d00998604f4cedbd16fe26e027ac2fc97762ed4a23e2aabe4fb65f8d4a24"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十四期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
+    },
+    {
       "doc_id": "PBC-OMO-20260831-19fb56f310",
       "title": "公开市场业务交易公告 [2026]第169号",
       "publish_time": "2026-08-31 09:20:30",
@@ -848,17 +804,85 @@
         "risk_appetite": 0.0
       },
       "triggered_rules": []
+    },
+    {
+      "doc_id": "MOF-BOND-20260901-4872e50286",
+      "title": "关于2026年记账式贴现（五十六期）国债发行工作有关事宜的通知",
+      "publish_time": "2026-09-01 15:01:00",
+      "effective_trade_date": "2026-09-01",
+      "source_name": "财政部",
+      "source_url": "https://zwgls.mof.gov.cn/ywgg/202609/t20260901_3996444.htm",
+      "source_sha256": "bafb9425d14569a8fde339cffad134803082b486a333af697c11b59b341b653a",
+      "document_fingerprint": "17eaaf2a5cb0ad01811026c63c545967edbbad061b90f9958605eec5b08208ab",
+      "extraction_mode": "deterministic_fallback",
+      "llm_request_id": "",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
+      "events": [
+        {
+          "event_id": "RATE-E-635ebd5fb4dc",
+          "subject": "财政部门",
+          "action": "增加",
+          "object": "政府债供给",
+          "policy_direction": 1,
+          "intensity": 0.75,
+          "horizon": "短中期",
+          "transmission_channel": "bond_supply",
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十六期）国债。",
+          "confidence": 0.7644
+        }
+      ],
+      "independent_event_keys": [
+        "b69746c7e144b8ac38ab4cd89257d35ccfc5144bace5a7ffaba35a335b3eff0b"
+      ],
+      "active_predicates": [
+        {
+          "predicate_name": "government_bond_supply_rises",
+          "factor": "bond_supply",
+          "description": "政府债券供给增加",
+          "value": true,
+          "yield_direction": 1,
+          "intensity": 0.75,
+          "confidence": 0.7644,
+          "source_weight": 0.98,
+          "evidence_text": "财政部拟发行2026年记账式贴现（五十六期）国债。",
+          "source": "deterministic",
+          "consensus": "deterministic_only"
+        }
+      ],
+      "factor_scores": {
+        "monetary_policy": 0.0,
+        "liquidity": 0.0,
+        "growth": 0.0,
+        "inflation": 0.0,
+        "bond_supply": 0.5733,
+        "risk_appetite": 0.0
+      },
+      "triggered_rules": [
+        {
+          "rule_id": "R-SUPPLY-01",
+          "conditions": [
+            "government_bond_supply_rises"
+          ],
+          "yield_direction": 1,
+          "weight": 0.7,
+          "description": "政府债供给扩张，提高期限利率上行压力",
+          "status": "activated",
+          "rule_version": "rates-rulebook-v1.0-20260902"
+        }
+      ]
     }
   ],
   "source_signature": {
-    "rates_market.csv": "5961a60703092082fd73188e768a86e2cac567a5d8439138fa77a0f75ca94cac",
-    "rates_policy_texts.csv": "00faaf5bfb09dc6f5a828ecce48afc1eb3651067a08363be972739a63c013683",
+    "rates_market.csv": "165f86b12b88549c8d82399265847bf993735249555ba1aadb910feff7ec211c",
+    "rates_policy_texts.csv": "7a4e67389740533a3a33b3a5cbb4d25b8ad2853551023721fb821fa34d8ad6b7",
     "rates_llm_annotations.jsonl": "318ff754c2009e39d54dc7073f4c9d0877fe7edbd4a9a17341181e73e684b909",
     "rates_structured_data.csv": "8dc0e056578398e80e43fef339aed37d787279463c01823f3571a846cdd49dac",
     "rates_rule_version": "rates-rulebook-v1.0-20260902",
-    "rates_engine.py": "9210b215c520f701d2d5f000e68f181e2c9df72f017dded6b543e2cbaae0f24b",
+    "rates_engine.py": "f40ddc9d6565b74c3a3b6765152cfe0be06817f73d5a658803d97a558c006a39",
     "rates_factors.py": "2a3dbfe558eaf8dcca84dd78a037bc6437a202e96b051ce551b75500fcdbfac1",
-    "rates_modeling.py": "3e2b63a739dce28ea64222a5e94654e6df80c08b2331672e3f49c3fe0877c297",
+    "rates_modeling.py": "12fab80d1295c63ff45202b0463ae983e12b1d2d492ff0ec9a73f5b3346a4191",
     "rates_rules.py": "a694360bc81d7d69245646c473c45c2bf23fdfffc4a466eacbd1863b0d249d3a",
     "rates_schema.py": "637387773e3d64c2f5ea1d49c6607ab65b626b7f070a1c2b42acda10d41fc84c"
   },

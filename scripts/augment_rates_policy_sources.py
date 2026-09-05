@@ -87,13 +87,16 @@ def _read(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+def _index_existing_by_url(existing: list[dict[str, str]]) -> dict[str, dict[str, str]]:
+    """Preserve every verified source, including MOF URLs found by the main crawler."""
+    return {
+        row["source_url"]: row for row in existing if row.get("source_url")
+    }
+
+
 def main() -> None:
     existing = _read(RATES_TEXTS)
-    allowed_mof_urls = {row[0] for row in MOF_SEEDS}
-    by_url = {
-        row["source_url"]: row for row in existing
-        if row.get("source_url") and (row.get("source_name") != "财政部" or row["source_url"] in allowed_mof_urls)
-    }
+    by_url = _index_existing_by_url(existing)
     historical = [
         row for row in _read(HISTORICAL)
         if row.get("source_name") == "国家统计局" and row.get("url", "").startswith("https://www.stats.gov.cn/")
