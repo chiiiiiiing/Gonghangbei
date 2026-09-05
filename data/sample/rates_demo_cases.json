@@ -1,0 +1,33 @@
+{
+  "cases": [
+    {
+      "case_id": "pboc-liquidity-injection",
+      "title": "公开市场逆回购操作",
+      "content": "中国人民银行开展逆回购操作，向市场投放流动性，保持银行体系流动性合理充裕。",
+      "source_name": "中国人民银行",
+      "publish_time": "2026-08-28T09:30:00",
+      "source_url": "https://www.pbc.gov.cn/",
+      "expected_factor": "liquidity"
+    },
+    {
+      "case_id": "growth-inflation-up",
+      "title": "经济运行和价格水平回升",
+      "content": "经济运行延续回升态势，PMI扩张，CPI同比回升，物价上涨压力有所增加。",
+      "source_name": "国家统计局",
+      "publish_time": "2026-08-28T10:00:00",
+      "source_url": "https://www.stats.gov.cn/",
+      "expected_rule": "R-GROWTH-INF-01"
+    },
+    {
+      "case_id": "bond-supply-tight-funding",
+      "title": "政府债发行与资金面",
+      "content": "政府债券加快发行并形成集中供给，DR007上行，银行间资金面偏紧。",
+      "source_name": "财政部",
+      "publish_time": "2026-08-28T16:00:00",
+      "source_url": "https://www.mof.gov.cn/",
+      "expected_rule": "R-SUPPLY-LIQ-02"
+    }
+  ],
+  "offline_ready": true,
+  "disclaimer": "本报告仅供研究参考，不构成投资建议"
+}

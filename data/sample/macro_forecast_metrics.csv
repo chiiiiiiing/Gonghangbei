@@ -1,3 +1,0 @@
-split,model,sample_count,mae,rmse,oos_r2,acceleration_direction_accuracy,interval_coverage_90,no_text_mae,mae_improvement_vs_no_text,text_increment_status
-validation,monthly_text_residual_ridge,21,2.843018,3.346609,0.187552,0.619048,0.952381,2.892383,0.049365,evaluated
-oos,monthly_text_residual_ridge,27,3.082919,3.690651,-1.630835,0.518519,0.888889,2.765144,-0.317774,evaluated

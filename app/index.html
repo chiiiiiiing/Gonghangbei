@@ -2,86 +2,93 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="AlphaLens 碳酸锂 RIFT 规则增强趋势研究平台">
-  <title>AlphaLens · 碳酸锂文本规则预测</title>
-  <link rel="stylesheet" href="assets/styles.css">
-  <script defer src="vendor/plotly.min.js"></script>
-  <script defer src="vendor/lucide.min.js"></script>
-  <script defer src="assets/app.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AlphaLens · 银行利率债文本因子研究</title>
+  <link rel="stylesheet" href="assets/rates.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="topbar-inner">
-      <a class="brand" href="#" aria-label="AlphaLens 首页">
-        <span class="brand-mark">A</span><span>Alpha<strong>Lens</strong></span>
-      </a>
-      <nav class="nav-tabs" aria-label="研究视图">
-        <button class="nav-tab active" data-view="liveView" type="button">新文本预测</button>
-        <button class="nav-tab" data-view="macroView" type="button">研究验证</button>
-      </nav>
-      <div class="service-status"><span class="status-dot" id="statusDot"></span><span id="statusText">正在连接本地研究服务</span></div>
-    </div>
+    <a class="brand" href="#" aria-label="AlphaLens首页"><span class="brand-mark">A</span><span><strong>AlphaLens</strong><small>银行金融市场投研</small></span></a>
+    <nav aria-label="主导航">
+      <button class="nav-item active" data-page="overview"><i data-lucide="layout-dashboard"></i><span>每日总览</span></button>
+      <button class="nav-item" data-page="analysis"><i data-lucide="file-search"></i><span>政策文本</span></button>
+      <button class="nav-item" data-page="forecast"><i data-lucide="sliders-horizontal"></i><span>因子预测</span></button>
+      <button class="nav-item" data-page="audit"><i data-lucide="shield-check"></i><span>证据审计</span></button>
+      <button class="nav-item" data-page="backtest"><i data-lucide="chart-no-axes-combined"></i><span>模型评估</span></button>
+    </nav>
+    <div class="service-pill"><span></span><b id="serviceStatus">正在读取</b></div>
   </header>
 
-  <main class="page-shell">
-    <section class="view active" id="liveView">
-      <div class="research-banner">
-        <div><span class="eyebrow">CARBONATE LITHIUM · RIFT</span><h1>碳酸锂文本规则预测</h1><p>单篇产业文本先转换为主力合约未来 5 个交易日方向分数，再通过质量规则映射为相对成熟市场基准的仓位增量。</p></div>
-        <div class="banner-facts"><span>单篇文本输入</span><span>5日方向分数</span><span>趋势仓位增量</span></div>
+  <main>
+    <section class="page active" id="page-overview">
+      <div class="page-heading heading-actions">
+        <div><span class="kicker">DAILY RATES BRIEF</span><h1>每日利率债投研总览</h1><p>10Y国债收益率五日方向、银行间流动性与政策文本证据。</p></div>
+        <a class="secondary-button icon-command" href="api/rates/report" download><i data-lucide="download"></i><span>导出报告</span></a>
       </div>
-
-      <div class="workspace">
-        <section class="surface editor-surface">
-          <div class="surface-heading">
-            <div><h2>输入一篇待分析文本</h2><p class="surface-subtitle">只使用首次公开时点可见信息；输出变量为未来 5 日 open-to-open 方向分数，方向标签阈值为 ±1%。</p></div>
-            <div class="example-picker" aria-label="示例文本">
-              <button class="quiet-button" data-example="0" type="button">储能政策</button>
-              <button class="quiet-button" data-example="1" type="button">供应扩张</button>
-              <button class="quiet-button" data-example="2" type="button">仓单增加</button>
-            </div>
-          </div>
-          <div class="field"><label for="title">标题</label><input id="title" type="text" placeholder="输入与锂供需、库存、政策或交割相关的标题"></div>
-          <div class="field grow-field"><label for="content">正文</label><textarea id="content" placeholder="输入可核验正文或摘要"></textarea></div>
-          <div class="form-grid">
-            <div class="field"><label for="sourceType">来源类型</label><select id="sourceType"><option value="policy">政策</option><option value="announcement">公告</option><option value="news">新闻</option><option value="ir_qa">互动问答</option></select></div>
-            <div class="field"><label for="sourceName">来源名称</label><input id="sourceName" type="text" placeholder="例如：广州期货交易所"></div>
-            <div class="field"><label for="eventDate">首次公开日期</label><input id="eventDate" type="date"></div>
-            <div class="field"><label for="sourceUrl">来源链接</label><input id="sourceUrl" type="url" placeholder="https://..."><span class="field-note">链接用于审计，模型证据仍必须回溯到本页输入文本。</span></div>
-          </div>
-        </section>
-
-        <aside class="surface run-surface">
-          <div class="surface-heading compact"><div><h2>运行配置</h2></div><span class="model-chip">V4 Flash</span></div>
-          <div class="run-spec">
-            <div><span>第一阶段</span><b>文本 → 5日方向分数</b></div>
-            <div><span>第二阶段</span><b>质量规则 → 增量仓位</b></div>
-            <div><span>对照基准</span><b>多周期波动率控制</b></div>
-          </div>
-          <div class="field" id="apiKeyField">
-            <label for="apiKey">DeepSeek API Key</label>
-            <div class="secret-input"><input id="apiKey" type="password" autocomplete="off" spellcheck="false" maxlength="512" placeholder="sk-..."><button id="toggleKey" class="icon-button" title="显示或隐藏 API Key" type="button"><i data-lucide="eye"></i></button></div>
-            <span class="field-note">仅随本次请求传输，不保存。</span>
-          </div>
-          <label class="check-control" for="recordForResearch"><input id="recordForResearch" type="checkbox" checked><span>写入前瞻信号账本</span></label>
-          <span class="field-note ledger-note">仅记录冻结日后、带来源链接且由 V4 Flash 完成的文本，不保存 API Key。</span>
-          <div class="connection-state neutral" id="connectionStatus"><span class="mini-dot"></span><span>等待凭证</span></div>
-          <div class="action-row">
-            <button class="secondary-button" id="checkApiButton" type="button"><i data-lucide="plug-zap"></i>检查连接</button>
-            <button class="primary-button" id="runButton" type="button"><i data-lucide="play"></i>开始分析</button>
-          </div>
-          <div class="run-progress" id="runState"><span class="spinner"></span><span>正在执行谓词对照与规则推理</span></div>
-          <p class="disclaimer">本报告仅供研究参考，不构成投资建议</p>
-        </aside>
+      <div id="overviewNotice" class="notice loading">正在加载官方数据状态……</div>
+      <div class="kpi-grid">
+        <article class="kpi primary"><span>未来5日收益率</span><strong id="directionLabel">—</strong><small id="directionSub">等待模型结果</small></article>
+        <article class="kpi"><span>10年期国债收益率</span><strong id="yieldValue">—</strong><small>中债到期收益率曲线</small></article>
+        <article class="kpi"><span>银行间流动性代理</span><strong id="drValue">—</strong><small id="drState">FDR007 · 等待数据</small></article>
+        <article class="kpi"><span>数据截至</span><strong id="asOfValue">—</strong><small id="rowCount">—</small></article>
       </div>
-      <div id="result" aria-live="polite"></div>
+      <div class="two-col">
+        <section class="panel"><div class="panel-head"><div><span class="section-no">01</span><h2>方向概率</h2></div><span class="tag">未来5个交易日</span></div><div id="probabilityBars" class="probability-bars"></div></section>
+        <section class="panel"><div class="panel-head"><div><span class="section-no">02</span><h2>当期六类因子</h2></div><span class="tag">正值=收益率上行压力</span></div><div id="overviewFactors" class="factor-list"></div></section>
+      </div>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">03</span><h2>主要驱动与规则</h2></div><span class="tag" id="modelWindow">滚动训练</span></div><div class="driver-layout"><div id="contributionList" class="contribution-list"></div><div id="overviewRules" class="rule-list"></div></div></section>
     </section>
 
-    <section class="view" id="macroView">
-      <div id="validationAuditContent"><div class="loading-surface">正在读取碳酸锂研究验证</div></div>
+    <section class="page" id="page-analysis">
+      <div class="page-heading"><span class="kicker">MARGINAL TEXT IMPACT</span><h1>政策文本增量分析</h1><p>新增文本的事件、因子和规则，以及加入前后的概率变化。</p></div>
+      <div class="analysis-grid">
+        <form class="panel form-panel" id="analysisForm">
+          <div class="form-title"><h2>待分析材料</h2><select id="demoCase" aria-label="固定演示案例"><option value="">固定演示案例</option></select></div>
+          <label>标题<input id="textTitle" required value="公开市场逆回购操作"></label>
+          <label>正文<textarea id="textContent" required rows="9">中国人民银行开展逆回购操作，向市场投放流动性，保持银行体系流动性合理充裕。</textarea></label>
+          <label class="file-label">文件<input id="textFile" type="file" accept=".txt,.md,.pdf"><span><i data-lucide="upload"></i>导入 TXT / MD / PDF</span></label>
+          <div class="form-row"><label>来源名称<input id="sourceName" required value="中国人民银行"></label><label>首次公开时间<input id="publishTime" required type="datetime-local"></label></div>
+          <label>来源链接<input id="sourceUrl" required type="url" value="https://www.pbc.gov.cn/"></label>
+          <label>DeepSeek API Key（可选，不保存）<input id="apiKey" type="password" autocomplete="off" placeholder="留空使用透明确定性降级"></label>
+          <button class="primary-button" type="submit"><i data-lucide="scan-text"></i><span>分析边际影响</span></button>
+        </form>
+        <section id="analysisResult" class="panel result-panel empty-state"><div><i data-lucide="file-search"></i><b>等待文本</b><p>分析结果将显示完整证据链。</p></div></section>
+      </div>
+    </section>
+
+    <section class="page" id="page-forecast">
+      <div class="page-heading"><span class="kicker">FACTOR ATTRIBUTION</span><h1>因子与预测详情</h1><p>市场基线、六类文本因子与冻结金融规则的联合解释。</p></div>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">04</span><h2>六类宏观政策因子</h2></div><span class="tag">[-1, 1]收益率压力</span></div><div id="factorGrid" class="factor-grid"></div></section>
+      <div class="two-col">
+        <section class="panel"><div class="panel-head"><div><span class="section-no">05</span><h2>模型贡献</h2></div></div><div id="forecastContributions" class="contribution-list padded"></div></section>
+        <section class="panel"><div class="panel-head"><div><span class="section-no">06</span><h2>冻结规则命中</h2></div><span class="tag" id="ruleVersion">—</span></div><div id="forecastRules" class="rule-list padded"></div></section>
+      </div>
+      <section class="panel method-panel"><div class="panel-head"><div><span class="section-no">07</span><h2>预测契约</h2></div></div><div class="contract-grid"><div><span>目标</span><b>10年期国债收益率5日方向</b></div><div><span>震荡阈值</span><b>±2bp</b></div><div><span>切分方式</span><b>756日清洗滚动窗口</b></div><div><span>对比路线</span><b>市场 / 文本 / 融合 / 规则</b></div><div><span>流动性序列</span><b id="proxyName">FDR007_FIXING</b></div><div><span>价格解释</span><b id="priceDirection">—</b></div></div></section>
+    </section>
+
+    <section class="page" id="page-audit">
+      <div class="page-heading"><span class="kicker">EVIDENCE & HUMAN REVIEW</span><h1>证据审计与人工审核</h1><p>原文、事件、谓词、因子、规则和预测目标逐层关联。</p></div>
+      <section class="panel audit-summary"><div><span>文本去重</span><b id="dedupState">—</b></div><div><span>规则版本</span><b id="auditRuleVersion">—</b></div><div><span>LLM证据门控覆盖</span><b id="llmCoverage">—</b></div><div><span>来源校验</span><b id="sourceState">—</b></div></section>
+      <div id="auditList" class="audit-list"></div>
+      <section class="panel review-panel"><div><h2>人工复核</h2><p>复核记录追加写入，不覆盖原判断。</p></div><div class="review-actions"><input id="reviewer" placeholder="审核人" value="人工审核员"><select id="reviewDecision"><option value="approved">通过</option><option value="needs_revision">需修改</option><option value="rejected">驳回</option></select><input id="reviewComment" placeholder="复核意见"><button id="saveReview" class="secondary-button icon-command" type="button"><i data-lucide="save"></i><span>保存</span></button></div><p id="reviewState" class="muted"></p></section>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">08</span><h2>审核历史</h2></div><span class="tag">append-only</span></div><div id="reviewHistory" class="review-history"></div></section>
+    </section>
+
+    <section class="page" id="page-backtest">
+      <div class="page-heading"><span class="kicker">PURGED ROLLING EVALUATION</span><h1>历史回测与模型评估</h1><p>时间顺序切分、5日标签清洗窗口，不随机打乱。</p></div>
+      <div id="backtestNotice" class="notice loading">正在读取冻结评估……</div>
+      <section class="panel table-panel"><table><thead><tr><th>模型路线</th><th>样本</th><th>准确率</th><th>Precision</th><th>Recall</th><th>Macro-F1</th><th>AUC</th><th>Brier</th></tr></thead><tbody id="backtestRows"></tbody></table></section>
+      <div class="two-col">
+        <section class="panel"><div class="panel-head"><div><span class="section-no">09</span><h2>分时期稳定性</h2></div></div><div id="periodMetrics" class="compact-table"></div></section>
+        <section class="panel"><div class="panel-head"><div><span class="section-no">10</span><h2>概率校准</h2></div></div><div id="calibration" class="calibration-list"></div></section>
+      </div>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">11</span><h2>最近滚动预测</h2></div></div><div id="timeline" class="timeline"></div></section>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">12</span><h2>典型正确与错误案例</h2></div></div><div id="caseComparison" class="case-comparison"></div></section>
     </section>
   </main>
 
-  <footer>AlphaLens 研究价格方向与交易增量，本报告仅供研究参考，不构成投资建议。</footer>
+  <footer><p id="disclaimer">本报告仅供研究参考，不构成投资建议</p><p>AlphaLens · 官方来源、时间对齐、证据链与人工复核</p></footer>
+  <script src="vendor/lucide.min.js"></script>
+  <script src="assets/rates.js"></script>
 </body>
 </html>

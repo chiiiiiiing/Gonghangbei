@@ -1,9 +1,0 @@
-event_type,independent_document_count,impact_hit_count,impact_threshold,posterior_impact_probability,calibration_split
-attention_spread,8,0,0.020000,0.166667,discovery_2024_2025
-capacity_expansion,1,1,0.020000,0.600000,discovery_2024_2025
-earnings_quality_anomaly,7,1,0.020000,0.272727,discovery_2024_2025
-inquiry_letter_pressure,3,3,0.020000,0.714286,discovery_2024_2025
-policy_support,17,1,0.020000,0.142857,discovery_2024_2025
-product_price_increase,1,0,0.020000,0.400000,discovery_2024_2025
-regulatory_penalty,3,0,0.020000,0.285714,discovery_2024_2025
-supply_chain_disruption,2,0,0.020000,0.333333,discovery_2024_2025

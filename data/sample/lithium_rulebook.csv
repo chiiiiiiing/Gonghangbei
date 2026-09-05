@@ -1,5 +1,0 @@
-rule_id,target_label,conditions,score,coverage_positive,coverage_negative,support_documents,support_dates,status
-LC-BULL-01,bullish,warehouse_receipt_decline,0.1918103448275862,0.3125,0.1206896551724138,12,12,qualified
-LC-BULL-02,bullish,warehouse_receipt_decline AND authoritative_source,0.1918103448275862,0.3125,0.1206896551724138,12,12,qualified
-LC-BEAR-01,bearish,warehouse_receipt_increase,0.04065040650406504,0.7073170731707317,0.6666666666666666,51,51,qualified
-LC-BEAR-02,bearish,warehouse_receipt_increase AND authoritative_source,0.04065040650406504,0.7073170731707317,0.6666666666666666,51,51,qualified
