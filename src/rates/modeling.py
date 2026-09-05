@@ -209,7 +209,7 @@ def _period(trade_date: str) -> str:
         return "discovery_2018_2022"
     if trade_date < "2025-01-01":
         return "validation_2023_2024"
-    return "oos_2025_latest"
+    return "retrospective_holdout_2025_latest"
 
 
 def _calibration(actual: list[str], predicted: list[str], probabilities: list[dict[str, float]]) -> list[dict[str, Any]]:
@@ -271,7 +271,11 @@ def evaluate_route(
         })
     overall = _metrics(actual, predicted, probabilities)
     period_metrics: list[dict[str, Any]] = []
-    for period in ("discovery_2018_2022", "validation_2023_2024", "oos_2025_latest"):
+    for period in (
+        "discovery_2018_2022",
+        "validation_2023_2024",
+        "retrospective_holdout_2025_latest",
+    ):
         indices = [i for i, row in enumerate(timeline) if row["period"] == period]
         metrics = _metrics(
             [actual[i] for i in indices], [predicted[i] for i in indices], [probabilities[i] for i in indices]

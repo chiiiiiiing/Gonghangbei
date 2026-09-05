@@ -1,6 +1,6 @@
 {
   "version": "rates-model-v2",
-  "generated_at": "2026-09-04T11:10:09+08:00",
+  "generated_at": "2026-09-05T09:01:12+08:00",
   "target": "cgb_10y_yield_5d_direction",
   "horizon_trading_days": 5,
   "flat_threshold_bp": 2.0,
@@ -14,46 +14,47 @@
   "periods": {
     "discovery": "2018-01-01至2022-12-31",
     "validation": "2023-01-01至2024-12-31",
-    "oos": "2025-01-01至最新"
+    "retrospective_holdout": "2025-01-01至最新（规则建立后回看，不是真正前瞻OOS）",
+    "prospective_oos": "2026-09-03起累计；当前尚无完整5交易日标签"
   },
   "text_decay_days": 5,
   "text_half_life_days": 2.0,
   "minimum_independent_events_per_factor": 5,
   "factor_evidence": {
     "monetary_policy": {
-      "independent_event_count": 12,
+      "independent_event_count": 17,
       "minimum_required": 5,
       "status": "sufficient"
     },
     "liquidity": {
-      "independent_event_count": 530,
+      "independent_event_count": 302,
       "minimum_required": 5,
       "status": "sufficient"
     },
     "growth": {
-      "independent_event_count": 6,
-      "minimum_required": 5,
-      "status": "sufficient"
-    },
-    "inflation": {
-      "independent_event_count": 6,
-      "minimum_required": 5,
-      "status": "sufficient"
-    },
-    "bond_supply": {
       "independent_event_count": 9,
       "minimum_required": 5,
       "status": "sufficient"
     },
-    "risk_appetite": {
+    "inflation": {
       "independent_event_count": 5,
+      "minimum_required": 5,
+      "status": "sufficient"
+    },
+    "bond_supply": {
+      "independent_event_count": 0,
+      "minimum_required": 5,
+      "status": "insufficient_evidence"
+    },
+    "risk_appetite": {
+      "independent_event_count": 10,
       "minimum_required": 5,
       "status": "sufficient"
     }
   },
   "structured_rows": 4669,
   "structured_data_errors": [],
-  "structured_data_status": "sufficient",
+  "structured_data_status": "partial",
   "structured_indicator_counts": {
     "cpi_yoy": 223,
     "ppi_yoy": 247,
@@ -66,12 +67,12 @@
     "government_bond_issuance": 3423
   },
   "structured_indicator_status": {
-    "cpi_yoy": "sufficient",
-    "ppi_yoy": "sufficient",
-    "pmi_manufacturing": "sufficient",
-    "afre_flow": "sufficient",
-    "afre_rmb_loans": "sufficient",
-    "afre_government_bonds": "sufficient",
+    "cpi_yoy": "audit_only",
+    "ppi_yoy": "audit_only",
+    "pmi_manufacturing": "audit_only",
+    "afre_flow": "audit_only",
+    "afre_rmb_loans": "audit_only",
+    "afre_government_bonds": "audit_only",
     "mlf_amount": "sufficient",
     "mlf_rate": "sufficient",
     "government_bond_issuance": "sufficient"
@@ -82,7 +83,13 @@
     "rates_market.csv": "5961a60703092082fd73188e768a86e2cac567a5d8439138fa77a0f75ca94cac",
     "rates_policy_texts.csv": "00faaf5bfb09dc6f5a828ecce48afc1eb3651067a08363be972739a63c013683",
     "rates_llm_annotations.jsonl": "318ff754c2009e39d54dc7073f4c9d0877fe7edbd4a9a17341181e73e684b909",
-    "rates_structured_data.csv": "f9be9e7c98d63144389423a7d923afdf722398236c0cfd5c641186491ac50f51"
+    "rates_structured_data.csv": "8dc0e056578398e80e43fef339aed37d787279463c01823f3571a846cdd49dac",
+    "rates_rule_version": "rates-rulebook-v1.0-20260902",
+    "rates_engine.py": "9210b215c520f701d2d5f000e68f181e2c9df72f017dded6b543e2cbaae0f24b",
+    "rates_factors.py": "2a3dbfe558eaf8dcca84dd78a037bc6437a202e96b051ce551b75500fcdbfac1",
+    "rates_modeling.py": "3e2b63a739dce28ea64222a5e94654e6df80c08b2331672e3f49c3fe0877c297",
+    "rates_rules.py": "a694360bc81d7d69245646c473c45c2bf23fdfffc4a466eacbd1863b0d249d3a",
+    "rates_schema.py": "637387773e3d64c2f5ea1d49c6607ab65b626b7f070a1c2b42acda10d41fc84c"
   },
   "disclaimer": "本报告仅供研究参考，不构成投资建议",
   "research_boundary": "系统预测的是10年期国债收益率未来5个交易日方向，用于银行金融市场投研辅助，不自动下单、不输出目标价或收益保证。公开历史流动性序列使用FDR007定盘利率作为DR007代理，不能将其表述为原始DR007成交加权利率。"

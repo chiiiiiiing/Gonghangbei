@@ -161,11 +161,13 @@ def fetch_nbs_mirrored_series(target_releases: dict[str, str]) -> tuple[list[dic
                 observation_date=period_end, release_time=_conservative_release(period_end, target_releases),
                 period_start=period_start, period_end=period_end, indicator=indicator, value=value, unit=unit,
                 source_name=source_name, source_url=EASTMONEY_URL, source_sha256=source_hash,
+                vintage="retrospective_snapshot_conservative_release",
             ))
             accepted += 1
         audits.append({"indicator": indicator, "endpoint": EASTMONEY_URL, "source_sha256": source_hash,
                        "rows_received": len(data), "rows_accepted": accepted,
-                       "release_policy": "conservative bound using official industrial release date"})
+                       "release_policy": "conservative bound using official industrial release date",
+                       "model_policy": "audit_only because the endpoint does not expose historical vintages"})
     return rows, {"nbs_series": audits}
 
 
@@ -190,12 +192,13 @@ def fetch_afre(target_releases: dict[str, str]) -> tuple[list[dict[str, str]], d
                 period_start=period_start, period_end=period_end, indicator=indicator,
                 value=float(item[source_field]), unit="亿元",
                 source_name="商务部数据中心（人民银行统计口径）", source_url=AFRE_LANDING_URL,
-                source_sha256=source_hash,
+                source_sha256=source_hash, vintage="retrospective_snapshot_conservative_release",
             ))
             accepted += 1
     return rows, {"afre": {"endpoint": AFRE_URL, "landing_page": AFRE_LANDING_URL,
                             "source_sha256": source_hash, "rows_received": len(payload) if isinstance(payload, list) else 0,
-                            "rows_accepted": accepted}}
+                            "rows_accepted": accepted,
+                            "model_policy": "audit_only because the endpoint does not expose historical vintages"}}
 
 
 def _mlf_listing_url(page: int) -> str:
@@ -469,6 +472,7 @@ def fetch_bond_issuance() -> tuple[list[dict[str, str]], dict[str, Any]]:
         "preserved_existing_rows": len(preserved),
         "deduplication": "max planned issuance per official bond name/date across market aliases, then sum once per announcement/start date",
         "vintage_field": "planned issuance known at announcement; actual post-auction issuance is deliberately excluded",
+        "model_policy": "model_eligible as a dated known-in-advance event; engine sums plans within the next seven calendar days and expires them afterward",
         "source_hash_scope": "SHA-256 of canonical planned-issuance record; AkShare does not expose the raw upstream response",
     }
     return rows, audit
@@ -511,15 +515,28 @@ def main() -> None:
         writer = csv.DictWriter(handle, fieldnames=STRUCTURED_FIELDS, lineterminator="\n")
         writer.writeheader(); writer.writerows(rows)
     indicator_counts = Counter(row["indicator"] for row in rows)
+    model_counts = Counter(
+        row["indicator"] for row in rows
+        if "reconstruction" not in row.get("vintage", "").lower()
+        and "retrospective_snapshot" not in row.get("vintage", "").lower()
+    )
     audits.update({"rows": len(rows), "indicators": sorted(indicator_counts),
                    "indicator_counts": dict(sorted(indicator_counts.items())),
+                   "model_eligible_indicator_counts": dict(sorted(model_counts.items())),
                    "indicator_status": {
-                       name: "sufficient" if indicator_counts[name] else "missing"
+                       name: (
+                           "sufficient" if model_counts[name]
+                           else "audit_only" if indicator_counts[name]
+                           else "missing"
+                       )
                        for name in STRUCTURED_INDICATORS
                    },
                    "period": {"start": min(row["observation_date"] for row in rows),
                               "end": max(row["observation_date"] for row in rows)},
-                   "vintage_rule": "release_time is the earliest allowed availability; no backfilled value is used before it"})
+                   "vintage_rule": (
+                       "release_time is the earliest allowed availability; retrospective snapshots and "
+                       "historical reconstructions remain audit-only unless point-in-time vintages are available"
+                   )})
     AUDIT_OUT.write_text(json.dumps(audits, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {len(rows)} structured observations to {OUT}")
 

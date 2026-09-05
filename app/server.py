@@ -6,7 +6,11 @@ import hashlib
 import io
 import os
 import sys
+import time
+from collections import OrderedDict, defaultdict, deque
+from ipaddress import ip_address
 from pathlib import Path
+from threading import Lock
 
 from flask import Flask, jsonify, request, send_from_directory
 from pypdf import PdfReader
@@ -32,6 +36,52 @@ from src.rates.schema import DISCLAIMER  # noqa: E402
 
 
 app = Flask(__name__, static_folder=None)
+app.config["MAX_CONTENT_LENGTH"] = 11 * 1024 * 1024
+
+_RATE_LIMITS: dict[str, OrderedDict[str, deque[float]]] = defaultdict(OrderedDict)
+_RATE_LIMIT_LOCK = Lock()
+_MAX_RATE_LIMIT_KEYS = 4096
+
+
+def _client_address() -> str:
+    remote = request.remote_addr or "unknown"
+    try:
+        from_loopback_proxy = ip_address(remote).is_loopback
+    except ValueError:
+        from_loopback_proxy = False
+    if from_loopback_proxy:
+        # nginx overwrites X-Real-IP. X-Forwarded-For may contain a
+        # client-supplied first hop, so it must not be used for rate limiting.
+        real_ip = request.headers.get("X-Real-IP", "").strip()
+        try:
+            return str(ip_address(real_ip)) if real_ip else remote
+        except ValueError:
+            return remote
+    return remote
+
+
+def _rate_limit(bucket: str, limit: int, window_seconds: int):
+    now = time.monotonic()
+    key = _client_address()
+    with _RATE_LIMIT_LOCK:
+        clients = _RATE_LIMITS[bucket]
+        attempts = clients.get(key)
+        if attempts is None:
+            if len(clients) >= _MAX_RATE_LIMIT_KEYS:
+                clients.popitem(last=False)
+            attempts = deque()
+            clients[key] = attempts
+        else:
+            clients.move_to_end(key)
+        while attempts and attempts[0] <= now - window_seconds:
+            attempts.popleft()
+        if len(attempts) >= limit:
+            retry_after = max(1, int(window_seconds - (now - attempts[0])))
+            response = jsonify({"error": "请求过于频繁，请稍后重试", "disclaimer": DISCLAIMER})
+            response.headers["Retry-After"] = str(retry_after)
+            return response, 429
+        attempts.append(now)
+    return None
 
 
 @app.after_request
@@ -64,6 +114,10 @@ def rates_status():
 @app.get("/api/rates/forecast")
 def rates_forecast():
     as_of = request.args.get("as_of") or None
+    if as_of:
+        limited = _rate_limit("historical_forecast", 6, 60)
+        if limited:
+            return limited
     try:
         horizon = int(request.args.get("horizon", "5"))
         result = load_forecast(as_of=as_of, horizon=horizon)
@@ -105,6 +159,9 @@ def rates_report():
 
 @app.post("/api/rates/extract-file")
 def rates_extract_file():
+    limited = _rate_limit("extract_file", 12, 60)
+    if limited:
+        return limited
     uploaded = request.files.get("file")
     if uploaded is None or not uploaded.filename:
         return jsonify({"error": "请选择TXT、Markdown或PDF文件", "disclaimer": DISCLAIMER}), 400
@@ -136,8 +193,14 @@ def rates_extract_file():
 
 @app.post("/api/rates/analyze")
 def rates_analyze():
+    limited = _rate_limit("analyze", 12, 60)
+    if limited:
+        return limited
     try:
-        result = analyze_document(request.get_json(silent=True) or {})
+        payload = request.get_json(silent=True) or {}
+        if len(str(payload.get("content", ""))) > 120000:
+            raise ValueError("正文不能超过120000个字符")
+        result = analyze_document(payload)
     except ValueError as exc:
         return jsonify({"error": str(exc), "disclaimer": DISCLAIMER}), 400
     return jsonify(result)
@@ -145,6 +208,9 @@ def rates_analyze():
 
 @app.post("/api/rates/review")
 def rates_review():
+    limited = _rate_limit("review", 30, 600)
+    if limited:
+        return limited
     try:
         result = append_review(request.get_json(silent=True) or {})
     except ValueError as exc:
@@ -157,6 +223,13 @@ def not_found(_error):
     if request.path.startswith("/api/"):
         return jsonify({"error": "接口不存在", "disclaimer": DISCLAIMER}), 404
     return send_from_directory(APP_DIR, "index.html")
+
+
+@app.errorhandler(413)
+def request_too_large(_error):
+    if request.path.startswith("/api/"):
+        return jsonify({"error": "请求体超过11MB服务上限", "disclaimer": DISCLAIMER}), 413
+    return "Request entity too large", 413
 
 
 if __name__ == "__main__":

@@ -7,10 +7,18 @@ from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
 
-from app.server import app
+from app.server import _RATE_LIMITS, app
 from scripts.fetch_rates_structured_data import _mlf_amount, _mlf_rate, parse_pboc_afre_stock_text
 from src.ai.gateway import AISettings
-from src.rates.engine import _structured_context, append_review, load_backtest, load_forecast, load_status
+from src.rates.engine import (
+    _daily_context,
+    _structured_context,
+    _structured_status,
+    append_review,
+    load_backtest,
+    load_forecast,
+    load_status,
+)
 from src.rates.factors import factor_scores, ground_predicates, independent_event_key, merge_llm_predicates
 from src.rates.llm import extract_with_llm
 from src.rates.modeling import labels_for_market, paired_block_bootstrap
@@ -126,6 +134,58 @@ class RatesResearchTests(unittest.TestCase):
         self.assertEqual(independent_event_key(first), independent_event_key(repeated))
         self.assertNotEqual(independent_event_key(first), independent_event_key(changed))
 
+    def test_daily_context_gates_raw_llm_events_with_accepted_predicates(self) -> None:
+        document = {
+            "doc_id": "D-LLM-GATE", "source_sha256": "a" * 64,
+            "title": "逆回购投放",
+            "content": "中国人民银行开展逆回购操作，向市场投放流动性100亿元。",
+            "source_name": "中国人民银行", "source_url": "https://www.pbc.gov.cn/",
+            "publish_time": "2026-01-02 09:00:00",
+        }
+        evidence = "中国人民银行开展逆回购操作，向市场投放流动性100亿元。"
+        annotation = {
+            "used": True,
+            "events": [{
+                "event_id": "raw-llm-event", "subject": "中国人民银行", "action": "投放",
+                "object": "流动性", "policy_direction": -1, "intensity": 0.8,
+                "horizon": "短期", "transmission_channel": "monetary_policy",
+                "evidence_text": evidence, "confidence": 0.9,
+            }],
+            "predicates": [{
+                "predicate_name": "liquidity_supply_increases", "value": True,
+                "evidence_text": evidence, "confidence": 0.9,
+            }],
+            "metadata": {"request_id": "REQ-GATE"},
+        }
+        market = [{"trade_date": "2026-01-02"}, {"trade_date": "2026-01-05"}]
+        with patch("src.rates.engine._llm_annotation_cache", return_value={
+            (document["doc_id"], document["source_sha256"]): annotation,
+        }), patch("src.rates.engine.MINIMUM_INDEPENDENT_EVENTS", 1):
+            factors, _pressure, audit, daily = _daily_context(market, [document], [])
+        self.assertLess(factors["2026-01-02"]["liquidity"], 0)
+        self.assertEqual(daily[0]["liquidity_independent_event_count"], 1)
+        self.assertEqual(daily[0]["monetary_policy_independent_event_count"], 0)
+        self.assertEqual({row["transmission_channel"] for row in audit[0]["events"]}, {"liquidity"})
+        self.assertEqual(audit[0]["llm_events"][0]["transmission_channel"], "monetary_policy")
+
+    def test_text_before_market_sample_is_not_replayed_on_first_trade_date(self) -> None:
+        document = {
+            "doc_id": "D-PRE-SAMPLE", "source_sha256": "b" * 64,
+            "title": "逆回购投放",
+            "content": "中国人民银行开展逆回购操作，向市场投放流动性200亿元。",
+            "source_name": "中国人民银行", "source_url": "https://www.pbc.gov.cn/",
+            "publish_time": "2019-12-31 09:00:00",
+        }
+        market = [{"trade_date": "2020-01-02"}, {"trade_date": "2020-01-03"}]
+        with patch("src.rates.engine._llm_annotation_cache", return_value={}):
+            factors, _pressure, audit, daily = _daily_context(market, [document], [])
+        self.assertIsNone(audit[0]["effective_trade_date"])
+        self.assertFalse(audit[0]["model_eligible"])
+        self.assertEqual(audit[0]["exclusion_reason"], "published_before_market_sample")
+        self.assertEqual(daily[0]["supporting_document_count"], 0)
+        self.assertEqual(daily[0]["independent_event_count"], 0)
+        self.assertEqual(factors["2020-01-02"]["liquidity"], 0.0)
+
     def test_structured_observation_requires_public_release_contract(self) -> None:
         row = dict.fromkeys(STRUCTURED_FIELDS, "")
         row.update({
@@ -157,6 +217,37 @@ class RatesResearchTests(unittest.TestCase):
         context, _coverage = _structured_context(market, structured)
         self.assertEqual(context["2025-11-04"]["afre_government_bonds"], 100.0)
         self.assertEqual(context["2025-11-06"]["afre_government_bonds"], 100.0)
+
+    def test_retrospective_structured_reconstruction_is_audit_only(self) -> None:
+        market = [{"trade_date": "2025-11-04"}, {"trade_date": "2025-11-06"}]
+        structured = [{
+            "release_time": "2025-11-05 23:59:59", "observation_date": "2019-12-31",
+            "indicator": "afre_government_bonds", "value": "377273",
+            "vintage": "official_pboc_afre_stock_reconstruction_2025",
+        }]
+        context, coverage = _structured_context(market, structured)
+        counts, statuses, overall = _structured_status(structured)
+        self.assertNotIn("afre_government_bonds", context["2025-11-06"])
+        self.assertNotIn("afre_government_bonds", coverage)
+        self.assertEqual(counts["afre_government_bonds"], 1)
+        self.assertEqual(statuses["afre_government_bonds"], "audit_only")
+        self.assertEqual(overall, "partial")
+
+    def test_known_government_bond_issuance_expires_after_event_window(self) -> None:
+        market = [
+            {"trade_date": "2026-01-02"},
+            {"trade_date": "2026-01-05"},
+            {"trade_date": "2026-01-12"},
+        ]
+        structured = [{
+            "release_time": "2026-01-01 09:00:00", "observation_date": "2026-01-06",
+            "indicator": "government_bond_issuance", "value": "100", "vintage": "treasury",
+        }]
+        context, coverage = _structured_context(market, structured)
+        self.assertEqual(context["2026-01-02"]["government_bond_issuance"], 100.0)
+        self.assertEqual(context["2026-01-05"]["government_bond_issuance"], 100.0)
+        self.assertEqual(context["2026-01-12"]["government_bond_issuance"], 0.0)
+        self.assertEqual(coverage["government_bond_issuance"], 1)
 
     def test_official_mlf_and_afre_parsers_reject_ambiguous_values(self) -> None:
         notice = (
@@ -194,14 +285,17 @@ class RatesResearchTests(unittest.TestCase):
         self.assertTrue(status["structured_data_ready"], status["data_errors"])
         self.assertEqual(status["structured_indicator_status"]["mlf_rate"], "sufficient")
         self.assertEqual(status["structured_indicator_status"]["government_bond_issuance"], "sufficient")
-        self.assertEqual(status["structured_indicator_status"]["afre_government_bonds"], "sufficient")
-        self.assertEqual(status["structured_data_status"], "sufficient")
+        self.assertEqual(status["structured_indicator_status"]["afre_government_bonds"], "audit_only")
+        self.assertEqual(status["structured_data_status"], "partial")
         self.assertGreaterEqual(len(RULES), 10)
         forecast = load_forecast()
         self.assertEqual(forecast["horizon_trading_days"], 5)
         self.assertAlmostEqual(sum(forecast["probabilities"].values()), 1.0, places=5)
         backtest = load_backtest()
         self.assertEqual({row["route"] for row in backtest["routes"]}, {"market_baseline", "text_only", "fusion", "fusion_rules"})
+        self.assertIn("retrospective_holdout", backtest["periods"])
+        self.assertIn("prospective_oos", backtest["periods"])
+        self.assertIn("holdout_increment_bootstrap", backtest)
         for route in backtest["routes"]:
             self.assertIn("macro_precision", route)
             self.assertIn("macro_recall", route)
@@ -224,9 +318,9 @@ class RatesResearchTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200, path)
         invalid = client.get("/api/rates/forecast?horizon=10")
         self.assertEqual(invalid.status_code, 400)
-        with patch("src.rates.engine.extract_with_llm", return_value={
-            "used": False, "reason": "test fallback", "events": [], "predicates": [], "metadata": {},
-        }):
+        with patch.dict("os.environ", {"ALPHALENS_ALLOW_SERVER_LLM": "false"}), patch(
+            "src.rates.engine.extract_with_llm"
+        ) as llm_call:
             response = client.post("/api/rates/analyze", json={
                 "title": "逆回购投放",
                 "content": "中国人民银行开展逆回购操作，向市场投放流动性，保持流动性合理充裕。",
@@ -234,6 +328,7 @@ class RatesResearchTests(unittest.TestCase):
                 "source_url": "https://www.pbc.gov.cn/",
                 "publish_time": "2026-08-28T09:30:00",
             })
+        llm_call.assert_not_called()
         self.assertEqual(response.status_code, 200)
         payload = response.get_json()
         self.assertEqual(payload["analysis_type"], "incremental_single_text")
@@ -241,6 +336,47 @@ class RatesResearchTests(unittest.TestCase):
         self.assertAlmostEqual(sum(payload["updated_forecast"].values()), 1.0, places=5)
         self.assertIn("边际影响", payload["interpretation"])
         self.assertIn("processed_at", payload)
+
+        oversized = client.post("/api/rates/analyze", json={
+            "title": "过长文本", "content": "政" * 120001,
+            "source_name": "中国人民银行", "source_url": "https://www.pbc.gov.cn/",
+            "publish_time": "2026-08-28T09:30:00",
+        })
+        self.assertEqual(oversized.status_code, 400)
+
+    def test_historical_forecast_is_bounded_and_rate_limited_by_trusted_ip(self) -> None:
+        client = app.test_client()
+        self.assertEqual(
+            client.get("/api/rates/forecast?as_of=not-a-date").status_code, 400
+        )
+        self.assertEqual(
+            client.get("/api/rates/forecast?as_of=2000-01-01").status_code, 400
+        )
+        _RATE_LIMITS.clear()
+        try:
+            with patch("app.server.load_forecast", return_value={"status": "test"}) as forecast_call:
+                for index in range(6):
+                    response = client.get(
+                        "/api/rates/forecast?as_of=2026-01-02",
+                        environ_base={"REMOTE_ADDR": "127.0.0.1"},
+                        headers={
+                            "X-Real-IP": "203.0.113.7",
+                            "X-Forwarded-For": f"198.51.100.{index}",
+                        },
+                    )
+                    self.assertEqual(response.status_code, 200)
+                blocked = client.get(
+                    "/api/rates/forecast?as_of=2026-01-02",
+                    environ_base={"REMOTE_ADDR": "127.0.0.1"},
+                    headers={
+                        "X-Real-IP": "203.0.113.7",
+                        "X-Forwarded-For": "198.51.100.250",
+                    },
+                )
+                self.assertEqual(blocked.status_code, 429)
+                self.assertEqual(forecast_call.call_count, 6)
+        finally:
+            _RATE_LIMITS.clear()
 
     def test_missing_market_snapshot_returns_evidence_insufficient(self) -> None:
         missing = Path("/path/that/does/not/exist.csv")

@@ -6,9 +6,10 @@ import csv
 import copy
 import hashlib
 import json
+import os
 import uuid
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -87,6 +88,12 @@ def _source_signature() -> dict[str, str]:
         "rates_policy_texts.csv": _file_hash(TEXT_PATH),
         "rates_llm_annotations.jsonl": _file_hash(LLM_ANNOTATION_PATH),
         "rates_structured_data.csv": _file_hash(STRUCTURED_PATH),
+        "rates_rule_version": RULE_VERSION,
+        "rates_engine.py": _file_hash(Path(__file__)),
+        "rates_factors.py": _file_hash(ROOT / "src" / "rates" / "factors.py"),
+        "rates_modeling.py": _file_hash(ROOT / "src" / "rates" / "modeling.py"),
+        "rates_rules.py": _file_hash(ROOT / "src" / "rates" / "rules.py"),
+        "rates_schema.py": _file_hash(ROOT / "src" / "rates" / "schema.py"),
     }
 
 
@@ -143,32 +150,52 @@ def _load_structured() -> tuple[list[dict[str, str]], list[str]]:
     return rows, errors
 
 
+def _structured_model_eligible(row: dict[str, str]) -> bool:
+    """Reject retrospective reconstructions as contemporaneous model state."""
+    vintage = str(row.get("vintage", "")).lower()
+    return "reconstruction" not in vintage and "retrospective_snapshot" not in vintage
+
+
 def _structured_status(rows: list[dict[str, str]]) -> tuple[dict[str, int], dict[str, str], str]:
     counts = Counter(row.get("indicator", "") for row in rows)
+    eligible_counts = Counter(
+        row.get("indicator", "") for row in rows if _structured_model_eligible(row)
+    )
     indicator_counts = {name: counts[name] for name in STRUCTURED_INDICATORS}
     indicator_status = {
-        name: "sufficient" if indicator_counts[name] else "missing"
+        name: (
+            "sufficient" if eligible_counts[name]
+            else "audit_only" if indicator_counts[name]
+            else "missing"
+        )
         for name in STRUCTURED_INDICATORS
     }
-    overall = "sufficient" if all(indicator_counts.values()) else "partial" if rows else "insufficient_evidence"
+    overall = (
+        "sufficient" if all(status == "sufficient" for status in indicator_status.values())
+        else "partial" if rows
+        else "insufficient_evidence"
+    )
     return indicator_counts, indicator_status, overall
 
 
 def _structured_context(
     market: list[dict[str, str]], structured: list[dict[str, str]]
 ) -> tuple[dict[str, dict[str, float]], dict[str, int]]:
-    """Carry forward vintage-safe observations whose public release precedes the close.
-
-    A later historical-reconstruction file may publish old periods after newer
-    observations are already known.  Such a revision can replace the value for
-    its own period, but must never make the model travel backwards in time.
-    """
+    """Build point-in-time state and known near-term issuance features."""
     dates = [row["trade_date"] for row in market]
     by_date: dict[str, dict[str, float]] = {day: {} for day in dates}
     release_rows: list[tuple[str, str, str, str, float]] = []
+    issuance_rows: list[tuple[str, str, float]] = []
     for row in structured:
+        if not _structured_model_eligible(row):
+            continue
         effective = effective_trade_date(row["release_time"], dates)
         if effective:
+            if str(row["indicator"]) == "government_bond_issuance":
+                issuance_rows.append((
+                    effective, str(row.get("observation_date") or effective), float(row["value"]),
+                ))
+                continue
             release_rows.append((
                 effective, row["release_time"], str(row["indicator"]),
                 str(row.get("observation_date") or effective), float(row["value"]),
@@ -186,8 +213,18 @@ def _structured_context(
             if previous is None or observation_date >= previous[0]:
                 latest[indicator] = (observation_date, value)
             cursor += 1
-        by_date[day] = {indicator: value for indicator, (_period, value) in latest.items()}
+        values = {indicator: value for indicator, (_period, value) in latest.items()}
+        # Issuance is a dated, known-in-advance supply event rather than a
+        # persistent level. Sum plans already public for the next seven
+        # calendar days (approximately five trading days), then let them expire.
+        horizon_end = (date.fromisoformat(day) + timedelta(days=7)).isoformat()
+        values["government_bond_issuance"] = sum(
+            value for effective, issuance_date, value in issuance_rows
+            if effective <= day <= issuance_date <= horizon_end
+        )
+        by_date[day] = values
     coverage = Counter(indicator for _effective, _release_time, indicator, _period, _value in release_rows)
+    coverage["government_bond_issuance"] = len(issuance_rows)
     return by_date, dict(coverage)
 
 
@@ -208,18 +245,30 @@ def _daily_context(
     llm_cache = _llm_annotation_cache()
     seen_event_keys: set[str] = set()
     for document in texts:
-        effective = effective_trade_date(document["publish_time"], dates)
+        publication_date = parse_datetime(document["publish_time"]).date().isoformat()
+        # Text signals decay over a short event window. A document published
+        # before the available market sample is auditable history, not a new
+        # event on the first market date in the file.
+        effective = (
+            effective_trade_date(document["publish_time"], dates)
+            if dates and publication_date >= dates[0]
+            else None
+        )
         deterministic = ground_predicates(document)
         annotation = llm_cache.get((document["doc_id"], document["source_sha256"]))
         if annotation and annotation.get("used"):
             source_text = f"{document['title']}。{document['content']}"
             predicates = merge_llm_predicates(deterministic, annotation.get("predicates", []), source_text)
-            events = annotation.get("events", []) or events_from_predicates(document, predicates)
+            llm_events = annotation.get("events", []) or []
             extraction_mode = "llm_evidence_gated"
         else:
             predicates = [{**row, "consensus": "deterministic_only"} for row in deterministic]
-            events = events_from_predicates(document, predicates)
+            llm_events = []
             extraction_mode = "deterministic_fallback"
+        # Only events reconstructed from the final, evidence-gated predicates
+        # may enter factor counts or model contributions. Raw LLM events are
+        # retained separately for audit and can never bypass predicate gating.
+        events = events_from_predicates(document, predicates)
         scores = factor_scores(predicates)
         rules = activate_rules(predicates)
         if effective:
@@ -260,6 +309,9 @@ def _daily_context(
             "source_sha256": document["source_sha256"], "document_fingerprint": document_fingerprint(document),
             "extraction_mode": extraction_mode,
             "llm_request_id": (annotation or {}).get("metadata", {}).get("request_id", ""),
+            "model_eligible": bool(effective),
+            "exclusion_reason": "published_before_market_sample" if dates and publication_date < dates[0] else "",
+            "llm_events": llm_events,
             "events": events,
             "independent_event_keys": sorted({independent_event_key(event) for event in events}),
             "active_predicates": [row for row in predicates if row["value"]],
@@ -343,6 +395,16 @@ def _compute_forecast(as_of: str | None = None, horizon: int = HORIZON_TRADING_D
     if horizon != HORIZON_TRADING_DAYS:
         raise ValueError("当前冻结模型仅支持5个交易日预测窗口")
     if as_of:
+        try:
+            requested_date = date.fromisoformat(as_of)
+        except ValueError as exc:
+            raise ValueError("as_of必须是YYYY-MM-DD格式") from exc
+        if requested_date.isoformat() != as_of:
+            raise ValueError("as_of必须是YYYY-MM-DD格式")
+        if market and not (market[0]["trade_date"] <= as_of <= market[-1]["trade_date"]):
+            raise ValueError(
+                f"as_of必须位于市场样本区间{market[0]['trade_date']}至{market[-1]['trade_date']}"
+            )
         market = [row for row in market if row["trade_date"] <= as_of]
         texts = [row for row in texts if parse_datetime(row["publish_time"]).date().isoformat() <= as_of]
     if errors or not market:
@@ -419,15 +481,16 @@ def _compute_backtest() -> dict[str, Any]:
     factors, pressure, _audit, _daily = _daily_context(market, texts, structured)
     routes = [evaluate_route(market, factors, pressure, route) for route in ROUTES]
     baseline, enhanced = routes[0], routes[-1]
-    oos_baseline = {"timeline": [row for row in baseline["timeline"] if row["period"] == "oos_2025_latest"]}
-    oos_enhanced = {"timeline": [row for row in enhanced["timeline"] if row["period"] == "oos_2025_latest"]}
-    bootstrap = paired_block_bootstrap(oos_baseline, oos_enhanced)
-    baseline_oos = next(row for row in baseline["period_metrics"] if row["period"] == "oos_2025_latest")
-    enhanced_oos = next(row for row in enhanced["period_metrics"] if row["period"] == "oos_2025_latest")
+    holdout_key = "retrospective_holdout_2025_latest"
+    holdout_baseline = {"timeline": [row for row in baseline["timeline"] if row["period"] == holdout_key]}
+    holdout_enhanced = {"timeline": [row for row in enhanced["timeline"] if row["period"] == holdout_key]}
+    bootstrap = paired_block_bootstrap(holdout_baseline, holdout_enhanced)
+    baseline_holdout = next(row for row in baseline["period_metrics"] if row["period"] == holdout_key)
+    enhanced_holdout = next(row for row in enhanced["period_metrics"] if row["period"] == holdout_key)
     incremental = bool(
-        enhanced_oos.get("macro_f1") is not None
-        and baseline_oos.get("macro_f1") is not None
-        and enhanced_oos["macro_f1"] > baseline_oos["macro_f1"]
+        enhanced_holdout.get("macro_f1") is not None
+        and baseline_holdout.get("macro_f1") is not None
+        and enhanced_holdout["macro_f1"] > baseline_holdout["macro_f1"]
         and bootstrap.get("stable")
     )
     return {
@@ -438,12 +501,16 @@ def _compute_backtest() -> dict[str, Any]:
         "split_policy": "purged_non_overlapping_756_day_rolling_window_no_shuffle",
         "periods": {
             "discovery": "2018-01-01至2022-12-31", "validation": "2023-01-01至2024-12-31",
-            "oos": "2025-01-01至最新",
+            "retrospective_holdout": "2025-01-01至最新（规则建立后回看，不是真正前瞻OOS）",
+            "prospective_oos": "2026-09-03起累计；当前尚无完整5交易日标签",
         },
-        "routes": routes, "oos_increment_bootstrap": bootstrap,
+        "routes": routes, "holdout_increment_bootstrap": bootstrap,
         "increment_established": incremental,
-        "increment_conclusion": "冻结OOS文本预测增量成立" if incremental else "冻结OOS文本预测增量尚未建立",
-        "research_warning": "回测只衡量方向分类，不代表可交易收益；结论必须同时查看分期指标与区块Bootstrap。",
+        "increment_conclusion": "回顾性时间留出文本预测增量成立" if incremental else "回顾性时间留出文本预测增量尚未建立",
+        "research_warning": (
+            "2025年至最新仅为回顾性时间留出，不是真正前瞻OOS；规则于2026-09-02冻结，"
+            "前瞻OOS须从其后的新数据累计。回测只衡量方向分类，不代表可交易收益。"
+        ),
         "source_signature": _source_signature(),
         "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
     }
@@ -474,18 +541,28 @@ def analyze_document(payload: dict[str, Any]) -> dict[str, Any]:
         "publish_time": normalized["publish_time"],
     }
     deterministic = ground_predicates(document)
-    try:
-        llm = extract_with_llm(document, normalized.get("api_key", ""))
-    except AIServiceError as exc:
-        llm = {"used": False, "reason": str(exc), "events": [], "predicates": [], "metadata": {}}
+    request_api_key = normalized.get("api_key", "")
+    allow_server_llm = os.getenv("ALPHALENS_ALLOW_SERVER_LLM", "").strip().lower() == "true"
+    if request_api_key or allow_server_llm:
+        try:
+            llm = extract_with_llm(document, request_api_key)
+        except AIServiceError as exc:
+            llm = {"used": False, "reason": str(exc), "events": [], "predicates": [], "metadata": {}}
+    else:
+        llm = {
+            "used": False,
+            "reason": "未提供当次请求API Key，公开服务使用确定性降级",
+            "events": [], "predicates": [], "metadata": {},
+        }
     source_text = f"{document['title']}。{document['content']}"
     predicates = merge_llm_predicates(deterministic, llm.get("predicates", []), source_text) if llm.get("used") else [
         {**row, "consensus": "deterministic_only"} for row in deterministic
     ]
     scores = factor_scores(predicates)
     activated = activate_rules(predicates)
-    deterministic_events = events_from_predicates(document, predicates)
-    events = llm.get("events", []) if llm.get("used") and llm.get("events") else deterministic_events
+    # Present the same accepted evidence chain used by the model. Raw LLM
+    # events remain available under ``llm_analysis`` for audit purposes.
+    events = events_from_predicates(document, predicates)
     baseline = load_forecast()
     baseline_probs = dict(baseline.get("probabilities", {"down": 1 / 3, "flat": 1 / 3, "up": 1 / 3}))
     market, texts, errors, _duplicates = _load()
@@ -499,7 +576,12 @@ def analyze_document(payload: dict[str, Any]) -> dict[str, Any]:
         historical_factors, historical_pressure, _audit, _daily = _daily_context(market, texts, structured)
         latest_date = market[-1]["trade_date"]
         trade_dates = [row["trade_date"] for row in market]
-        scenario_effective_date = effective_trade_date(normalized["publish_time"], trade_dates)
+        scenario_publication_date = publish_time.date().isoformat()
+        scenario_effective_date = (
+            effective_trade_date(normalized["publish_time"], trade_dates)
+            if trade_dates and scenario_publication_date >= trade_dates[0]
+            else None
+        )
         scenario_active = bool(
             scenario_effective_date
             and 0 <= len(trade_dates) - 1 - trade_dates.index(scenario_effective_date) < TEXT_DECAY_DAYS
@@ -581,14 +663,18 @@ def load_reviews(limit: int = 100) -> list[dict[str, Any]]:
 def load_evidence(limit: int = 100) -> dict[str, Any]:
     if EVIDENCE_PATH.exists():
         payload = json.loads(EVIDENCE_PATH.read_text(encoding="utf-8"))
-        payload["documents"] = payload.get("documents", [])[-max(1, min(limit, 500)):]
-        return payload
+        if payload.get("source_signature") == _source_signature():
+            payload["documents"] = payload.get("documents", [])[-max(1, min(limit, 500)):]
+            return payload
     market, texts, errors, _duplicates = _load()
     if errors:
         return {"documents": [], "errors": errors, "disclaimer": DISCLAIMER}
     structured, _structured_errors = _load_structured()
     _factors, _pressure, evidence, _daily = _daily_context(market, texts, structured)
-    return {"version": "rates-evidence-v2", "documents": evidence[-max(1, min(limit, 500)):], "disclaimer": DISCLAIMER}
+    return {
+        "version": "rates-evidence-v2", "source_signature": _source_signature(),
+        "documents": evidence[-max(1, min(limit, 500)):], "disclaimer": DISCLAIMER,
+    }
 
 
 def load_demo_cases() -> dict[str, Any]:
@@ -598,8 +684,13 @@ def load_demo_cases() -> dict[str, Any]:
 
 
 def load_report() -> str:
-    if REPORT_PATH.exists():
-        return REPORT_PATH.read_text(encoding="utf-8")
+    if REPORT_PATH.exists() and MODEL_MANIFEST_PATH.exists():
+        try:
+            manifest = json.loads(MODEL_MANIFEST_PATH.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            manifest = {}
+        if manifest.get("source_signature") == _source_signature():
+            return REPORT_PATH.read_text(encoding="utf-8")
     status = load_status()
     return _research_report(
         load_forecast(), load_backtest(), status["market_rows"], status["text_rows"], status["structured_rows"]
@@ -638,7 +729,10 @@ def build_rates_outputs() -> dict[str, Any]:
         writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(daily)
-    _write_json(EVIDENCE_PATH, {"version": "rates-evidence-v2", "documents": evidence, "disclaimer": DISCLAIMER})
+    _write_json(EVIDENCE_PATH, {
+        "version": "rates-evidence-v2", "source_signature": _source_signature(),
+        "documents": evidence, "disclaimer": DISCLAIMER,
+    })
     _write_json(FORECAST_PATH, forecast)
     artifact_backtest = copy.deepcopy(backtest)
     for route in artifact_backtest.get("routes", []):
@@ -731,33 +825,36 @@ def _research_report(
         lines.append("- 当前5交易日衰减窗口没有命中冻结规则。")
     lines.extend([
         "", "## 模型评估", "",
-        "| 路线 | OOS观测 | Accuracy | Macro-F1 | AUC |",
+        "| 路线 | 回顾性时间留出观测 | Accuracy | Macro-F1 | AUC |",
         "| --- | ---: | ---: | ---: | ---: |",
     ])
     for route in backtest.get("routes", []):
-        oos = next((row for row in route.get("period_metrics", []) if row.get("period") == "oos_2025_latest"), {})
-        if not oos:
+        holdout = next((
+            row for row in route.get("period_metrics", [])
+            if row.get("period") == "retrospective_holdout_2025_latest"
+        ), {})
+        if not holdout:
             continue
         lines.append(
-            f"| {route.get('route_label', route.get('route', ''))} | {oos.get('observations', 0)} | "
-            f"{float(oos.get('accuracy') or 0):.2%} | {float(oos.get('macro_f1') or 0):.4f} | "
-            f"{float(oos.get('macro_auc_ovr') or 0):.4f} |"
+            f"| {route.get('route_label', route.get('route', ''))} | {holdout.get('observations', 0)} | "
+            f"{float(holdout.get('accuracy') or 0):.2%} | {float(holdout.get('macro_f1') or 0):.4f} | "
+            f"{float(holdout.get('macro_auc_ovr') or 0):.4f} |"
         )
-    bootstrap = backtest.get("oos_increment_bootstrap", {})
+    bootstrap = backtest.get("holdout_increment_bootstrap", {})
     lines.extend([
         "", f"- 结论：{backtest.get('increment_conclusion', '尚未评估')}",
-        f"- 规则增强相对市场基线的OOS准确率差：{float(bootstrap.get('accuracy_difference') or 0):+.2%}",
+        f"- 规则增强相对市场基线的回顾性时间留出准确率差：{float(bootstrap.get('accuracy_difference') or 0):+.2%}",
         f"- 20个交易日移动区块Bootstrap（{bootstrap.get('block_observations', 0)}个相邻评估观测）95%区间：[{float(bootstrap.get('ci_lower_95') or 0):.2%}, {float(bootstrap.get('ci_upper_95') or 0):.2%}]",
         f"- 切分：{backtest.get('split_policy', '尚未评估')}",
         f"- 注意：{backtest.get('research_warning', '')}", "",
         "## 结构化数据覆盖", "",
         f"- 状态：{forecast.get('structured_data_status', 'insufficient_evidence')}",
         f"- 指标条数：{json.dumps(forecast.get('structured_indicator_counts', {}), ensure_ascii=False, sort_keys=True)}",
-        f"- 缺失指标：{', '.join(name for name, status in forecast.get('structured_indicator_status', {}).items() if status == 'missing') or '无'}", "",
+        f"- 缺失或仅审计指标：{', '.join(name for name, status in forecast.get('structured_indicator_status', {}).items() if status != 'sufficient') or '无'}", "",
         "## 数据来源与研究边界", "",
         f"- 中债收益率曲线：{snapshot.get('cgb_source_url', '未提供')}",
         f"- 银行间流动性代理：{snapshot.get('liquidity_source_url', '未提供')}",
-        "- FDR007定盘利率仅作DR007历史代理；结构化宏观序列按发布日期对齐，因子事件数少于5个时标记为证据不足并不进入模型。",
+        "- FDR007定盘利率仅作DR007历史代理；结构化序列还需通过历史vintage门槛，回顾性快照仅审计；因子事件数少于5个时标记为证据不足并不进入模型。",
         "", RESEARCH_BOUNDARY, "", DISCLAIMER, "",
     ])
     return "\n".join(lines)

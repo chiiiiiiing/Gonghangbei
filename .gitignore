@@ -29,6 +29,11 @@ data/raw/
 data/processed/
 data/external/
 
+# Rebuilt/local research intermediates; never stage with the tracked demo snapshot.
+data/sample/macro_route_features.csv
+data/sample/ai_candidate_rules.csv
+data/research/
+
 # 人工复核运行记录（现场演示生成，不进入提交快照）
 data/runtime/
 
@@ -48,6 +53,14 @@ logs/
 # Environment
 .env
 .env.local
+.env.*
+!.env.example
+.envrc
+*.key
+secrets.json
+
+# Local-only collaboration instructions
+AGENTS.md
 
 # Model caches (large, do not commit)
 *.h5

@@ -6,9 +6,9 @@
   "flat_threshold_bp": 2.0,
   "data_sufficient": true,
   "probabilities": {
-    "down": 0.25681722,
-    "flat": 0.49337484,
-    "up": 0.24980794
+    "down": 0.27236344,
+    "flat": 0.43885233,
+    "up": 0.28878423
   },
   "predicted_label": "flat",
   "train_observations": 752,
@@ -17,109 +17,84 @@
   "label_known_through": "2026-09-01",
   "feature_contributions": [
     {
-      "feature": "structured_afre_government_bonds",
-      "label": "structured_afre_government_bonds",
-      "contribution": 0.204097
-    },
-    {
       "feature": "fdr007_level",
       "label": "fdr007_level",
-      "contribution": 0.132843
-    },
-    {
-      "feature": "structured_afre_flow",
-      "label": "structured_afre_flow",
-      "contribution": 0.100735
-    },
-    {
-      "feature": "structured_afre_rmb_loans",
-      "label": "structured_afre_rmb_loans",
-      "contribution": -0.060867
-    },
-    {
-      "feature": "yield_volatility_20d_bp",
-      "label": "yield_volatility_20d_bp",
-      "contribution": -0.036989
-    },
-    {
-      "feature": "structured_ppi_yoy",
-      "label": "structured_ppi_yoy",
-      "contribution": 0.035861
-    },
-    {
-      "feature": "structured_mlf_rate",
-      "label": "structured_mlf_rate",
-      "contribution": -0.033757
-    },
-    {
-      "feature": "structured_pmi_manufacturing",
-      "label": "structured_pmi_manufacturing",
-      "contribution": -0.024199
-    },
-    {
-      "feature": "structured_government_bond_issuance",
-      "label": "structured_government_bond_issuance",
-      "contribution": 0.022181
-    },
-    {
-      "feature": "structured_cpi_yoy",
-      "label": "structured_cpi_yoy",
-      "contribution": -0.020909
-    },
-    {
-      "feature": "text_liquidity",
-      "label": "市场流动性",
-      "contribution": -0.009947
-    },
-    {
-      "feature": "yield_change_5d_bp",
-      "label": "yield_change_5d_bp",
-      "contribution": -0.004713
-    },
-    {
-      "feature": "fdr007_change_1d_bp",
-      "label": "fdr007_change_1d_bp",
-      "contribution": -0.002576
-    },
-    {
-      "feature": "structured_mlf_amount",
-      "label": "structured_mlf_amount",
-      "contribution": 0.002302
+      "contribution": 0.190772
     },
     {
       "feature": "text_monetary_policy",
       "label": "货币政策",
-      "contribution": -0.002164
+      "contribution": -0.032766
     },
     {
-      "feature": "text_inflation",
-      "label": "通胀",
-      "contribution": -0.001261
-    },
-    {
-      "feature": "yield_change_1d_bp",
-      "label": "yield_change_1d_bp",
-      "contribution": 0.001203
+      "feature": "text_liquidity",
+      "label": "市场流动性",
+      "contribution": -0.031549
     },
     {
       "feature": "rule_pressure",
       "label": "rule_pressure",
-      "contribution": 0.000921
+      "contribution": 0.020676
     },
     {
-      "feature": "yield_change_20d_bp",
-      "label": "yield_change_20d_bp",
-      "contribution": -0.00086
+      "feature": "yield_volatility_20d_bp",
+      "label": "yield_volatility_20d_bp",
+      "contribution": 0.017835
     },
     {
-      "feature": "fdr007_gap_20d_bp",
-      "label": "fdr007_gap_20d_bp",
-      "contribution": -0.000137
+      "feature": "structured_mlf_rate",
+      "label": "structured_mlf_rate",
+      "contribution": -0.007663
+    },
+    {
+      "feature": "text_risk_appetite",
+      "label": "风险偏好",
+      "contribution": 0.006664
+    },
+    {
+      "feature": "yield_change_5d_bp",
+      "label": "yield_change_5d_bp",
+      "contribution": -0.005353
+    },
+    {
+      "feature": "fdr007_change_1d_bp",
+      "label": "fdr007_change_1d_bp",
+      "contribution": -0.002801
     },
     {
       "feature": "text_growth",
       "label": "经济增长",
-      "contribution": 0.0
+      "contribution": 0.001446
+    },
+    {
+      "feature": "yield_change_1d_bp",
+      "label": "yield_change_1d_bp",
+      "contribution": 0.001334
+    },
+    {
+      "feature": "text_inflation",
+      "label": "通胀",
+      "contribution": -0.00123
+    },
+    {
+      "feature": "structured_mlf_amount",
+      "label": "structured_mlf_amount",
+      "contribution": -0.000699
+    },
+    {
+      "feature": "yield_change_20d_bp",
+      "label": "yield_change_20d_bp",
+      "contribution": -0.000498
+    },
+    {
+      "feature": "fdr007_gap_20d_bp",
+      "label": "fdr007_gap_20d_bp",
+      "contribution": -0.000218
+    },
+    {
+      "feature": "structured_government_bond_issuance",
+      "label": "structured_government_bond_issuance",
+      "contribution": -0.000177
     },
     {
       "feature": "text_bond_supply",
@@ -127,8 +102,33 @@
       "contribution": 0.0
     },
     {
-      "feature": "text_risk_appetite",
-      "label": "风险偏好",
+      "feature": "structured_cpi_yoy",
+      "label": "structured_cpi_yoy",
+      "contribution": 0.0
+    },
+    {
+      "feature": "structured_ppi_yoy",
+      "label": "structured_ppi_yoy",
+      "contribution": 0.0
+    },
+    {
+      "feature": "structured_pmi_manufacturing",
+      "label": "structured_pmi_manufacturing",
+      "contribution": 0.0
+    },
+    {
+      "feature": "structured_afre_flow",
+      "label": "structured_afre_flow",
+      "contribution": 0.0
+    },
+    {
+      "feature": "structured_afre_rmb_loans",
+      "label": "structured_afre_rmb_loans",
+      "contribution": 0.0
+    },
+    {
+      "feature": "structured_afre_government_bonds",
+      "label": "structured_afre_government_bonds",
       "contribution": 0.0
     }
   ],
@@ -179,10 +179,10 @@
     "liquidity": "sufficient",
     "growth": "sufficient",
     "inflation": "sufficient",
-    "bond_supply": "sufficient",
+    "bond_supply": "insufficient_evidence",
     "risk_appetite": "sufficient"
   },
-  "structured_data_status": "sufficient",
+  "structured_data_status": "partial",
   "structured_indicator_counts": {
     "cpi_yoy": 223,
     "ppi_yoy": 247,
@@ -195,12 +195,12 @@
     "government_bond_issuance": 3423
   },
   "structured_indicator_status": {
-    "cpi_yoy": "sufficient",
-    "ppi_yoy": "sufficient",
-    "pmi_manufacturing": "sufficient",
-    "afre_flow": "sufficient",
-    "afre_rmb_loans": "sufficient",
-    "afre_government_bonds": "sufficient",
+    "cpi_yoy": "audit_only",
+    "ppi_yoy": "audit_only",
+    "pmi_manufacturing": "audit_only",
+    "afre_flow": "audit_only",
+    "afre_rmb_loans": "audit_only",
+    "afre_government_bonds": "audit_only",
     "mlf_amount": "sufficient",
     "mlf_rate": "sufficient",
     "government_bond_issuance": "sufficient"
@@ -218,7 +218,9 @@
       "document_fingerprint": "9afe0aa4311f097a5f28dc78f157b04fe97763d0344b38250c2e9b272e8576bf",
       "extraction_mode": "llm_evidence_gated",
       "llm_request_id": "2e4dd66f-e79d-40ef-8bff-27e08cd16e63",
-      "events": [
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [
         {
           "subject": "中国人民银行",
           "action": "开展逆回购操作",
@@ -231,8 +233,22 @@
           "confidence": 0.7
         }
       ],
+      "events": [
+        {
+          "event_id": "RATE-E-2001c416c2da",
+          "subject": "中国人民银行",
+          "action": "投放",
+          "object": "银行间流动性",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "短期",
+          "transmission_channel": "liquidity",
+          "evidence_text": "2026年7月20日中国人民银行以固定利率、数量招标方式开展了3985亿元7天期逆回购操作，全额满足了一级交易商需求。",
+          "confidence": 0.75
+        }
+      ],
       "independent_event_keys": [
-        "d425e99fca6f11ece35fe9af718ae99f2f6db6e5275f69c4fb81405dd00b2f07"
+        "54700828b003ea3bb22becbea67796b21300185d84a6098b4b3d50cdf032c0ab"
       ],
       "active_predicates": [
         {
@@ -270,7 +286,9 @@
       "document_fingerprint": "90c9b57b0b5951351e38632524f2e523528db3a2c8d690f1dede6892b94c055a",
       "extraction_mode": "llm_evidence_gated",
       "llm_request_id": "182c3b56-7eea-49a1-9a3c-4ddabb4f2b6d",
-      "events": [
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [
         {
           "subject": "中国人民银行",
           "action": "开展逆回购操作",
@@ -283,8 +301,22 @@
           "confidence": 0.7
         }
       ],
+      "events": [
+        {
+          "event_id": "RATE-E-803619a7ae23",
+          "subject": "中国人民银行",
+          "action": "投放",
+          "object": "银行间流动性",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "短期",
+          "transmission_channel": "liquidity",
+          "evidence_text": "2026年7月27日中国人民银行以固定利率、数量招标方式开展了3255亿元7天期逆回购操作，全额满足了一级交易商需求。",
+          "confidence": 0.75
+        }
+      ],
       "independent_event_keys": [
-        "f182d8fad93f1dad840a876b4f86417181f612eba0f001d9a745282710b087c9"
+        "6a5deaf8457a88d519eea5902b8f9e896ab149ff88c64061398905c66c084e85"
       ],
       "active_predicates": [
         {
@@ -322,6 +354,9 @@
       "document_fingerprint": "03d89eadf6ccdda39435575b465c3cc43ad6b7a1ffd5f9f0bc9597d3067d5208",
       "extraction_mode": "llm_evidence_gated",
       "llm_request_id": "fe435b6d-10d7-452a-bac5-2b2ccf66ff31",
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [],
       "events": [
         {
           "event_id": "RATE-E-c835f06b8eac",
@@ -375,7 +410,9 @@
       "document_fingerprint": "e01e7395ad7c73e1dd99d1cc1543dc0909198fd69b5e1579aadb134fbd96c4c6",
       "extraction_mode": "llm_evidence_gated",
       "llm_request_id": "3634a9b2-ddea-41da-8461-52b7e114c52a",
-      "events": [
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [
         {
           "subject": "中国人民银行",
           "action": "开展",
@@ -388,8 +425,22 @@
           "confidence": 0.7
         }
       ],
+      "events": [
+        {
+          "event_id": "RATE-E-75a1630d3410",
+          "subject": "中国人民银行",
+          "action": "投放",
+          "object": "银行间流动性",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "短期",
+          "transmission_channel": "liquidity",
+          "evidence_text": "2026年8月10日中国人民银行以固定利率、数量招标方式开展了180亿元7天期逆回购操作，全额满足了一级交易商需求。",
+          "confidence": 0.75
+        }
+      ],
       "independent_event_keys": [
-        "65c68e0146f4a5bf1dbd4b8f50f8b70fc011b5b9d6c85f29e7768d2a2b356c70"
+        "f14ff13a476e41d418f5ac22c7e4796c103dbef0277dfbc4183dec75bd9d735e"
       ],
       "active_predicates": [
         {
@@ -427,7 +478,9 @@
       "document_fingerprint": "e854fe29748050855d9371303b0f0b6692871bcf9b487c664d4a0c667d676840",
       "extraction_mode": "llm_evidence_gated",
       "llm_request_id": "52b208ff-6132-4d6e-89c2-5965942ca0cd",
-      "events": [
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [
         {
           "subject": "中国人民银行",
           "action": "实施",
@@ -451,9 +504,48 @@
           "confidence": 0.7
         }
       ],
+      "events": [
+        {
+          "event_id": "RATE-E-3b564b0ff4d9",
+          "subject": "中国人民银行",
+          "action": "宽松",
+          "object": "政策立场",
+          "policy_direction": -1,
+          "intensity": 0.65,
+          "horizon": "中期",
+          "transmission_channel": "monetary_policy",
+          "evidence_text": "中国人民银行坚持以习近平新时代中国特色社会主义思想为指导，坚决落实党中央、国务院决策部署，继续实施适度宽松的货币政策，发挥存量政策与增量政策集成效应，为巩固经济稳中向好态势创造适宜的货币金融环境。",
+          "confidence": 0.75
+        },
+        {
+          "event_id": "RATE-E-df79510ba4fb",
+          "subject": "中国人民银行",
+          "action": "投放",
+          "object": "银行间流动性",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "短期",
+          "transmission_channel": "liquidity",
+          "evidence_text": "一是保持银行体系流动性充裕，金融总量合理增长。",
+          "confidence": 0.75
+        },
+        {
+          "event_id": "RATE-E-56b638576720",
+          "subject": "银行间市场",
+          "action": "趋松",
+          "object": "资金面",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "短期",
+          "transmission_channel": "liquidity",
+          "evidence_text": "适度宽松的货币政策效果持续显现，社会融资条件较为宽松，金融服务实体经济质效不断提升。",
+          "confidence": 0.75
+        }
+      ],
       "independent_event_keys": [
-        "7c418850f657a6767490a5f08bd255a067e2645519009fcd80bd3c9c59235e72",
-        "9fa881c06e5793e59802e09c476bdb6b60dacb7b8cd27116dffd21ed3bb84a8e"
+        "7f2cab87d8d4688899db63782bd4e68816ec6b91e54e86c6aa4231635b32aa8f",
+        "9e971516e68bbd0ec345498402265d460ca43f207304eb16f22841a7fe027914",
+        "e092f7b331cec841a973296abe2d4a66562a40bd50189a957ae2b7c900487c78"
       ],
       "active_predicates": [
         {
@@ -553,7 +645,9 @@
       "document_fingerprint": "fcac0f999e53d677f5d4706dbd75e1847ca3f047d03caa25528555381953a7a0",
       "extraction_mode": "llm_evidence_gated",
       "llm_request_id": "d2f52b1e-fa99-41fb-94fb-207c5d6c6a03",
-      "events": [
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [
         {
           "subject": "中国人民银行",
           "action": "开展",
@@ -577,9 +671,22 @@
           "confidence": 0.7
         }
       ],
+      "events": [
+        {
+          "event_id": "RATE-E-8592b61fc868",
+          "subject": "中国人民银行",
+          "action": "投放",
+          "object": "银行间流动性",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "短期",
+          "transmission_channel": "liquidity",
+          "evidence_text": "同时，开展了5655亿元隔夜逆回购操作。",
+          "confidence": 0.75
+        }
+      ],
       "independent_event_keys": [
-        "0d2c4bc0a563efeb667ec2422c1f7fcbe95c42e2638a61ad7921e10ecb1b7fa4",
-        "8244021a12076b63f1c9eee17762509b4ebc3222c0beb761577547e3793e324e"
+        "7a0f306d6677126bb61ce7c0be2d18f759d74aa7b76bb0e2d4373b9205bfb8d6"
       ],
       "active_predicates": [
         {
@@ -617,7 +724,9 @@
       "document_fingerprint": "51a09fff645ae6925b0eea15416eff429f97bdec606085106263c299aed8efe0",
       "extraction_mode": "llm_evidence_gated",
       "llm_request_id": "cb2cfb27-09f6-43a5-bd89-241c6115c9a3",
-      "events": [
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [
         {
           "subject": "中国人民银行",
           "action": "开展逆回购操作",
@@ -630,8 +739,22 @@
           "confidence": 0.7
         }
       ],
+      "events": [
+        {
+          "event_id": "RATE-E-3a3778dd3a11",
+          "subject": "中国人民银行",
+          "action": "投放",
+          "object": "银行间流动性",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "短期",
+          "transmission_channel": "liquidity",
+          "evidence_text": "2026年8月24日中国人民银行以固定利率、数量招标方式开展了3400亿元7天期逆回购操作，全额满足了一级交易商需求。",
+          "confidence": 0.75
+        }
+      ],
       "independent_event_keys": [
-        "9377e37a2461adfde0dce2f17beca166718677c94149c3dec91469877e457079"
+        "7b5847c32922ab437f2c1677a573aeefdc58d53e5c1eb29745bce84803eaee49"
       ],
       "active_predicates": [
         {
@@ -669,7 +792,9 @@
       "document_fingerprint": "a4d61e07fc3f11a5114e970e302a8016124c82a738f7a3e867cf8825a935c1ba",
       "extraction_mode": "llm_evidence_gated",
       "llm_request_id": "ce580527-f4a8-409f-a065-2800f4f0b8f0",
-      "events": [
+      "model_eligible": true,
+      "exclusion_reason": "",
+      "llm_events": [
         {
           "subject": "中国人民银行",
           "action": "开展逆回购操作",
@@ -682,8 +807,22 @@
           "confidence": 0.7
         }
       ],
+      "events": [
+        {
+          "event_id": "RATE-E-ffaadc09449e",
+          "subject": "中国人民银行",
+          "action": "投放",
+          "object": "银行间流动性",
+          "policy_direction": -1,
+          "intensity": 0.75,
+          "horizon": "短期",
+          "transmission_channel": "liquidity",
+          "evidence_text": "2026年8月31日中国人民银行以固定利率、数量招标方式开展了50亿元7天期逆回购操作，全额满足了一级交易商需求。",
+          "confidence": 0.75
+        }
+      ],
       "independent_event_keys": [
-        "346fe5776e5c2e3bd80e90caf9bbb5e2c6c05758d8ba1a1a972d55dddb6d0554"
+        "2814de57ef25a0c9413b5d0bc716b95835b2d0b15c7d67e06ddddc8f6cf29fa3"
       ],
       "active_predicates": [
         {
@@ -715,7 +854,13 @@
     "rates_market.csv": "5961a60703092082fd73188e768a86e2cac567a5d8439138fa77a0f75ca94cac",
     "rates_policy_texts.csv": "00faaf5bfb09dc6f5a828ecce48afc1eb3651067a08363be972739a63c013683",
     "rates_llm_annotations.jsonl": "318ff754c2009e39d54dc7073f4c9d0877fe7edbd4a9a17341181e73e684b909",
-    "rates_structured_data.csv": "f9be9e7c98d63144389423a7d923afdf722398236c0cfd5c641186491ac50f51"
+    "rates_structured_data.csv": "8dc0e056578398e80e43fef339aed37d787279463c01823f3571a846cdd49dac",
+    "rates_rule_version": "rates-rulebook-v1.0-20260902",
+    "rates_engine.py": "9210b215c520f701d2d5f000e68f181e2c9df72f017dded6b543e2cbaae0f24b",
+    "rates_factors.py": "2a3dbfe558eaf8dcca84dd78a037bc6437a202e96b051ce551b75500fcdbfac1",
+    "rates_modeling.py": "3e2b63a739dce28ea64222a5e94654e6df80c08b2331672e3f49c3fe0877c297",
+    "rates_rules.py": "a694360bc81d7d69245646c473c45c2bf23fdfffc4a466eacbd1863b0d249d3a",
+    "rates_schema.py": "637387773e3d64c2f5ea1d49c6607ab65b626b7f070a1c2b42acda10d41fc84c"
   },
   "disclaimer": "本报告仅供研究参考，不构成投资建议",
   "research_boundary": "系统预测的是10年期国债收益率未来5个交易日方向，用于银行金融市场投研辅助，不自动下单、不输出目标价或收益保证。公开历史流动性序列使用FDR007定盘利率作为DR007代理，不能将其表述为原始DR007成交加权利率。"

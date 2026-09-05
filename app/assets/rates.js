@@ -2,6 +2,7 @@ const $ = (id) => document.getElementById(id);
 const labels = {down:"收益率下行",flat:"震荡",up:"收益率上行",insufficient:"证据不足"};
 // “市场+文本融合”是验收材料中的稳定路线名；结构化宏观为该路线新增输入。
 const routes = {market_baseline:"仅市场数据",text_only:"仅文本因子",fusion:"市场+文本融合（含结构化宏观）",fusion_rules:"市场+文本融合+规则增强（含结构化宏观）"};
+const periodLabels = {discovery_2018_2022:"发现期 2018—2022",validation_2023_2024:"验证期 2023—2024",retrospective_holdout_2025_latest:"回顾性时间留出 2025—最新"};
 const featureLabels = {
   yield_change_1d_bp:"收益率1日变化",yield_change_5d_bp:"收益率5日变化",yield_change_20d_bp:"收益率20日变化",
   yield_volatility_20d_bp:"收益率20日波动",fdr007_level:"FDR007水平",fdr007_change_1d_bp:"FDR007日变化",
@@ -92,11 +93,11 @@ function renderAudit(){
 function renderBacktest(){
   const b=state.backtest;if(!b)return;const ok=b.status==="evaluated";
   $("backtestNotice").className=`notice ${b.increment_established?'good':'warn'}`;
-  const boot=b.oos_increment_bootstrap||{};
-  $("backtestNotice").textContent=ok?`${b.increment_conclusion}。OOS准确率差${pct(boot.accuracy_difference)}，95%区间[${pct(boot.ci_lower_95)}, ${pct(boot.ci_upper_95)}]。${b.research_warning}`:`研究证据不足：${b.reason}`;
+  const boot=b.holdout_increment_bootstrap||{};
+  $("backtestNotice").textContent=ok?`${b.increment_conclusion}。回顾性时间留出准确率差${pct(boot.accuracy_difference)}，95%区间[${pct(boot.ci_lower_95)}, ${pct(boot.ci_upper_95)}]。${b.research_warning}`:`研究证据不足：${b.reason}`;
   $("backtestRows").innerHTML=(b.routes||[]).map(row=>`<tr><td><b>${routes[row.route]||esc(row.route)}</b></td><td>${row.observations}</td><td>${pct(row.accuracy)}</td><td>${pct(row.macro_precision)}</td><td>${pct(row.macro_recall)}</td><td>${fixed(row.macro_f1)}</td><td>${fixed(row.macro_auc_ovr)}</td><td>${fixed(row.brier)}</td></tr>`).join("")||"<tr><td colspan='8'>尚无滚动评估</td></tr>";
   const enhanced=(b.routes||[]).find(row=>row.route==="fusion_rules");
-  $("periodMetrics").innerHTML=(enhanced?.period_metrics||[]).map(row=>`<div class="compact-row"><span>${esc(row.period.replaceAll('_',' '))}</span><b>${row.observations}期</b><span>Acc ${pct(row.accuracy)}</span><span>F1 ${fixed(row.macro_f1)}</span><span>AUC ${fixed(row.macro_auc_ovr)}</span></div>`).join("")||"<p class='muted padded'>暂无分期结果。</p>";
+  $("periodMetrics").innerHTML=(enhanced?.period_metrics||[]).map(row=>`<div class="compact-row"><span>${esc(periodLabels[row.period]||row.period.replaceAll('_',' '))}</span><b>${row.observations}期</b><span>Acc ${pct(row.accuracy)}</span><span>F1 ${fixed(row.macro_f1)}</span><span>AUC ${fixed(row.macro_auc_ovr)}</span></div>`).join("")||"<p class='muted padded'>暂无分期结果。</p>";
   $("calibration").innerHTML=(enhanced?.calibration||[]).map(row=>`<div class="calibration-row"><span>${esc(row.confidence_range)}</span><div><i style="width:${Number(row.mean_confidence)*100}%"></i><em style="left:${Number(row.accuracy)*100}%"></em></div><b>${row.observations}期</b><small>置信${pct(row.mean_confidence)} / 准确${pct(row.accuracy)}</small></div>`).join("")||"<p class='muted padded'>暂无校准结果。</p>";
   const timeline=enhanced?.timeline||[];
   $("timeline").innerHTML=timeline.slice(-10).map(row=>`<div class="timeline-item ${row.correct?'correct':'wrong'}"><span>${esc(row.as_of)}</span><b>${labels[row.predicted]}</b><span>实际：${labels[row.actual]}</span><small>训练源截至 ${esc(row.train_origin_end)}</small></div>`).join("")||"<p class='muted'>样本不足。</p>";

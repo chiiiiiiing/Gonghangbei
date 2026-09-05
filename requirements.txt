@@ -1,4 +1,6 @@
 Flask>=3.0
+# Production WSGI server; local demos may continue to use 启动演示.py.
+gunicorn>=23.0
 # 正文链接全文抓取（实时分析路径依赖）。
 requests>=2.31
 # PDF 公告全文抽取（巨潮资讯等链接为 PDF）。未安装时该类链接如实降级为抓取失败。
@@ -8,5 +10,5 @@ pdfplumber>=0.11
 # 官方网页正文解析和政府债发行公开表抓取。
 beautifulsoup4>=4.12
 akshare>=1.18
-# 宏观 Nowcast 的低自由度 Ridge / Elastic Net 数值计算。
+# 利率债方向模型的低自由度线性概率计算。
 numpy>=1.26
