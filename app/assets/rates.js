@@ -18,6 +18,7 @@ let state = {status:null,forecast:null,backtest:null,evidence:[],reviews:[],demo
 
 function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
 function pct(value,digits=1){return value==null?"—":`${(Number(value)*100).toFixed(digits)}%`;}
+function pp(value,digits=2){return value==null?"—":`${(Number(value)*100).toFixed(digits)}个百分点`;}
 function fixed(value,digits=3){return value==null?"—":Number(value).toFixed(digits);}
 function refreshIcons(){if(window.lucide)window.lucide.createIcons({attrs:{"aria-hidden":"true"}});}
 async function json(url,options){const response=await fetch(url,options);const data=await response.json().catch(()=>({error:"服务返回内容无法解析"}));if(!response.ok)throw new Error(data.error||`HTTP ${response.status}`);return data;}
@@ -30,6 +31,24 @@ document.querySelectorAll(".nav-item").forEach(button=>button.addEventListener("
 
 function renderProbabilities(probabilities={}){
   $("probabilityBars").innerHTML=["down","flat","up"].map(label=>`<div class="prob-row ${label}"><span>${labels[label]}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(0,Math.min(100,Number(probabilities[label]||0)*100))}%"></div></div><b>${pct(probabilities[label])}</b></div>`).join("");
+}
+
+function probabilityTriplet(probabilities={}){
+  return ["down","flat","up"].map(label=>`<span>${labels[label]} <b>${pct(probabilities?.[label],2)}</b></span>`).join("");
+}
+
+function deltaTriplet(delta={}){
+  return ["down","flat","up"].map(label=>{const value=Number(delta?.[label]||0);return `${labels[label]} ${value>=0?"+":""}${pct(value,2)}`}).join(" / ");
+}
+
+function renderProbabilityDecomposition(forecast={}){
+  const d=forecast.probability_decomposition||{};
+  const stages=[
+    ["市场基线",d.market_baseline,"仅使用收益率与资金面"],
+    ["叠加文本",d.after_text_overlay,`相对基线：${deltaTriplet(d.text_overlay_delta)}；文本权重 ${pct(forecast.text_overlay_weight,0)}`],
+    ["规则调整",d.after_rule_prior,`相对上一步：${deltaTriplet(d.rule_prior_delta)}；规则压力 ${Number(forecast.rule_pressure_applied||0)>=0?"+":""}${fixed(forecast.rule_pressure_applied,3)}`],
+  ];
+  $("probabilityDecomposition").innerHTML=stages.map(([title,probabilities,note],index)=>`<article class="decomposition-card"><small>步骤 ${index+1}</small><h3>${title}</h3><div>${probabilityTriplet(probabilities||forecast.probabilities)}</div><p>${note}</p></article>`).join("");
 }
 
 function renderFactors(factors=[]){
@@ -79,6 +98,7 @@ function renderOverview(){
   $("sourceState").textContent=(s.data_errors||[]).length?"存在数据错误":"URL + SHA-256通过";
   $("disclaimer").textContent=f.disclaimer||s.disclaimer;
   renderProbabilities(f.probabilities);renderFactors(f.factor_scores||[]);
+  renderProbabilityDecomposition(f);
   $("contributionList").innerHTML=contributionHtml(f.feature_contributions||[]);
   $("forecastContributions").innerHTML=contributionHtml(f.feature_contributions||[]);
   $("overviewRules").innerHTML=rulesHtml(f.triggered_rules||[]);
@@ -94,7 +114,8 @@ function renderBacktest(){
   const b=state.backtest;if(!b)return;const ok=b.status==="evaluated";
   $("backtestNotice").className=`notice ${b.increment_established?'good':'warn'}`;
   const boot=b.holdout_increment_bootstrap||{};
-  $("backtestNotice").textContent=ok?`${b.increment_conclusion}。回顾性时间留出准确率差${pct(boot.accuracy_difference)}，95%区间[${pct(boot.ci_lower_95)}, ${pct(boot.ci_upper_95)}]。${b.research_warning}`:`研究证据不足：${b.reason}`;
+  const diagnostics=b.enhancement_diagnostics||{};const textEffect=diagnostics.text_overlay||{};const ruleEffect=diagnostics.rule_prior||{};
+  $("backtestNotice").textContent=ok?`${b.increment_conclusion}。文本叠加相对市场基线：准确率${Number(textEffect.accuracy_difference_vs_market||0)>=0?'+':''}${pp(textEffect.accuracy_difference_vs_market)}、Macro-F1 ${Number(textEffect.macro_f1_difference_vs_market||0)>=0?'+':''}${fixed(textEffect.macro_f1_difference_vs_market,4)}；规则在${ruleEffect.active_observations||0}个留出观测中平均改变概率${pct(ruleEffect.mean_total_variation_probability_change)}，改变${ruleEffect.changed_predictions||0}次最终分类。最终准确率差Bootstrap 95%区间[${pct(boot.ci_lower_95)}, ${pct(boot.ci_upper_95)}]。${b.research_warning}`:`研究证据不足：${b.reason}`;
   $("backtestRows").innerHTML=(b.routes||[]).map(row=>`<tr><td><b>${routes[row.route]||esc(row.route)}</b></td><td>${row.observations}</td><td>${pct(row.accuracy)}</td><td>${pct(row.macro_precision)}</td><td>${pct(row.macro_recall)}</td><td>${fixed(row.macro_f1)}</td><td>${fixed(row.macro_auc_ovr)}</td><td>${fixed(row.brier)}</td></tr>`).join("")||"<tr><td colspan='8'>尚无滚动评估</td></tr>";
   const enhanced=(b.routes||[]).find(row=>row.route==="fusion_rules");
   $("periodMetrics").innerHTML=(enhanced?.period_metrics||[]).map(row=>`<div class="compact-row"><span>${esc(periodLabels[row.period]||row.period.replaceAll('_',' '))}</span><b>${row.observations}期</b><span>Acc ${pct(row.accuracy)}</span><span>F1 ${fixed(row.macro_f1)}</span><span>AUC ${fixed(row.macro_auc_ovr)}</span></div>`).join("")||"<p class='muted padded'>暂无分期结果。</p>";

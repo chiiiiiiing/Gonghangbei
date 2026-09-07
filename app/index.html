@@ -59,11 +59,12 @@
     <section class="page" id="page-forecast">
       <div class="page-heading"><span class="kicker">FACTOR ATTRIBUTION</span><h1>因子与预测详情</h1><p>市场基线、六类文本因子与冻结金融规则的联合解释。</p></div>
       <section class="panel"><div class="panel-head"><div><span class="section-no">04</span><h2>六类宏观政策因子</h2></div><span class="tag">[-1, 1]收益率压力</span></div><div id="factorGrid" class="factor-grid"></div></section>
+      <section class="panel"><div class="panel-head"><div><span class="section-no">05</span><h2>预测增强拆解</h2></div><span class="tag">市场基线 → 文本叠加 → 规则先验</span></div><div id="probabilityDecomposition" class="decomposition-grid"></div></section>
       <div class="two-col">
-        <section class="panel"><div class="panel-head"><div><span class="section-no">05</span><h2>模型贡献</h2></div></div><div id="forecastContributions" class="contribution-list padded"></div></section>
-        <section class="panel"><div class="panel-head"><div><span class="section-no">06</span><h2>冻结规则命中</h2></div><span class="tag" id="ruleVersion">—</span></div><div id="forecastRules" class="rule-list padded"></div></section>
+        <section class="panel"><div class="panel-head"><div><span class="section-no">06</span><h2>模型贡献</h2></div></div><div id="forecastContributions" class="contribution-list padded"></div></section>
+        <section class="panel"><div class="panel-head"><div><span class="section-no">07</span><h2>冻结规则命中</h2></div><span class="tag" id="ruleVersion">—</span></div><div id="forecastRules" class="rule-list padded"></div></section>
       </div>
-      <section class="panel method-panel"><div class="panel-head"><div><span class="section-no">07</span><h2>预测契约</h2></div></div><div class="contract-grid"><div><span>目标</span><b>10年期国债收益率5日方向</b></div><div><span>震荡阈值</span><b>±2bp</b></div><div><span>切分方式</span><b>756日清洗滚动窗口</b></div><div><span>对比路线</span><b>市场 / 文本 / 融合 / 规则</b></div><div><span>流动性序列</span><b id="proxyName">FDR007_FIXING</b></div><div><span>价格解释</span><b id="priceDirection">—</b></div></div></section>
+      <section class="panel method-panel"><div class="panel-head"><div><span class="section-no">08</span><h2>预测契约</h2></div></div><div class="contract-grid"><div><span>目标</span><b>10年期国债收益率5日方向</b></div><div><span>震荡阈值</span><b>±2bp</b></div><div><span>切分方式</span><b>756日清洗滚动窗口</b></div><div><span>增强方式</span><b>10%文本叠加 + 0.15规则先验</b></div><div><span>流动性序列</span><b id="proxyName">FDR007_FIXING</b></div><div><span>价格解释</span><b id="priceDirection">—</b></div></div></section>
     </section>
 
     <section class="page" id="page-audit">

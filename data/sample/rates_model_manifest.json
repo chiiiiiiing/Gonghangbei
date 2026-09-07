@@ -1,6 +1,6 @@
 {
-  "version": "rates-model-v2",
-  "generated_at": "2026-09-05T13:39:51+08:00",
+  "version": "rates-model-v3",
+  "generated_at": "2026-09-07T09:16:45+08:00",
   "target": "cgb_10y_yield_5d_direction",
   "horizon_trading_days": 5,
   "flat_threshold_bp": 2.0,
@@ -15,11 +15,15 @@
     "discovery": "2018-01-01至2022-12-31",
     "validation": "2023-01-01至2024-12-31",
     "retrospective_holdout": "2025-01-01至最新（规则建立后回看，不是真正前瞻OOS）",
-    "prospective_oos": "2026-09-03起累计；当前尚无完整5交易日标签"
+    "prospective_oos": "增强参数于2026-09-07冻结；冻结后的首个完整5交易日标签待累计"
   },
   "text_decay_days": 5,
   "text_half_life_days": 2.0,
+  "text_overlay_weight": 0.1,
+  "rule_logit_weight": 0.15,
+  "enhancement_policy": "market_anchored_text_overlay_then_rule_prior",
   "minimum_independent_events_per_factor": 5,
+  "enhancement_version": "rates-enhancement-v1.0-20260907",
   "factor_evidence": {
     "monetary_policy": {
       "independent_event_count": 17,
@@ -27,7 +31,7 @@
       "status": "sufficient"
     },
     "liquidity": {
-      "independent_event_count": 302,
+      "independent_event_count": 148,
       "minimum_required": 5,
       "status": "sufficient"
     },
@@ -85,11 +89,11 @@
     "rates_llm_annotations.jsonl": "318ff754c2009e39d54dc7073f4c9d0877fe7edbd4a9a17341181e73e684b909",
     "rates_structured_data.csv": "8dc0e056578398e80e43fef339aed37d787279463c01823f3571a846cdd49dac",
     "rates_rule_version": "rates-rulebook-v1.0-20260902",
-    "rates_engine.py": "f40ddc9d6565b74c3a3b6765152cfe0be06817f73d5a658803d97a558c006a39",
-    "rates_factors.py": "2a3dbfe558eaf8dcca84dd78a037bc6437a202e96b051ce551b75500fcdbfac1",
-    "rates_modeling.py": "12fab80d1295c63ff45202b0463ae983e12b1d2d492ff0ec9a73f5b3346a4191",
+    "rates_engine.py": "c50c6aae844bd0b7cb640f0e1ddcc084480845356bd72100e3d01b65a2c20825",
+    "rates_factors.py": "29667e77f6dd39deb788673d11bb92467cdee6a3de05b957b64e4a2416e3718f",
+    "rates_modeling.py": "668a95721173068fe0508bffb4d412fc5bb168fd32f4d2b8fc38198ef1c5a86a",
     "rates_rules.py": "a694360bc81d7d69245646c473c45c2bf23fdfffc4a466eacbd1863b0d249d3a",
-    "rates_schema.py": "637387773e3d64c2f5ea1d49c6607ab65b626b7f070a1c2b42acda10d41fc84c"
+    "rates_schema.py": "112bc87f7b10117f9d9e3223974d345595cc30ccf4f1b23525f3cfd5cc623794"
   },
   "disclaimer": "本报告仅供研究参考，不构成投资建议",
   "research_boundary": "系统预测的是10年期国债收益率未来5个交易日方向，用于银行金融市场投研辅助，不自动下单、不输出目标价或收益保证。公开历史流动性序列使用FDR007定盘利率作为DR007代理，不能将其表述为原始DR007成交加权利率。"

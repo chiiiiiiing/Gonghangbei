@@ -13,6 +13,15 @@ FLAT_THRESHOLD_BP = 2.0
 MARKET_CLOSE = time(17, 30)
 TEXT_DECAY_DAYS = 5
 TEXT_HALF_LIFE_DAYS = 2.0
+# The enhanced model is deliberately anchored to the market baseline.  Text is
+# sparse and regime-sensitive, so a small frozen overlay is safer than letting
+# it replace the market signal in one high-dimensional fit.
+TEXT_OVERLAY_WEIGHT = 0.10
+# Activated economic rules are an explicit log-probability prior rather than a
+# second copy of the same text factors inside the statistical model.
+RULE_LOGIT_WEIGHT = 0.15
+ENHANCEMENT_VERSION = "rates-enhancement-v1.0-20260907"
+MIN_LLM_ONLY_CONFIDENCE = 0.80
 ROLLING_TRAIN_DAYS = 756
 MINIMUM_TRAIN_DAYS = 252
 DISCLAIMER = "本报告仅供研究参考，不构成投资建议"

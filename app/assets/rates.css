@@ -133,6 +133,16 @@ main { width: min(1320px, calc(100% - 36px)); margin: auto; padding: 28px 0 48px
 .factor-card b.positive { color: var(--red); }
 .factor-card b.negative { color: var(--teal); }
 .factor-card b.neutral { color: var(--ink); }
+.decomposition-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; padding: 16px; }
+.decomposition-card { position: relative; padding: 15px; border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: 5px; }
+.decomposition-card:nth-child(2) { border-top-color: var(--teal); }
+.decomposition-card:nth-child(3) { border-top-color: var(--amber); }
+.decomposition-card small, .decomposition-card p { color: var(--muted); font-size: 10px; }
+.decomposition-card h3 { margin: 2px 0 10px; font-size: 14px; }
+.decomposition-card div { display: flex; flex-wrap: wrap; gap: 7px 13px; }
+.decomposition-card div span { color: var(--muted); font-size: 10px; }
+.decomposition-card div b { display: block; color: var(--ink); font: 700 13px ui-monospace, monospace; }
+.decomposition-card p { margin: 9px 0 0; }
 .contract-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding: 15px; }
 .contract-grid div { padding: 13px; border-bottom: 1px solid var(--line); }
 .contract-grid span, .contract-grid b { display: block; }
@@ -193,7 +203,7 @@ footer p { margin: 2px; }
   .brand, .service-pill { display: none; }
   nav { overflow-x: auto; justify-content: stretch; }
   .nav-item { flex: 1; height: 48px; white-space: nowrap; }
-  .kpi-grid, .factor-grid { grid-template-columns: repeat(2, 1fr); }
+  .kpi-grid, .factor-grid, .decomposition-grid { grid-template-columns: repeat(2, 1fr); }
   .two-col, .analysis-grid, .driver-layout { grid-template-columns: 1fr; }
   .review-panel { grid-template-columns: 1fr; }
   .review-panel > .muted { grid-column: 1; }
@@ -209,7 +219,7 @@ footer p { margin: 2px; }
   .page-heading h1 { font-size: 23px; }
   .heading-actions { align-items: start; }
   .heading-actions .secondary-button span { display: none; }
-  .kpi-grid, .factor-grid, .contract-grid, .audit-summary, .case-comparison { grid-template-columns: 1fr; }
+  .kpi-grid, .factor-grid, .decomposition-grid, .contract-grid, .audit-summary, .case-comparison { grid-template-columns: 1fr; }
   .form-row, .review-actions { grid-template-columns: 1fr; }
   .delta-grid { grid-template-columns: 1fr; }
   .timeline { grid-template-columns: 1fr; }

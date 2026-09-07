@@ -23,7 +23,12 @@ from src.rates.engine import (
 )
 from src.rates.factors import factor_scores, ground_predicates, independent_event_key, merge_llm_predicates
 from src.rates.llm import extract_with_llm
-from src.rates.modeling import labels_for_market, paired_block_bootstrap
+from src.rates.modeling import (
+    apply_rule_prior,
+    blend_with_market_baseline,
+    labels_for_market,
+    paired_block_bootstrap,
+)
 from src.rates.rules import RULES, activate_rules
 from src.rates.schema import (
     FLAT_THRESHOLD_BP,
@@ -61,6 +66,37 @@ class RatesResearchTests(unittest.TestCase):
         full_text = f"{document['title']}。{document['content']}"
         self.assertTrue(all(row["evidence_text"] in full_text for row in active))
         self.assertLess(factor_scores(rows)["liquidity"], 0)
+
+    def test_routine_operation_without_direction_is_not_called_liquidity_increase(self) -> None:
+        rows = ground_predicates({
+            "title": "公开市场操作",
+            "content": "中国人民银行以固定利率、数量招标方式开展了7天期逆回购操作。",
+            "source_name": "中国人民银行",
+        })
+        liquidity = next(row for row in rows if row["predicate_name"] == "liquidity_supply_increases")
+        self.assertFalse(liquidity["value"])
+
+    def test_grounded_high_confidence_llm_can_extend_dictionary_recall(self) -> None:
+        document = {
+            "title": "流动性安排", "content": "银行体系流动性供给较前期扩容。",
+            "source_name": "中国人民银行",
+        }
+        deterministic = ground_predicates(document)
+        evidence = "银行体系流动性供给较前期扩容。"
+        llm_rows = [{
+            "predicate_name": name,
+            "value": name == "liquidity_supply_increases",
+            "evidence_text": evidence if name == "liquidity_supply_increases" else "",
+            "confidence": 0.9,
+            "intensity": 0.8,
+        } for name in PREDICATES]
+        merged = merge_llm_predicates(deterministic, llm_rows, f"{document['title']}。{document['content']}")
+        liquidity = next(row for row in merged if row["predicate_name"] == "liquidity_supply_increases")
+        self.assertTrue(liquidity["value"])
+        self.assertEqual(liquidity["consensus"], "llm_only_grounded")
+        self.assertEqual(liquidity["source"], "llm")
+        self.assertEqual(liquidity["yield_direction"], -1)
+        self.assertLess(factor_scores(merged)["liquidity"], 0)
 
     def test_rules_do_not_fire_without_evidence(self) -> None:
         rows = ground_predicates({"title": "无关文本", "content": "今天公布一份普通说明。"})
@@ -183,6 +219,36 @@ class RatesResearchTests(unittest.TestCase):
         self.assertEqual(daily[0]["monetary_policy_independent_event_count"], 0)
         self.assertEqual({row["transmission_channel"] for row in audit[0]["events"]}, {"liquidity"})
         self.assertEqual(audit[0]["llm_events"][0]["transmission_channel"], "monetary_policy")
+
+    def test_text_signal_really_decays_instead_of_cancelling_its_decay_weight(self) -> None:
+        document = {
+            "doc_id": "D-DECAY", "source_sha256": "c" * 64,
+            "title": "流动性投放", "content": "中国人民银行向市场投放流动性。",
+            "source_name": "中国人民银行", "source_url": "https://www.pbc.gov.cn/",
+            "publish_time": "2026-01-02 09:00:00",
+        }
+        market = [
+            {"trade_date": day} for day in
+            ("2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08")
+        ]
+        with patch("src.rates.engine._llm_annotation_cache", return_value={}), patch(
+            "src.rates.engine.MINIMUM_INDEPENDENT_EVENTS", 1
+        ):
+            factors, _pressure, _audit, _daily = _daily_context(market, [document], [])
+        magnitudes = [abs(factors[row["trade_date"]]["liquidity"]) for row in market]
+        self.assertTrue(all(left > right for left, right in zip(magnitudes, magnitudes[1:])))
+
+    def test_text_overlay_and_rule_prior_have_bounded_nonzero_effects(self) -> None:
+        baseline = {"down": 0.40, "flat": 0.40, "up": 0.20}
+        text_model = {"down": 0.20, "flat": 0.30, "up": 0.50}
+        blended = blend_with_market_baseline(baseline, text_model)
+        self.assertAlmostEqual(sum(blended.values()), 1.0, places=7)
+        self.assertGreater(blended["up"], baseline["up"])
+        self.assertLess(blended["down"], baseline["down"])
+        ruled = apply_rule_prior(blended, pressure=1.0)
+        self.assertAlmostEqual(sum(ruled.values()), 1.0, places=7)
+        self.assertGreater(ruled["up"], blended["up"])
+        self.assertLess(ruled["down"], blended["down"])
 
     def test_text_before_market_sample_is_not_replayed_on_first_trade_date(self) -> None:
         document = {
@@ -312,6 +378,13 @@ class RatesResearchTests(unittest.TestCase):
         self.assertIn("retrospective_holdout", backtest["periods"])
         self.assertIn("prospective_oos", backtest["periods"])
         self.assertIn("holdout_increment_bootstrap", backtest)
+        diagnostics = backtest["enhancement_diagnostics"]
+        self.assertTrue(diagnostics["text_overlay"]["effect_observed"])
+        self.assertGreater(diagnostics["text_overlay"]["accuracy_difference_vs_market"], 0)
+        self.assertGreater(diagnostics["text_overlay"]["macro_f1_difference_vs_market"], 0)
+        self.assertTrue(diagnostics["rule_prior"]["effect_observed"])
+        self.assertGreater(diagnostics["rule_prior"]["active_observations"], 0)
+        self.assertGreater(diagnostics["rule_prior"]["mean_total_variation_probability_change"], 0)
         for route in backtest["routes"]:
             self.assertIn("macro_precision", route)
             self.assertIn("macro_recall", route)
@@ -352,6 +425,25 @@ class RatesResearchTests(unittest.TestCase):
         self.assertAlmostEqual(sum(payload["updated_forecast"].values()), 1.0, places=5)
         self.assertIn("边际影响", payload["interpretation"])
         self.assertIn("processed_at", payload)
+
+    def test_new_text_after_latest_close_is_an_age_zero_next_trade_scenario(self) -> None:
+        client = app.test_client()
+        with patch.dict("os.environ", {"ALPHALENS_ALLOW_SERVER_LLM": "false"}), patch(
+            "src.rates.engine.datetime"
+        ) as mocked_datetime:
+            mocked_datetime.now.return_value = __import__("datetime").datetime(2026, 9, 7, 10, 0, 0)
+            mocked_datetime.fromisoformat.side_effect = __import__("datetime").datetime.fromisoformat
+            response = client.post("/api/rates/analyze", json={
+                "title": "经济与物价回升",
+                "content": "经济运行回升，PMI扩张；CPI同比回升，物价上涨压力增加。",
+                "source_name": "国家统计局", "source_url": "https://www.stats.gov.cn/",
+                "publish_time": "2026-09-07T09:30:00",
+            })
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertTrue(payload["marginal_model"]["active_in_latest_window"])
+        self.assertEqual(payload["marginal_model"]["scenario_alignment"], "next_available_trade_date_scenario")
+        self.assertTrue(any(abs(value) > 0 for value in payload["probability_delta"].values()))
 
         oversized = client.post("/api/rates/analyze", json={
             "title": "过长文本", "content": "政" * 120001,

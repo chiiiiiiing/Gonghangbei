@@ -7,7 +7,12 @@ import re
 from collections import defaultdict
 from typing import Any
 
-from src.rates.schema import FACTOR_NAMES, PREDICATES, SOURCE_WEIGHTS
+from src.rates.schema import (
+    FACTOR_NAMES,
+    MIN_LLM_ONLY_CONFIDENCE,
+    PREDICATES,
+    SOURCE_WEIGHTS,
+)
 
 
 PATTERNS: dict[str, tuple[tuple[str, ...], ...]] = {
@@ -15,7 +20,12 @@ PATTERNS: dict[str, tuple[tuple[str, ...], ...]] = {
     "policy_stance_tightens": (("加息", "从紧", "收紧货币政策", "提高政策利率", "抑制过度融资"),),
     "liquidity_supply_increases": (
         ("逆回购", "MLF", "中期借贷便利", "流动性", "资金面"),
-        ("开展", "投放", "净投放", "充裕", "合理充裕", "增加", "续作"),
+        # Merely announcing a routine reverse-repo operation is not evidence
+        # that liquidity supply increased relative to the previous state.  A
+        # directional verb or an explicit abundant-liquidity statement is
+        # required; otherwise the high-frequency template overwhelms every
+        # other text factor.
+        ("投放", "净投放", "加量", "超额续作", "增加", "充裕"),
     ),
     "liquidity_supply_decreases": (
         ("逆回购", "MLF", "中期借贷便利", "流动性", "资金面"),
@@ -189,7 +199,24 @@ def merge_llm_predicates(
         llm_value = bool(candidate.get("value"))
         evidence = str(candidate.get("evidence_text", "")).strip()
         grounded = bool(evidence) and (not source_text or evidence in source_text)
-        if llm_value != bool(base["value"]):
+        llm_confidence = min(max(float(candidate.get("confidence", 0.0)), 0.0), 1.0)
+        # A grounded, high-confidence LLM hit may add vocabulary that the
+        # deterministic dictionary does not contain.  The fixed predicate
+        # ontology still controls factor and direction, so the model cannot
+        # invent a new transmission channel or bypass verbatim evidence.
+        if llm_value and not bool(base["value"]) and grounded and llm_confidence >= MIN_LLM_ONLY_CONFIDENCE:
+            definition = PREDICATES[str(base["predicate_name"])]
+            merged.append({
+                **base,
+                "value": True,
+                "yield_direction": definition.yield_direction,
+                "confidence": llm_confidence,
+                "intensity": min(max(float(candidate.get("intensity", 0.6)), 0.0), 1.0),
+                "evidence_text": evidence,
+                "source": "llm",
+                "consensus": "llm_only_grounded",
+            })
+        elif llm_value != bool(base["value"]):
             merged.append({
                 **base, "value": False, "yield_direction": 0,
                 "llm_evidence_text": evidence if grounded else "", "consensus": "disputed",
@@ -197,7 +224,8 @@ def merge_llm_predicates(
         elif llm_value and grounded:
             merged.append({
                 **base,
-                "confidence": min(max(float(candidate.get("confidence", base["confidence"])), 0), 1),
+                "confidence": llm_confidence,
+                "intensity": min(max(float(candidate.get("intensity", base["intensity"])), 0.0), 1.0),
                 "evidence_text": evidence,
                 "source": "deterministic+llm",
                 "consensus": "agreed_true",

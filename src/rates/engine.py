@@ -6,6 +6,7 @@ import csv
 import copy
 import hashlib
 import json
+import math
 import os
 import uuid
 from collections import Counter, defaultdict
@@ -27,6 +28,7 @@ from src.rates.modeling import ROUTES, evaluate_route, live_probabilities, paire
 from src.rates.rules import RULES, RULE_VERSION, activate_rules, rule_pressure
 from src.rates.schema import (
     DISCLAIMER,
+    ENHANCEMENT_VERSION,
     FACTOR_LABELS,
     FACTOR_NAMES,
     FLAT_THRESHOLD_BP,
@@ -38,6 +40,8 @@ from src.rates.schema import (
     TARGET_NAME,
     TEXT_DECAY_DAYS,
     TEXT_HALF_LIFE_DAYS,
+    TEXT_OVERLAY_WEIGHT,
+    RULE_LOGIT_WEIGHT,
     effective_trade_date,
     factor_dictionary,
     parse_datetime,
@@ -243,7 +247,6 @@ def _daily_context(
     rule_entries: dict[str, list[tuple[float, set[str], float]]] = defaultdict(list)
     factor_events_by_date: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
     factor_contributions: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
-    factor_weights: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
     document_counts: Counter[str] = Counter()
     evidence_audit: list[dict[str, Any]] = []
     llm_cache = _llm_annotation_cache()
@@ -303,7 +306,6 @@ def _daily_context(
                 for name, score in scores.items():
                     if score and name in new_event_factors:
                         factor_contributions[trade_date][name] += score * decay
-                        factor_weights[trade_date][name] += decay
                 if rules and new_event_factors:
                     rule_entries[trade_date].append((rule_pressure(rules), set(rule_factors), decay))
         evidence_audit.append({
@@ -333,16 +335,18 @@ def _daily_context(
             for name in FACTOR_NAMES
         }
         scores = {
-            name: round(factor_contributions[trade_date][name] / factor_weights[trade_date][name], 8)
-            if factor_status[name] == "sufficient" and factor_weights[trade_date][name] else 0.0
+            # tanh keeps multiple independent events additive while bounding
+            # the signal.  Crucially, the event decay is no longer cancelled
+            # by division through the same decay weight.
+            name: round(math.tanh(factor_contributions[trade_date][name]), 8)
+            if factor_status[name] == "sufficient" and factor_contributions[trade_date][name] else 0.0
             for name in FACTOR_NAMES
         }
         factors_by_date[trade_date] = scores
         eligible_rules = [entry for entry in rule_entries[trade_date] if all(
             factor_status[name] == "sufficient" for name in entry[1]
         )]
-        rule_weight = sum(entry[2] for entry in eligible_rules)
-        pressure = sum(entry[0] * entry[2] for entry in eligible_rules) / rule_weight if rule_weight else 0.0
+        pressure = math.tanh(sum(entry[0] * entry[2] for entry in eligible_rules)) if eligible_rules else 0.0
         daily_rows.append({
             "trade_date": trade_date, **scores, "rule_pressure": round(pressure, 8),
             "supporting_document_count": int(document_counts[trade_date]),
@@ -371,7 +375,7 @@ def load_status() -> dict[str, Any]:
     llm_usable = sum(bool(row.get("used")) for row in current_annotations)
     structured_counts, structured_indicator_status, structured_status = _structured_status(structured)
     return {
-        "version": "rates-text-factor-v2",
+        "version": "rates-text-factor-v3",
         "target": TARGET_NAME, "horizon_trading_days": HORIZON_TRADING_DAYS,
         "flat_threshold_bp": FLAT_THRESHOLD_BP,
         "data_ready": len(market) >= 257 and not errors,
@@ -381,6 +385,7 @@ def load_status() -> dict[str, Any]:
         "liquidity_series": market[-1]["dr007_proxy_name"] if market else None,
         "source_counts": dict(sources), "factor_dictionary": factor_dictionary(),
         "rule_count": len(RULES), "rule_version": RULE_VERSION,
+        "enhancement_version": ENHANCEMENT_VERSION,
         "llm_annotations": len(current_annotations), "llm_usable_annotations": llm_usable,
         "llm_coverage": round(llm_usable / len(texts), 4) if texts else 0.0,
         "structured_rows": len(structured), "structured_indicator_counts": structured_counts,
@@ -484,19 +489,45 @@ def _compute_backtest() -> dict[str, Any]:
     structured_counts, structured_indicator_status, structured_status = _structured_status(structured)
     factors, pressure, _audit, _daily = _daily_context(market, texts, structured)
     routes = [evaluate_route(market, factors, pressure, route) for route in ROUTES]
-    baseline, enhanced = routes[0], routes[-1]
+    baseline, text_enhanced, enhanced = routes[0], routes[2], routes[-1]
     holdout_key = "retrospective_holdout_2025_latest"
     holdout_baseline = {"timeline": [row for row in baseline["timeline"] if row["period"] == holdout_key]}
     holdout_enhanced = {"timeline": [row for row in enhanced["timeline"] if row["period"] == holdout_key]}
     bootstrap = paired_block_bootstrap(holdout_baseline, holdout_enhanced)
     baseline_holdout = next(row for row in baseline["period_metrics"] if row["period"] == holdout_key)
     enhanced_holdout = next(row for row in enhanced["period_metrics"] if row["period"] == holdout_key)
+    text_holdout = next(row for row in text_enhanced["period_metrics"] if row["period"] == holdout_key)
+    fusion_by_date = {row["as_of"]: row for row in text_enhanced.get("timeline", []) if row["period"] == holdout_key}
+    rules_by_date = {row["as_of"]: row for row in enhanced.get("timeline", []) if row["period"] == holdout_key}
+    comparable_dates = sorted(set(fusion_by_date) & set(rules_by_date))
+    rule_active_dates = [
+        day for day in comparable_dates if abs(float(rules_by_date[day].get("rule_pressure_applied", 0.0))) > 1e-12
+    ]
+    rule_probability_change = (
+        sum(
+            sum(abs(float(rules_by_date[day]["probabilities"][label]) - float(fusion_by_date[day]["probabilities"][label])) for label in ("down", "flat", "up")) / 2
+            for day in rule_active_dates
+        ) / len(rule_active_dates)
+        if rule_active_dates else 0.0
+    )
+    text_accuracy_difference = float(text_holdout.get("accuracy") or 0.0) - float(baseline_holdout.get("accuracy") or 0.0)
+    text_macro_f1_difference = float(text_holdout.get("macro_f1") or 0.0) - float(baseline_holdout.get("macro_f1") or 0.0)
+    rule_changed_predictions = sum(
+        fusion_by_date[day]["predicted"] != rules_by_date[day]["predicted"] for day in rule_active_dates
+    )
     incremental = bool(
         enhanced_holdout.get("macro_f1") is not None
         and baseline_holdout.get("macro_f1") is not None
         and enhanced_holdout["macro_f1"] > baseline_holdout["macro_f1"]
         and bootstrap.get("stable")
     )
+    positive_point_estimate = bool(text_accuracy_difference > 0 and text_macro_f1_difference > 0)
+    if incremental:
+        increment_conclusion = "回顾性时间留出文本预测增量成立"
+    elif positive_point_estimate:
+        increment_conclusion = "回顾性时间留出出现正向增量点估计，但统计证据尚不足"
+    else:
+        increment_conclusion = "回顾性时间留出文本预测增量尚未建立"
     return {
         "status": "evaluated", "target": TARGET_NAME,
         "structured_data_status": structured_status if not structured_errors else "invalid",
@@ -506,14 +537,28 @@ def _compute_backtest() -> dict[str, Any]:
         "periods": {
             "discovery": "2018-01-01至2022-12-31", "validation": "2023-01-01至2024-12-31",
             "retrospective_holdout": "2025-01-01至最新（规则建立后回看，不是真正前瞻OOS）",
-            "prospective_oos": "2026-09-03起累计；当前尚无完整5交易日标签",
+            "prospective_oos": "增强参数于2026-09-07冻结；冻结后的首个完整5交易日标签待累计",
         },
         "routes": routes, "holdout_increment_bootstrap": bootstrap,
+        "enhancement_diagnostics": {
+            "period": holdout_key,
+            "text_overlay": {
+                "accuracy_difference_vs_market": round(text_accuracy_difference, 6),
+                "macro_f1_difference_vs_market": round(text_macro_f1_difference, 6),
+                "effect_observed": positive_point_estimate,
+            },
+            "rule_prior": {
+                "active_observations": len(rule_active_dates),
+                "mean_total_variation_probability_change": round(rule_probability_change, 8),
+                "changed_predictions": rule_changed_predictions,
+                "effect_observed": bool(rule_probability_change > 0),
+            },
+        },
         "increment_established": incremental,
-        "increment_conclusion": "回顾性时间留出文本预测增量成立" if incremental else "回顾性时间留出文本预测增量尚未建立",
+        "increment_conclusion": increment_conclusion,
         "research_warning": (
-            "2025年至最新仅为回顾性时间留出，不是真正前瞻OOS；规则于2026-09-02冻结，"
-            "前瞻OOS须从其后的新数据累计。回测只衡量方向分类，不代表可交易收益。"
+            "2025年至最新仅为回顾性时间留出，不是真正前瞻OOS；增强参数于2026-09-07冻结，"
+            "真正前瞻OOS须从冻结后的新数据累计。回测只衡量方向分类，不代表可交易收益。"
         ),
         "source_signature": _source_signature(),
         "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
@@ -586,26 +631,38 @@ def analyze_document(payload: dict[str, Any]) -> dict[str, Any]:
             if trade_dates and scenario_publication_date >= trade_dates[0]
             else None
         )
-        scenario_active = bool(
-            scenario_effective_date
-            and 0 <= len(trade_dates) - 1 - trade_dates.index(scenario_effective_date) < TEXT_DECAY_DAYS
-        )
+        scenario_alignment = "observed_trade_date"
+        if scenario_effective_date in trade_dates:
+            scenario_age = len(trade_dates) - 1 - trade_dates.index(str(scenario_effective_date))
+            scenario_active = 0 <= scenario_age < TEXT_DECAY_DAYS
+        else:
+            # A newly published document can arrive after the latest loaded
+            # market close (especially on a weekend).  Treat it as an age-zero
+            # scenario for the next available close, but only while the market
+            # snapshot is fresh enough to support a meaningful comparison.
+            latest_market_date = date.fromisoformat(latest_date)
+            days_after_snapshot = (publish_time.date() - latest_market_date).days
+            scenario_active = 0 < days_after_snapshot <= 7
+            scenario_age = 0
+            if scenario_active:
+                scenario_effective_date = scenario_publication_date
+                scenario_alignment = "next_available_trade_date_scenario"
+            else:
+                scenario_alignment = "outside_loaded_market_window"
         scenario_factors = {day: dict(values) for day, values in historical_factors.items()}
         latest_factors = scenario_factors.setdefault(latest_date, {name: 0.0 for name in FACTOR_NAMES})
         if scenario_active:
-            age = len(trade_dates) - 1 - trade_dates.index(str(scenario_effective_date))
-            decay = 0.5 ** (age / TEXT_HALF_LIFE_DAYS)
+            decay = 0.5 ** (scenario_age / TEXT_HALF_LIFE_DAYS)
             for name in FACTOR_NAMES:
                 current = float(latest_factors.get(name, 0.0))
                 addition = float(scores.get(name, 0.0)) * decay
-                latest_factors[name] = (current + addition) / 2 if current and addition else current + addition
+                raw_current = math.atanh(max(min(current, 1 - 1e-12), -1 + 1e-12))
+                latest_factors[name] = math.tanh(raw_current + addition)
         scenario_pressure = dict(historical_pressure)
         current_pressure = float(scenario_pressure.get(latest_date, 0.0))
         added_pressure = float(rule_pressure(activated)) * decay if scenario_active else 0.0
-        scenario_pressure[latest_date] = (
-            (current_pressure + added_pressure) / 2 if current_pressure and added_pressure
-            else current_pressure + added_pressure
-        )
+        raw_current_pressure = math.atanh(max(min(current_pressure, 1 - 1e-12), -1 + 1e-12))
+        scenario_pressure[latest_date] = math.tanh(raw_current_pressure + added_pressure)
         marginal_model = live_probabilities(market, scenario_factors, scenario_pressure)
         updated = dict(marginal_model.get("probabilities", baseline_probs))
     factor_rows = [{"name": name, "label": FACTOR_LABELS[name], "score": scores[name]} for name in FACTOR_NAMES]
@@ -620,8 +677,10 @@ def analyze_document(payload: dict[str, Any]) -> dict[str, Any]:
         "marginal_model": {
             "route": "fusion_rules", "same_frozen_training_sample": True,
             "effective_trade_date": scenario_effective_date, "active_in_latest_window": scenario_active,
+            "scenario_alignment": scenario_alignment,
             "data_sufficient": marginal_model.get("data_sufficient", False),
             "feature_contributions": marginal_model.get("feature_contributions", []),
+            "probability_decomposition": marginal_model.get("probability_decomposition", {}),
         },
         "evidence_chain": {
             "document_id": document["doc_id"], "event_ids": [row.get("event_id", "llm-event") for row in events],
@@ -650,7 +709,7 @@ def append_review(payload: dict[str, Any]) -> dict[str, Any]:
         "document_id": document_id, "decision": decision,
         "reviewer": str(payload.get("reviewer", "人工审核员")).strip()[:100] or "人工审核员",
         "comment": str(payload.get("comment", "")).strip()[:1000], "reviewed_at": reviewed_at,
-        "model_version": "rates-text-factor-v2", "immutable": True,
+        "model_version": "rates-text-factor-v3", "immutable": True,
     }
     with REVIEW_PATH.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(row, ensure_ascii=False) + "\n")
@@ -746,12 +805,15 @@ def build_rates_outputs() -> dict[str, Any]:
         route["timeline_retained"] = len(route["timeline"])
     _write_json(BACKTEST_PATH, artifact_backtest)
     manifest = {
-        "version": "rates-model-v2", "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "version": "rates-model-v3", "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "target": TARGET_NAME, "horizon_trading_days": HORIZON_TRADING_DAYS,
         "flat_threshold_bp": FLAT_THRESHOLD_BP, "routes": list(ROUTES),
         "split_policy": backtest.get("split_policy"), "periods": backtest.get("periods"),
         "text_decay_days": TEXT_DECAY_DAYS, "text_half_life_days": TEXT_HALF_LIFE_DAYS,
+        "text_overlay_weight": TEXT_OVERLAY_WEIGHT, "rule_logit_weight": RULE_LOGIT_WEIGHT,
+        "enhancement_policy": "market_anchored_text_overlay_then_rule_prior",
         "minimum_independent_events_per_factor": MINIMUM_INDEPENDENT_EVENTS,
+        "enhancement_version": ENHANCEMENT_VERSION,
         "factor_evidence": factor_evidence,
         "structured_rows": len(structured), "structured_data_errors": structured_errors,
         "structured_data_status": structured_status if not structured_errors else "invalid",
@@ -762,23 +824,24 @@ def build_rates_outputs() -> dict[str, Any]:
         "disclaimer": DISCLAIMER, "research_boundary": RESEARCH_BOUNDARY,
     }
     _write_json(MODEL_MANIFEST_PATH, manifest)
+    demo_date = market[-1]["trade_date"] if market else date.today().isoformat()
     demo_cases = [
         {
             "case_id": "pboc-liquidity-injection", "title": "公开市场逆回购操作",
             "content": "中国人民银行开展逆回购操作，向市场投放流动性，保持银行体系流动性合理充裕。",
-            "source_name": "中国人民银行", "publish_time": "2026-08-28T09:30:00",
+            "source_name": "中国人民银行", "publish_time": f"{demo_date}T09:30:00",
             "source_url": "https://www.pbc.gov.cn/", "expected_factor": "liquidity",
         },
         {
             "case_id": "growth-inflation-up", "title": "经济运行和价格水平回升",
             "content": "经济运行延续回升态势，PMI扩张，CPI同比回升，物价上涨压力有所增加。",
-            "source_name": "国家统计局", "publish_time": "2026-08-28T10:00:00",
+            "source_name": "国家统计局", "publish_time": f"{demo_date}T10:00:00",
             "source_url": "https://www.stats.gov.cn/", "expected_rule": "R-GROWTH-INF-01",
         },
         {
             "case_id": "bond-supply-tight-funding", "title": "政府债发行与资金面",
             "content": "政府债券加快发行并形成集中供给，DR007上行，银行间资金面偏紧。",
-            "source_name": "财政部", "publish_time": "2026-08-28T16:00:00",
+            "source_name": "财政部", "publish_time": f"{demo_date}T16:00:00",
             "source_url": "https://www.mof.gov.cn/", "expected_rule": "R-SUPPLY-LIQ-02",
         },
     ]
@@ -845,8 +908,13 @@ def _research_report(
             f"{float(holdout.get('macro_auc_ovr') or 0):.4f} |"
         )
     bootstrap = backtest.get("holdout_increment_bootstrap", {})
+    diagnostics = backtest.get("enhancement_diagnostics", {})
+    text_effect = diagnostics.get("text_overlay", {})
+    rule_effect = diagnostics.get("rule_prior", {})
     lines.extend([
         "", f"- 结论：{backtest.get('increment_conclusion', '尚未评估')}",
+        f"- 文本叠加相对市场基线：准确率 {float(text_effect.get('accuracy_difference_vs_market') or 0):+.2%}，Macro-F1 {float(text_effect.get('macro_f1_difference_vs_market') or 0):+.4f}",
+        f"- 规则先验：{int(rule_effect.get('active_observations') or 0)} 个时间留出观测生效，平均概率改变量 {float(rule_effect.get('mean_total_variation_probability_change') or 0):.2%}，改变 {int(rule_effect.get('changed_predictions') or 0)} 次最终分类",
         f"- 规则增强相对市场基线的回顾性时间留出准确率差：{float(bootstrap.get('accuracy_difference') or 0):+.2%}",
         f"- 20个交易日移动区块Bootstrap（{bootstrap.get('block_observations', 0)}个相邻评估观测）95%区间：[{float(bootstrap.get('ci_lower_95') or 0):.2%}, {float(bootstrap.get('ci_upper_95') or 0):.2%}]",
         f"- 切分：{backtest.get('split_policy', '尚未评估')}",

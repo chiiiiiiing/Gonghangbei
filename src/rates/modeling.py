@@ -13,7 +13,9 @@ from src.rates.schema import (
     FLAT_THRESHOLD_BP,
     HORIZON_TRADING_DAYS,
     MINIMUM_TRAIN_DAYS,
+    RULE_LOGIT_WEIGHT,
     ROLLING_TRAIN_DAYS,
+    TEXT_OVERLAY_WEIGHT,
     direction_label,
 )
 
@@ -43,6 +45,32 @@ def _softmax(values: np.ndarray) -> np.ndarray:
     exp = np.exp(shifted)
     total = float(exp.sum())
     return exp / total if total else np.full(len(values), 1 / len(values))
+
+
+def blend_with_market_baseline(
+    baseline: dict[str, float], enhanced: dict[str, float], weight: float = TEXT_OVERLAY_WEIGHT,
+) -> dict[str, float]:
+    """Apply a frozen, conservative text overlay to market probabilities."""
+    if not 0.0 <= weight <= 1.0:
+        raise ValueError("文本叠加权重必须位于0到1之间")
+    values = {
+        label: (1.0 - weight) * float(baseline[label]) + weight * float(enhanced[label])
+        for label in LABELS
+    }
+    total = sum(values.values())
+    return {label: round(values[label] / total, 8) for label in LABELS}
+
+
+def apply_rule_prior(
+    probabilities: dict[str, float], pressure: float, weight: float = RULE_LOGIT_WEIGHT,
+) -> dict[str, float]:
+    """Tilt up/down log probabilities with the frozen economic rule pressure."""
+    bounded_pressure = max(min(float(pressure), 1.0), -1.0)
+    logits = np.log(np.asarray([max(float(probabilities[label]), 1e-12) for label in LABELS]))
+    logits[LABELS.index("down")] -= weight * bounded_pressure
+    logits[LABELS.index("up")] += weight * bounded_pressure
+    adjusted = _softmax(logits)
+    return {label: round(float(adjusted[index]), 8) for index, label in enumerate(LABELS)}
 
 
 def _fit_predict(
@@ -248,7 +276,14 @@ def evaluate_route(
     horizon_trading_days: int = HORIZON_TRADING_DAYS,
     threshold_bp: float = FLAT_THRESHOLD_BP,
 ) -> dict[str, Any]:
-    features = _feature_rows(market_rows, factors_by_date, rule_pressure_by_date, route)
+    # Rules are applied as an explicit prior after the statistical fusion fit;
+    # they are not duplicated as a highly collinear fitted feature.
+    statistical_route = "fusion" if route == "fusion_rules" else route
+    features = _feature_rows(market_rows, factors_by_date, rule_pressure_by_date, statistical_route)
+    baseline_features = (
+        _feature_rows(market_rows, factors_by_date, rule_pressure_by_date, "market_baseline")
+        if route in {"fusion", "fusion_rules"} else None
+    )
     labels = labels_for_market(market_rows, horizon_trading_days, threshold_bp)
     actual: list[str] = []
     predicted: list[str] = []
@@ -265,9 +300,21 @@ def evaluate_route(
         ]
         if len(train_indices) < minimum_train:
             continue
-        probs, _weights, _point, _scales = _fit_predict(
+        raw_probs, _weights, _point, _scales = _fit_predict(
             [features[item] for item in train_indices], [str(labels[item]) for item in train_indices], features[index]
         )
+        if baseline_features is not None:
+            baseline_probs, _base_weights, _base_point, _base_scales = _fit_predict(
+                [baseline_features[item] for item in train_indices],
+                [str(labels[item]) for item in train_indices],
+                baseline_features[index],
+            )
+            probs = blend_with_market_baseline(baseline_probs, raw_probs)
+        else:
+            probs = raw_probs
+        current_rule_pressure = float(rule_pressure_by_date.get(str(market_rows[index]["trade_date"]), 0.0))
+        if route == "fusion_rules":
+            probs = apply_rule_prior(probs, current_rule_pressure)
         prediction = max(LABELS, key=lambda label: probs[label])
         truth = str(labels[index])
         actual.append(truth)
@@ -280,6 +327,8 @@ def evaluate_route(
             "train_origin_end": market_rows[train_indices[-1]]["trade_date"],
             "label_known_through": market_rows[train_indices[-1] + horizon_trading_days]["trade_date"],
             "train_observations": len(train_indices), "period": _period(str(market_rows[index]["trade_date"])),
+            "text_overlay_weight": TEXT_OVERLAY_WEIGHT if baseline_features is not None else None,
+            "rule_pressure_applied": current_rule_pressure if route == "fusion_rules" else 0.0,
         })
     overall = _metrics(actual, predicted, probabilities)
     period_metrics: list[dict[str, Any]] = []
@@ -309,6 +358,13 @@ def evaluate_route(
             "minimum_train_days": minimum_train, "label_embargo_days": horizon_trading_days,
             "evaluation_stride_days": evaluation_stride, "horizon_trading_days": horizon_trading_days,
             "threshold_bp": threshold_bp, "shuffle": False,
+            "text_overlay_weight": TEXT_OVERLAY_WEIGHT if baseline_features is not None else None,
+            "rule_logit_weight": RULE_LOGIT_WEIGHT if route == "fusion_rules" else None,
+            "enhancement_policy": (
+                "market_anchored_text_overlay_then_rule_prior"
+                if route == "fusion_rules" else
+                "market_anchored_text_overlay" if route == "fusion" else "standalone_fit"
+            ),
         },
     }
 
@@ -322,7 +378,12 @@ def live_probabilities(
     rolling_window: int = ROLLING_TRAIN_DAYS,
 ) -> dict[str, Any]:
     labels = labels_for_market(market_rows)
-    features = _feature_rows(market_rows, factors_by_date, rule_pressure_by_date, route)
+    statistical_route = "fusion" if route == "fusion_rules" else route
+    features = _feature_rows(market_rows, factors_by_date, rule_pressure_by_date, statistical_route)
+    baseline_features = (
+        _feature_rows(market_rows, factors_by_date, rule_pressure_by_date, "market_baseline")
+        if route in {"fusion", "fusion_rules"} else None
+    )
     latest = len(market_rows) - 1
     earliest = max(0, latest - rolling_window)
     train_indices = [
@@ -336,14 +397,51 @@ def live_probabilities(
             "predicted_label": "insufficient", "feature_contributions": [],
             "reason": f"至少需要{minimum_train + HORIZON_TRADING_DAYS}个交易日，当前仅{len(market_rows)}个",
         }
-    probs, weights, point, _scales = _fit_predict(
+    raw_probs, weights, point, _scales = _fit_predict(
         [features[index] for index in train_indices], [str(labels[index]) for index in train_indices], features[latest]
     )
+    baseline_fit = None
+    text_overlay_delta = {label: 0.0 for label in LABELS}
+    if baseline_features is not None:
+        baseline_fit = _fit_predict(
+            [baseline_features[index] for index in train_indices],
+            [str(labels[index]) for index in train_indices], baseline_features[latest],
+        )
+        probs = blend_with_market_baseline(baseline_fit[0], raw_probs)
+        text_overlay_delta = {
+            label: round(probs[label] - baseline_fit[0][label], 8) for label in LABELS
+        }
+    else:
+        probs = raw_probs
+    latest_day = str(market_rows[latest]["trade_date"])
+    current_rule_pressure = float(rule_pressure_by_date.get(latest_day, 0.0))
+    before_rule_probs = dict(probs)
+    if route == "fusion_rules":
+        probs = apply_rule_prior(probs, current_rule_pressure)
+    rule_prior_delta = {
+        label: round(probs[label] - before_rule_probs[label], 8) for label in LABELS
+    }
     predicted = max(LABELS, key=lambda label: probs[label])
     label_index = LABELS.index(predicted)
+    contribution_map: dict[str, float] = {}
+    raw_scale = TEXT_OVERLAY_WEIGHT if baseline_fit is not None else 1.0
+    for index, name in enumerate(feature_names(statistical_route)):
+        contribution_map[name] = contribution_map.get(name, 0.0) + raw_scale * float(
+            point[index] * weights[index + 1, label_index]
+        )
+    if baseline_fit is not None:
+        _base_probs, base_weights, base_point, _base_scales = baseline_fit
+        for index, name in enumerate(feature_names("market_baseline")):
+            contribution_map[name] = contribution_map.get(name, 0.0) + (1.0 - TEXT_OVERLAY_WEIGHT) * float(
+                base_point[index] * base_weights[index + 1, label_index]
+            )
+    if route == "fusion_rules":
+        # Signed value describes the prior's directional tilt even when the
+        # final class remains flat; the exact probability movement is returned
+        # separately below.
+        contribution_map["rule_pressure"] = RULE_LOGIT_WEIGHT * current_rule_pressure
     contributions = []
-    for index, name in enumerate(feature_names(route)):
-        value = float(point[index] * weights[index + 1, label_index])
+    for name, value in contribution_map.items():
         display = FACTOR_LABELS.get(name.removeprefix("text_"), name)
         contributions.append({"feature": name, "label": display, "contribution": round(value, 6)})
     contributions.sort(key=lambda row: abs(float(row["contribution"])), reverse=True)
@@ -352,7 +450,19 @@ def live_probabilities(
         "train_observations": len(train_indices), "train_start": market_rows[train_indices[0]]["trade_date"],
         "train_origin_end": market_rows[train_indices[-1]]["trade_date"],
         "label_known_through": market_rows[train_indices[-1] + HORIZON_TRADING_DAYS]["trade_date"],
-        "feature_contributions": contributions, "reason": "",
+        "feature_contributions": contributions,
+        "text_overlay_weight": TEXT_OVERLAY_WEIGHT if baseline_fit is not None else None,
+        "rule_logit_weight": RULE_LOGIT_WEIGHT if route == "fusion_rules" else None,
+        "rule_pressure_applied": current_rule_pressure if route == "fusion_rules" else 0.0,
+        "probability_decomposition": {
+            "market_baseline": baseline_fit[0] if baseline_fit is not None else None,
+            "text_model": raw_probs,
+            "after_text_overlay": before_rule_probs,
+            "text_overlay_delta": text_overlay_delta,
+            "after_rule_prior": probs,
+            "rule_prior_delta": rule_prior_delta,
+        },
+        "reason": "",
     }
 
 
